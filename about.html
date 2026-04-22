@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tell Us About You</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script type="module" src="assets/js/core/about.js"></script>
+  <style>
+    /* ── VARIABLES ───────────────────────────────────────── */
+    :root {
+      --black:   #0f0f0f;
+      --white:   #ffffff;
+      --orange:  #f04e23;
+      --orange2: #d43d14;
+      --grey:    #6b7280;
+      --light:   #f5f5f5;
+      --border:  #e5e7eb;
+      --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      min-height: 100vh;
+      background: var(--light);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; }
+
+    /* ── PAGE WRAPPER ────────────────────────────────────── */
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--white);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── PROGRESS BAR ────────────────────────────────────── */
+    .progress-container {
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--orange);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.4s ease;
+    }
+
+    /* ── DECORATIVE SHAPES ───────────────────────────────── */
+    .shape-ring-tl {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.1);
+      top: -80px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    .shape-ring-tl-inner {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.15);
+      top: -20px;
+      left: -20px;
+      pointer-events: none;
+    }
+
+    .shape-blob-br {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240,78,35,0.04) 0%, transparent 70%);
+      bottom: -150px;
+      right: -150px;
+      pointer-events: none;
+    }
+
+    .shape-ring-br {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.1);
+      bottom: 40px;
+      right: 40px;
+      pointer-events: none;
+    }
+
+    .shape-dot-grid {
+      position: absolute;
+      top: 80px;
+      right: 64px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .shape-dot-grid span {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(15,15,15,0.08);
+      display: block;
+    }
+
+    .shape-corner-br {
+      position: absolute;
+      bottom: 48px;
+      left: 56px;
+      width: 36px;
+      height: 36px;
+      border-bottom: 2px solid rgba(240,78,35,0.22);
+      border-left: 2px solid rgba(240,78,35,0.22);
+      pointer-events: none;
+    }
+
+    .shape-line-v {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.3), transparent);
+      pointer-events: none;
+    }
+
+    /* ── INNER LAYOUT ────────────────────────────────────── */
+    .inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 40px 56px 56px;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 56px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand strong {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--black);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .brand > span:not(#datetime) {
+      font-size: 12px;
+      color: var(--grey);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    #datetime {
+      font-size: 12px;
+      color: var(--grey);
+      display: block;
+      margin-top: 8px;
+    }
+
+    /* ── CONTENT AREA ────────────────────────────────────── */
+    .content {
+      max-width: 540px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .step-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--orange);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .step-label::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1.5px;
+      background: var(--orange);
+    }
+
+    h1 {
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      margin-bottom: 36px;
+      color: var(--black);
+      line-height: 1.35;
+    }
+
+    /* section titles */
+    .subtitle {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subtitle::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── FORM ────────────────────────────────────────────── */
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-family: var(--font);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      background: #fafafa;
+      color: var(--black);
+      transition: border-color 0.2s, background 0.2s;
+      appearance: none;
+      margin-bottom: 0;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--orange);
+      background: var(--white);
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    /* checkbox */
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--grey);
+      margin-top: 20px;
+      line-height: 1.6;
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      margin-top: 3px;
+      accent-color: var(--orange);
+      cursor: pointer;
+    }
+
+    .checkbox-label a {
+      color: var(--orange);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .checkbox-label a:hover {
+      color: var(--orange2);
+    }
+
+    /* ── ACTIONS ─────────────────────────────────────────── */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .cta-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 13px 24px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--black);
+      font-family: var(--font);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .cta-back:hover {
+      border-color: var(--black);
+    }
+
+    .cta-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 32px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 2px solid var(--orange);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cta-next:hover {
+      background: var(--orange2);
+      border-color: var(--orange2);
+      transform: translateY(-1px);
+    }
+
+    .cta-next svg, .cta-back svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .cta-skip {
+      font-size: 13px;
+      color: var(--grey);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-left: 4px;
+      transition: color 0.2s;
+    }
+
+    .cta-skip:hover {
+      color: var(--black);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .inner { padding: 36px 24px 48px; }
+      .header { margin-bottom: 40px; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .cta-next, .cta-back { justify-content: center; }
+      .cta-skip { text-align: center; }
+      .shape-dot-grid { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="xloader"></div>
+  <div class="page hide">
+
+    <!-- Progress bar -->
+    <div class="progress-container">
+      <div class="progress-bar" style="width: 50%;"></div>
+    </div>
+
+    <!-- Decorative shapes -->
+    <div class="shape-ring-tl"></div>
+    <div class="shape-ring-tl-inner"></div>
+    <div class="shape-blob-br"></div>
+    <div class="shape-ring-br"></div>
+    <div class="shape-dot-grid">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="shape-corner-br"></div>
+    <div class="shape-line-v"></div>
+
+    <div class="inner">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">
+          <span style="font-size: 30px;color: #111;"><strong>UDDER</strong></span>
+          <span style="color: grey; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">DATABASE</span>
+          <span style="margin-top: 8px;" id="datetime"></span>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="content">
+
+        <div class="step-label">Step 1 of 2</div>
+
+        <h1>TELL US MORE ABOUT YOU AND YOUR COMPANY</h1>
+
+        <form>
+
+          <div class="subtitle">Tell us about you</div>
+          <div class="field-group">
+            <input type="text"  id="clientName"  placeholder="Name *" />
+            <input type="email" id="clientEmail" placeholder="Email *" />
+            <input type="text"  id="companyName" placeholder="Company Name *" />
+          </div>
+
+          <div class="subtitle">Tell us about your company</div>
+          <div class="field-group">
+            <select id="country" name="country">
+              <option value="" selected>Country/Region</option>
+              <option>Afghanistan</option><option>Albania</option><option>Algeria</option>
+              <option>Andorra</option><option>Angola</option><option>Antigua and Barbuda</option>
+              <option>Argentina</option><option>Armenia</option><option>Australia</option>
+              <option>Austria</option><option>Azerbaijan</option><option>Bahamas</option>
+              <option>Bahrain</option><option>Bangladesh</option><option>Barbados</option>
+              <option>Belarus</option><option>Belgium</option><option>Belize</option>
+              <option>Benin</option><option>Bhutan</option><option>Bolivia</option>
+              <option>Bosnia and Herzegovina</option><option>Botswana</option><option>Brazil</option>
+              <option>Brunei</option><option>Bulgaria</option><option>Burkina Faso</option>
+              <option>Burundi</option><option>Cambodia</option><option>Cameroon</option>
+              <option>Canada</option><option>Cape Verde</option><option>Central African Republic</option>
+              <option>Chad</option><option>Chile</option><option>China</option>
+              <option>Colombia</option><option>Comoros</option><option>Congo</option>
+              <option>Costa Rica</option><option>Croatia</option><option>Cuba</option>
+              <option>Cyprus</option><option>Czech Republic</option><option>Denmark</option>
+              <option>Djibouti</option><option>Dominica</option><option>Dominican Republic</option>
+              <option>Ecuador</option><option>Egypt</option><option>El Salvador</option>
+              <option>Equatorial Guinea</option><option>Eritrea</option><option>Estonia</option>
+              <option>Eswatini</option><option>Ethiopia</option><option>Fiji</option>
+              <option>Finland</option><option>France</option><option>Gabon</option>
+              <option>Gambia</option><option>Georgia</option><option>Germany</option>
+              <option>Ghana</option><option>Greece</option><option>Grenada</option>
+              <option>Guatemala</option><option>Guinea</option><option>Guinea-Bissau</option>
+              <option>Guyana</option><option>Haiti</option><option>Honduras</option>
+              <option>Hungary</option><option>Iceland</option><option>India</option>
+              <option>Indonesia</option><option>Iran</option><option>Iraq</option>
+              <option>Ireland</option><option>Israel</option><option>Italy</option>
+              <option>Jamaica</option><option>Japan</option><option>Jordan</option>
+              <option>Kazakhstan</option><option>Kenya</option><option>Kiribati</option>
+              <option>Kuwait</option><option>Kyrgyzstan</option><option>Laos</option>
+              <option>Latvia</option><option>Lebanon</option><option>Lesotho</option>
+              <option>Liberia</option><option>Libya</option><option>Liechtenstein</option>
+              <option>Lithuania</option><option>Luxembourg</option><option>Madagascar</option>
+              <option>Malawi</option><option>Malaysia</option><option>Maldives</option>
+              <option>Mali</option><option>Malta</option><option>Marshall Islands</option>
+              <option>Mauritania</option><option>Mauritius</option><option>Mexico</option>
+              <option>Micronesia</option><option>Moldova</option><option>Monaco</option>
+              <option>Mongolia</option><option>Montenegro</option><option>Morocco</option>
+              <option>Mozambique</option><option>Myanmar</option><option>Namibia</option>
+              <option>Nauru</option><option>Nepal</option><option>Netherlands</option>
+              <option>New Zealand</option><option>Nicaragua</option><option>Niger</option>
+              <option>Nigeria</option><option>North Korea</option><option>North Macedonia</option>
+              <option>Norway</option><option>Oman</option><option>Pakistan</option>
+              <option>Palau</option><option>Panama</option><option>Papua New Guinea</option>
+              <option>Paraguay</option><option>Peru</option><option>Philippines</option>
+              <option>Poland</option><option>Portugal</option><option>Qatar</option>
+              <option>Romania</option><option>Russia</option><option>Rwanda</option>
+              <option>Saudi Arabia</option><option>Senegal</option><option>Serbia</option>
+              <option>Seychelles</option><option>Sierra Leone</option><option>Singapore</option>
+              <option>Slovakia</option><option>Slovenia</option><option>Solomon Islands</option>
+              <option>Somalia</option><option>South Africa</option><option>South Korea</option>
+              <option>South Sudan</option><option>Spain</option><option>Sri Lanka</option>
+              <option>Sudan</option><option>Suriname</option><option>Sweden</option>
+              <option>Switzerland</option><option>Syria</option><option>Taiwan</option>
+              <option>Tajikistan</option><option>Tanzania</option><option>Thailand</option>
+              <option>Timor-Leste</option><option>Togo</option><option>Tonga</option>
+              <option>Trinidad and Tobago</option><option>Tunisia</option><option>Turkey</option>
+              <option>Turkmenistan</option><option>Tuvalu</option><option>Uganda</option>
+              <option>Ukraine</option><option>United Arab Emirates</option>
+              <option>United Kingdom</option><option>United States</option>
+              <option>Uruguay</option><option>Uzbekistan</option><option>Vanuatu</option>
+              <option>Vatican City</option><option>Venezuela</option><option>Vietnam</option>
+              <option>Palestine</option><option>Yemen</option><option>Zambia</option>
+              <option>Zimbabwe</option>
+            </select>
+            <input type="number" id="headcount" placeholder="Headcount" />
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="termsOfUse" />
+            <span>
+              By submitting the form you agree with the
+              <a href="https://udder.rocks/terms-of-service" target="_blank" rel="noopener">Terms and Conditions</a>
+              and
+              <a href="https://udder.rocks/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+            </span>
+          </label>
+
+          <div class="actions">
+            <a href="index.html" class="cta-back">
+              <svg viewBox="0 0 16 16"><line x1="14" y1="8" x2="2" y2="8"/><polyline points="7,3 2,8 7,13"/></svg>
+              Back
+            </a>
+            <a href="javascript:void(0)" class="cta-next" id="aboutSelfNextBtn">
+              Next
+              <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+            </a>
+            <a href="db/" class="cta-skip">Skip for now</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

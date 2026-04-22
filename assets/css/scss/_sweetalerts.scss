@@ -1,0 +1,62 @@
+@use 'variables';
+
+div:where(.swal2-container) 
+div:where(.swal2-popup) {
+    width: fit-content !important;
+}
+
+div:where(.swal2-container) 
+h2:where(.swal2-title) {
+    font-size: 18px !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled):where(.swal2-confirm){
+  background: variables.$black !important;
+}
+
+.swal2-confirm:hover{
+  background: #333;
+}
+
+.swal2-confirm:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+.circle-tick {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  //background-color: #4CAF50; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+div.circle-tick::after {
+  content: "✔"; 
+  color: #4CAF50 !important;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.circle-error {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  //background-color: #f44336; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white !important;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+div.circle-error::after {
+  content: "✖"; 
+  color: #f44336 !important;
+  font-family: Arial, Helvetica, sans-serif;
+}

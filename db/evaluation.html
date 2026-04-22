@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My Evaluation — UDDER Database</title>
+<link rel="stylesheet" href="../assets/css/styles.css" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script type="module" src="../assets/js/core/evaluation.js"></script>
+<style>
+/* ── VARIABLES ───────────────────────────────────────── */
+:root {
+  --black:   #0f0f0f;
+  --white:   #ffffff;
+  --orange:  #f04e23;
+  --orange2: #d43d14;
+  --grey:    #6b7280;
+  --light:   #f5f5f5;
+  --border:  #e5e7eb;
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--white);
+  color: var(--black);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ════════════════════════════════════════════════════════
+   DECORATIVE SHAPES — identical to platform.html
+════════════════════════════════════════════════════════ */
+.deco-quarter-tl {
+  position: fixed;
+  top: -120px; left: -120px;
+  width: 340px; height: 340px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(240,78,35,0.12);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-quarter-tl-inner {
+  position: fixed;
+  top: -60px; left: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(240,78,35,0.04);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-dash-tr {
+  position: fixed;
+  top: 60px; right: 80px;
+  width: 80px; height: 1px;
+  background: repeating-linear-gradient(
+    90deg, rgba(240,78,35,0.3) 0px, rgba(240,78,35,0.3) 6px,
+    transparent 6px, transparent 12px
+  );
+  transform: rotate(-35deg);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-dot-grid-r {
+  position: fixed;
+  top: 50%; right: 36px;
+  transform: translateY(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-dot-grid-r span {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(15,15,15,0.09);
+  display: block;
+}
+.deco-triangle-bl {
+  position: fixed;
+  bottom: 60px; left: 48px;
+  width: 0; height: 0;
+  border-left: 22px solid transparent;
+  border-right: 22px solid transparent;
+  border-bottom: 38px solid rgba(240,78,35,0.1);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-plus-br {
+  position: fixed;
+  bottom: 80px; right: 60px;
+  width: 24px; height: 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-plus-br::before,
+.deco-plus-br::after {
+  content: '';
+  position: absolute;
+  background: rgba(240,78,35,0.25);
+  border-radius: 1px;
+}
+.deco-plus-br::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
+.deco-plus-br::after  { width: 100%; height: 2px; top: 50%; transform: translateY(-50%); }
+.deco-blob-bc {
+  position: fixed;
+  bottom: -160px; left: 50%;
+  transform: translateX(-50%);
+  width: 500px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(240,78,35,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-vline-l {
+  position: fixed;
+  top: 30%; left: 28px;
+  width: 1px; height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.35), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-square-tr {
+  position: fixed;
+  top: 40px; right: 44px;
+  width: 28px; height: 28px;
+  border: 1.5px solid rgba(240,78,35,0.2);
+  transform: rotate(18deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════════════════════
+   PAGE CONTAINER — orange top stripe like platform.html
+════════════════════════════════════════════════════════ */
+.container {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.container::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--orange);
+  width: 100%;
+}
+
+/* ════════════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════════════ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* left — back + title */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.back-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--black);
+  background: var(--white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.back-btn:hover { border-color: var(--orange); background: rgba(240,78,35,0.04); }
+
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--black);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 22px;
+  letter-spacing: 0.02em;
+}
+
+/* centre — empty flex spacer */
+.header-center { flex: 1; }
+
+/* right — brand + match score */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand a {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-decoration: none;
+}
+
+/* match score badge + circle */
+.match-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.match-score-label {
+  background: var(--black);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.match-score-circle {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 4px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black);
+  box-shadow: 0 0 0 3px rgba(240,78,35,0.12);
+  background: var(--white);
+}
+
+/* ════════════════════════════════════════════════════════
+   PLATFORM IDENTITY STRIP
+════════════════════════════════════════════════════════ */
+.platform-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+
+.platform-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.platform-logo {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.platform-logo img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+
+.platform-logo-placeholder {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--grey);
+  flex-shrink: 0;
+}
+
+.platform-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.platform-name-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1;
+}
+
+.platform-type-badge {
+  display: inline-flex;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--grey);
+  padding: 3px 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+/* match score — right side */
+.match-score-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.match-score-label {
+  background: var(--black);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.match-score-circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  box-shadow: 0 0 0 3px rgba(240,78,35,0.12);
+  background: var(--white);
+}
+
+/* ════════════════════════════════════════════════════════
+   EVALUATION TABLE
+════════════════════════════════════════════════════════ */
+.eval-table-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 48px 80px;
+}
+
+.eval-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.eval-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.eval-table tbody tr:last-child { border-bottom: none; }
+.eval-table tbody tr:hover { background: rgba(240,78,35,0.02); }
+
+.eval-table td {
+  padding: 18px 16px;
+  vertical-align: middle;
+}
+
+/* ── Criteria label cell ── */
+.eval-label-cell {
+  width: 220px;
+}
+
+.eval-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--black);
+  padding: 7px 18px;
+  white-space: nowrap;
+  min-width: 160px;
+  text-align: center;
+}
+
+/* ── Star rating cell ── */
+.eval-stars-cell {
+  width: 180px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.star {
+  font-size: 24px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: color 0.12s, transform 0.12s;
+  line-height: 1;
+  user-select: none;
+}
+
+.star.filled { color: var(--orange); }
+
+.star:hover { transform: scale(1.15); }
+
+/* ── Notes cell ── */
+.eval-notes-cell {
+  width: 180px;
+}
+
+.notes-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey);
+  padding: 7px 18px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+  min-width: 120px;
+  text-align: center;
+}
+
+.notes-btn:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(240,78,35,0.04);
+}
+
+/* notes expanded textarea */
+.notes-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: var(--font);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  color: var(--black);
+  background: var(--white);
+  transition: border-color 0.2s;
+  display: none;
+}
+
+.notes-textarea:focus { border-color: var(--orange); }
+.notes-textarea.open { display: block; }
+
+/* ── Save button row ── */
+.eval-save-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 36px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-save:hover { background: var(--orange); transform: translateY(-1px); }
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--black);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-back:hover { border-color: var(--black); }
+
+/* ── Summary stats row ── */
+.eval-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.eval-summary-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: border-left 0.2s, box-shadow 0.2s;
+}
+
+.eval-summary-card:hover {
+  border-left: 3px solid var(--orange);
+  padding-left: 17px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+.eval-summary-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  color: var(--grey);
+}
+
+.eval-summary-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--black);
+  line-height: 1.1;
+}
+
+.eval-summary-value.orange { color: var(--orange); }
+
+.eval-summary-sub {
+  font-size: 11px;
+  color: var(--grey);
+  margin-top: 2px;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--black);
+  color: rgba(255,255,255,0.5);
+  padding: 24px 48px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+footer::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--orange);
+  position: absolute;
+  top: 0; left: 0; right: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .header, .eval-table-wrap, .platform-strip { padding-left: 20px; padding-right: 20px; }
+  .eval-table-wrap { padding-left: 20px; padding-right: 20px; }
+  .deco-dot-grid-r, .deco-triangle-bl, .deco-plus-br, .deco-vline-l { display: none; }
+  .eval-label-cell { width: 160px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══ DECORATIVE SHAPES ════════════════════════════════ -->
+<div class="deco-quarter-tl"></div>
+<div class="deco-quarter-tl-inner"></div>
+<div class="deco-dash-tr"></div>
+<div class="deco-square-tr"></div>
+<div class="deco-dot-grid-r">
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+</div>
+<div class="deco-vline-l"></div>
+<div class="deco-triangle-bl"></div>
+<div class="deco-plus-br"></div>
+<div class="deco-blob-bc"></div>
+
+<!-- ═══ CONTAINER ═══════════════════════════════════════ -->
+<div class="container">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+
+    <!-- Left: back + title -->
+    <div class="header-left">
+      <a href="shortlist.html" class="back-btn" title="Go back">&#8592;</a>
+      <span class="header-title">My evaluation</span>
+    </div>
+
+    <div class="header-center"></div>
+
+    <!-- Right: brand only -->
+    <div class="header-right">
+      <div class="brand">
+        <a href="./">
+          <img src="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&name=Udder%20Logo%20Black.png"
+               height="0" style="height:auto;width:140px;border:0;"
+               width="140" alt="Udder Logo Black" loading="lazy"
+               srcset="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=83&name=Udder%20Logo%20Black.png 83w,
+                       https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&name=Udder%20Logo%20Black.png 166w,
+                       https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=332&name=Udder%20Logo%20Black.png 332w"
+               sizes="(max-width:166px) 100vw, 166px">
+          <span style="color:grey;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;text-align:right;display:block;margin-top:4px;">Database</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PLATFORM IDENTITY STRIP ── -->
+  <div class="platform-strip">
+    <div class="platform-identity">
+      <div class="platform-logo" id="platformLogoWrap">
+        <img src="" alt="platform logo" id="platformLogo" style="display:none;">
+        <div class="platform-logo-placeholder" id="platformLogoPlaceholder">36</div>
+      </div>
+      <div class="platform-info">
+        <span class="platform-name-text" id="platformNameDisplay">360Learning</span>
+        <span class="platform-type-badge" id="platformTypeDisplay">LMS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EVALUATION TABLE ── -->
+  <div class="eval-table-wrap">
+
+    <!-- Summary stats row -->
+    <div class="eval-summary">
+      <div class="eval-summary-card">
+        <div class="eval-summary-label">Match Score</div>
+        <div class="eval-summary-value orange" id="matchScoreDisplay">92%</div>
+        <div class="eval-summary-sub">Based on your requirements</div>
+      </div>
+      <div class="eval-summary-card">
+        <div class="eval-summary-label">Your Rating</div>
+        <div class="eval-summary-value" id="overallRating">3.4 / 5</div>
+        <div class="eval-summary-sub">Across 5 criteria</div>
+      </div>
+      <div class="eval-summary-card">
+        <div class="eval-summary-label">Criteria Rated</div>
+        <div class="eval-summary-value" id="criteriaRated">5 / 5</div>
+        <div class="eval-summary-sub">All criteria evaluated</div>
+      </div>
+      <div class="eval-summary-card">
+        <div class="eval-summary-label">Notes Added</div>
+        <div class="eval-summary-value" id="notesCount">0</div>
+        <div class="eval-summary-sub">Click Notes box to add</div>
+      </div>
+    </div>
+
+    <table class="eval-table" id="evalTable">
+      <tbody>
+
+        <tr>
+          <td class="eval-label-cell">
+            <span class="eval-label">Module availability</span>
+          </td>
+          <td class="eval-stars-cell">
+            <div class="star-rating">
+              <span class="star filled" data-val="1">★</span>
+              <span class="star filled" data-val="2">★</span>
+              <span class="star filled" data-val="3">★</span>
+              <span class="star filled" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </td>
+          <td class="eval-notes-cell">
+            <button class="notes-btn" onclick="toggleNote(this)">Notes box</button>
+            <textarea class="notes-textarea" placeholder="Add your notes here…"></textarea>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="eval-label-cell">
+            <span class="eval-label">User interface</span>
+          </td>
+          <td class="eval-stars-cell">
+            <div class="star-rating">
+              <span class="star filled" data-val="1">★</span>
+              <span class="star filled" data-val="2">★</span>
+              <span class="star filled" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </td>
+          <td class="eval-notes-cell">
+            <button class="notes-btn" onclick="toggleNote(this)">Notes box</button>
+            <textarea class="notes-textarea" placeholder="Add your notes here…"></textarea>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="eval-label-cell">
+            <span class="eval-label">Geographic coverage</span>
+          </td>
+          <td class="eval-stars-cell">
+            <div class="star-rating">
+              <span class="star filled" data-val="1">★</span>
+              <span class="star filled" data-val="2">★</span>
+              <span class="star filled" data-val="3">★</span>
+              <span class="star filled" data-val="4">★</span>
+              <span class="star filled" data-val="5">★</span>
+            </div>
+          </td>
+          <td class="eval-notes-cell">
+            <button class="notes-btn" onclick="toggleNote(this)">Notes box</button>
+            <textarea class="notes-textarea" placeholder="Add your notes here…"></textarea>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="eval-label-cell">
+            <span class="eval-label">Integration options</span>
+          </td>
+          <td class="eval-stars-cell">
+            <div class="star-rating">
+              <span class="star filled" data-val="1">★</span>
+              <span class="star filled" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </td>
+          <td class="eval-notes-cell">
+            <button class="notes-btn" onclick="toggleNote(this)">Notes box</button>
+            <textarea class="notes-textarea" placeholder="Add your notes here…"></textarea>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="eval-label-cell">
+            <span class="eval-label">Fit to our business</span>
+          </td>
+          <td class="eval-stars-cell">
+            <div class="star-rating">
+              <span class="star filled" data-val="1">★</span>
+              <span class="star filled" data-val="2">★</span>
+              <span class="star filled" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </td>
+          <td class="eval-notes-cell">
+            <button class="notes-btn" onclick="toggleNote(this)">Notes box</button>
+            <textarea class="notes-textarea" placeholder="Add your notes here…"></textarea>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <!-- Save row -->
+    <div class="eval-save-row">
+      <a href="shortlist.html" class="btn-back">← Back to results</a>
+      <button class="btn-save" id="saveEvalBtn">Save evaluation</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">
+        <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png" class="hs-image-widget " style="width:166px;border-width:0px;border:0px;" width="166" alt="Udder_White" title="Udder_White" loading="lazy" srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&amp;name=Udder_White.png 83w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png 166w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=249&amp;name=Udder_White.png 249w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=332&amp;name=Udder_White.png 332w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=415&amp;name=Udder_White.png 415w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=498&amp;name=Udder_White.png 498w" sizes="(max-width: 166px) 100vw, 166px">
+        <br/><span style="color: white;font-size: 16px;margin-left: 60px;">DATABASE</span>
+        <br/><br/>©2026 The Udder Group Limited, trading as Udder.
+      </div>
+      <div class="link-column">
+      <a href="https://udder.rocks/vendor-selection-consulting-service">Vendor Selection</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index by Udder</a><br/>
+      <a href="https://udder.rocks/technical-consulting-service">Technical Consulting</a><br/>
+      <a href="https://udder.rocks/integration-consulting-service">Integration Consulting</a><br/>
+      <a href="https://udder.rocks/implementation-services">Implementation</a><br/>
+      <a href="https://udder.rocks/tech-healthcheck-service">Tech Healthcheck</a>
+    </div>
+    <div class="link-column">
+      <a href="https://udder.rocks/assist">Assist</a><br/>
+      <a href="https://udder.rocks/ai-augment">AI Augment</a><br/>
+      <a href="https://udder.rocks/hr-tech-implementation-case-studies">Case Studies</a><br/>
+      <a href="https://blog.udder.rocks/the-udder-blog">Blog</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index</a><br/>
+      <a href="https://udder.rocks/about-us">About</a><br/>
+      <a href="https://udder.rocks/contact-us">Let's Talk</a>
+    </div>
+    <div>
+      <a href="//udder.rocks/privacy-policy?hsLang=en" rel="noopener" target="_blank">Privacy Policy</a><br/>
+      <a href="//udder.rocks/terms-of-service?hsLang=en" rel="noopener" target="_blank">Terms of Service</a>
+    </div>
+</footer>
+
+<script>
+  // ── Toggle notes textarea ──
+  function toggleNote(btn) {
+    const textarea = btn.nextElementSibling;
+    const isOpen = textarea.classList.contains('open');
+    textarea.classList.toggle('open');
+    btn.textContent = isOpen ? 'Notes box' : 'Close notes';
+    btn.style.borderColor = isOpen ? '' : 'var(--orange)';
+    btn.style.color = isOpen ? '' : 'var(--orange)';
+    if (!isOpen) textarea.focus();
+    // update notes count
+    updateNotesCount();
+  }
+
+  function updateNotesCount() {
+    const count = document.querySelectorAll('.notes-textarea.open').length;
+    document.getElementById('notesCount').textContent = count;
+  }
+
+  // ── Interactive star rating ──
+  document.querySelectorAll('.star-rating').forEach(container => {
+    const stars = container.querySelectorAll('.star');
+
+    stars.forEach(star => {
+      star.addEventListener('mouseenter', () => {
+        const val = parseInt(star.dataset.val);
+        stars.forEach(s => {
+          s.style.color = parseInt(s.dataset.val) <= val ? 'var(--orange)' : '#e5e7eb';
+        });
+      });
+
+      container.addEventListener('mouseleave', () => {
+        stars.forEach(s => {
+          s.style.color = s.classList.contains('filled') ? 'var(--orange)' : '#e5e7eb';
+        });
+      });
+
+      star.addEventListener('click', () => {
+        const val = parseInt(star.dataset.val);
+        stars.forEach(s => {
+          s.classList.toggle('filled', parseInt(s.dataset.val) <= val);
+        });
+      });
+    });
+  });
+
+  // ── Save evaluation (placeholder) ──
+  document.getElementById('saveEvalBtn').addEventListener('click', function() {
+    this.textContent = 'Saved ✓';
+    this.style.background = '#22c55e';
+    setTimeout(() => {
+      this.textContent = 'Save evaluation';
+      this.style.background = '';
+    }, 2000);
+  });
+</script>
+
+</body>
+</html>

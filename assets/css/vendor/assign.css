@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f4f4f4;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    flex-direction: column;
+}
+
+.vendor-card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 50px 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.vendor-icon {
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    background: #efefef;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.vendor-icon svg {
+    width: 45px;
+    height: 45px;
+    stroke: #666;
+}
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #111;
+}
+
+p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    padding: 14px;
+    border: none;
+    border-radius: 15px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-dark {
+    background: black;
+    color: white;
+}
+
+.btn-dark:hover {
+    opacity: 0.9;
+}
+
+.btn-light {
+    background: #efefef;
+    color: black;
+}
+
+.btn-light:hover {
+    background: #e5e5e5;
+}
+
+@media (max-width: 500px) {
+    .vendor-card {
+        padding: 40px 20px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: #777;
+}
+.privacy-policy{
+  font-size: 12px;
+  margin-top: 20px;
+}
+
+.modal-container-body{
+    display: inline-table !important;
+}
+
+.modal-container {
+    overflow: visible !important;
+    width: 500px;
+}
+.cta{
+    width: 100% !important;
+}
+
+.modal-btn-group{
+    margin: 20px 0px 20px 0px;
+}

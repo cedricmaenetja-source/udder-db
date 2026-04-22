@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Describe Your System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script type="module" src="assets/js/core/request.js"></script>
+
+  <style>
+    /* ── VARIABLES ───────────────────────────────────────── */
+    :root {
+      --black:   #0f0f0f;
+      --white:   #ffffff;
+      --orange:  #f04e23;
+      --orange2: #d43d14;
+      --grey:    #6b7280;
+      --light:   #f5f5f5;
+      --border:  #e5e7eb;
+      --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      min-height: 100vh;
+      background: var(--light);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      color: var(--black);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; }
+
+    /* ── PAGE WRAPPER ────────────────────────────────────── */
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--white);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── PROGRESS BAR ────────────────────────────────────── */
+    .progress-container {
+      width: 100%;
+      height: 3px;
+      background: var(--border);
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--orange);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.4s ease;
+    }
+
+    /* ── DECORATIVE SHAPES ───────────────────────────────── */
+
+    /* top-right: rings */
+    .shape-ring-tr {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.1);
+      top: -90px;
+      right: -90px;
+      pointer-events: none;
+    }
+
+    .shape-ring-tr-inner {
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.16);
+      top: -30px;
+      right: -30px;
+      pointer-events: none;
+    }
+
+    /* bottom-left: blob + ring */
+    .shape-blob-bl {
+      position: absolute;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(240,78,35,0.04) 0%, transparent 70%);
+      bottom: -140px;
+      left: -140px;
+      pointer-events: none;
+    }
+
+    .shape-ring-bl {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(240,78,35,0.09);
+      bottom: 50px;
+      left: 40px;
+      pointer-events: none;
+    }
+
+    /* dot grid — top left */
+    .shape-dot-grid {
+      position: absolute;
+      top: 80px;
+      left: 64px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .shape-dot-grid span {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(15,15,15,0.08);
+      display: block;
+    }
+
+    /* corner bracket — bottom right */
+    .shape-corner-br {
+      position: absolute;
+      bottom: 48px;
+      right: 56px;
+      width: 36px;
+      height: 36px;
+      border-bottom: 2px solid rgba(240,78,35,0.22);
+      border-right: 2px solid rgba(240,78,35,0.22);
+      pointer-events: none;
+    }
+
+    /* vertical accent line — centre top */
+    .shape-line-v {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.28), transparent);
+      pointer-events: none;
+    }
+
+    /* arc — bottom centre */
+    .shape-arc-b {
+      position: absolute;
+      width: 260px;
+      height: 130px;
+      border-radius: 0 0 130px 130px;
+      border: 1.5px solid rgba(240,78,35,0.08);
+      border-top: none;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    /* ── INNER LAYOUT ────────────────────────────────────── */
+    .inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 40px 56px 56px;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 56px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #datetime {
+      font-size: 12px;
+      color: var(--grey);
+      display: block;
+      margin-top: 8px;
+    }
+
+    /* ── CONTENT AREA ────────────────────────────────────── */
+    .content {
+      max-width: 580px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* step label */
+    .step-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--orange);
+      font-weight: 600;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+
+    .step-label::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1.5px;
+      background: var(--orange);
+    }
+
+    h1 {
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 400 !important;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      color: var(--black);
+      line-height: 1.35;
+      text-align: left;
+      align-self: flex-start;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--grey);
+      font-weight: 300;
+      margin-bottom: 32px;
+      text-align: left;
+      align-self: flex-start;
+      line-height: 1.6;
+    }
+
+    /* ── TEXTAREA ────────────────────────────────────────── */
+    .textarea-wrapper {
+      width: 100%;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .textarea-wrapper::before {
+      content: '✨';
+      position: absolute;
+      top: 16px;
+      left: 18px;
+      font-size: 16px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .auto-grow {
+      width: 100%;
+      min-height: 120px;
+      max-height: 320px;
+      padding: 16px 18px 16px 46px;
+      font-size: 15px;
+      font-family: var(--font);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      resize: none;
+      overflow: hidden;
+      background: #fafafa;
+      color: var(--black);
+      line-height: 1.65;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .auto-grow:focus {
+      border-color: var(--orange);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(240,78,35,0.08);
+    }
+
+    .auto-grow::placeholder {
+      color: #bbb;
+    }
+
+    .char-hint {
+      font-size: 12px;
+      color: var(--grey);
+      text-align: right;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+    /* ── ACTIONS ─────────────────────────────────────────── */
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .cta-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 13px 24px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--black);
+      font-family: var(--font);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .cta-back:hover {
+      border-color: var(--black);
+    }
+
+    .cta-search {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 32px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 2px solid var(--orange);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cta-search:hover {
+      background: var(--orange2);
+      border-color: var(--orange2);
+      transform: translateY(-1px);
+    }
+
+    .cta-search svg, .cta-back svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .cta-skip {
+      font-size: 13px;
+      color: var(--grey);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-left: 4px;
+      transition: color 0.2s;
+    }
+
+    .cta-skip:hover {
+      color: var(--black);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .inner { padding: 36px 24px 48px; }
+      .header { margin-bottom: 40px; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .cta-search, .cta-back { justify-content: center; }
+      .cta-skip { text-align: center; }
+      .shape-dot-grid { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- Progress bar -->
+    <div class="progress-container">
+      <div class="progress-bar" style="width: 100%;"></div>
+    </div>
+
+    <!-- Decorative shapes -->
+    <div class="shape-ring-tr"></div>
+    <div class="shape-ring-tr-inner"></div>
+    <div class="shape-blob-bl"></div>
+    <div class="shape-ring-bl"></div>
+    <div class="shape-dot-grid">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="shape-corner-br"></div>
+    <div class="shape-line-v"></div>
+    <div class="shape-arc-b"></div>
+
+    <div class="inner">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="brand">
+          <span style="font-size: 30px; color: var(--black);"><strong>UDDER</strong></span>
+          <span style="color: grey; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">DATABASE</span>
+          <span style="margin-top: 8px;" id="datetime"></span>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="content">
+
+        <div class="step-label">Step 2 of 2</div>
+
+        <h1>DESCRIBE WHAT SYSTEM YOU'RE LOOKING FOR</h1>
+
+        <p class="subtitle">
+          Use plain language — the more detail you give, the better your matches will be.
+        </p>
+
+        <div class="textarea-wrapper">
+          <textarea
+            id="searchInput"
+            class="auto-grow"
+            placeholder="e.g. HR tool with payroll and onboarding for startups with 50–200 employees in South Africa"
+          ></textarea>
+        </div>
+        <div class="char-hint">Be as specific as you like</div>
+
+        <div class="actions">
+          <a href="about.html" class="cta-back">
+            <svg viewBox="0 0 16 16"><line x1="14" y1="8" x2="2" y2="8"/><polyline points="7,3 2,8 7,13"/></svg>
+            Back
+          </a>
+          <a href="javascript:void(0)" class="cta-search" id="searchBtn">
+            Search
+            <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+          </a>
+          <a href="db/" class="cta-skip">Skip for now</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auto-grow textarea
+    const ta = document.getElementById('searchInput');
+    if (ta) {
+      ta.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 320) + 'px';
+      });
+    }
+
+    // Datetime
+    const dt = document.getElementById('datetime');
+    if (dt) {
+      dt.textContent = new Date().toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+  </script>
+
+</body>
+</html>

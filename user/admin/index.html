@@ -1,0 +1,1400 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Udder DB — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --black:        #0f0f0f;
+  --white:        #ffffff;
+  --orange:       #f04e23;
+  --orange2:      #d43d14;
+  --orange-light: rgba(240,78,35,0.08);
+  --orange-mid:   rgba(240,78,35,0.15);
+  --orange-border:rgba(240,78,35,0.25);
+  --grey:         #6b7280;
+  --light:        #f5f5f5;
+  --border:       #e5e7eb;
+  --sidebar-w:    240px;
+  --font:         'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--light);
+  color: var(--black);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ════════════════════════════════════
+   LAYOUT — 2 column
+════════════════════════════════════ */
+.dashboard {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════ */
+.sidebar {
+  background: var(--black);
+  border-right: none;
+  border-top: 3px solid var(--orange);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── sidebar shapes ── */
+.sb-ring {
+  position: absolute;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.07);
+  bottom: -100px; right: -100px;
+  pointer-events: none;
+}
+.sb-ring-inner {
+  position: absolute;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.04);
+  bottom: -30px; right: -30px;
+  pointer-events: none;
+}
+.sb-arc {
+  position: absolute;
+  width: 200px; height: 100px;
+  border-radius: 0 0 100px 100px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-top: none;
+  top: 50px; right: -50px;
+  pointer-events: none;
+}
+.sb-dots {
+  position: absolute;
+  top: 60px; left: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  pointer-events: none;
+  z-index: 0;
+}
+.sb-dots span {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  display: block;
+}
+.sb-vline {
+  position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.3), transparent);
+  pointer-events: none;
+}
+.sb-diamond {
+  position: absolute;
+  bottom: 96px; left: 28px;
+  width: 16px; height: 16px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+.sb-zigzag {
+  position: absolute;
+  bottom: 52px; left: 24px;
+  pointer-events: none;
+  opacity: 0.15;
+}
+.sb-cross {
+  position: absolute;
+  top: 38%; right: 28px;
+  width: 18px; height: 18px;
+  pointer-events: none;
+}
+.sb-cross::before, .sb-cross::after {
+  content: '';
+  position: absolute;
+  background: rgba(240,78,35,0.35);
+  border-radius: 1px;
+}
+.sb-cross::before { width: 18px; height: 1.5px; top: 8px; left: 0; }
+.sb-cross::after  { width: 1.5px; height: 18px; top: 0; left: 8px; }
+
+.sidebar-logo {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.35;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+}
+
+.nav-item.active {
+  background: var(--orange-mid);
+  color: var(--white);
+  font-weight: 500;
+  border-left: 3px solid var(--orange);
+  padding-left: 13px;
+  border-radius: 6px;
+}
+
+/* ════════════════════════════════════
+   MAIN CONTENT
+════════════════════════════════════ */
+.main {
+  overflow-y: auto;
+  background: var(--light);
+  padding: 32px 36px 60px;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.main::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+/* decorative shapes in main */
+.main-shape-ring {
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 1px solid rgba(240,78,35,0.07);
+  pointer-events: none;
+}
+
+.main-shape-cross {
+  position: absolute;
+  bottom: 120px; right: 48px;
+  pointer-events: none;
+}
+
+.main-shape-cross::before,
+.main-shape-cross::after {
+  content: '';
+  position: absolute;
+  background: rgba(240,78,35,0.2);
+  border-radius: 1px;
+}
+.main-shape-cross::before { width: 16px; height: 2px; top: 7px; left: 0; }
+.main-shape-cross::after  { width: 2px; height: 16px; top: 0; left: 7px; }
+
+.main-shape-dots {
+  position: absolute;
+  bottom: 80px; left: 40px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 7px;
+  pointer-events: none;
+}
+
+.main-shape-dots span {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(240,78,35,0.18);
+  display: block;
+}
+
+.main-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+
+/* ════════════════════════════════════
+   STATS GRID — 2×2
+════════════════════════════════════ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s, transform 0.2s, border-left 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-left: 3px solid var(--orange);
+  padding-left: 19px;
+}
+
+.stat-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--grey);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.stat-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.stat-pill-value {
+  background: var(--black);
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  line-height: 1;
+  min-width: 64px;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.stat-card:hover .stat-pill-value { background: var(--orange); }
+
+.stat-pill-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--grey);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* ════════════════════════════════════
+   PAGE SECTIONS
+════════════════════════════════════ */
+.page-section {
+  padding: 28px 32px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Section header ── */
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-caption {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--orange);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--black);
+  display: inline-block;
+  line-height: 1.1;
+}
+
+.section-description {
+  font-size: 13px;
+  color: var(--grey);
+  line-height: 1.65;
+  max-width: 600px;
+}
+
+/* ── Vendor table ── */
+.vendor-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.vendor-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.vendor-table-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: -0.2px;
+}
+
+.vendor-count-badge {
+  background: var(--light);
+  border: 1px solid var(--border);
+  color: var(--grey);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 8px;
+}
+
+.vendor-table-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: var(--light);
+  transition: border-color 0.2s;
+}
+
+.vendor-table-search:focus-within {
+  border-color: var(--orange);
+  background: var(--white);
+}
+
+.vendor-table-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--black);
+  width: 180px;
+}
+
+.vendor-table-search input::placeholder { color: #bbb; }
+
+.vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vendor-table thead th {
+  padding: 11px 20px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--grey);
+  background: var(--light);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.vendor-table thead th:hover { color: var(--black); }
+
+.vendor-table thead th .sort-arrow {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0.4;
+  font-size: 10px;
+}
+
+.vendor-table thead th.sorted { color: var(--orange); }
+.vendor-table thead th.sorted .sort-arrow { opacity: 1; color: var(--orange); }
+
+.vendor-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.vendor-table tbody tr:last-child { border-bottom: none; }
+.vendor-table tbody tr:hover { background: rgba(240,78,35,0.03); }
+
+.vendor-table tbody td {
+  padding: 13px 20px;
+  color: var(--black);
+  vertical-align: middle;
+}
+
+/* platform cell */
+.platform-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.platform-avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--light);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--grey);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.platform-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--black);
+}
+
+/* vendor chip */
+.vendor-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--black);
+  font-weight: 400;
+}
+
+/* certification badge */
+.cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.cert-badge.accredited {
+  background: rgba(34,197,94,0.1);
+  color: #15803d;
+  border: 1px solid rgba(34,197,94,0.2);
+}
+
+.cert-badge.not-accredited {
+  background: var(--light);
+  color: var(--grey);
+  border: 1px solid var(--border);
+}
+
+/* progress bar */
+.progress-cell { min-width: 120px; }
+
+.progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-bar-track {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--orange);
+  transition: width 0.3s ease;
+}
+
+.progress-bar-fill.low { background: #ef4444; }
+.progress-bar-fill.mid { background: #f59e0b; }
+.progress-bar-fill.high { background: #22c55e; }
+
+.progress-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--black);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ── Account settings form ── */
+.settings-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 32px 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  max-width: 620px;
+}
+
+.settings-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  color: var(--grey);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.settings-row .settings-field { margin-bottom: 0; }
+
+.settings-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--grey);
+}
+
+.settings-input {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: var(--font);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  background: var(--white);
+  color: var(--black);
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.settings-input:focus { border-color: var(--orange); }
+.settings-input::placeholder { color: #bbb; }
+
+.settings-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0 24px;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-save-btn {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 11px 32px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.settings-save-btn:hover {
+  background: var(--orange);
+  transform: translateY(-1px);
+}
+
+
+.status-select {
+  appearance: none;
+  border: none;
+  outline: none;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 28px 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' stroke='currentColor' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: box-shadow 0.15s;
+}
+
+.status-select:hover { box-shadow: 0 0 0 2px rgba(240,78,35,0.2); }
+.status-select:focus { box-shadow: 0 0 0 2px rgba(240,78,35,0.35); }
+
+.status-select.certified {
+  background-color: rgba(34,197,94,0.1);
+  color: #15803d;
+  border: 1px solid rgba(34,197,94,0.2);
+}
+.status-select.in-review {
+  background-color: rgba(234,179,8,0.1);
+  color: #a16207;
+  border: 1px solid rgba(234,179,8,0.2);
+}
+.status-select.pending {
+  background-color: rgba(249,115,22,0.08);
+  color: #c2410c;
+  border: 1px solid rgba(249,115,22,0.18);
+}
+.status-select.rejected {
+  background-color: rgba(239,68,68,0.08);
+  color: #b91c1c;
+  border: 1px solid rgba(239,68,68,0.18);
+}
+
+/* plan badge */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.plan-badge.approved {
+  background: var(--orange);
+  color: var(--white);
+  border: 1px solid var(--orange);
+}
+
+.plan-badge.validated {
+  background: var(--black);
+  color: var(--white);
+  border: 1px solid var(--black);
+}
+
+/* cert status */
+.cert-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.cert-status::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cert-status.certified {
+  background: rgba(34,197,94,0.1);
+  color: #15803d;
+  border: 1px solid rgba(34,197,94,0.2);
+}
+.cert-status.certified::before { background: #22c55e; }
+
+.cert-status.in-review {
+  background: rgba(234,179,8,0.1);
+  color: #a16207;
+  border: 1px solid rgba(234,179,8,0.2);
+}
+.cert-status.in-review::before { background: #eab308; }
+
+.cert-status.pending {
+  background: rgba(249,115,22,0.08);
+  color: #c2410c;
+  border: 1px solid rgba(249,115,22,0.18);
+}
+.cert-status.pending::before { background: #f97316; }
+
+.cert-status.rejected {
+  background: rgba(239,68,68,0.08);
+  color: #b91c1c;
+  border: 1px solid rgba(239,68,68,0.18);
+}
+.cert-status.rejected::before { background: #ef4444; }
+
+
+.refresh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.refresh-badge.yes {
+  background: var(--orange-light);
+  color: var(--orange2);
+  border: 1px solid var(--orange-border);
+}
+
+.refresh-badge.no {
+  background: var(--light);
+  color: var(--grey);
+  border: 1px solid var(--border);
+}
+
+.chart-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 24px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  position: relative;
+  z-index: 1;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--grey);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-container {
+  position: relative;
+  height: 260px;
+}
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+
+  <!-- ═══ SIDEBAR ══════════════════════════════ -->
+  <div class="sidebar">
+    <div class="sb-ring"></div>
+    <div class="sb-ring-inner"></div>
+    <div class="sb-arc"></div>
+    <div class="sb-dots">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    <div class="sb-vline"></div>
+    <div class="sb-diamond"></div>
+    <div class="sb-zigzag">
+      <svg width="52" height="28" viewBox="0 0 52 28" fill="none">
+        <polyline points="0,14 9,3 18,14 27,3 36,14 45,3 52,14"
+          stroke="#ffffff" stroke-width="1.5" fill="none"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="sb-cross"></div>
+
+    <div class="sidebar-logo">
+      <a href="./">
+        <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&name=Udder_White.png"
+             style="height:auto;width:130px;border:0;" width="130" alt="Udder Logo" loading="lazy"
+             srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&name=Udder_White.png 83w,"
+                     https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&name=Udder_White.png 166w
+             sizes="(max-width:166px) 100vw, 166px">
+        <span style="display:block;color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-top:5px;margin-left:1px;">Database</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active">Analytics</button>
+      <button class="nav-item">Vendors</button>
+      <button class="nav-item">Certification requests</button>
+      <button class="nav-item">Account settings</button>
+    </nav>
+
+  </div>
+
+  <!-- ═══ MAIN ═════════════════════════════════ -->
+  <div class="main">
+
+    <!-- decorative shapes -->
+    <div class="main-shape-ring"></div>
+    <div class="main-shape-cross"></div>
+    <div class="main-shape-dots">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+
+    <div class="main-title" style="display:none;"></div>
+
+    <!-- ── VENDORS SECTION ── -->
+    <div class="page-section" id="section-vendors" style="display:none;">
+
+      <div class="section-header">
+        <h2 class="section-caption">Vendors</h2>
+        <p class="section-description">A complete list of all platforms and vendors registered in the Udder Database. Monitor certification status, profile completeness, and data refresh settings across your vendor portfolio.</p>
+      </div>
+
+      <div class="vendor-table-wrap">
+
+        <!-- toolbar -->
+        <div class="vendor-table-toolbar">
+          <div>
+            <span class="vendor-table-title">All Vendors</span>
+            <span class="vendor-count-badge">7 platforms</span>
+          </div>
+          <div class="vendor-table-search">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/>
+            </svg>
+            <input type="text" placeholder="Search platforms…" id="vendorSearch"/>
+          </div>
+        </div>
+
+        <table class="vendor-table" id="vendorTable">
+          <thead>
+            <tr>
+              <th class="sorted">Platform <span class="sort-arrow">↑</span></th>
+              <th>Vendor <span class="sort-arrow">↕</span></th>
+              <th>Certification <span class="sort-arrow">↕</span></th>
+              <th class="progress-cell">Profile completeness <span class="sort-arrow">↕</span></th>
+              <th>Auto-refresh <span class="sort-arrow">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="vendorBody">
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar">AD</div><span class="platform-name">ADP Payroll</span></div></td>
+              <td><span class="vendor-chip">ADP</span></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill mid" style="width:66%"></div></div><span class="progress-pct">66%</span></div></td>
+              <td><span class="refresh-badge yes">Yes</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar">AW</div><span class="platform-name">ADP Workforce</span></div></td>
+              <td><span class="vendor-chip">ADP</span></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill high" style="width:78%"></div></div><span class="progress-pct">78%</span></div></td>
+              <td><span class="refresh-badge yes">Yes</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:rgba(240,78,35,0.08);color:#d43d14;">SA</div><span class="platform-name">SAP HCM</span></div></td>
+              <td><span class="vendor-chip">SAP</span></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill high" style="width:92%"></div></div><span class="progress-pct">92%</span></div></td>
+              <td><span class="refresh-badge yes">Yes</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:rgba(240,78,35,0.08);color:#d43d14;">SF</div><span class="platform-name">SAP Fieldglass</span></div></td>
+              <td><span class="vendor-chip">SAP</span></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill low" style="width:42%"></div></div><span class="progress-pct">42%</span></div></td>
+              <td><span class="refresh-badge no">No</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:rgba(240,78,35,0.08);color:#d43d14;">SR</div><span class="platform-name">SmartRecruiters</span></div></td>
+              <td><span class="vendor-chip">SAP</span></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill high" style="width:80%"></div></div><span class="progress-pct">80%</span></div></td>
+              <td><span class="refresh-badge yes">Yes</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#fce7f3;color:#be185d;">HB</div><span class="platform-name">HiBob</span></div></td>
+              <td><span class="vendor-chip">HiBob</span></td>
+              <td><span class="cert-badge not-accredited">Not accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill low" style="width:14%"></div></div><span class="progress-pct">14%</span></div></td>
+              <td><span class="refresh-badge no">No</span></td>
+            </tr>
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#f3f4f6;color:#374151;">PE</div><span class="platform-name">Personio</span></div></td>
+              <td><span class="vendor-chip">Personio</span></td>
+              <td><span class="cert-badge not-accredited">Not accredited</span></td>
+              <td class="progress-cell"><div class="progress-bar-wrap"><div class="progress-bar-track"><div class="progress-bar-fill low" style="width:34%"></div></div><span class="progress-pct">34%</span></div></td>
+              <td><span class="refresh-badge no">No</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS SECTION ── -->
+    <div class="page-section" id="section-analytics">
+
+    <!-- 2×2 Stats Grid -->
+    <div class="stats-grid">
+
+      <!-- Vendors -->
+      <div class="stat-card">
+        <div class="stat-card-title">Vendors</div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-value">583</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platforms -->
+      <div class="stat-card">
+        <div class="stat-card-title">Platforms</div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-value">721</div>
+            <div class="stat-pill-label">All</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-value">421</div>
+            <div class="stat-pill-label">Accredited</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site visits -->
+      <div class="stat-card">
+        <div class="stat-card-title">Site visits</div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-value">1754</div>
+            <div class="stat-pill-label">Year-to-date</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-value">125</div>
+            <div class="stat-pill-label">Last 7 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leads -->
+      <div class="stat-card">
+        <div class="stat-card-title">Leads</div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-value">137</div>
+            <div class="stat-pill-label">Year-to-date</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-value">12</div>
+            <div class="stat-pill-label">Last 7 days</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <div class="chart-title">Site visits &amp; registered leads</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item">
+            <div class="legend-dot" style="background:#f04e23;"></div>
+            Site visits
+          </div>
+          <div class="chart-legend-item">
+            <div class="legend-dot" style="background:#0f0f0f;"></div>
+            Leads
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="overviewChart"></canvas>
+      </div>
+    </div>
+
+    </div><!-- /section-analytics -->
+
+    <!-- ── CERTIFICATION SECTION ── -->
+    <div class="page-section" id="section-certification" style="display:none;">
+
+      <div class="section-header">
+        <h2 class="section-caption">Certification Requests</h2>
+        <p class="section-description">All vendor certification submissions across Udder Validated and Udder Approved plans. Review request status, payment confirmation, and certification progress in one place.</p>
+      </div>
+
+      <div class="vendor-table-wrap">
+
+        <div class="vendor-table-toolbar">
+          <div>
+            <span class="vendor-table-title">All Requests</span>
+            <span class="vendor-count-badge">8 requests</span>
+          </div>
+          <div class="vendor-table-search">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round">
+              <circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/>
+            </svg>
+            <input type="text" placeholder="Search requests…" id="certSearch"/>
+          </div>
+        </div>
+
+        <table class="vendor-table" id="certTable">
+          <thead>
+            <tr>
+              <th>Full Name <span class="sort-arrow">↕</span></th>
+              <th>Company <span class="sort-arrow">↕</span></th>
+              <th>Plan <span class="sort-arrow">↕</span></th>
+              <th>Certify Status <span class="sort-arrow">↕</span></th>
+              <th>Payment <span class="sort-arrow">↕</span></th>
+              <th class="sorted">Date <span class="sort-arrow">↑</span></th>
+            </tr>
+          </thead>
+          <tbody id="certBody">
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#ede9fe;color:#7c3aed;">SJ</div><span class="platform-name">Sarah Johnson</span></div></td>
+              <td><span class="vendor-chip">HiBob</span></td>
+              <td><span class="plan-badge approved">Udder Approved</span></td>
+              <td><select class="status-select in-review" onchange="updateStatus(this)"><option value="in-review" selected>In review</option><option value="certified">Certified</option><option value="pending">Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">18 Apr 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#fce7f3;color:#be185d;">MT</div><span class="platform-name">Marcus Thompson</span></div></td>
+              <td><span class="vendor-chip">Personio</span></td>
+              <td><span class="plan-badge validated">Udder Validated</span></td>
+              <td><select class="status-select certified" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified" selected>Certified</option><option value="pending">Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">12 Apr 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:rgba(240,78,35,0.08);color:#d43d14;">LC</div><span class="platform-name">Lena Chen</span></div></td>
+              <td><span class="vendor-chip">SmartRecruiters</span></td>
+              <td><span class="plan-badge approved">Udder Approved</span></td>
+              <td><select class="status-select certified" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified" selected>Certified</option><option value="pending">Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">9 Apr 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#fef3c7;color:#d97706;">DP</div><span class="platform-name">David Park</span></div></td>
+              <td><span class="vendor-chip">SAP Fieldglass</span></td>
+              <td><span class="plan-badge validated">Udder Validated</span></td>
+              <td><select class="status-select pending" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified">Certified</option><option value="pending" selected>Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge not-accredited">Unpaid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">7 Apr 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#ecfdf5;color:#059669;">AR</div><span class="platform-name">Amira Rossi</span></div></td>
+              <td><span class="vendor-chip">ADP Payroll</span></td>
+              <td><span class="plan-badge approved">Udder Approved</span></td>
+              <td><select class="status-select certified" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified" selected>Certified</option><option value="pending">Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">2 Apr 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#f3f4f6;color:#374151;">JM</div><span class="platform-name">James Miller</span></div></td>
+              <td><span class="vendor-chip">SAP HCM</span></td>
+              <td><span class="plan-badge validated">Udder Validated</span></td>
+              <td><select class="status-select in-review" onchange="updateStatus(this)"><option value="in-review" selected>In review</option><option value="certified">Certified</option><option value="pending">Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">28 Mar 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#ede9fe;color:#7c3aed;">FO</div><span class="platform-name">Fatima Omar</span></div></td>
+              <td><span class="vendor-chip">ADP Workforce</span></td>
+              <td><span class="plan-badge approved">Udder Approved</span></td>
+              <td><select class="status-select rejected" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified">Certified</option><option value="pending">Pending payment</option><option value="rejected" selected>Rejected</option></select></td>
+              <td><span class="cert-badge accredited"><svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polyline points="1,5 3.5,7.5 9,2" stroke="#15803d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Paid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">20 Mar 2026</span></td>
+            </tr>
+
+            <tr>
+              <td><div class="platform-cell"><div class="platform-avatar" style="background:#fce7f3;color:#be185d;">TW</div><span class="platform-name">Tom Wilson</span></div></td>
+              <td><span class="vendor-chip">HiBob</span></td>
+              <td><span class="plan-badge validated">Udder Validated</span></td>
+              <td><select class="status-select pending" onchange="updateStatus(this)"><option value="in-review">In review</option><option value="certified">Certified</option><option value="pending" selected>Pending payment</option><option value="rejected">Rejected</option></select></td>
+              <td><span class="cert-badge not-accredited">Unpaid</span></td>
+              <td><span style="font-size:12.5px;color:var(--grey);">14 Mar 2026</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- ── ACCOUNT SETTINGS SECTION ── -->
+    <div class="page-section" id="section-account" style="display:none;">
+
+      <div class="section-header">
+        <h2 class="section-caption">Account Settings</h2>
+        <p class="section-description">Manage your admin account details. Changes to your email or password will take effect immediately upon saving.</p>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-section-title">Personal Information</div>
+
+        <div class="settings-row">
+          <div class="settings-field">
+            <label class="settings-label" for="adminFname">First Name</label>
+            <input class="settings-input" type="text" id="adminFname" placeholder="e.g. Jane">
+          </div>
+          <div class="settings-field">
+            <label class="settings-label" for="adminLname">Last Name</label>
+            <input class="settings-input" type="text" id="adminLname" placeholder="e.g. Smith">
+          </div>
+        </div>
+
+        <div class="settings-divider"></div>
+        <div class="settings-section-title">Login Details</div>
+
+        <div class="settings-field">
+          <label class="settings-label" for="adminEmail">Email Address</label>
+          <input class="settings-input" type="email" id="adminEmail" placeholder="e.g. jane@udder.rocks">
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-field">
+            <label class="settings-label" for="adminPass">New Password</label>
+            <input class="settings-input" type="password" id="adminPass" placeholder="Enter new password">
+          </div>
+          <div class="settings-field">
+            <label class="settings-label" for="adminPassConfirm">Confirm Password</label>
+            <input class="settings-input" type="password" id="adminPassConfirm" placeholder="Re-enter new password">
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button class="settings-save-btn" id="adminSaveBtn" onclick="saveAdminSettings()">Save changes</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Chart ──
+  const labels = [
+    'Jan 20','Jan 24','Feb 17','Feb 21','Mar 06','Mar 20','Apr 03','Apr 17',
+    'May 01','May 15','May 29','Jun 12'
+  ];
+
+  const visits = [32000,41000,28000,55000,63000,47000,52000,38000,70000,58000,44000,62000];
+  const leads  = [12000,18000,10000,24000,30000,20000,27000,15000,38000,31000,22000,35000];
+
+  const ctx = document.getElementById('overviewChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Site visits',
+          data: visits,
+          borderColor: '#f04e23',
+          backgroundColor: 'rgba(240,78,35,0.07)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#f04e23',
+        },
+        {
+          label: 'Leads',
+          data: leads,
+          borderColor: 'rgba(15,15,15,0.7)',
+          backgroundColor: 'rgba(15,15,15,0.04)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#0f0f0f',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f0f0f',
+          titleColor: '#fff',
+          bodyColor: 'rgba(255,255,255,0.7)',
+          padding: 10,
+          cornerRadius: 8,
+          titleFont: { family: 'Helvetica Neue', size: 11, weight: '700' },
+          bodyFont: { family: 'Helvetica Neue', size: 12 },
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: '#9ca3af',
+            font: { family: 'Helvetica Neue', size: 10 },
+            maxTicksLimit: 8,
+          }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+          border: { display: false, dash: [4,4] },
+          ticks: {
+            color: '#9ca3af',
+            font: { family: 'Helvetica Neue', size: 10 },
+            callback: v => v >= 1000 ? (v/1000).toFixed(0) + 'k' : v,
+            maxTicksLimit: 6,
+          }
+        }
+      }
+    }
+  });
+
+  // ── Save admin settings ──
+  function saveAdminSettings() {
+    const btn = document.getElementById('adminSaveBtn');
+    const pass = document.getElementById('adminPass').value;
+    const confirm = document.getElementById('adminPassConfirm').value;
+    if (pass && pass !== confirm) {
+      btn.textContent = 'Passwords don\'t match';
+      btn.style.background = '#ef4444';
+      setTimeout(() => { btn.textContent = 'Save changes'; btn.style.background = ''; }, 2200);
+      return;
+    }
+    btn.textContent = 'Saved ✓';
+    btn.style.background = '#22c55e';
+    setTimeout(() => { btn.textContent = 'Save changes'; btn.style.background = ''; }, 2000);
+  }
+
+  // ── Update certify status ──
+  function updateStatus(sel) {
+    sel.className = 'status-select ' + sel.value;
+  }
+
+  // ── Vendor search ──
+  document.getElementById('vendorSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#vendorBody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // ── Certification search ──
+  document.getElementById('certSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#certBody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  const sectionMap = {
+    'Analytics': 'section-analytics',
+    'Vendors': 'section-vendors',
+    'Certification requests': 'section-certification',
+    'Account settings': 'section-account',
+  };
+
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sectionId = sectionMap[btn.textContent.trim()];
+      document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
+      if (sectionId) document.getElementById(sectionId).style.display = 'block';
+    });
+  });
+</script>
+
+</body>
+</html>

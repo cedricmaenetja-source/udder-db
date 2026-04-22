@@ -1,0 +1,104 @@
+.app {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    padding: 24px 150px 48px 150px;
+}
+
+/* Skeleton base */
+.skeleton-line,
+.skeleton-box,
+.skeleton-button {
+    background: linear-gradient(
+        90deg,
+        #e6e6e6 25%,
+        #f2f2f2 37%,
+        #e6e6e6 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 6px;
+}
+
+.filters .skeleton-line {
+    background: #2a2a2a;
+    animation: shimmer-dark 1.4s infinite;
+}
+
+.skeleton-line {
+    height: 12px;
+    margin-bottom: 10px;
+}
+
+.skeleton-box {
+    height: 36px;
+    margin-bottom: 16px;
+}
+
+.skeleton-button {
+    height: 40px;
+    width: 100%;
+    border-radius: 999px;
+    margin-top: 20px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(240px, 1fr));
+    gap: 24px;
+    flex: 1;
+}
+
+.card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* Sizes */
+.title {
+    height: 20px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    height: 14px;
+    width: 40%;
+    margin-bottom: 20px;
+}
+
+.label {
+    height: 12px;
+    width: 50%;
+    margin: 16px 0 8px;
+}
+
+.small {
+    height: 10px;
+    width: 70%;
+    margin-bottom: 8px;
+}
+
+.short {
+    width: 50%;
+}
+
+.skeleton .filters {
+    width: 320px;
+    background: #111;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Animations */
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+@keyframes shimmer-dark {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}

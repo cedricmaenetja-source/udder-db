@@ -1,0 +1,55 @@
+.multi-select {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.multi-select .selected {
+  border: 1px solid #ccc;
+  padding: 8px;
+  cursor: pointer;
+  min-height: 38px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.multi-select .selected span {
+  background-color: #007bff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9rem;
+}
+
+.multi-select .options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  border: 1px solid #ccc;
+  background: white;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+}
+
+.multi-select .options div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.multi-select .options div:hover {
+  background-color: #f0f0f0;
+}
+
+.multi-select.open .options {
+  display: block;
+}
+.cta{
+    width: 100% !important;
+}
+.modal-container-footer{
+    text-align: center;
+    margin-bottom: 20px;
+}

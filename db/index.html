@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UDDER Database</title>
+<link rel="stylesheet" href="../assets/css/styles.css" />
+<link rel="stylesheet" href="../assets/css/chatbot.css" />
+<link rel="stylesheet" href="../assets/css/skeleton.css" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script type="module" src="../assets/js/core/main.js"></script>
+<style>
+body {
+  margin: 0;
+  background: #f5f5f5;
+  color: var(--black);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 52px;
+  background: #fff;
+}
+
+.navbar a {
+  background-color: transparent;
+}
+
+.navbar a:hover {
+  background-color: transparent;
+}
+
+.logo {
+  font-weight: 700;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  font-size: 14px;
+  color: var(--grey);
+}
+
+.nav-links a:hover{
+  color: #f04e23;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* PAGE HEADER */
+.page-header {
+  margin-bottom: 70px;
+  text-align: center;
+  padding: 80px 20px 24px;
+  background: #f04e23;
+  color: white;
+}
+
+.page-header h1 {
+  font-size: 40px;
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.page-header p {
+  font-size: 18px;
+  color: var(--grey);
+  font-weight: 300;
+}
+
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  align-items: start;
+  gap: 24px;
+  padding: 24px 150px 48px 150px;
+}
+
+/* FILTER SIDEBAR */
+.filters {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  height: fit-content;
+  width: auto;
+  font-size: 14px;
+}
+
+.filters h3 {
+  font-size: 20px;
+  margin-top: 0px;
+  font-weight: 300;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border); 
+  border-radius: 5px;
+  background: #f9fafb; 
+  font-size: 16px;
+  color: var(--black); 
+  transition: border-color 0.3s, background 0.3s;
+}
+
+/* RESULTS GRID */
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.08);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.08),
+    0 20px 40px rgba(0, 0, 0, 0.12);
+  border-left: 3px solid #f04e23;
+  padding-left: 15px; /* compensate for border width increase */
+}
+
+.card h4 {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+}
+
+.card p {
+  font-size: 13px;
+  color: var(--grey);
+  margin: 0;
+}
+
+.card ul {
+  padding-left: 18px;
+  margin: 8px 0;
+  font-size: 13px;
+  color: var(--grey);
+  line-height: 150%;
+}
+
+.card button {
+  margin-top: auto;
+  padding: 10px;
+  border-radius: 999px;
+  border: none;
+  background: var(--black);
+  color: #fff;
+  width: 100%;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.card button:hover {
+  background: #f04e23;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+.filter-title {
+  font-size: 13px;
+  color: var(--grey);
+  margin-bottom: 10px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin: 0;
+}
+
+/* =====================================================
+   UDDER THEME ADDITIONS — shapes & colour accents only
+   No class names, IDs or structural properties touched
+   ===================================================== */
+
+/* Orange top stripe on navbar */
+.navbar {
+  border-top: 3px solid #f04e23;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  top: 0;
+  z-index: 100;
+}
+
+/* Sign In pill */
+.nav-user a {
+  padding: 7px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-user a:hover {
+  border-color: #f04e23;
+  color: #f04e23;
+}
+
+/* Nav search wrapper */
+.nav-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 12px;
+  transition: border-color 0.2s;
+}
+.nav-search:focus-within { border-color: #f04e23; }
+.nav-search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  background: transparent;
+  width: 150px;
+}
+
+/* Header — internal decorative rings */
+.page-header {
+  position: relative;
+  overflow: hidden;
+}
+.page-header::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  top: -160px;
+  right: -80px;
+  pointer-events: none;
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  bottom: -80px;
+  left: 60px;
+  pointer-events: none;
+}
+
+/* Header search pill */
+.header-search input {
+  border-radius: 999px;
+  padding: 13px 22px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.14);
+  border: none;
+  outline: none;
+  font-size: 15px;
+  width: 100%;
+  max-width: 560px;
+  transition: box-shadow 0.2s;
+}
+.header-search input:focus {
+  box-shadow: 0 4px 28px rgba(0,0,0,0.22);
+}
+.header-search {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 12px;
+}
+
+/* Modal top stripe */
+.modal-box {
+  border-top: 3px solid #f04e23;
+  border-radius: 14px;
+}
+
+/* Send button orange */
+.send-btn {
+  background: #f04e23;
+  border-radius: 999px;
+  border: none;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.send-btn:hover { background: #d43d14; }
+
+/* Comparison modal top stripe */
+.comparison-modal-content {
+  border-top: 3px solid #f04e23;
+}
+
+/* FAQ badge dot */
+.faq-badge span {
+  background: #f04e23;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* FAQ open state accent */
+.faq-item.active .plus { color: #f04e23; }
+
+/* Footer top stripe */
+footer {
+  position: relative;
+}
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: #f04e23;
+}
+
+/* ── Fixed decorative shapes (behind everything) ── */
+.udder-deco {
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+}
+
+/* 1. Quarter-ring — bottom left */
+.udder-deco.ring-bl {
+  bottom: -90px; left: -90px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(240,78,35,0.13);
+}
+.udder-deco.ring-bl-2 {
+  bottom: -44px; left: -44px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(240,78,35,0.04);
+}
+
+/* 2. Zigzag SVG — top right */
+.udder-deco.zigzag-tr {
+  top: 80px; right: 52px;
+  opacity: 0.2;
+}
+
+/* 3. Vertical dot column — right edge */
+.udder-deco.dots-r {
+  top: 50%; right: 18px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.udder-deco.dots-r span {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(15,15,15,0.1);
+  display: block;
+}
+
+/* 4. Diamond — bottom right */
+.udder-deco.diamond-br {
+  bottom: 80px; right: 68px;
+  width: 20px; height: 20px;
+  border: 1.5px solid rgba(240,78,35,0.22);
+  transform: rotate(45deg);
+}
+
+/* 5. Horizontal rule — left edge */
+.udder-deco.hline-l {
+  top: 42%; left: 0;
+  width: 36px; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(240,78,35,0.4));
+}
+
+/* 6. Staggered small squares — left mid */
+.udder-deco.squares-l {
+  top: 56%; left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.udder-deco.squares-l span {
+  width: 5px; height: 5px;
+  border: 1.5px solid rgba(240,78,35,0.22);
+  display: block;
+}
+.udder-deco.squares-l span:nth-child(2) { margin-left: 10px; }
+.udder-deco.squares-l span:nth-child(3) { margin-left: 4px; }
+
+/* 7. Dot grid 4×3 — bottom right area */
+.udder-deco.dotgrid-br {
+  bottom: 110px; right: 120px;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 7px;
+}
+.udder-deco.dotgrid-br span {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(15,15,15,0.08);
+  display: block;
+}
+
+/* 8. Vertical gradient line — far right */
+.udder-deco.vline-r {
+  top: 22%; right: 42px;
+  width: 1px; height: 110px;
+  background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.28), transparent);
+}
+
+/* 9. Arc at very top centre */
+.udder-deco.arc-tc {
+  top: -55px; left: 50%;
+  transform: translateX(-50%);
+  width: 280px; height: 140px;
+  border-radius: 0 0 140px 140px;
+  border: 1px solid rgba(240,78,35,0.07);
+  border-top: none;
+}
+
+@media (max-width: 900px) {
+  .udder-deco.dots-r,
+  .udder-deco.squares-l,
+  .udder-deco.dotgrid-br,
+  .udder-deco.vline-r,
+  .udder-deco.hline-l { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- DECORATIVE SHAPES -->
+<div class="udder-deco ring-bl"></div>
+<div class="udder-deco ring-bl-2"></div>
+<div class="udder-deco zigzag-tr">
+  <svg width="60" height="36" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="0,18 10,4 20,18 30,4 40,18 50,4 60,18" stroke="#f04e23" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+<div class="udder-deco dots-r">
+  <span></span><span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
+<div class="udder-deco diamond-br"></div>
+<div class="udder-deco hline-l"></div>
+<div class="udder-deco squares-l">
+  <span></span><span></span><span></span><span></span>
+</div>
+<div class="udder-deco dotgrid-br">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span>
+</div>
+<div class="udder-deco vline-r"></div>
+<div class="udder-deco arc-tc"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="" style="font-weight: 700;">
+                <a href="./" style="text-decoration: none;"><img src="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&amp;name=Udder%20Logo%20Black.png" class="hs-image-widget " height="0" style="height: auto;width:166px;border-width:0px;border:0px;" width="166" alt="Udder Logo Black" title="Udder Logo Black" srcset="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=83&amp;name=Udder%20Logo%20Black.png 83w, https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&amp;name=Udder%20Logo%20Black.png 166w, https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=249&amp;name=Udder%20Logo%20Black.png 249w, https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=332&amp;name=Udder%20Logo%20Black.png 332w, https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=415&amp;name=Udder%20Logo%20Black.png 415w, https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=498&amp;name=Udder%20Logo%20Black.png 498w" sizes="(max-width: 166px) 100vw, 166px" loading="lazy"> <br/><span style="color: grey;font-size: 16px;margin-left: 60px;">DATABASE</span></a>
+            </div>
+  <div class="nav-links">
+    <a href="javascript:void(0)" style="text-decoration: none;font-weight: 400;padding: unset;box-shadow:none;" class="cta link" id="categoriesBtn">Categories</a>
+    <a href="javascript:void(0)" style="text-decoration: none;font-weight: 400;padding: unset;box-shadow:none;" class="cta link" id="moreBtn">More</a>
+    <a href="shortlist.html" style="text-decoration: none;font-weight: 400;padding: unset;box-shadow:none;" class="cta link" id="myshortListBtn">My Shortlist</a>
+  </div>
+
+  <div class="nav-right">
+    <div class="nav-search">
+        <span class="search-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7" cy="7" r="5" stroke="#111" stroke-width="1.5"/>
+            <line x1="10.8" y1="10.8" x2="15" y2="15"
+                    stroke="#111" stroke-width="1.5"
+                    stroke-linecap="round"/>
+            </svg>
+        </span>
+        <input type="text" placeholder="Search…" />
+    </div>
+
+    <span class="nav-user"><a href="../login.html" style="text-decoration: none;color: var(--black);">Sign In</a></span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1 id="search-title">HR solutions for every team</h1>
+  <p id="search-info" style="color: black;font-weight: 600;">Your Gateway to Trusted Vendors</p>
+  <div class="header-search">
+    <input 
+        id="search"
+        placeholder="✨ Ask AI"
+        rows="1">
+  </div>
+</div>
+
+<div class="modal" id="searchModal">
+  <div class="modal-box">
+    <div class="ai-search-box">
+        <div class="search-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-950 dark:text-white opacity-50 peer-focus:opacity-100 peer-disabled:opacity-30"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        </div>
+        <input
+            id="modalSearch"
+            type="text" autocomplete="off"
+            placeholder="e.g HR software with onboarding automation and document management.">
+
+        <button class="send-btn" id="askAiBtn">✨</button>
+    </div>
+    <div class="spinner-container hide">
+      <div class="spinner-dots">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+    <div class="autocomplete-results" id="results"></div>
+  </div>
+</div>
+
+<div class="app skeleton">
+    <!-- Filters skeleton -->
+    <aside class="filters">
+        <div class="skeleton-line title"></div>
+
+        <div class="skeleton-line label"></div>
+        <div class="skeleton-box"></div>
+
+        <div class="skeleton-line label"></div>
+        <div class="skeleton-box"></div>
+
+        <div class="skeleton-line label"></div>
+        <div class="skeleton-line small"></div>
+        <div class="skeleton-line small"></div>
+        <div class="skeleton-line small"></div>
+    </aside>
+
+    <!-- Cards skeleton -->
+    <main class="cards">
+        <div class="card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line subtitle"></div>
+
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+
+            <div class="skeleton-button"></div>
+        </div>
+
+        <div class="card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line subtitle"></div>
+
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+
+            <div class="skeleton-button"></div>
+        </div>
+
+        <div class="card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line subtitle"></div>
+
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+
+            <div class="skeleton-button"></div>
+        </div>
+    </main>
+</div>
+
+<!-- CONTENT -->
+  <div></div>
+ </div>
+ <div id="gridBtn">
+
+  <!-- LEFT (optional empty or other controls) -->
+  <div class="left-section"></div>
+
+  <!-- CENTER -->
+  <div class="center-section">
+    <div class="grid-buttons">
+      <button class="btn hide" id="compareBtn">Select to Compare</button>
+      <button class="btn hide" id="compareActionBtn" disabled>Compare</button>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-section">
+    <div class="sort-dropdown hide">
+      <button class="sort-trigger">
+          <span class="sort-label">Sort By:</span>
+          <span class="sort-value">Name (A-Z)</span>
+          <span class="sort-arrow">▾</span>
+      </button>
+
+      <div class="sort-menu">
+          <div class="sort-option active" data-value="nameAsc">Name (A-Z)</div>
+          <div class="sort-option" data-value="nameDesc">Name (Z-A)</div>
+          <div class="sort-option" data-value="scoreAsc">Match Score (Asc)</div>
+          <div class="sort-option" data-value="scoreDesc">Match Score (Desc)</div>
+      </div>
+  </div>
+  </div>
+
+</div>
+  <script>
+    const dropdown = document.querySelector(".sort-dropdown");
+    const trigger = dropdown.querySelector(".sort-trigger");
+    const options = dropdown.querySelectorAll(".sort-option");
+    const valueText = dropdown.querySelector(".sort-value");
+
+    trigger.addEventListener("click", () => {
+        dropdown.classList.toggle("open");
+    });
+
+    options.forEach(option => {
+        option.addEventListener("click", () => {
+            options.forEach(o => o.classList.remove("active"));
+            option.classList.add("active");
+            valueText.textContent = option.textContent;
+            dropdown.classList.remove("open");
+        });
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("open");
+        }
+    });
+  </script>
+
+ <div class="comparison-modal" id="compareModal">
+  <div class="comparison-modal-content comparison-scroll-wrapper">
+    <span class="close" id="comparisonCloseModalBtn">&times;</span>
+
+    <h2>Vendor Comparison</h2>
+    <div class="vendor-header-grid"></div>
+    <div class="xloader-comparison" style="text-align: center;"></div>
+  </div>
+</div>
+
+<div class="layout hide">
+  <!-- FILTERS -->
+  <aside class="filters">
+    <div style="background-color: transparent;">
+      <h3>Categories (<span id="totalVendors"></span>)</h3>
+    </div>
+    <div>
+      <div class="filter-group" id="categories">
+        <div class="category-item">
+            <div class="radio-wrapper">
+                <input type="radio" name="module" value="all" checked>
+                <span>All categories</span>
+            </div>
+        </div>
+      </div>
+      <div class="filter-group">
+          <label>Sort By Feature</label>
+          <div class="multi-select">
+              <div class="select-box">
+                  <div class="selected-items"></div>
+                  <input type="text" class="search-input" placeholder="Search..." />
+              </div>
+              <div class="dropdown"></div>
+          </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Company Size</label>
+        <select id="companySizeFilter">
+          <option value="" selected>-- Select --</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Region</label>
+        <select id="regionFilter">
+          <option value="">-- Select --</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+ 
+  <!-- RESULTS -->
+    <div class="cards-container" id="vendors"></div>
+  <div></div>
+  <div id="pagination"></div> 
+</div>
+<div class="faqs-section hide" id="faqs-section">
+  <div class="faq-container">
+    <div class="faq-badge">
+      <span>?</span> FAQs
+    </div>
+
+    <h1>FAQs about UDDER DB</h1>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <div>What are the examples of Structured queries?</div>
+        <div class="plus">+</div>
+      </div>
+      <div class="faq-answer">
+        <ol>
+            <li>Payroll systems for companies in South Africa with 120 employees.</li>
+            <li>Enterprise applicant tracking systems with Workday integration.</li>
+            <li>HRIS platforms for remote teams with employee self-service features.</li>
+            <li>Payroll software compliant with African labor regulations.</li>
+            <li>AI-powered performance management tools for growing tech companies.</li>
+            <li>Human resource management systems for small businesses in the UK.</li>
+            <li>Employee engagement platforms with analytics and reporting capabilities.</li>
+            <li>Recruitment software for healthcare organizations in the United States.</li>
+            <li>Cloud-based HR systems with onboarding and leave management features.</li>
+            <li>Global workforce management solutions supporting multi-country payroll.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <div>What are the examples of Conversational queries?</div>
+        <div class="plus">+</div>
+      </div>
+      <div class="faq-answer">
+        <ol>
+            <li>I'm looking for a payroll system for a company in New York that supports 120+ employees.</li>
+            <li>We need an enterprise applicant tracking system that integrates with Workday.</li>
+            <li>Our team requires an HRIS platform suitable for remote teams with employee self-service features.</li>
+            <li>We are searching for payroll software that complies with African labor regulations.</li>
+            <li>I'd like to find AI-powered performance management tools for a growing tech company.</li>
+            <li>Our small business in the UK needs a human resource management system.</li>
+            <li>We're interested in employee engagement platforms with strong analytics and reporting capabilities.</li>
+            <li>Looking for recruitment software tailored for healthcare organizations in the United States.</li>
+            <li>We want cloud-based HR systems that handle onboarding and leave management efficiently.</li>
+            <li>Searching for global workforce management solutions that support multi-country payroll.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <div>I'm a vendor and noticed incorrect information. What should I do?</div>
+        <div class="plus">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>
+            If you are a vendor and notice any incorrect or outdated information listed on our platform,
+            you can create a vendor account and claim your profile. Once verified, you'll be able to
+            update, edit, and manage your company information to ensure it remains accurate and up to date.
+        </p>
+        <p style="margin-top: 10px;">
+            Creating an account also gives you access to additional features such as profile enhancements,
+            analytics insights, and direct customer engagement tools.
+        </p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <div>How can I trust the accuracy of the data if it is AI-generated?</div>
+        <div class="plus">+</div>
+      </div>
+      <div class="faq-answer">
+        <p>
+            Our AI system analyzes structured data, trusted sources, and verified vendor information to generate
+            insights and recommendations. While AI helps organize and enhance information efficiently,
+            it does not replace human verification.
+        </p>
+        <p style="margin-top: 10px;">
+            We continuously refine our models, validate data where possible, and allow vendors to claim and update
+            their profiles to improve accuracy. We also encourage users to verify critical business decisions
+            directly with vendors.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const faqItems = document.querySelectorAll(".faq-item");
+
+  faqItems.forEach(item => {
+    item.addEventListener("click", () => {
+      item.classList.toggle("active");
+    });
+  });
+</script>
+<footer>
+      <div class="footer-logo">
+        <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png" class="hs-image-widget " style="width:166px;border-width:0px;border:0px;" width="166" alt="Udder_White" title="Udder_White" loading="lazy" srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&amp;name=Udder_White.png 83w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png 166w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=249&amp;name=Udder_White.png 249w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=332&amp;name=Udder_White.png 332w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=415&amp;name=Udder_White.png 415w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=498&amp;name=Udder_White.png 498w" sizes="(max-width: 166px) 100vw, 166px">
+        <br/><span style="color: white;font-size: 16px;margin-left: 60px;">DATABASE</span>
+        <br/><br/>©2026 The Udder Group Limited, trading as Udder.
+      </div>
+      <div class="link-column">
+      <a href="https://udder.rocks/vendor-selection-consulting-service">Vendor Selection</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index by Udder</a><br/>
+      <a href="https://udder.rocks/technical-consulting-service">Technical Consulting</a><br/>
+      <a href="https://udder.rocks/integration-consulting-service">Integration Consulting</a><br/>
+      <a href="https://udder.rocks/implementation-services">Implementation</a><br/>
+      <a href="https://udder.rocks/tech-healthcheck-service">Tech Healthcheck</a>
+    </div>
+    <div class="link-column">
+      <a href="https://udder.rocks/assist">Assist</a><br/>
+      <a href="https://udder.rocks/ai-augment">AI Augment</a><br/>
+      <a href="https://udder.rocks/hr-tech-implementation-case-studies">Case Studies</a><br/>
+      <a href="https://blog.udder.rocks/the-udder-blog">Blog</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index</a><br/>
+      <a href="https://udder.rocks/about-us">About</a><br/>
+      <a href="https://udder.rocks/contact-us">Let's Talk</a>
+    </div>
+    <div>
+      <a href="//udder.rocks/privacy-policy?hsLang=en" rel="noopener" target="_blank">Privacy Policy</a><br/>
+      <a href="//udder.rocks/terms-of-service?hsLang=en" rel="noopener" target="_blank">Terms of Service</a>
+    </div>
+  </footer>
+<script>
+  function toggleSub(button) {
+      const sub = button.parentElement.nextElementSibling;
+      sub.classList.toggle("open");
+      button.textContent = sub.classList.contains("open") ? "▴" : "▾";
+  }
+</script>
+<!-- ════════════════════════════════════════════
+     FLOATING CHAT BUTTON
+════════════════════════════════════════════ -->
+<button class="chat-fab" id="chatFab" aria-label="Open chat">
+  <div class="chat-fab-dot"></div>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+      fill="white" opacity="0.95"/>
+    <circle cx="8" cy="10" r="1" fill="#0f0f0f" opacity="0.5"/>
+    <circle cx="12" cy="10" r="1" fill="#0f0f0f" opacity="0.5"/>
+    <circle cx="16" cy="10" r="1" fill="#0f0f0f" opacity="0.5"/>
+  </svg>
+</button>
+
+<!-- ════════════════════════════════════════════
+     CHAT OVERLAY
+════════════════════════════════════════════ -->
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-backdrop" id="chatBackdrop"></div>
+
+  <div class="chat-panel">
+    <div class="chat-shape-ring"></div>
+    <div class="chat-shape-dot"></div>
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+              fill="white" opacity="0.9"/>
+          </svg>
+        </div>
+        <div class="chat-header-info">
+          <h3>Udder AI</h3>
+          <p><span class="online-dot"></span> Online · HR Tech Assistant</p>
+        </div>
+      </div>
+      <button class="chat-close-btn" id="chatClose" aria-label="Close chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-body" id="chatBody">
+
+      <!-- Welcome message -->
+      <div class="msg bot">
+        <div class="msg-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white" opacity="0.9">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="msg-bubble">
+            👋 Hi there! I'm the Udder AI assistant. I can help you find the right HR tech vendors, compare platforms, and answer questions about the database.<br/><br/>What are you looking for today?
+          </div>
+          <div class="msg-time">Just now</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Suggestion chips -->
+    <div class="chat-chips" id="chatChips">
+      <button class="chip" data-msg="Find me a payroll system for 200 employees">💰 Payroll systems</button>
+      <button class="chip" data-msg="What HRIS platforms support South Africa?">🌍 HRIS for South Africa</button>
+      <button class="chip" data-msg="Compare HiBob and BambooHR">⚖️ Compare platforms</button>
+      <button class="chip" data-msg="What is Udder Database?">ℹ️ About Udder DB</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-footer">
+      <div class="chat-input-wrap">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Ask about HR tech vendors…" autocomplete="off"/>
+        <button class="chat-send-btn" id="chatSend" aria-label="Send message">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2" fill="white" stroke="none"/>
+          </svg>
+        </button>
+      </div>
+      <div class="chat-footer-note">Powered by Udder AI · <a href="https://udder.rocks/privacy-policy" style="color:#9ca3af;">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+<script type="module" src="../assets/js/chat/chatbot.js"></script>
+</body>
+</html>

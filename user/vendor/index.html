@@ -1,0 +1,2471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udder DB - Dashboard</title>
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <link rel="stylesheet" href="../../assets/css/vendor/styles.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="module" src="../../assets/js/core/vendor/main.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+
+    /* ── ORIGINAL STYLES preserved exactly ── */
+    .slide-panel p { margin-top: 10px; margin-bottom: 10px; }
+    .chart-container { height: 400px; width: 100%; display: flex; flex-direction: column; }
+    .chart-container h2 { margin-top: 60px; margin-bottom: 60px; flex: 0 1 auto; margin-left: 10px; }
+    canvas#tutShadedChart { flex: 1 1 auto; width: 100% !important; height: 100% !important; display: block; }
+    #treeChecklist input[type="checkbox"] { cursor: pointer; width: unset !important; padding: 0px; margin-bottom: 0px; }
+    .open-panel-btn .tree-arrow { color: black !important; }
+    .circle-tick, .circle-error { background-color: white !important; }
+
+    /* ══════════════════════════════════════════════════════
+       VARIABLES
+    ══════════════════════════════════════════════════════ */
+    :root {
+        --black:   #0f0f0f;
+        --white:   #ffffff;
+        --orange:  #f04e23;
+        --orange2: #d43d14;
+        --grey:    #6b7280;
+        --light:   #f5f5f5;
+        --border:  #e5e7eb;
+        --sidebar: #111111;
+        --font:    'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+        height: 100%;
+        font-family: var(--font);
+        background: var(--light);
+        color: var(--black);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ══════════════════════════════════════════════════════
+       DASHBOARD GRID
+    ══════════════════════════════════════════════════════ */
+    .dashboard {
+        display: grid;
+        grid-template-columns: 220px 1fr 220px;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       SIDEBAR — dark, matching the landing page left panel
+    ══════════════════════════════════════════════════════ */
+    .sidebar {
+        background: var(--orange);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        height: 100vh;
+        overflow-y: auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* white top stripe on orange sidebar */
+    .sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: rgba(0,0,0,0.15);
+        z-index: 3;
+    }
+
+    /* shape — large hollow ring bottom-right */
+    .sb-ring {
+        position: absolute;
+        width: 260px; height: 260px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        bottom: -90px; right: -90px;
+        pointer-events: none;
+    }
+    .sb-ring-inner {
+        position: absolute;
+        width: 140px; height: 140px;
+        border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.1);
+        bottom: -30px; right: -30px;
+        pointer-events: none;
+    }
+
+    /* shape — dot grid top-left */
+    .sb-dots {
+        position: absolute;
+        top: 56px; left: 18px;
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 7px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .sb-dots span {
+        width: 3px; height: 3px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        display: block;
+    }
+
+    /* shape — vertical gradient line right edge */
+    .sb-vline {
+        position: absolute;
+        right: 0; top: 20%; bottom: 20%;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2), transparent);
+        pointer-events: none;
+    }
+
+    /* shape — arc top-right */
+    .sb-arc {
+        position: absolute;
+        width: 180px; height: 90px;
+        border-radius: 0 0 90px 90px;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-top: none;
+        top: 40px; right: -40px;
+        pointer-events: none;
+    }
+
+    /* shape — small diamond bottom-left */
+    .sb-diamond {
+        position: absolute;
+        bottom: 80px; left: 24px;
+        width: 16px; height: 16px;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        transform: rotate(45deg);
+        pointer-events: none;
+    }
+
+    /* shape — zigzag bottom */
+    .sb-zigzag {
+        position: absolute;
+        bottom: 48px; right: 20px;
+        pointer-events: none;
+        opacity: 0.2;
+    }
+
+    /* logo area */
+    .sidebar > div.logo-wrap {
+        padding: 28px 20px 22px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        position: relative;
+        z-index: 2;
+    }
+
+    .menu {
+        display: flex;
+        flex-direction: column;
+        padding: 16px 12px;
+        gap: 2px;
+        flex: 1;
+        position: relative;
+        z-index: 2;
+    }
+
+    .menu button {
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.75);
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-family: var(--font);
+        font-weight: 400;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        width: 100%;
+    }
+
+    .menu button:hover {
+        background: rgba(255,255,255,0.12);
+        color: var(--white);
+    }
+
+    .menu button.active {
+        background: rgba(0,0,0,0.15);
+        color: var(--white);
+        font-weight: 600;
+        border-left: 3px solid var(--white);
+        padding-left: 11px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════════════════════ */
+    .main {
+        background: var(--light);
+        overflow-y: auto;
+        padding: 32px 40px 48px;
+        position: relative;
+    }
+
+    /* main shape — large arc bottom centre */
+    .main-arc {
+        position: fixed;
+        width: 600px; height: 300px;
+        border-radius: 50% 50% 0 0;
+        border: 1px solid rgba(240,78,35,0.05);
+        border-bottom: none;
+        bottom: 0;
+        left: calc(220px + ((100vw - 220px - 220px) / 2));
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* main shape — diagonal dashes top right */
+    .main-dash {
+        position: fixed;
+        top: 40px;
+        right: 260px;
+        width: 60px; height: 1px;
+        background: repeating-linear-gradient(
+            90deg,
+            rgba(240,78,35,0.25) 0px,
+            rgba(240,78,35,0.25) 5px,
+            transparent 5px,
+            transparent 10px
+        );
+        transform: rotate(-30deg);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* main shape — small cross */
+    .main-cross {
+        position: fixed;
+        top: 36px; right: 280px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .main-cross::before, .main-cross::after {
+        content: '';
+        position: absolute;
+        background: rgba(240,78,35,0.2);
+        border-radius: 1px;
+    }
+    .main-cross::before { width: 14px; height: 1.5px; top: 6px; left: 0; }
+    .main-cross::after  { width: 1.5px; height: 14px; top: 0; left: 6px; }
+
+    .top-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-content { position: relative; z-index: 1; }
+
+    /* ── stats cards ── */
+    .stats-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px 26px;
+        flex: 1;
+        min-width: 160px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s, transform 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* left accent on hover — same treatment as DB page cards */
+    .card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+        border-left: 3px solid var(--orange);
+        padding-left: 23px;
+    }
+
+    .card-title {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        color: var(--grey);
+        margin-bottom: 16px;
+    }
+
+    .mini-stats { display: flex; gap: 28px; }
+
+    .mini-box {
+        font-size: 12px;
+        color: var(--grey);
+        line-height: 1.5;
+    }
+
+    .mini-box span {
+        font-size: 30px;
+        font-weight: 700;
+        color: white;
+        display: block;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    /* ── leads nav ── */
+    .leads-nav { display: flex; gap: 8px; margin-bottom: 20px; }
+
+    .leads-nav button {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--white);
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.15s, color 0.15s;
+        font-family: var(--font);
+        color: var(--black);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .leads-nav button:hover {
+        border-color: var(--orange);
+        color: var(--orange);
+    }
+
+    /* ── table ── */
+    .lead-table-wrapper {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .filter-container {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--grey);
+        background: var(--white);
+    }
+
+    .filter-container label { font-weight: 500; }
+
+    .filter-container select {
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: var(--font);
+        outline: none;
+        background: var(--light);
+        transition: border-color 0.15s;
+    }
+
+    .filter-container select:focus { border-color: var(--orange); }
+
+    .lead-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+    .lead-table thead th {
+        padding: 11px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--grey);
+        background: var(--light);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .lead-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.12s;
+    }
+
+    .lead-table tbody tr:last-child { border-bottom: none; }
+    .lead-table tbody tr:hover { background: rgba(240,78,35,0.03); }
+    .lead-table td { padding: 12px 16px; }
+
+    /* ── forms ── */
+    .page-content h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--black);
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .input-group { margin-bottom: 20px; }
+
+    .input-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--grey);
+        margin-bottom: 8px;
+    }
+
+    .input-group input,
+    .input-group textarea,
+    .input-group select {
+        width: 100%;
+        padding: 11px 14px;
+        font-size: 14px;
+        font-family: var(--font);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        background: var(--white);
+        color: var(--black);
+        transition: border-color 0.2s;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus,
+    .input-group select:focus { border-color: var(--orange); }
+
+    .input-group input:disabled {
+        background: var(--light);
+        color: #aaa;
+        cursor: not-allowed;
+    }
+
+    .input-group textarea { resize: vertical; line-height: 1.6; }
+
+    .tags-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; }
+
+    .note-box {
+        background: rgba(240,78,35,0.04);
+        border: 1px solid rgba(240,78,35,0.18);
+        border-radius: 8px;
+        padding: 14px 16px;
+        font-size: 13px;
+        color: var(--black);
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    #screenshotSection h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--grey);
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+
+    .slider-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .nav-btn-screenshot {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 30px; height: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.15s, color 0.15s;
+        flex-shrink: 0;
+        font-family: var(--font);
+        color: var(--black);
+    }
+
+    .nav-btn-screenshot:hover { border-color: var(--orange); color: var(--orange); }
+
+    .slider {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        flex: 1;
+    }
+
+    .slider::-webkit-scrollbar { display: none; }
+
+    .slider img {
+        height: 500px;
+        width: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        scroll-snap-align: start;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .btn-dark {
+        background: var(--black);
+        color: var(--white);
+        border: none;
+        padding: 11px 28px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: var(--font);
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-dark:hover {
+        background: var(--orange);
+        transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       RIGHT PANEL
+    ══════════════════════════════════════════════════════ */
+    .right-panel {
+        background: var(--white);
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* orange top stripe */
+    .right-panel::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: var(--orange);
+        z-index: 2;
+    }
+
+    /* right panel shapes */
+    .rp-ring {
+        position: absolute;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        border: 1px solid rgba(240,78,35,0.08);
+        bottom: -60px; right: -60px;
+        pointer-events: none;
+    }
+    .rp-zigzag {
+        position: absolute;
+        bottom: 100px; left: 18px;
+        pointer-events: none;
+        opacity: 0.15;
+    }
+    .rp-hline {
+        position: absolute;
+        left: 18px; right: 18px;
+        top: 55%;
+        height: 1px;
+        background: var(--border);
+        pointer-events: none;
+    }
+
+    .rp-inner {
+        padding: 32px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-circle {
+        width: 64px; height: 64px;
+        border-radius: 50%;
+        border: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: var(--light);
+        margin: 0 auto;
+        transition: border-color 0.2s;
+    }
+
+    .profile-circle:hover { border-color: var(--orange); }
+    .profile-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── product tabs (inside tech profile section) ── */
+    .product-tabs-bar {
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0;
+    }
+
+    .product-tabs {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .product-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        border-radius: 8px 8px 0 0;
+        border: 1px solid transparent;
+        border-bottom: none;
+        background: transparent;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: var(--font);
+        color: var(--grey);
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        position: relative;
+        bottom: -1px;
+    }
+
+    .product-tab:hover {
+        background: var(--light);
+        color: var(--black);
+    }
+
+    .product-tab.active {
+        background: var(--white);
+        color: var(--orange);
+        font-weight: 600;
+        border-color: var(--border);
+        border-bottom-color: var(--white);
+    }
+
+    /* coloured dot per tab */
+    .product-tab .tab-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    .product-tab.active .tab-dot { opacity: 1; }
+
+    /* add product button */
+    .product-tab-add {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px; height: 30px;
+        border-radius: 8px;
+        border: 1.5px dashed var(--border);
+        background: transparent;
+        color: var(--grey);
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+        margin-left: 4px;
+        margin-bottom: 4px;
+        flex-shrink: 0;
+    }
+
+    .product-tab-add:hover {
+        border-color: var(--orange);
+        border-style: solid;
+        color: var(--orange);
+        background: rgba(240,78,35,0.05);
+    }
+
+    /* product panel content switching */
+    .product-panel { display: block; }
+
+    /* product 2 placeholder intro */
+    .product-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 20px 0 24px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 24px;
+    }
+
+    .placeholder-icon {
+        width: 48px; height: 48px;
+        background: var(--light);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 4px;
+    }
+
+    .product-placeholder h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--black);
+        margin: 0;
+    }
+
+    .product-placeholder p {
+        font-size: 13px;
+        color: var(--grey);
+        line-height: 1.6;
+        margin: 0;
+        max-width: 520px;
+    }
+
+    .status {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--grey);
+        text-align: center;
+    }
+
+    .progress {
+        font-size: 13px;
+        color: var(--grey);
+        line-height: 1.6;
+        padding: 14px;
+        background: var(--light);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }
+
+    .progress strong { color: var(--orange); font-size: 15px; }
+    .hints { margin-top: 6px; font-size: 12px; }
+
+    /* loader */
+    .loader-wrapper {
+        position: fixed;
+        inset: 0;
+        background: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .loader {
+        width: 32px; height: 32px;
+        border: 2.5px solid var(--border);
+        border-top-color: var(--orange);
+        border-radius: 50%;
+        animation: spin 0.65s linear infinite;
+        display: block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* slide panel */
+    .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
+        z-index: 400;
+    }
+
+    .slide-panel {
+        position: fixed;
+        top: 0; right: -480px;
+        width: 480px;
+        height: 100vh;
+        background: var(--white);
+        border-left: 1px solid var(--border);
+        border-top: 3px solid var(--orange);
+        box-shadow: -6px 0 28px rgba(0,0,0,0.08);
+        z-index: 500;
+        overflow-y: auto;
+        transition: right 0.28s ease;
+        padding: 28px 24px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       CUSTOM SCROLLBAR
+    ══════════════════════════════════════════════════════ */
+
+    /* Main content scrollbar */
+    .main::-webkit-scrollbar { width: 6px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 999px;
+        transition: background 0.2s;
+    }
+    .main::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+    /* Right panel scrollbar */
+    .right-panel::-webkit-scrollbar { width: 4px; }
+    .right-panel::-webkit-scrollbar-track { background: transparent; }
+    .right-panel::-webkit-scrollbar-thumb {
+        background: rgba(240,78,35,0.25);
+        border-radius: 999px;
+    }
+    .right-panel::-webkit-scrollbar-thumb:hover {
+        background: var(--orange);
+    }
+
+    /* Sidebar scrollbar */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 999px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.45);
+    }
+
+    /* Slide panel scrollbar */
+    .slide-panel::-webkit-scrollbar { width: 5px; }
+    .slide-panel::-webkit-scrollbar-track { background: var(--light); }
+    .slide-panel::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 999px;
+    }
+    .slide-panel::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+    /* Screenshot slider scrollbar — horizontal, hidden by default */
+    .slider::-webkit-scrollbar { height: 3px; }
+    .slider::-webkit-scrollbar-track { background: var(--light); border-radius: 999px; }
+    .slider::-webkit-scrollbar-thumb {
+        background: var(--orange);
+        border-radius: 999px;
+    }
+
+    /* Firefox */
+    .main       { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .right-panel{ scrollbar-width: thin; scrollbar-color: rgba(240,78,35,0.25) transparent; }
+    .sidebar    { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+    .slide-panel{ scrollbar-width: thin; scrollbar-color: var(--border) var(--light); }
+    .slider     { scrollbar-width: thin; scrollbar-color: var(--orange) var(--light); }
+
+    @media (max-width: 1100px) {
+        .dashboard { grid-template-columns: 220px 1fr; }
+        .right-panel { display: none; }
+    }
+    @media (max-width: 720px) {
+        .dashboard { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+        .main { padding: 20px; }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       BILLING SECTION
+    ══════════════════════════════════════════════════════ */
+
+    /* Active plan banner */
+    .billing-plan-banner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--white);
+        border: 1.5px solid var(--orange);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(240,78,35,0.06);
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .billing-plan-left { display: flex; flex-direction: column; gap: 5px; }
+
+    .billing-plan-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--orange);
+        color: var(--white);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 999px;
+        width: fit-content;
+    }
+
+    .billing-plan-name { font-size: 16px; font-weight: 700; color: var(--black); }
+    .billing-plan-meta { font-size: 12px; color: var(--grey); }
+
+    .billing-plan-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .billing-status-pill {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 999px;
+    }
+
+    .billing-status-pill.active {
+        background: rgba(34,197,94,0.1);
+        color: #16a34a;
+        border: 1px solid rgba(34,197,94,0.25);
+    }
+
+    .billing-cancel-link {
+        background: none;
+        border: none;
+        font-size: 12px;
+        color: var(--grey);
+        cursor: pointer;
+        font-family: var(--font);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color 0.15s;
+        padding: 0;
+    }
+
+    .billing-cancel-link:hover { color: #ef4444; }
+
+    /* Stat cards row */
+    .billing-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .billing-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: box-shadow 0.2s, border-left 0.2s;
+    }
+
+    .billing-card:hover {
+        border-left: 3px solid var(--orange);
+        padding-left: 15px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .billing-card-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--grey);
+    }
+
+    .billing-card-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--black);
+        line-height: 1.2;
+    }
+
+    .billing-card-value.card-number { font-size: 16px; letter-spacing: 1px; }
+
+    .billing-card-sub { font-size: 11px; color: var(--grey); }
+
+    /* Section title */
+    .billing-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--grey);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .billing-section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    /* Features grid */
+    .billing-features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 4px;
+    }
+
+    .billing-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        font-size: 13px;
+        color: var(--black);
+        line-height: 1.45;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 11px 14px;
+    }
+
+    .billing-feat-icon {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        background: #22c55e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    /* Invoice table */
+    .billing-invoice-table-wrap {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .billing-invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .billing-invoice-table thead th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--grey);
+        background: var(--light);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .billing-invoice-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.12s;
+    }
+
+    .billing-invoice-table tbody tr:last-child { border-bottom: none; }
+    .billing-invoice-table tbody tr:hover { background: rgba(240,78,35,0.02); }
+    .billing-invoice-table td { padding: 13px 16px; color: var(--black); }
+
+    .invoice-id { font-weight: 600; color: var(--grey); font-size: 12px; }
+    .invoice-amount { font-weight: 700; color: var(--black); }
+
+    .invoice-status {
+        display: inline-flex;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .invoice-status.paid {
+        background: rgba(34,197,94,0.1);
+        color: #16a34a;
+        border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .invoice-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        color: var(--grey);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.15s;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px 10px;
+    }
+
+    .invoice-download:hover { color: var(--orange); border-color: var(--orange); }
+
+    /* Payment method row */
+    .billing-payment-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px 20px;
+    }
+
+    .billing-card-display {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .billing-update-btn {
+        background: transparent;
+        border: 1.5px solid var(--border);
+        color: var(--black);
+        padding: 8px 20px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: var(--font);
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+    }
+
+    .billing-update-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    @media (max-width: 900px) {
+        .billing-cards { grid-template-columns: repeat(2, 1fr); }
+        .billing-features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    </style>
+</head>
+
+<body>
+    <div id="slide-panel-container">
+        <div class="overlay"></div>
+        <div class="slide-panel"></div>
+    </div>
+
+    <div class="loader-wrapper">
+        <span class="loader"></span>
+    </div>
+
+    <div class="dashboard hide">
+
+        <!-- ═══ SIDEBAR ════════════════════════════════════ -->
+        <div class="sidebar">
+            <div class="sb-ring"></div>
+            <div class="sb-ring-inner"></div>
+            <div class="sb-dots">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+            </div>
+            <div class="sb-vline"></div>
+            <div class="sb-arc"></div>
+            <div class="sb-diamond"></div>
+            <div class="sb-zigzag">
+                <svg width="52" height="30" viewBox="0 0 52 30" fill="none">
+                    <polyline points="0,15 9,3 18,15 27,3 36,15 45,3 52,15"
+                        stroke="#ffffff" stroke-width="1.5" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div class="logo-wrap" style="font-weight: 700;">
+                <a href="./" style="text-decoration: none;">
+                    <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&name=Udder_White.png"
+                         height="0" style="height:auto;width:140px;border-width:0px;border:0px;"
+                         width="140" alt="Udder White"
+                         srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&name=Udder_White.png 83w,
+                                 https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&name=Udder_White.png 166w,
+                                 https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=332&name=Udder_White.png 332w"
+                         sizes="(max-width:166px) 100vw, 166px" loading="lazy">
+                    <span style="color:rgba(255,255,255,0.5);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-top:5px;">DATABASE</span>
+                </a>
+            </div>
+
+            <div class="menu">
+                <button>Leads</button>
+                <button>Your tech profile</button>
+                <button>Account settings</button>
+                <button>Billing</button>
+                <button>Get in touch</button>
+            </div>
+        </div>
+
+        <!-- ═══ MAIN ════════════════════════════════════════ -->
+        <div class="main">
+            <div class="main-arc"></div>
+            <div class="main-dash"></div>
+            <div class="main-cross"></div>
+
+            <div class="top-title" id="title"></div>
+
+            <div class="page-content" id="leads-section">
+                <div class="leads-nav">
+                    <button id="prevLead">&#10094;</button>
+                    <button id="nextLead">&#10095;</button>
+                </div>
+                <div class="leads-slider">
+                    <div class="lead-slide active">
+                        <div class="stats-row">
+                            <div class="card">
+                                <div class="card-title">Last 7 days</div>
+                                <div class="mini-stats">
+                                    <div class="mini-box"><span id="weeklyViews">0</span>Views</div>
+                                    <div class="mini-box"><span id="weeklyLeads">0</span>Leads</div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Year-to-date</div>
+                                <div class="mini-stats">
+                                    <div class="mini-box"><span id="allTimeViews">0</span>Views</div>
+                                    <div class="mini-box"><span id="allTimeLeads">0</span>Leads</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <h2>Leads Over Time</h2>
+                        </div>
+                    </div>
+
+                    <div class="lead-slide">
+                        <div class="lead-table-wrapper">
+                            <div class="filter-container">
+                                <label for="statusFilter">Filter by Status:</label>
+                                <select id="statusFilter" style="width: unset;">
+                                    <option value="">All</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <table class="lead-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Company name</th>
+                                        <th>Contact name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Submission date</th>
+                                        <th>Headcount</th>
+                                        <th>Modules</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content" id="tech-profile-section" style="display:none;">
+                <h2>Your Tech Profile</h2>
+
+                <!-- product tabs bar -->
+                <div class="product-tabs-bar">
+                    <div class="product-tabs" id="productTabs">
+                        <button class="product-tab active" data-product="0">
+                            <span class="tab-dot"></span>
+                            Main Product
+                        </button>
+                        <button class="product-tab" data-product="1">
+                            <span class="tab-dot"></span>
+                            Product 2
+                        </button>
+                        <button class="product-tab-add" id="addProductBtn" title="Add new product">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Product panel -->
+                <div class="product-panel active" id="product-panel-0">
+                <form id="tech-profile-form">
+                    <div class="input-group">
+                        <label for="companyWebsite"><strong>Company Website</strong></label>
+                        <input type="url" id="website" name="website" disabled>
+                    </div>
+                    <span class="hide" id="refeshData">If you would like to update your data now, click <a href="">here</a> to refresh the data.</span>
+                    <div class="note-box hide" id="profileDataUpdateNote">
+                        <strong>Note:</strong>
+                        <p>Some fields cannot be edited because their data refreshes automatically.
+                            To manage these updates manually, go to
+                            <b><i>'Account Settings'</i></b> and set <i>'Auto-Refresh Data'</i> to <b><i>No</i></b>.</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="companyDescription"><strong>Company Description</strong></label>
+                        <textarea id="companyDescription" placeholder="Enter company description..." rows="5"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="headcount"><strong>Headcount</strong></label>
+                        <select id="companySize"><option value="">-select-</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="locations"><strong>Supported Locations</strong></label>
+                        <select id="locations" class="js-example-basic-multiple" name="locations[]" multiple="multiple"></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="modules"><strong>Modules</strong> ( <a href="javascript:void(0)" data-type="module" class="open-panel-btn">view</a> )</label>
+                        <input type="hidden" id="modulesInput" placeholder="Type module and press Enter">
+                        <div id="modulesTags" class="tags-container"></div>
+                        <div id="treeChecklist"></div>
+                    </div>
+                    <div id="screenshotSection">
+                        <h3>Screenshots</h3>
+                        <input type="file" id="screenshotInput" accept="image/*" multiple>
+                        <div class="slider-wrapper">
+                            <button type="button" class="nav-btn-screenshot left" onclick="scrollSlider(-1)">‹</button>
+                            <div id="screenshotPreview" class="slider">
+                                <img src="https://efanuvwrpqhchdpsvfir.supabase.co/storage/v1/object/public/udderdb-screenshots/c7205a03-0c7c-42f8-a214-8468be4f974f/1776167207359_Screenshot%202026-03-13%20103751.png">
+                                <img src="https://efanuvwrpqhchdpsvfir.supabase.co/storage/v1/object/public/udderdb-screenshots/c7205a03-0c7c-42f8-a214-8468be4f974f/1776169202225_Screenshot%202026-03-13%20103751.png">
+                            </div>
+                            <button type="button" class="nav-btn-screenshot right" onclick="scrollSlider(1)">›</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="locations"><strong>Integrations</strong></label>
+                        <select id="integrations" class="js-example-basic-multiple" name="integrations[]" multiple="multiple"></select>
+                    </div>
+                    <button type="button" id="saveProfile" class="btn-dark">Save Profile</button>
+                </form>
+                </div>
+
+                <!-- Product 2 panel -->
+                <div class="product-panel" id="product-panel-1" style="display:none;">
+                    <div class="product-placeholder">
+                        <div class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="26" height="26" rx="6" stroke="#e5e7eb" stroke-width="1.5"/>
+                                <path d="M10 16h12M16 10v12" stroke="#f04e23" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3>Product 2</h3>
+                        <p>Fill in the details for your second product. All fields below are independent from your main product profile.</p>
+                    </div>
+                    <form id="tech-profile-form-2">
+                        <div class="input-group">
+                            <label><strong>Product Name</strong></label>
+                            <input type="text" id="product2Name" placeholder="e.g. Payroll Pro">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Product Website</strong></label>
+                            <input type="url" id="product2Website" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Product Description</strong></label>
+                            <textarea id="product2Description" placeholder="Describe what this product does..." rows="5"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Headcount</strong></label>
+                            <select id="product2Size">
+                                <option value="">— Select —</option>
+                                <option>1–50</option>
+                                <option>51–200</option>
+                                <option>201–500</option>
+                                <option>501–1000</option>
+                                <option>1000+</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Supported Locations</strong></label>
+                            <input type="text" id="product2Locations" placeholder="e.g. South Africa, UK, USA">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Key Modules</strong></label>
+                            <input type="text" id="product2Modules" placeholder="e.g. Payroll, Leave Management, Onboarding">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Integrations</strong></label>
+                            <input type="text" id="product2Integrations" placeholder="e.g. Xero, Workday, Slack">
+                        </div>
+                        <button type="button" class="btn-dark">Save Product 2</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="page-content" id="account-settings-section" style="display:none;">
+                <h2>Account Settings</h2>
+                <form id="account-settings-form">
+                    <div class="input-group">
+                        <label for="fname"><strong>First Name</strong></label>
+                        <input type="text" id="fname" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label for="lname"><strong>Last Name</strong></label>
+                        <input type="text" id="lname" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label for="email"><strong>Email</strong></label>
+                        <input type="email" id="uemail" placeholder="Enter email address">
+                    </div>
+                    <div class="input-group">
+                        <label for="password"><strong>Password</strong></label>
+                        <input type="password" id="password" placeholder="Enter new password">
+                    </div>
+                    <div class="input-group">
+                        <label for="refresh">Auto-Refresh data?</label>
+                        <select id="autoRefresh">
+                            <option value="Y" selected>Yes - auto-refresh every 3 months</option>
+                            <option value="N">No - I'll do manual uploads</option>
+                        </select>
+                    </div>
+                    <button type="button" id="saveSettings" class="btn-dark">Save</button>
+                </form>
+            </div>
+
+            <div class="page-content" id="billing-section" style="display:none;">
+                <h2>Billing</h2>
+
+                <!-- Active plan banner -->
+                <div class="billing-plan-banner">
+                    <div class="billing-plan-left">
+                        <div class="billing-plan-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            Udder Approved
+                        </div>
+                        <div class="billing-plan-name">Active Subscription</div>
+                        <div class="billing-plan-meta">Annual plan · Renews automatically</div>
+                    </div>
+                    <div class="billing-plan-right">
+                        <div class="billing-status-pill active">Active</div>
+                        <button class="billing-cancel-link">Cancel subscription</button>
+                    </div>
+                </div>
+
+                <!-- Subscription details cards -->
+                <div class="billing-cards">
+                    <div class="billing-card">
+                        <div class="billing-card-label">Start Date</div>
+                        <div class="billing-card-value">1 Jan 2026</div>
+                        <div class="billing-card-sub">Annual billing cycle</div>
+                    </div>
+                    <div class="billing-card">
+                        <div class="billing-card-label">Next Renewal</div>
+                        <div class="billing-card-value">1 Jan 2027</div>
+                        <div class="billing-card-sub">251 days remaining</div>
+                    </div>
+                    <div class="billing-card">
+                        <div class="billing-card-label">Amount</div>
+                        <div class="billing-card-value">$$$$</div>
+                        <div class="billing-card-sub">Per year, excl. tax</div>
+                    </div>
+                    <div class="billing-card">
+                        <div class="billing-card-label">Payment Method</div>
+                        <div class="billing-card-value card-number">•••• 4242</div>
+                        <div class="billing-card-sub">Visa · Expires 09/27</div>
+                    </div>
+                </div>
+
+                <!-- What's included -->
+                <div class="billing-section-title">What's included</div>
+                <div class="billing-features-grid">
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Profile reviewed by the Udder team
+                    </div>
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Certification badge on the tech profile
+                    </div>
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Tech site reviewed and validated
+                    </div>
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Udder team attending tech demo
+                    </div>
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Demo feedback quotes on the profile
+                    </div>
+                    <div class="billing-feature">
+                        <span class="billing-feat-icon">
+                            <svg width="11" height="11" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Demo recording clips on profile page
+                    </div>
+                </div>
+
+                <!-- Invoice history -->
+                <div class="billing-section-title" style="margin-top: 32px;">Invoice History</div>
+                <div class="billing-invoice-table-wrap">
+                    <table class="billing-invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Date</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="invoice-id">#INV-2026-001</td>
+                                <td>1 Jan 2026</td>
+                                <td>Udder Approved · Annual</td>
+                                <td class="invoice-amount">$$$$</td>
+                                <td><span class="invoice-status paid">Paid</span></td>
+                                <td><a href="#" class="invoice-download">
+                                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 2v8M5 7l3 3 3-3M2 12h12"/>
+                                    </svg>
+                                    PDF
+                                </a></td>
+                            </tr>
+                            <tr>
+                                <td class="invoice-id">#INV-2025-001</td>
+                                <td>1 Jan 2025</td>
+                                <td>Udder Approved · Annual</td>
+                                <td class="invoice-amount">$$$$</td>
+                                <td><span class="invoice-status paid">Paid</span></td>
+                                <td><a href="#" class="invoice-download">
+                                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 2v8M5 7l3 3 3-3M2 12h12"/>
+                                    </svg>
+                                    PDF
+                                </a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Update payment method -->
+                <div class="billing-section-title" style="margin-top: 32px;">Payment Method</div>
+                <div class="billing-payment-row">
+                    <div class="billing-card-display">
+                        <svg width="32" height="22" viewBox="0 0 32 22" fill="none">
+                            <rect width="32" height="22" rx="3" fill="#1a1a2e"/>
+                            <rect y="6" width="32" height="6" fill="#374151"/>
+                            <rect x="4" y="15" width="8" height="3" rx="1" fill="#6b7280"/>
+                        </svg>
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:var(--black);">Visa ending in 4242</div>
+                            <div style="font-size:12px;color:var(--grey);">Expires 09/2027</div>
+                        </div>
+                    </div>
+                    <button class="billing-update-btn">Update card</button>
+                </div>
+            </div>
+
+            <div class="page-content" id="get-in-touch-section" style="display:none;">
+                <h2>Get In Touch</h2>
+                <div class="input-group">
+                    <label for="headcount">Your Headcount</label>
+                    <input type="text" id="headcount" name="headcount" placeholder="Enter headcount" />
+                </div>
+                <div class="input-group">
+                    <label for="country">Country / Region</label>
+                    <input type="text" id="country" name="country" placeholder="Enter country" />
+                </div>
+                <div class="input-group">
+                    <label for="service">Udder services you're interested in <span class="asterisk">*</span></label>
+                    <select id="service">
+                        <option value="">-select-</option>
+                        <option>Tech Healthcheck</option>
+                        <option>Vendor Selection</option>
+                        <option>Discovery, Vision & Strategy</option>
+                        <option>Technical Consulting</option>
+                        <option>Implementation</option>
+                        <option>Integration Consulting</option>
+                        <option>Assist by Udder</option>
+                        <option>Index by Udder</option>
+                        <option>AI Augment by Udder</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="message">Your message <span class="asterisk">*</span></label>
+                    <textarea id="message" name="message" placeholder="Type your message here"></textarea>
+                </div>
+                <div class="input-group">
+                    <button class="cta" style="cursor: pointer;" id="contactUdderBtn">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ RIGHT PANEL ═════════════════════════════════ -->
+        <div class="right-panel">
+            <div class="rp-ring"></div>
+            <div class="rp-zigzag">
+                <svg width="48" height="28" viewBox="0 0 48 28" fill="none">
+                    <polyline points="0,14 8,3 16,14 24,3 32,14 40,3 48,14"
+                        stroke="#f04e23" stroke-width="1.5" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="rp-hline"></div>
+
+            <div class="rp-inner">
+                <div class="profile-circle">
+                    <img src="" id="logo_img" class="hide" alt="Logo Image">
+                </div>
+
+                <div class="status">Accreditation status</div>
+
+                <div class="btn-dark cta" style="width:100%;cursor:pointer;" id="getCertifiedBtn">Get certified</div>
+
+                <div class="progress">
+                    Profile completeness:<br>
+                    <strong><span id="profileCompletenessPercentage"></span></strong>
+                    <p class="hints" style="margin-top: 10px;">
+                        <strong>Hint:</strong>
+                        <span id="hints" style="font-size: 12px;"></span>
+                    </p>
+                </div>
+
+                <div style="margin-top: auto;">
+                    <a class="btn-dark" href="javascript:void(0)" id="logoutBtn"
+                       style="color: var(--black); background: white; text-decoration: none; border: 2px solid var(--orange); width: 100%; display: block;">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ALL ORIGINAL SCRIPTS — untouched -->
+    <script>
+        $(document).ready(function() {
+            $('.sidebar .menu button').click(function() {
+                $('.sidebar .menu button').removeClass('active');
+                $(this).addClass('active');
+                var index = $(this).index();
+                $('.page-content').hide();
+                $('.page-content').eq(index).show();
+            });
+        });
+    </script>
+    <script>
+        let currentLead = 0;
+        const slides = $('.lead-slide');
+
+        function showLead(index) {
+            slides.removeClass('active').hide();
+            slides.eq(index).fadeIn().addClass('active');
+            if (index === 0) { drawChart(); }
+        }
+
+        $('#nextLead').click(function () {
+            currentLead = (currentLead + 1) % slides.length;
+            showLead(currentLead);
+        });
+
+        $('#prevLead').click(function () {
+            currentLead = (currentLead - 1 + slides.length) % slides.length;
+            showLead(currentLead);
+        });
+    </script>
+    <script>
+        const slider = document.getElementById("screenshotPreview");
+
+        function scrollSlider(direction) {
+            const scrollAmount = slider.clientWidth;
+            slider.scrollBy({ left: direction * scrollAmount, behavior: "smooth" });
+        }
+    </script>
+
+    <script>
+        // Product tabs — switch active state and show matching panel
+        $(document).on('click', '.product-tab', function() {
+            const idx = $(this).data('product');
+            $('.product-tab').removeClass('active');
+            $(this).addClass('active');
+            // show matching panel
+            $('.product-panel').hide();
+            $('#product-panel-' + idx).show();
+        });
+
+        // Add product tab — creates a new blank panel
+        let productCount = 2;
+        $(document).on('click', '#addProductBtn', function() {
+            const idx = productCount;
+            productCount++;
+            const newTab = $(`<button class="product-tab" data-product="${idx}">
+                <span class="tab-dot"></span>
+                Product ${idx + 1}
+            </button>`);
+            $(this).before(newTab);
+
+            // Create a blank panel for the new product
+            const newPanel = $(`
+                <div class="product-panel" id="product-panel-${idx}" style="display:none;">
+                    <div class="product-placeholder">
+                        <div class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                <rect x="3" y="3" width="26" height="26" rx="6" stroke="#e5e7eb" stroke-width="1.5"/>
+                                <path d="M10 16h12M16 10v12" stroke="#f04e23" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3>Product ${idx + 1}</h3>
+                        <p>Fill in the details for this product. All fields are independent from your other product profiles.</p>
+                    </div>
+                    <form>
+                        <div class="input-group">
+                            <label><strong>Product Name</strong></label>
+                            <input type="text" placeholder="e.g. Payroll Pro">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Product Website</strong></label>
+                            <input type="url" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Product Description</strong></label>
+                            <textarea placeholder="Describe what this product does..." rows="5"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Headcount</strong></label>
+                            <select>
+                                <option value="">— Select —</option>
+                                <option>1–50</option><option>51–200</option>
+                                <option>201–500</option><option>501–1000</option><option>1000+</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Supported Locations</strong></label>
+                            <input type="text" placeholder="e.g. South Africa, UK, USA">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Key Modules</strong></label>
+                            <input type="text" placeholder="e.g. Payroll, Leave Management, Onboarding">
+                        </div>
+                        <div class="input-group">
+                            <label><strong>Integrations</strong></label>
+                            <input type="text" placeholder="e.g. Xero, Workday, Slack">
+                        </div>
+                        <button type="button" class="btn-dark">Save Product ${idx + 1}</button>
+                    </form>
+                </div>`);
+
+            // Append panel after the last product panel
+            $('.product-panel').last().after(newPanel);
+
+            // Switch to the new tab
+            $('.product-tab').removeClass('active');
+            newTab.addClass('active');
+            $('.product-panel').hide();
+            newPanel.show();
+        });
+    </script>
+
+<!-- ═══ GET CERTIFIED MODAL ═══════════════════════════════════════ -->
+<div class="cert-overlay" id="certOverlay"></div>
+<div class="cert-modal" id="certModal">
+
+    <!-- close -->
+    <button class="cert-close" id="certClose">&times;</button>
+
+    <!-- step indicator -->
+    <div class="cert-steps">
+        <div class="cert-step active" id="stepDot1">
+            <div class="step-dot">1</div>
+            <span>Choose Plan</span>
+        </div>
+        <div class="cert-step-line"></div>
+        <div class="cert-step" id="stepDot2">
+            <div class="step-dot">2</div>
+            <span>Payment</span>
+        </div>
+    </div>
+
+    <!-- ── STEP 1: Plan ── -->
+    <div class="cert-body" id="certStep1">
+        <div class="cert-header">
+            <div class="cert-header-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f04e23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+            </div>
+            <div>
+                <h2>Udder Certification</h2>
+                <p>A stamp of independent credibility — helping buyers find and trust your platform.</p>
+            </div>
+        </div>
+
+        <div class="cert-plans">
+            <!-- Udder Validated -->
+            <div class="cert-plan" id="planValidated" data-plan="validated">
+                <div class="plan-badge">Udder Validated</div>
+                <div class="plan-price">$$$$<span>/year</span></div>
+                <ul class="plan-features">
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Profile reviewed by the Udder team
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Certification badge on the tech profile
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Tech site reviewed and validated against the profile
+                    </li>
+                    <li class="feat-no">
+                        <span class="feat-icon no">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        </span>
+                        Udder team attending tech demo
+                    </li>
+                    <li class="feat-no">
+                        <span class="feat-icon no">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        </span>
+                        Udder team's demo feedback quotes on the profile
+                    </li>
+                    <li class="feat-no">
+                        <span class="feat-icon no">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        </span>
+                        Demo recording clips available on the profile page
+                    </li>
+                </ul>
+                <button class="plan-select-btn" data-plan="validated">Select</button>
+            </div>
+
+            <!-- Udder Approved -->
+            <div class="cert-plan featured" id="planApproved" data-plan="approved">
+                <div class="plan-popular">Most Popular</div>
+                <div class="plan-badge">Udder Approved</div>
+                <div class="plan-price">$$$$<span>/year</span></div>
+                <ul class="plan-features">
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Profile reviewed by the Udder team
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Certification badge on the tech profile
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Tech site reviewed and validated against the profile
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Udder team attending tech demo
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Udder team's demo feedback quotes on the profile
+                    </li>
+                    <li class="feat-yes">
+                        <span class="feat-icon yes">
+                            <svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1,6 4,9 11,2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        Demo recording clips available on the profile page
+                    </li>
+                </ul>
+                <button class="plan-select-btn" data-plan="approved">Select</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── STEP 2: Payment ── -->
+    <div class="cert-body" id="certStep2" style="display:none;">
+        <div class="cert-header">
+            <div class="cert-header-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f04e23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+            </div>
+            <div>
+                <h2>Payment Details</h2>
+                <p>You've selected: <strong id="selectedPlanLabel" style="color:var(--orange);">—</strong>. Complete your details to get certified.</p>
+            </div>
+        </div>
+
+        <form class="cert-form" id="certPaymentForm">
+            <div class="cert-form-row">
+                <div class="cert-field">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="Jane Smith">
+                </div>
+                <div class="cert-field">
+                    <label>Company Name</label>
+                    <input type="text" placeholder="Acme HR Ltd">
+                </div>
+            </div>
+            <div class="cert-field">
+                <label>Email Address</label>
+                <input type="email" placeholder="jane@company.com">
+            </div>
+            <div class="cert-field">
+                <label>Card Number</label>
+                <div class="card-input-wrap">
+                    <svg width="20" height="14" viewBox="0 0 20 14" fill="none" style="flex-shrink:0;opacity:0.35">
+                        <rect width="20" height="14" rx="2" fill="#6b7280"/>
+                        <rect y="4" width="20" height="4" fill="#374151"/>
+                    </svg>
+                    <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+            </div>
+            <div class="cert-form-row">
+                <div class="cert-field">
+                    <label>Expiry Date</label>
+                    <input type="text" placeholder="MM / YY" maxlength="7">
+                </div>
+                <div class="cert-field">
+                    <label>CVC</label>
+                    <input type="text" placeholder="•••" maxlength="4">
+                </div>
+            </div>
+
+            <div class="cert-summary">
+                <div class="summary-row">
+                    <span>Plan</span>
+                    <span id="summaryPlan">—</span>
+                </div>
+                <div class="summary-row">
+                    <span>Billing</span>
+                    <span>Annual</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total due today</span>
+                    <span>$$$$</span>
+                </div>
+            </div>
+
+            <div class="cert-actions">
+                <button type="button" class="cert-back-btn" id="certBack">← Back</button>
+                <button type="button" class="cert-pay-btn" id="certPay">Confirm &amp; Pay</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+/* ══ CERTIFICATION MODAL ══════════════════════════════════════════ */
+.cert-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 900;
+    backdrop-filter: blur(2px);
+}
+
+.cert-overlay.active { display: block; }
+
+.cert-modal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 94%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: 16px;
+    border-top: 3px solid var(--orange);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+    z-index: 901;
+    padding: 32px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.cert-modal.active { display: block; }
+
+.cert-modal::-webkit-scrollbar { width: 5px; }
+.cert-modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+.cert-modal::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+/* close */
+.cert-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--grey);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s;
+}
+.cert-close:hover { color: var(--black); }
+
+/* step indicator */
+.cert-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 28px;
+}
+
+.cert-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.cert-step span {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--grey);
+    transition: color 0.2s;
+}
+
+.cert-step.active span { color: var(--orange); }
+
+.step-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--grey);
+    transition: all 0.2s;
+}
+
+.cert-step.active .step-dot {
+    border-color: var(--orange);
+    background: var(--orange);
+    color: var(--white);
+}
+
+.cert-step.done .step-dot {
+    border-color: var(--orange);
+    background: rgba(240,78,35,0.08);
+    color: var(--orange);
+}
+
+.cert-step-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin: 0 12px;
+    margin-bottom: 20px;
+    min-width: 80px;
+}
+
+/* header */
+.cert-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.cert-header-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(240,78,35,0.07);
+    border: 1px solid rgba(240,78,35,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cert-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--black);
+    margin: 0 0 4px;
+}
+
+.cert-header p {
+    font-size: 13px;
+    color: var(--grey);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* plans */
+.cert-plans {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.cert-plan {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.cert-plan:hover {
+    border-color: var(--orange);
+    box-shadow: 0 4px 20px rgba(240,78,35,0.08);
+}
+
+.cert-plan.featured {
+    border-color: var(--orange);
+    background: rgba(240,78,35,0.02);
+}
+
+.plan-popular {
+    position: absolute;
+    top: -11px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--orange);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.plan-badge {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+}
+
+.plan-price {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--black);
+    line-height: 1;
+}
+
+.plan-price span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--grey);
+    margin-left: 2px;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 12.5px;
+    color: var(--black);
+    line-height: 1.45;
+}
+
+.feat-no { color: var(--grey) !important; }
+
+.feat-icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.feat-icon.yes { background: #22c55e; }
+.feat-icon.no  { background: #ef4444; }
+
+.plan-select-btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 999px;
+    border: 2px solid var(--black);
+    background: var(--black);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.plan-select-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    transform: translateY(-1px);
+}
+
+.cert-plan.featured .plan-select-btn {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.cert-plan.featured .plan-select-btn:hover {
+    background: var(--orange2);
+    border-color: var(--orange2);
+}
+
+/* payment form */
+.cert-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cert-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.cert-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cert-field label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--grey);
+}
+
+.cert-field input {
+    padding: 10px 13px;
+    font-size: 14px;
+    font-family: var(--font);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    background: var(--white);
+    color: var(--black);
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.cert-field input:focus { border-color: var(--orange); }
+.cert-field input::placeholder { color: #bbb; }
+
+.card-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    transition: border-color 0.2s;
+}
+
+.card-input-wrap:focus-within { border-color: var(--orange); }
+
+.card-input-wrap input {
+    border: none !important;
+    padding: 0 !important;
+    outline: none !important;
+    font-size: 14px;
+    font-family: var(--font);
+    flex: 1;
+    background: transparent;
+    color: var(--black);
+}
+
+/* summary */
+.cert-summary {
+    background: var(--light);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--grey);
+}
+
+.summary-row span:last-child { font-weight: 500; color: var(--black); }
+
+.summary-row.total {
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--black);
+}
+
+.summary-row.total span:last-child { color: var(--orange); font-size: 16px; }
+
+/* actions */
+.cert-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.cert-back-btn {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--black);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.cert-back-btn:hover { border-color: var(--black); }
+
+.cert-pay-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 999px;
+    border: none;
+    background: var(--orange);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.cert-pay-btn:hover {
+    background: var(--orange2);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+    .cert-plans { grid-template-columns: 1fr; }
+    .cert-form-row { grid-template-columns: 1fr; }
+    .cert-modal { padding: 24px 18px; }
+}
+</style>
+
+<script>
+    // Open modal
+    $('#getCertifiedBtn').on('click', function() {
+        $('#certOverlay, #certModal').addClass('active');
+        // Reset to step 1
+        $('#certStep1').show();
+        $('#certStep2').hide();
+        $('#stepDot1').addClass('active').removeClass('done');
+        $('#stepDot2').removeClass('active done');
+    });
+
+    // Close modal
+    $('#certClose, #certOverlay').on('click', function() {
+        $('#certOverlay, #certModal').removeClass('active');
+    });
+
+    // Select plan → go to step 2
+    $(document).on('click', '.plan-select-btn', function() {
+        const plan = $(this).data('plan');
+        const label = plan === 'validated' ? 'Udder Validated' : 'Udder Approved';
+        $('#selectedPlanLabel').text(label);
+        $('#summaryPlan').text(label);
+        // transition steps
+        $('#certStep1').hide();
+        $('#certStep2').show();
+        $('#stepDot1').removeClass('active').addClass('done');
+        $('#stepDot2').addClass('active');
+        // scroll modal to top
+        $('#certModal').scrollTop(0);
+    });
+
+    // Back button
+    $('#certBack').on('click', function() {
+        $('#certStep2').hide();
+        $('#certStep1').show();
+        $('#stepDot2').removeClass('active');
+        $('#stepDot1').addClass('active').removeClass('done');
+        $('#certModal').scrollTop(0);
+    });
+
+    // Confirm pay (placeholder)
+    $('#certPay').on('click', function() {
+        $(this).text('Processing…').prop('disabled', true);
+        setTimeout(() => {
+            $('#certOverlay, #certModal').removeClass('active');
+            $(this).text('Confirm & Pay').prop('disabled', false);
+        }, 1800);
+    });
+</script>
+</body>
+</html>

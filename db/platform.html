@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Platform Full Profile</title>
+<link rel="stylesheet" href="../assets/css/styles.css" />
+<link rel="stylesheet" href="../assets/css/platform_skeleton.css" />
+<link rel="stylesheet" href="../assets/css/platform.css" />
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script type="module" src="../assets/js/core/platform.js"></script>
+<style>
+/* ── VARIABLES ───────────────────────────────────────── */
+:root {
+  --black:   #0f0f0f;
+  --white:   #ffffff;
+  --orange:  #f04e23;
+  --orange2: #d43d14;
+  --grey:    #6b7280;
+  --light:   #f5f5f5;
+  --border:  #e5e7eb;
+  --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--light);
+  color: var(--black);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.modal-active .container {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
+  overflow: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ════════════════════════════════════════════════════════
+   DECORATIVE SHAPES — fixed, behind everything
+════════════════════════════════════════════════════════ */
+
+/* 1. Large quarter-circle stamp — top left */
+.deco-quarter-tl {
+  position: fixed;
+  top: -120px;
+  left: -120px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(240,78,35,0.12);
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-quarter-tl-inner {
+  position: fixed;
+  top: -60px;
+  left: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(240,78,35,0.04);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 2. Diagonal dashed rule — top right area */
+.deco-dash-tr {
+  position: fixed;
+  top: 60px;
+  right: 80px;
+  width: 80px;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(240,78,35,0.3) 0px,
+    rgba(240,78,35,0.3) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  transform: rotate(-35deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 3. Dot grid — right side mid */
+.deco-dot-grid-r {
+  position: fixed;
+  top: 50%;
+  right: 36px;
+  transform: translateY(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-dot-grid-r span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(15,15,15,0.09);
+  display: block;
+}
+
+/* 4. Triangle — bottom left */
+.deco-triangle-bl {
+  position: fixed;
+  bottom: 60px;
+  left: 48px;
+  width: 0;
+  height: 0;
+  border-left: 22px solid transparent;
+  border-right: 22px solid transparent;
+  border-bottom: 38px solid rgba(240,78,35,0.1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 5. Cross / plus mark — bottom right */
+.deco-plus-br {
+  position: fixed;
+  bottom: 80px;
+  right: 60px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-plus-br::before,
+.deco-plus-br::after {
+  content: '';
+  position: absolute;
+  background: rgba(240,78,35,0.25);
+  border-radius: 1px;
+}
+.deco-plus-br::before {
+  width: 2px; height: 100%;
+  left: 50%; transform: translateX(-50%);
+}
+.deco-plus-br::after {
+  width: 100%; height: 2px;
+  top: 50%; transform: translateY(-50%);
+}
+
+/* 6. Radial blob — bottom centre */
+.deco-blob-bc {
+  position: fixed;
+  bottom: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(240,78,35,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 7. Thin vertical accent line — left mid */
+.deco-vline-l {
+  position: fixed;
+  top: 30%;
+  left: 28px;
+  width: 1px;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.35), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 8. Square outline — top right corner */
+.deco-square-tr {
+  position: fixed;
+  top: 40px;
+  right: 44px;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid rgba(240,78,35,0.2);
+  transform: rotate(18deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════════════════════
+   SKELETON
+════════════════════════════════════════════════════════ */
+.container-skeleton {
+  position: relative;
+  z-index: 1;
+}
+
+/* ════════════════════════════════════════════════════════
+   DEMO MODAL
+════════════════════════════════════════════════════════ */
+.modal-demo {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-demo.hide { display: none !important; }
+
+.modal-container {
+  background: var(--white);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  /* orange top stripe */
+  border-top: 3px solid var(--orange);
+}
+
+.modal-container-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-container-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.modal-container-title svg path[fill="#000"] { fill: var(--orange); }
+
+.icon-button {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer;
+  color: var(--grey);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.icon-button:hover { color: var(--black); background: var(--light) !important; }
+
+.modal-container-body {
+  padding: 24px;
+}
+
+.modal-container-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.modal-container-footer a {
+  color: var(--grey);
+  text-decoration: underline;
+}
+
+.modal-container-footer a:hover { color: var(--black); }
+
+/* modal form fields */
+.modal-container-body label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+.modal-container-body label:first-child { margin-top: 0; }
+
+.asterisk { color: var(--orange); }
+
+.modal-container-body input,
+.modal-container-body textarea,
+.modal-container-body select {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: var(--font);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  background: #fafafa;
+  color: var(--black);
+  margin-bottom: 0;
+  transition: border-color 0.2s, background 0.2s;
+  appearance: none;
+}
+
+.modal-container-body input:focus,
+.modal-container-body textarea:focus,
+.modal-container-body select:focus {
+  border-color: var(--orange);
+  background: var(--white);
+}
+
+.modal-container-body textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.6;
+}
+
+.modal-container-body .personal-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.modal-container-body .personal-info label { grid-column: span 1; }
+.modal-container-body .personal-info input { grid-column: span 1; }
+
+.modal-container-body .cta,
+.modal-container-body button.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 32px;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 2px solid var(--orange);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 20px;
+}
+
+.modal-container-body .cta:hover,
+.modal-container-body button.cta:hover {
+  background: var(--orange2);
+  border-color: var(--orange2);
+  transform: translateY(-1px);
+}
+
+/* multi-select in modal */
+.multi-select {
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 14px;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--grey);
+  transition: border-color 0.2s;
+}
+
+.multi-select:focus-within { border-color: var(--orange); }
+
+/* ════════════════════════════════════════════════════════
+   MAIN PAGE CONTAINER
+════════════════════════════════════════════════════════ */
+.container {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: transparent;
+}
+
+.main {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 32px 48px 80px;
+}
+
+/* ── TOP ORANGE STRIPE ── */
+.container::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--orange);
+  width: 100%;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--black);
+}
+
+.header h2 a {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--black);
+  transition: border-color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.header h2 a:hover {
+  border-color: var(--orange);
+  background: rgba(240,78,35,0.04);
+}
+
+.brand { font-weight: 700; letter-spacing: 1px; }
+
+/* ── PROFILE GRID ── */
+.profile {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 48px;
+}
+
+/* ── PLATFORM HEADER ── */
+.platform-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--light);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.badge {
+  background: var(--black);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: var(--grey);
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+/* ── SECTION HEADINGS ── */
+.features,
+.integrations {
+  margin-top: 32px;
+}
+
+.features h4,
+.integrations h4 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.features h4::after,
+.integrations h4::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.features ul {
+  padding-left: 0;
+  list-style: none;
+  color: #444;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 6px 0;
+}
+
+.features li::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(240,78,35,0.1);
+  border: 1.5px solid rgba(240,78,35,0.3);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.integrations ul {
+  padding-left: 18px;
+  color: #444;
+}
+
+.integrations li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* ── SCREENSHOTS ── */
+.screenshots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.screenshot {
+  width: 100%;
+  height: 110px;
+  background: var(--light);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.2s;
+}
+
+.screenshot:hover { transform: scale(1.02); }
+
+/* ── INTEGRATIONS GRID ── */
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.integration-chip {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--grey);
+  background: var(--white);
+}
+
+/* ── SCORE CARD (RIGHT) ── */
+.score-card {
+  border-left: 1px solid var(--border);
+  padding-left: 36px;
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 5px solid var(--black);
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 auto 24px;
+  position: relative;
+  color: var(--black);
+  /* orange ring accent */
+  box-shadow: 0 0 0 4px rgba(240,78,35,0.12);
+}
+
+.score-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.score-list {
+  font-size: 13px;
+  color: #444;
+  margin-bottom: 28px;
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.score-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.score-list li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* ── ACTION BUTTONS ── */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actions button {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  border: 2px solid var(--black);
+  background: var(--black);
+  color: var(--white);
+}
+
+.actions button:hover {
+  background: #222;
+  transform: translateY(-1px);
+}
+
+.actions button.secondary {
+  background: var(--white);
+  color: var(--black);
+  border-color: var(--border);
+}
+
+.actions button.secondary:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: var(--white);
+}
+
+/* ── FORM FIELDS (global, used by platform.js injected content) ── */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: var(--font);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  background: #fafafa;
+  color: var(--black);
+  margin-bottom: 14px;
+  transition: border-color 0.2s, background 0.2s;
+  appearance: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--orange);
+  background: var(--white);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--black);
+  color: rgba(255,255,255,0.5);
+  padding: 24px 48px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+footer::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--orange);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .profile {
+    grid-template-columns: 1fr;
+  }
+  .score-card {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+  .main { padding: 24px 20px 60px; }
+  .deco-dot-grid-r,
+  .deco-triangle-bl,
+  .deco-plus-br,
+  .deco-vline-l { display: none; }
+}
+</style>
+</head>
+
+<body>
+
+  <!-- ═══ DECORATIVE SHAPES ════════════════════════════════ -->
+  <div class="deco-quarter-tl"></div>
+  <div class="deco-quarter-tl-inner"></div>
+  <div class="deco-dash-tr"></div>
+  <div class="deco-square-tr"></div>
+  <div class="deco-dot-grid-r">
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </div>
+  <div class="deco-vline-l"></div>
+  <div class="deco-triangle-bl"></div>
+  <div class="deco-plus-br"></div>
+  <div class="deco-blob-bc"></div>
+
+  <!-- ═══ SKELETON ════════════════════════════════════════ -->
+  <div class="container-skeleton">
+    <div>
+      <div class="skeleton title-skeleton"></div>
+      <div class="skeleton text-line-skeleton full"></div>
+      <div class="skeleton text-line-skeleton medium"></div>
+      <div class="skeleton text-line-skeleton short"></div>
+      <div class="feature-list-skeleton">
+        <div class="skeleton feature-item-skeleton"></div>
+        <div class="skeleton feature-item-skeleton"></div>
+        <div class="skeleton feature-item-skeleton"></div>
+        <div class="skeleton feature-item-skeleton"></div>
+      </div>
+      <div class="card-row-skeleton">
+        <div class="skeleton card-skeleton"></div>
+        <div class="skeleton card-skeleton"></div>
+        <div class="skeleton card-skeleton"></div>
+      </div>
+    </div>
+    <div class="sidebar-skeleton">
+      <div class="skeleton circle-skeleton"></div>
+      <div class="skeleton rationale-item-skeleton"></div>
+      <div class="skeleton rationale-item-skeleton"></div>
+      <div class="skeleton rationale-item-skeleton"></div>
+      <div class="skeleton rationale-item-skeleton"></div>
+      <div class="skeleton button-skeleton"></div>
+      <div class="skeleton button-skeleton secondary"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DEMO MODAL ══════════════════════════════════════ -->
+  <div class="modal-demo hide">
+    <article class="modal-container">
+      <header class="modal-container-header">
+        <h1 class="modal-container-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path fill="#000" d="M14 9V4H5v16h6.056c.328.417.724.785 1.18 1.085l1.39.915H3.993A.993.993 0 0 1 3 21.008V2.992C3 2.455 3.449 2 4.002 2h10.995L21 8v1h-7zm-2 2h9v5.949c0 .99-.501 1.916-1.336 2.465L16.5 21.498l-3.164-2.084A2.953 2.953 0 0 1 12 16.95V11zm2 5.949c0 .316.162.614.436.795l2.064 1.36 2.064-1.36a.954.954 0 0 0 .436-.795V13h-5v3.949z" />
+          </svg>
+          Request a Demo
+        </h1>
+        <button class="icon-button" style="background: white; border: none;" id="closerequestDemoModal">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path fill="currentColor" d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z" />
+          </svg>
+        </button>
+      </header>
+      <section class="modal-container-body rtf">
+        <div class="personal-info">
+          <label for="name">Your Name <span class="asterisk">*</span></label>
+          <input type="text" id="name" name="name" placeholder="Enter name" />
+
+          <label for="email">Your Email <span class="asterisk">*</span></label>
+          <input type="email" id="email" name="email" placeholder="Enter email" />
+        </div>
+
+        <label for="companyName">Company Name <span class="asterisk">*</span></label>
+        <input type="text" id="companyName" name="companyName" placeholder="Enter company name" />
+
+        <label for="headcount">Your Headcount</label>
+        <select id="headcount">
+          <option value="">— Select —</option>
+        </select>
+
+        <label for="country">Country / Region</label>
+        <input type="text" id="country" name="country" placeholder="Enter country" />
+
+        <label for="modules">Modules you're interested in <span class="asterisk">*</span></label>
+        <div class="multi-select" id="modules">
+          <div class="selected">Select options</div>
+          <div class="options"></div>
+        </div>
+
+        <label for="question">Your question to <strong class="companyName"></strong> <span class="asterisk">*</span></label>
+        <textarea id="question" name="question" placeholder="Type your question here"></textarea>
+
+        <div style="text-align: center; margin-bottom: 10px;">
+          <button class="cta" style="cursor: pointer;" id="submitBtn">Submit Request</button>
+        </div>
+      </section>
+      <div class="modal-container-footer">
+        <a href="https://udder.rocks/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+      </div>
+    </article>
+  </div>
+
+  <!-- ═══ MAIN CONTENT ════════════════════════════════════ -->
+  <div class="container hide">
+    <div class="main">
+
+      <!-- Header -->
+      <div class="header">
+        <h2>
+          <a href="./" title="Go back">&#8592;</a>
+          <span class="companyName"></span> Full Profile
+        </h2>
+        <div class="brand">
+          <a href="./">
+            <img src="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&name=Udder%20Logo%20Black.png"
+                 height="0" style="height:auto;width:140px;border:0;"
+                 width="140" alt="Udder Logo Black" loading="lazy"
+                 srcset="https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=83&name=Udder%20Logo%20Black.png 83w,
+                         https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=166&name=Udder%20Logo%20Black.png 166w,
+                         https://udder.rocks/hs-fs/hubfs/Udder%20Logo%20Black.png?width=332&name=Udder%20Logo%20Black.png 332w"
+                 sizes="(max-width:166px) 100vw, 166px" />
+            <br/><span style="color:grey;font-size:13px;margin-left:20px;letter-spacing:2px;">DATABASE</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="profile">
+
+        <!-- LEFT -->
+        <div>
+          <div class="platform-header">
+            <div class="logo">
+              <img src="" alt="logo" class="card-logo" id="logo_img" />
+            </div>
+            <strong style="font-size: x-large;" id="platform_name" class="companyName"></strong>
+            <span class="badge" id="categories">HRIS, ATS, Payroll</span>
+          </div>
+
+          <h1 id="title"></h1>
+          <div class="subtitle" id="description"></div>
+
+          <div class="features">
+            <h4>Key Features</h4>
+            <ul id="featuresList"></ul>
+          </div>
+
+          <div class="screenshots"></div>
+
+          <div class="integrations">
+            <h4>Integrations</h4>
+            <div id="integrationsGrid" class="grid-container"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="score-card">
+          <div class="score-circle" id="matchScore">--</div>
+
+          <div class="score-title">Match Score Rationale</div>
+          <ul class="score-list" id="scoreList"></ul>
+
+          <div class="actions">
+            <button id="addToListBtn">Add to List</button>
+            <button class="secondary" id="requestDemo">Request a Demo</button>
+            <button class="secondary">Contact Udder Consultant</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ══════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-logo">
+        <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png" class="hs-image-widget " style="width:166px;border-width:0px;border:0px;" width="166" alt="Udder_White" title="Udder_White" loading="lazy" srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&amp;name=Udder_White.png 83w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png 166w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=249&amp;name=Udder_White.png 249w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=332&amp;name=Udder_White.png 332w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=415&amp;name=Udder_White.png 415w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=498&amp;name=Udder_White.png 498w" sizes="(max-width: 166px) 100vw, 166px">
+        <br/><span style="color: white;font-size: 16px;margin-left: 60px;">DATABASE</span>
+        <br/><br/>©2026 The Udder Group Limited, trading as Udder.
+      </div>
+      <div class="link-column">
+      <a href="https://udder.rocks/vendor-selection-consulting-service">Vendor Selection</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index by Udder</a><br/>
+      <a href="https://udder.rocks/technical-consulting-service">Technical Consulting</a><br/>
+      <a href="https://udder.rocks/integration-consulting-service">Integration Consulting</a><br/>
+      <a href="https://udder.rocks/implementation-services">Implementation</a><br/>
+      <a href="https://udder.rocks/tech-healthcheck-service">Tech Healthcheck</a>
+    </div>
+    <div class="link-column">
+      <a href="https://udder.rocks/assist">Assist</a><br/>
+      <a href="https://udder.rocks/ai-augment">AI Augment</a><br/>
+      <a href="https://udder.rocks/hr-tech-implementation-case-studies">Case Studies</a><br/>
+      <a href="https://blog.udder.rocks/the-udder-blog">Blog</a><br/>
+      <a href="https://udder.rocks/index-by-udder">Index</a><br/>
+      <a href="https://udder.rocks/about-us">About</a><br/>
+      <a href="https://udder.rocks/contact-us">Let's Talk</a>
+    </div>
+    <div>
+      <a href="//udder.rocks/privacy-policy?hsLang=en" rel="noopener" target="_blank">Privacy Policy</a><br/>
+      <a href="//udder.rocks/terms-of-service?hsLang=en" rel="noopener" target="_blank">Terms of Service</a>
+    </div>
+  </footer>
+
+</body>
+</html>

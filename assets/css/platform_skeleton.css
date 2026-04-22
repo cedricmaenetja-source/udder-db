@@ -1,0 +1,90 @@
+.container-skeleton {
+    max-width: 1200px;
+    margin: 40px auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 60px;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #e0e0e0 25%,
+      #f0f0f0 50%,
+      #e0e0e0 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Left */
+  .title-skeleton {
+    height: 40px;
+    width: 80%;
+    margin-bottom: 20px;
+  }
+
+  .text-line-skeleton {
+    height: 14px;
+    margin-bottom: 12px;
+  }
+
+  .text-line-skeleton.short { width: 60%; }
+  .text-line-skeleton.medium { width: 80%; }
+  .text-line-skeleton.full { width: 100%; }
+
+  .feature-list-skeleton {
+    margin-top: 30px;
+  }
+
+  .feature-item-skeleton {
+    height: 14px;
+    width: 50%;
+    margin-bottom: 14px;
+  }
+
+  .card-row-skeleton {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .card-skeleton {
+    height: 120px;
+    flex: 1;
+  }
+
+  /* Right */
+  .sidebar-skeleton {
+    border-left: 1px solid #e5e5e5;
+    padding-left: 40px;
+  }
+
+  .circle-skeleton {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin-bottom: 30px;
+  }
+
+  .rationale-item-skeleton {
+    height: 14px;
+    margin-bottom: 14px;
+    width: 80%;
+  }
+
+  .button-skeleton {
+    height: 48px;
+    border-radius: 30px;
+    margin-top: 20px;
+  }
+
+  .button-skeleton.secondary {
+    width: 80%;
+  }
