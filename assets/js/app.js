@@ -14,6 +14,7 @@ export const isValidEmail = Helper.isValidEmail;
 export const maskEmail = Helper.maskEmail;
 export const currentYear = Helper.getCurrentYear;
 export const initials = Helper.getInitials;
+export const showToast = Helper.showNotification;
 
 import { Swal, error, oopsError, successPopUp, errorPopUp } from "./utils/sweetalert2.js";
 export const swal = Swal;
@@ -134,3 +135,16 @@ export const mockUpFilter = {
         "120+ employees"
     ]
 };
+
+export function lockBtn($btn) {
+    if ($btn.data('loading')) return null;
+    $btn.data('loading', true);
+    $btn.append('<span class="spinner-btn-clicked"></span>');
+    $btn.css('pointer-events', 'none');
+
+    return function resetBtn() {
+        $btn.data('loading', false);
+        $btn.find('.spinner-btn-clicked').remove();
+        $btn.css('pointer-events', 'auto');
+    };
+}

@@ -635,7 +635,7 @@ footer::before {
 
     <!-- Left: back + title -->
     <div class="header-left">
-      <a href="shortlist.html" class="back-btn" title="Go back">&#8592;</a>
+      <a href="./shortlist.html" class="back-btn" title="Go back">&#8592;</a>
       <span class="header-title">My evaluation</span>
     </div>
 
@@ -802,7 +802,7 @@ footer::before {
 
     <!-- Save row -->
     <div class="eval-save-row">
-      <a href="shortlist.html" class="btn-back">← Back to results</a>
+      <a href="./shortlist.html" class="btn-back">← Back to results</a>
       <button class="btn-save" id="saveEvalBtn">Save evaluation</button>
     </div>
   </div>
@@ -811,32 +811,7 @@ footer::before {
 
 <!-- ═══ FOOTER ═══════════════════════════════════════════ -->
 <footer>
-  <div class="footer-logo">
-        <img src="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png" class="hs-image-widget " style="width:166px;border-width:0px;border:0px;" width="166" alt="Udder_White" title="Udder_White" loading="lazy" srcset="https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=83&amp;name=Udder_White.png 83w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=166&amp;name=Udder_White.png 166w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=249&amp;name=Udder_White.png 249w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=332&amp;name=Udder_White.png 332w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=415&amp;name=Udder_White.png 415w, https://udder.rocks/hs-fs/hubfs/Udder_White.png?width=498&amp;name=Udder_White.png 498w" sizes="(max-width: 166px) 100vw, 166px">
-        <br/><span style="color: white;font-size: 16px;margin-left: 60px;">DATABASE</span>
-        <br/><br/>©2026 The Udder Group Limited, trading as Udder.
-      </div>
-      <div class="link-column">
-      <a href="https://udder.rocks/vendor-selection-consulting-service">Vendor Selection</a><br/>
-      <a href="https://udder.rocks/index-by-udder">Index by Udder</a><br/>
-      <a href="https://udder.rocks/technical-consulting-service">Technical Consulting</a><br/>
-      <a href="https://udder.rocks/integration-consulting-service">Integration Consulting</a><br/>
-      <a href="https://udder.rocks/implementation-services">Implementation</a><br/>
-      <a href="https://udder.rocks/tech-healthcheck-service">Tech Healthcheck</a>
-    </div>
-    <div class="link-column">
-      <a href="https://udder.rocks/assist">Assist</a><br/>
-      <a href="https://udder.rocks/ai-augment">AI Augment</a><br/>
-      <a href="https://udder.rocks/hr-tech-implementation-case-studies">Case Studies</a><br/>
-      <a href="https://blog.udder.rocks/the-udder-blog">Blog</a><br/>
-      <a href="https://udder.rocks/index-by-udder">Index</a><br/>
-      <a href="https://udder.rocks/about-us">About</a><br/>
-      <a href="https://udder.rocks/contact-us">Let's Talk</a>
-    </div>
-    <div>
-      <a href="//udder.rocks/privacy-policy?hsLang=en" rel="noopener" target="_blank">Privacy Policy</a><br/>
-      <a href="//udder.rocks/terms-of-service?hsLang=en" rel="noopener" target="_blank">Terms of Service</a>
-    </div>
+  <div><span>Udder Database</span></div>
 </footer>
 
 <script>
@@ -885,8 +860,36 @@ footer::before {
     });
   });
 
-  // ── Save evaluation (placeholder) ──
-  document.getElementById('saveEvalBtn').addEventListener('click', function() {
+  // ── Save evaluation ──
+  document.getElementById('saveEvalBtn').addEventListener('click', function () {
+    const rows = [];
+
+    document.querySelectorAll('#evalTable tbody tr').forEach(row => {
+      const label  = row.querySelector('.eval-label')?.textContent.trim();
+      const rating = row.querySelectorAll('.star.filled').length;
+      const notes  = row.querySelector('.notes-textarea')?.value.trim() || '';
+      rows.push({ criteria: label, rating, notes });
+    });
+
+    const totalRated  = rows.filter(r => r.rating > 0).length;
+    const avgRating   = totalRated > 0
+      ? (rows.reduce((sum, r) => sum + r.rating, 0) / totalRated).toFixed(1)
+      : 0;
+
+    const data = {
+      platform_id:    new URLSearchParams(window.location.search).get('vid') || null,
+      platform_name:  document.getElementById('platformNameDisplay')?.textContent.trim(),
+      platform_type:  document.getElementById('platformTypeDisplay')?.textContent.trim(),
+      match_score:    document.getElementById('matchScoreDisplay')?.textContent.trim(),
+      overall_rating: parseFloat(avgRating),
+      criteria_rated: totalRated,
+      total_criteria: rows.length,
+      evaluations:    rows,
+      saved_at:       new Date().toISOString(),
+    };
+
+    console.log('[Evaluation]', data);
+
     this.textContent = 'Saved ✓';
     this.style.background = '#22c55e';
     setTimeout(() => {

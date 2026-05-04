@@ -1,49 +1,711 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Udder Database Sign Up</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <link rel="stylesheet" href="assets/css/login.css" />
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script type="module" src="assets/js/core/auth/signUp.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Create account — UDDER DB</title>
+<link rel="stylesheet" href="assets/css/common.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#F15025;--o2:#D03E14;--od:#c23a12;
+  --k:#0f0f0f;--w:#ffffff;--off:#fafaf9;
+  --b1:rgba(15,15,15,0.07);--b2:rgba(15,15,15,0.12);--b3:rgba(15,15,15,0.22);
+  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
+  --display:'Poppins',sans-serif;--body:'Inter',sans-serif;
+}
+html,body{min-height:100%;background:var(--off)}
+body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+
+/* ── LEFT PANEL ── */
+.left{width:44%;max-width:680px;flex-shrink:0;background:var(--o);display:flex;flex-direction:column;padding:40px;position:relative;overflow:hidden;border-radius:0 16px 16px 0;}
+.left-arc{position:absolute;width:85%;padding-bottom:85%;border-radius:50%;border:40px solid var(--od);top:-10%;right:-20%;pointer-events:none;}
+.brand{position:relative;z-index:2;font-family:var(--display);font-size:20px;font-weight:900;color:var(--w);letter-spacing:-0.03em;text-transform:uppercase;}
+.brand span{color:var(--k)}
+.left-quote{position:relative;z-index:2;margin-top:auto;}
+.left-quote blockquote{font-family:var(--display);font-size:clamp(28px,3.5vw,42px);font-weight:900;color:var(--w);letter-spacing:-0.02em;line-height:1.05;text-transform:uppercase;margin-bottom:20px;}
+.left-quote cite{font-style:normal;font-size:13px;color:rgba(255,255,255,0.6);font-weight:400;}
+
+/* ── RIGHT PANEL ── */
+.right{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:56px 48px;overflow-y:auto;background:var(--w);}
+.form-card{width:100%;max-width:460px}
+
+/* progress bar */
+.progress-bar{display:flex;gap:6px;margin-bottom:40px}
+.progress-seg{height:3px;flex:1;border-radius:2px;background:var(--b1);transition:background 0.3s}
+.progress-seg.active{background:var(--o)}
+.progress-seg.done{background:rgba(241,80,37,0.3)}
+
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeUp 0.3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.form-title{font-family:var(--display);font-size:clamp(24px,3vw,34px);font-weight:800;color:var(--t1);letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px;}
+.form-sub{font-size:14px;color:var(--t3);line-height:1.5;margin-bottom:32px}
+.form-sub a{color:var(--o);text-decoration:none;font-weight:500}
+.form-sub a:hover{color:var(--o2)}
+.form-sub strong{color:var(--t1);font-weight:600}
+
+.form-label{display:block;font-size:10px;font-weight:700;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;}
+.req{color:var(--o);margin-left:2px}
+.form-group{margin-bottom:18px}
+
+.form-input{width:100%;height:46px;padding:0 42px 0 14px;border:1.5px solid var(--b2);border-radius:8px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--body);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.form-input::placeholder{color:var(--t4)}
+.form-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(241,80,37,0.09)}
+.form-input:hover:not(:focus){border-color:var(--b3)}
+
+.form-input-wrap{position:relative}
+.input-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:6px;background:var(--o);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+.input-icon svg{width:12px;height:12px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* role selector */
+.role-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.role-card{border:1.5px solid var(--b2);border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;background:var(--w);text-align:left;}
+.role-card:hover{border-color:var(--o);background:rgba(241,80,37,0.03)}
+.role-card.selected{border-color:var(--o);background:rgba(241,80,37,0.05)}
+.role-card h4{font-family:var(--display);font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:5px}
+.role-card p{font-size:12px;color:var(--t3);line-height:1.5}
+
+/* preferences */
+.pref-section{margin-bottom:28px}
+.pref-section-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;display:block;}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--b2);border-radius:999px;font-size:13px;font-weight:500;color:var(--t2);background:var(--w);cursor:pointer;transition:all 0.15s;user-select:none;}
+.pill:hover{border-color:var(--b3);color:var(--t1)}
+.pill.selected{background:var(--k);border-color:var(--k);color:var(--w);}
+.pill.selected::before{content:'✓ ';font-size:11px;opacity:0.8}
+.pill-sm{padding:7px 14px;font-size:12px}
+
+/* ── vendor listing options ── */
+.vendor-option-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.vendor-option-card{border:1.5px solid var(--b2);border-radius:10px;padding:16px 18px;cursor:pointer;transition:all 0.15s;background:var(--w);display:flex;align-items:center;gap:14px;text-align:left;width:100%;}
+.vendor-option-card:hover{border-color:var(--o);background:rgba(241,80,37,0.02);}
+.vendor-option-card.selected{border-color:var(--o);background:rgba(241,80,37,0.05);}
+.vendor-option-icon{width:36px;height:36px;border-radius:8px;background:var(--off);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s;}
+.vendor-option-card.selected .vendor-option-icon{background:rgba(241,80,37,0.1);}
+.vendor-option-icon svg{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.vendor-option-card.selected .vendor-option-icon svg{stroke:var(--o);}
+.vendor-option-text h5{font-family:var(--display);font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:3px;}
+.vendor-option-text p{font-size:12px;color:var(--t3);line-height:1.4;}
+
+/* vendor detail panels */
+.vendor-detail{display:none;animation:fadeUp 0.2s ease both;}
+.vendor-detail.visible{display:block;}
+
+/* claim search dropdown */
+.claim-search-wrap{position:relative;}
+.claim-search-wrap .form-input{padding-right:14px;}
+.claim-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--w);border:1.5px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:50;max-height:220px;overflow-y:auto;display:none;}
+.claim-dropdown.open{display:block;}
+.claim-dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background 0.12s;border-bottom:1px solid var(--b1);}
+.claim-dropdown-item:last-child{border-bottom:none;}
+.claim-dropdown-item:hover{background:var(--off);}
+.claim-item-logo{width:28px;height:28px;border-radius:6px;background:var(--off);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0;}
+.claim-item-info{flex:1;min-width:0;}
+.claim-item-name{font-size:13px;font-weight:600;color:var(--t1);}
+.claim-item-url{font-size:11px;color:var(--t4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.claim-no-results{padding:14px;text-align:center;font-size:13px;color:var(--t4);}
+
+.claim-selected-chip{display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:rgba(241,80,37,0.05);border:1.5px solid rgba(241,80,37,0.2);border-radius:8px;}
+.claim-selected-chip.visible{display:flex;}
+.claim-selected-chip span{font-size:13px;font-weight:500;color:var(--t1);flex:1;}
+.claim-selected-chip button{background:none;border:none;cursor:pointer;font-size:18px;color:var(--t3);line-height:1;padding:0 2px;}
+.claim-selected-chip button:hover{color:var(--t1);}
+
+/* OTP */
+.otp-email-chip{display:inline-flex;align-items:center;gap:8px;background:var(--off);border:1.5px solid var(--b2);border-radius:999px;padding:6px 14px 6px 10px;margin-bottom:32px;}
+.otp-email-chip-dot{width:28px;height:28px;border-radius:50%;background:var(--o);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.otp-email-chip-dot svg{width:13px;height:13px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.otp-email-chip span{font-size:13px;font-weight:500;color:var(--t1)}
+.otp-inputs{display:flex;gap:10px;margin-bottom:12px;width:fit-content;}
+.otp-input{width:72px;height:72px;flex-shrink:0;border:1.5px solid var(--b2);border-radius:10px;background:var(--w);font-family:var(--display);font-size:28px;font-weight:700;color:var(--t1);text-align:center;outline:none;transition:border-color 0.15s,box-shadow 0.15s,background 0.15s;-moz-appearance:textfield;}
+.otp-input::-webkit-outer-spin-button,.otp-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.otp-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(241,80,37,0.09);background:rgba(241,80,37,0.02)}
+.otp-input.filled{border-color:var(--o);background:rgba(241,80,37,0.04)}
+.otp-input.error{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.09);animation:shake 0.35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.otp-error{font-size:12px;color:#ef4444;margin-bottom:16px;min-height:18px;}
+.otp-resend{font-size:13px;color:var(--t3);margin-bottom:32px;}
+.otp-resend button{background:none;border:none;cursor:pointer;font-family:var(--body);font-size:13px;color:var(--o);font-weight:600;padding:0;transition:color 0.15s;}
+.otp-resend button:hover{color:var(--o2)}
+.otp-resend button:disabled{color:var(--t4);cursor:default}
+.otp-timer{font-weight:600;color:var(--t2)}
+
+/* success */
+.otp-success{display:none;flex-direction:column;align-items:center;text-align:center;padding:20px 0 8px;}
+.otp-success-icon{width:64px;height:64px;border-radius:50%;background:rgba(22,163,74,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes popIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+.otp-success-icon svg{width:28px;height:28px;stroke:#16a34a;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.otp-success h3{font-family:var(--display);font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;margin-bottom:8px}
+.otp-success p{font-size:14px;color:var(--t3);line-height:1.5;margin-bottom:28px}
+.btn-goto-dashboard{height:48px;padding:0 32px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--body);transition:all 0.15s;display:inline-flex;align-items:center;gap:8px;}
+.btn-goto-dashboard:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,80,37,0.28)}
+
+/* buttons */
+.btn-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.btn-back{font-size:14px;color:var(--t2);background:none;border:none;cursor:pointer;font-family:var(--body);font-weight:500;padding:0;transition:color 0.15s;}
+.btn-back:hover{color:var(--t1)}
+.btn-primary{height:48px;padding:0 28px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--body);transition:all 0.15s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,80,37,0.28)}
+.btn-primary:active{transform:none;box-shadow:none}
+.btn-primary:disabled{background:var(--b2);cursor:default;transform:none;box-shadow:none}
+.btn-primary svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+input[type=hidden]{display:none}
+
+@media(max-width:860px){.left{display:none}.right{padding:32px 24px}}
+@media(max-width:480px){.right{padding:24px 16px}.form-row-2{grid-template-columns:1fr}.role-grid{grid-template-columns:1fr}.otp-inputs{gap:6px}.otp-input{height:56px;font-size:24px}}
+</style>
 </head>
 <body>
-  <div class="screen">
-    <div class="brand">
-      <div class="float-left">
-          <a href="./" style="text-decoration: none;"><span style="font-size: 30px;color: var(--black);"><strong>UDDER</strong></span><br/><span style="color: grey;font-size: 21px;">DATABASE</span></a>
-        </div>
-    </div>
 
-    <div class="cow-icon">
-        <img src="assets/images/cow.png" alt="Cow illustration">
-    </div>
-
-    <div class="login-box">
-        <label for="fname">First Name *</label>
-        <input type="text" name="fname" id="fname">
-        <label for="lname">Last Name *</label>
-        <input type="text" name="lname" id="lname">
-        <label for="email">Email *</label>
-      <input type="email" name="email" id="email">
-      <label for="password">Password (min. 8 characters long) *</label>
-      <input type="password" name="pwd" id="pwd">
-      <label for="role">Role</label>
-      <select id="role">
-        <option value="hr-professional">HR Professional</option>
-        <option value="vendor">Vendor</option>
-      </select>
-      <div class="privacy-policy">
-        <span>By clicking Agree & Sign Up, you agree to the Udder's <a href="https://udder.rocks/privacy-policy" target="_blank">Privary Policy</a>.</span>
-      </div>
-      <a href="javascript:void(0)" id="signUp" class="cta">Agree & Sign Up</a>
-      <span style="color: var(--grey);font-size: 12px;margin-top: 20px;">
-        Already have an account?
-        <a href="login.html" class="">Login</a>
-      </span>
-    </div>
+<div class="left">
+  <div class="left-arc"></div>
+  <div class="brand">Udder<span>DB</span></div>
+  <div class="left-quote">
+    <blockquote>"They need an advisor, not just a technician."</blockquote>
+    <cite>— How Udder thinks about HR tech selection</cite>
   </div>
+</div>
+
+<div class="right">
+  <div class="form-card">
+
+    <div class="progress-bar">
+      <div class="progress-seg active" id="seg1"></div>
+      <div class="progress-seg" id="seg2"></div>
+      <div class="progress-seg" id="seg3"></div>
+    </div>
+    <div id="dot1" style="display:none"></div>
+    <div id="dot2" style="display:none"></div>
+    <div id="sideStep1" style="display:none"><span class="step-num"></span></div>
+    <div id="sideStep2" style="display:none"><span class="step-num"></span></div>
+
+    <!-- STEP 1 -->
+    <div class="step-panel active" id="panel1">
+      <h2 class="form-title">Create your account</h2>
+      <p class="form-sub">Free, no card required. UK-hosted, GDPR-compliant.</p>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Work email <span class="req">*</span></label>
+        <div class="form-input-wrap">
+          <input class="form-input" type="email" id="email" placeholder="alice@example.co.uk" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="fname">First name <span class="req">*</span></label>
+          <input class="form-input" style="padding-right:14px" type="text" id="fname" placeholder="" autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lname">Last name <span class="req">*</span></label>
+          <input class="form-input" style="padding-right:14px" type="text" id="lname" placeholder="" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="pwd">Password <span class="req">*</span></label>
+        <div class="form-input-wrap">
+          <input class="form-input" type="password" id="pwd" placeholder="At least 8 characters" autocomplete="new-password">
+          <button class="input-icon" type="button" id="togglePwd">
+            <svg id="eyeIcon" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+        <div class="pwd-strength" id="pwdStrength" style="display:none;margin-top:8px;">
+          <div class="pwd-bars" style="display:flex;gap:3px;margin-bottom:5px">
+            <div class="pwd-bar" id="b1" style="flex:1;height:3px;border-radius:2px;background:var(--b2);transition:background 0.25s"></div>
+            <div class="pwd-bar" id="b2" style="flex:1;height:3px;border-radius:2px;background:var(--b2);transition:background 0.25s"></div>
+            <div class="pwd-bar" id="b3" style="flex:1;height:3px;border-radius:2px;background:var(--b2);transition:background 0.25s"></div>
+            <div class="pwd-bar" id="b4" style="flex:1;height:3px;border-radius:2px;background:var(--b2);transition:background 0.25s"></div>
+          </div>
+          <div class="pwd-label" id="pwdLabel" style="font-size:11px;color:var(--t4)"></div>
+        </div>
+      </div>
+
+      <div class="role-label">I'm a…</div>
+      <div class="role-grid">
+        <button class="role-card selected" data-role="hr-professional" type="button">
+          <h4>HR Buyer</h4>
+          <p>Researching / selecting HR tech for your organisation.</p>
+        </button>
+        <button class="role-card" data-role="vendor" type="button">
+          <h4>Vendor</h4>
+          <p>Claim and manage your product listing.</p>
+        </button>
+      </div>
+
+      <input type="hidden" id="selectedRole" value="hr-professional">
+
+      <div class="btn-row">
+        <button class="btn-back" id="backBtn" type="button">← Back</button>
+        <button class="btn-primary" id="step1Next" type="button">
+          Continue
+          <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-panel" id="panel2">
+
+      <!-- HR BUYER content -->
+      <div id="hrPrefs">
+        <h2 class="form-title">What are you looking for?</h2>
+        <p class="form-sub">We'll use this to tailor your search and recommendations. You can change it later.</p>
+        <div class="pref-section">
+          <span class="pref-section-label">Categories of interest</span>
+          <div class="pill-group" id="catGroup">
+            <button class="pill selected" data-val="ats" type="button">Applicant Tracking (ATS)</button>
+            <button class="pill selected" data-val="hris" type="button">HRIS / Core HR</button>
+            <button class="pill" data-val="payroll" type="button">Payroll</button>
+            <button class="pill" data-val="lnd" type="button">Learning &amp; Development</button>
+            <button class="pill" data-val="perf" type="button">Performance Management</button>
+            <button class="pill" data-val="talent" type="button">Talent Marketplace</button>
+            <button class="pill" data-val="benefits" type="button">Benefits Administration</button>
+            <button class="pill" data-val="engage" type="button">Employee Engagement</button>
+            <button class="pill" data-val="workforce" type="button">Workforce Planning</button>
+            <button class="pill" data-val="onboard" type="button">Onboarding</button>
+            <button class="pill" data-val="time" type="button">Time &amp; Attendance</button>
+            <button class="pill" data-val="comp" type="button">Compensation</button>
+          </div>
+        </div>
+        <div class="pref-section">
+          <span class="pref-section-label">Geographic coverage needed</span>
+          <div class="pill-group" id="geoGroup">
+            <button class="pill pill-sm selected" data-val="uk" type="button">UK</button>
+            <button class="pill pill-sm selected" data-val="eu" type="button">EU</button>
+            <button class="pill pill-sm" data-val="us" type="button">US</button>
+            <button class="pill pill-sm" data-val="apac" type="button">APAC</button>
+            <button class="pill pill-sm" data-val="latam" type="button">LATAM</button>
+            <button class="pill pill-sm" data-val="mea" type="button">MEA</button>
+          </div>
+        </div>
+        <div class="pref-section">
+          <span class="pref-section-label">Organisation size</span>
+          <div class="pill-group" id="sizeGroup">
+            <button class="pill pill-sm" data-val="1-50" type="button">1–50</button>
+            <button class="pill pill-sm" data-val="50-500" type="button">50–500</button>
+            <button class="pill pill-sm" data-val="500-5000" type="button">500–5,000</button>
+            <button class="pill pill-sm selected" data-val="5000-25000" type="button">5,000–25,000</button>
+            <button class="pill pill-sm" data-val="25000+" type="button">25,000+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VENDOR content -->
+      <div id="vendorPrefs" style="display:none">
+        <h2 class="form-title">Your listing</h2>
+        <p class="form-sub">Choose how you'd like to get started with your product on UdderDB.</p>
+
+        <div class="vendor-option-cards">
+          <button class="vendor-option-card selected" data-option="claim" type="button">
+            <div class="vendor-option-icon">
+              <!-- tag / claim icon -->
+              <svg viewBox="0 0 16 16"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5V2z"/><circle cx="5" cy="5" r="1" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div class="vendor-option-text">
+              <h5>Claim an existing listing</h5>
+              <p>Your product is already in our database — take ownership of it.</p>
+            </div>
+          </button>
+          <button class="vendor-option-card" data-option="new" type="button">
+            <div class="vendor-option-icon">
+              <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg>
+            </div>
+            <div class="vendor-option-text">
+              <h5>Add a new listing</h5>
+              <p>Your product isn't listed yet — submit it with a website URL.</p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Claim detail -->
+        <div class="vendor-detail visible" id="claimDetail">
+          <div class="form-group">
+            <label class="form-label">Search for your product <span class="req">*</span></label>
+            <div class="claim-search-wrap">
+              <input class="form-input" style="padding-right:14px" type="text" id="claimSearch" placeholder="e.g. Workday, BambooHR…" autocomplete="off">
+              <div class="claim-dropdown" id="claimDropdown"></div>
+            </div>
+            <div class="claim-selected-chip" id="claimSelectedChip">
+              <span id="claimSelectedName"></span>
+              <button type="button" id="claimClearBtn" title="Clear">×</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- New listing detail -->
+        <div class="vendor-detail" id="newListingDetail">
+          <div class="form-group">
+            <label class="form-label" for="newListingUrl">Product website URL <span class="req">*</span></label>
+            <input class="form-input" style="padding-right:14px" type="url" id="newListingUrl" placeholder="https://yourproduct.com" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <!-- hidden fields -->
+      <input type="hidden" id="email2">
+      <input type="hidden" id="pwd2">
+      <input type="hidden" id="fname2">
+      <input type="hidden" id="lname2">
+
+      <div class="login-box" style="display:none">
+        <input type="hidden" id="role" value="hr-professional">
+        <input type="hidden" id="prefCats">
+        <input type="hidden" id="prefGeo">
+        <input type="hidden" id="prefSize">
+        <input type="hidden" id="vendorOption">
+        <input type="hidden" id="vendorListingId">
+        <input type="hidden" id="vendorListingUrl">
+      </div>
+      <button id="signUp" type="button" style="display:none">Submit</button>
+
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn-back" id="back1Btn" type="button">← Back</button>
+        <button class="btn-primary" id="step2Next" type="button">
+          Send verification code
+          <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: OTP -->
+    <div class="step-panel" id="panel3">
+      <h2 class="form-title">Check your inbox</h2>
+      <p class="form-sub">We sent a 4-digit code to <strong id="otpEmailDisplay"></strong>. Enter it below to verify your account.</p>
+
+      <div class="otp-email-chip">
+        <div class="otp-email-chip-dot">
+          <svg viewBox="0 0 14 14"><path d="M1 3h12v9H1zM1 3l6 5 6-5"/></svg>
+        </div>
+        <span id="otpEmailChip"></span>
+      </div>
+
+      <label class="form-label" style="margin-bottom:10px">Verification code <span class="req">*</span></label>
+      <div class="otp-inputs">
+        <input class="otp-input" type="number" maxlength="1" id="o1" inputmode="numeric">
+        <input class="otp-input" type="number" maxlength="1" id="o2" inputmode="numeric">
+        <input class="otp-input" type="number" maxlength="1" id="o3" inputmode="numeric">
+        <input class="otp-input" type="number" maxlength="1" id="o4" inputmode="numeric">
+      </div>
+
+      <div class="otp-error" id="otpError"></div>
+
+      <div class="otp-resend">
+        Didn't receive it?
+        <button type="button" id="resendBtn" disabled>Resend code (<span class="otp-timer" id="timerDisplay">30s</span>)</button>
+      </div>
+
+      <div class="otp-success" id="otpSuccess">
+        <div class="otp-success-icon">
+          <svg viewBox="0 0 28 28"><path d="M5 14l6 6L23 8"/></svg>
+        </div>
+        <h3>Email verified!</h3>
+        <p>Your account is ready. Welcome to UdderDB.</p>
+        <a class="btn-goto-dashboard" href="db/index.html">
+          Go to dashboard
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+        </a>
+      </div>
+
+      <div class="btn-row" id="otpBtnRow">
+        <button class="btn-primary" id="verifyBtn" type="button" disabled>
+          <span id="verifyLabel">Verify</span>
+          <div class="spinner" id="verifySpinner"></div>
+          <svg id="verifyArrow" viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script type="module">
+  import { lockBtn } from './assets/js/app.js';
+  window.lockBtn = lockBtn;
+</script>
+<script>
+(function(){
+
+  /* ── progress bar ── */
+  function goTo(step){
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel'+step).classList.add('active');
+    ['seg1','seg2','seg3'].forEach((id,i) => {
+      const el = document.getElementById(id);
+      el.classList.remove('active','done');
+      if(i+1 < step) el.classList.add('done');
+      else if(i+1 === step) el.classList.add('active');
+    });
+    window.scrollTo(0,0);
+  }
+  window._goSignupStep = goTo;
+
+  /* ── pill toggles ── */
+  document.querySelectorAll('#catGroup .pill, #geoGroup .pill, #sizeGroup .pill').forEach(pill => {
+    pill.addEventListener('click', () => pill.classList.toggle('selected'));
+  });
+
+  /* ── role cards ── */
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('selectedRole').value = card.dataset.role;
+    });
+  });
+
+  /* ── vendor option cards ── */
+  let selectedVendorOption = 'claim';
+
+  document.querySelectorAll('.vendor-option-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.vendor-option-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedVendorOption = card.dataset.option;
+      document.getElementById('claimDetail').classList.toggle('visible', selectedVendorOption === 'claim');
+      document.getElementById('newListingDetail').classList.toggle('visible', selectedVendorOption === 'new');
+    });
+  });
+
+  /* ── show/hide step 2 content based on role ── */
+  function updateStep2View(){
+    const isVendor = document.getElementById('selectedRole').value === 'vendor';
+    document.getElementById('hrPrefs').style.display     = isVendor ? 'none'  : 'block';
+    document.getElementById('vendorPrefs').style.display = isVendor ? 'block' : 'none';
+  }
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('click', updateStep2View);
+  });
+
+  /* ── claim listing search ── */
+  const mockVendors = [
+    { id:1,  name:'Workday',     url:'workday.com' },
+    { id:2,  name:'BambooHR',    url:'bamboohr.com' },
+    { id:3,  name:'Greenhouse',  url:'greenhouse.io' },
+    { id:4,  name:'Lever',       url:'lever.co' },
+    { id:5,  name:'HiBob',       url:'hibob.com' },
+    { id:6,  name:'Personio',    url:'personio.com' },
+    { id:7,  name:'Rippling',    url:'rippling.com' },
+    { id:8,  name:'ChartHop',    url:'charthop.com' },
+    { id:9,  name:'Lattice',     url:'lattice.com' },
+    { id:10, name:'Culture Amp', url:'cultureamp.com' },
+  ];
+
+  let selectedVendorId = null, selectedVendorName = null;
+  const claimSearch   = document.getElementById('claimSearch');
+  const claimDropdown = document.getElementById('claimDropdown');
+
+  function renderDropdown(results){
+    claimDropdown.innerHTML = results.length
+      ? results.map(v => `
+          <div class="claim-dropdown-item" data-id="${v.id}" data-name="${v.name}">
+            <div class="claim-item-logo">${v.name.slice(0,2).toUpperCase()}</div>
+            <div class="claim-item-info">
+              <div class="claim-item-name">${v.name}</div>
+              <div class="claim-item-url">${v.url}</div>
+            </div>
+          </div>`).join('')
+      : '<div class="claim-no-results">No products found</div>';
+
+    claimDropdown.classList.add('open');
+
+    claimDropdown.querySelectorAll('.claim-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        selectedVendorId   = item.dataset.id;
+        selectedVendorName = item.dataset.name;
+        claimSearch.value  = '';
+        claimDropdown.classList.remove('open');
+        document.getElementById('claimSelectedName').textContent = selectedVendorName;
+        document.getElementById('claimSelectedChip').classList.add('visible');
+      });
+    });
+  }
+
+  claimSearch.addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+    if(!q){ claimDropdown.classList.remove('open'); return; }
+    renderDropdown(window._claimableVendors.filter(v => v.name.toLowerCase().includes(q)));
+  });
+
+  claimSearch.addEventListener('focus', function(){
+    if(this.value.trim()) claimDropdown.classList.add('open');
+  });
+
+  document.addEventListener('click', e => {
+    if(!e.target.closest('.claim-search-wrap')) claimDropdown.classList.remove('open');
+  });
+
+  document.getElementById('claimClearBtn').addEventListener('click', () => {
+    selectedVendorId = null; selectedVendorName = null;
+    document.getElementById('claimSelectedChip').classList.remove('visible');
+    claimSearch.value = '';
+    claimSearch.focus();
+  });
+
+  /* ── back1Btn ── */
+  document.getElementById('back1Btn').addEventListener('click', function(){
+    document.getElementById('panel2').classList.remove('active');
+    document.getElementById('panel1').classList.add('active');
+    document.getElementById('seg2').classList.remove('active');
+    document.getElementById('seg1').classList.remove('done');
+    document.getElementById('seg1').classList.add('active');
+    window.scrollTo(0,0);
+  });
+
+  /* ── step 2 → 3 ── */
+  document.getElementById('step2Next').addEventListener('click', function(){
+    const reset = window.lockBtn($(this));
+    if(!reset) return;
+
+    const role = document.getElementById('selectedRole').value;
+    document.getElementById('role').value = role;
+
+    if(role === 'vendor'){
+      if(selectedVendorOption === 'claim' && !selectedVendorId){
+        reset(); alert('Please search for and select your product listing.'); return;
+      }
+      if(selectedVendorOption === 'new'){
+        const url = document.getElementById('newListingUrl').value.trim();
+        if(!url){ reset(); alert('Please enter your product website URL.'); return; }
+        document.getElementById('vendorListingUrl').value = url;
+      }
+      document.getElementById('vendorOption').value    = selectedVendorOption;
+      document.getElementById('vendorListingId').value = selectedVendorId || '';
+    } else {
+      const cats = [...document.querySelectorAll('#catGroup .pill.selected')].map(p=>p.dataset.val).join(',');
+      const geo  = [...document.querySelectorAll('#geoGroup .pill.selected')].map(p=>p.dataset.val).join(',');
+      const size = [...document.querySelectorAll('#sizeGroup .pill.selected')].map(p=>p.dataset.val).join(',');
+      document.getElementById('prefCats').value = cats;
+      document.getElementById('prefGeo').value  = geo;
+      document.getElementById('prefSize').value = size;
+    }
+
+    window._resetStep2Btn = reset;
+    document.getElementById('signUp').click();
+  });
+
+  /* ── OTP inputs ── */
+  const otpBoxes = Array.from(document.querySelectorAll('.otp-input'));
+  otpBoxes.forEach((box, i) => {
+    box.addEventListener('input', e => {
+      const val = e.target.value.replace(/\D/g,'').slice(-1);
+      e.target.value = val;
+      e.target.classList.toggle('filled', val !== '');
+      document.getElementById('otpError').textContent = '';
+      otpBoxes.forEach(b => b.classList.remove('error'));
+      if(val && i < otpBoxes.length-1) otpBoxes[i+1].focus();
+      document.getElementById('verifyBtn').disabled = otpBoxes.map(b=>b.value).join('').length !== 4;
+    });
+    box.addEventListener('keydown', e => {
+      if(e.key==='Backspace' && !box.value && i>0){
+        otpBoxes[i-1].value=''; otpBoxes[i-1].classList.remove('filled'); otpBoxes[i-1].focus();
+      }
+    });
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const pasted = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+      pasted.split('').forEach((ch,idx)=>{ if(otpBoxes[idx]){ otpBoxes[idx].value=ch; otpBoxes[idx].classList.add('filled'); }});
+      otpBoxes[Math.min(pasted.length,3)].focus();
+      document.getElementById('verifyBtn').disabled = pasted.length !== 4;
+    });
+  });
+
+  /* ── resend timer ── */
+  let timerInterval;
+  function startTimer(){
+    let secs=30;
+    const resendBtn=document.getElementById('resendBtn');
+    resendBtn.disabled=true;
+    document.getElementById('timerDisplay').textContent=secs+'s';
+    clearInterval(timerInterval);
+    timerInterval=setInterval(()=>{
+      secs--;
+      const td=document.getElementById('timerDisplay');
+      if(td) td.textContent=secs+'s';
+      if(secs<=0){ clearInterval(timerInterval); resendBtn.disabled=false; resendBtn.innerHTML='Resend code'; }
+    },1000);
+  }
+  window._startOtpTimer = startTimer;
+
+  document.getElementById('resendBtn').addEventListener('click', ()=>{
+    otpBoxes.forEach(b=>{ b.value=''; b.classList.remove('filled','error'); });
+    document.getElementById('verifyBtn').disabled=true;
+    document.getElementById('resendBtn').innerHTML='Resend code (<span class="otp-timer" id="timerDisplay">30s</span>)';
+    startTimer();
+  });
+
+  /* ── verify ── */
+  document.getElementById('verifyBtn').addEventListener('click', async ()=>{
+    const entered=otpBoxes.map(b=>b.value).join('');
+    const btn=document.getElementById('verifyBtn');
+    const spinner=document.getElementById('verifySpinner');
+    const arrow=document.getElementById('verifyArrow');
+    const label=document.getElementById('verifyLabel');
+    btn.disabled=true; spinner.style.display='block'; arrow.style.display='none'; label.textContent='Verifying…';
+    const response=await fetch('/api/supabase?action=verifyOtp',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ token:window._signupToken, otp:entered })
+    });
+    const result=await response.json();
+    spinner.style.display='none'; arrow.style.display='block'; label.textContent='Verify';
+    if(!result.error){
+      document.getElementById('otpBtnRow').style.display='none';
+      document.getElementById('otpSuccess').style.display='flex';
+      document.getElementById('seg3').classList.remove('active');
+      document.getElementById('seg3').classList.add('done');
+      location.href='login.html';
+    } else {
+      btn.disabled=false;
+      otpBoxes.forEach(b=>b.classList.add('error'));
+      document.getElementById('otpError').textContent='Incorrect code. Please try again.';
+      setTimeout(()=>otpBoxes.forEach(b=>b.classList.remove('error')),600);
+      otpBoxes[0].focus();
+    }
+  });
+
+  document.getElementById('backBtn').addEventListener('click', ()=>{ location.href='./'; });
+
+})();
+</script>
+<script type="module" src="assets/js/core/auth/signUp.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    const origNext = document.getElementById('step1Next');
+    if(!origNext) return;
+    origNext.addEventListener('click', ()=>{
+      setTimeout(()=>{
+        if(document.getElementById('panel2').classList.contains('active')){
+          // sync step 2 view to selected role
+          const isVendor = document.getElementById('selectedRole').value === 'vendor';
+          document.getElementById('hrPrefs').style.display     = isVendor ? 'none'  : 'block';
+          document.getElementById('vendorPrefs').style.display = isVendor ? 'block' : 'none';
+          // sync progress bar
+          document.getElementById('seg1').classList.remove('active');
+          document.getElementById('seg1').classList.add('done');
+          document.getElementById('seg2').classList.add('active');
+        }
+      },50);
+    });
+    const backBtn = document.getElementById('backBtn');
+    if(backBtn){
+      backBtn.addEventListener('click', ()=>{
+        setTimeout(()=>{
+          document.getElementById('seg2').classList.remove('active');
+          document.getElementById('seg1').classList.remove('done');
+          document.getElementById('seg1').classList.add('active');
+        },50);
+      });
+    }
+  });
+</script>
 </body>
 </html>

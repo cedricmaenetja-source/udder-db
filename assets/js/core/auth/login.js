@@ -24,7 +24,7 @@ $(function(){
         const result = await response.json();
         if (result.error){
             resetBtn();
-            App.errorNotification(result.error);
+            App.showToast(result.error, 'error');
             return;
         }
 
@@ -37,7 +37,7 @@ $(function(){
         });
 
         const filters = await res.json();
-        App.successNotification('Email sent!');
+        App.showToast('Email sent!', 'error');
         resetBtn();
 
         function resetBtn(){
@@ -53,9 +53,10 @@ $(function(){
 
         const email = $('#email').val();
         const pwd = $('#password').val();
+        const remember = $('#remember').is(':checked');;
 
         if (!email || !pwd) return;
-
+        
         if ($btn.data('...')) return;
         $btn.data('...', true);
         $btn.append('<span class="spinner-btn-clicked"></span>');
@@ -70,13 +71,15 @@ $(function(){
         const result = await response.json();
         if (result.error){
             resetBtn();
-            App.errorNotification(result.error);
+            App.showToast(result.error, 'error');
             return;
         }
         
-        App.setCookie('is_logged_in', true, 365);
-        App.setCookie('user_id', result.data.id, 365);
-        location.href = `user/${result.data.role}`;
+        var days = remember ? 365 : 1;
+        App.setCookie('is_logged_in', true, days);
+        App.setCookie('user_id', result.data.id, days);
+
+        location.href = (result.data.role == 'hr-professional') ? PAGES.home : `user/${result.data.role}`;
 
         function resetBtn(){
             $btn.data('loading', false);

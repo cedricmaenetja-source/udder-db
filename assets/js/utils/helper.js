@@ -50,6 +50,19 @@ export function getCookie(name) {
     ?.split('=')[1];
 }
 
+export function showNotification(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'notification ' + type;
+  el.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none">' +
+      (type === 'success'
+        ? '<path d="M2 7l3 3 7-6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>'
+        : '<circle cx="7" cy="7" r="5.5" stroke="white" stroke-width="1.3"/><path d="M7 4v3M7 8.5v.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>') +
+    '</svg>' + msg;
+  document.body.appendChild(el);
+  setTimeout(function() { el.remove(); }, 3500);
+}
+
 export function xloader(){
   return `
     <style>

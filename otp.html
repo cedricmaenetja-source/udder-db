@@ -1,89 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Udder Database - Verification</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <link rel="stylesheet" href="assets/css/login.css" />
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script type="module" src="assets/js/core/auth/otp.js"></script>
-  <style>
-    .login-box label {
-        width: 100%;
-        font-size: 13px;
-        font-weight: 600;
-        color: #444;
-        text-align: left;
-        margin-bottom: -8px;
-    }
-    .loader-wrapper {
-        position: fixed;
-        inset: 0;
-        background: white;
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .loader {
-        width: 48px;
-        height: 48px;
-        border: 5px solid #000;
-        border-bottom-color: transparent;
-        border-radius: 50%;
-        display: inline-block;
-        box-sizing: border-box;
-        animation: rotation 1s linear infinite;
-    }
-
-    @keyframes rotation {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-    .hide{
-      display: none !important;
-    }
-    button{
-      background: #000 !important;
-      color: white !important;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verify your email — UDDER DB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="assets/css/common.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#f04e23;--o2:#c93d18;
+  --k:#0f0f0f;--k2:#1c1c1c;
+  --w:#ffffff;--off:#fafaf9;--off2:#f3f2ef;
+  --b1:rgba(15,15,15,0.06);--b2:rgba(15,15,15,0.10);--b3:rgba(15,15,15,0.18);
+  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
+  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+html,body{height:100%;background:var(--off)}
+body{font-family:var(--sans);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+/* LEFT */
+.left{width:420px;flex-shrink:0;background:var(--k);display:flex;flex-direction:column;padding:40px;position:relative;overflow:hidden}
+.left::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(255,255,255,0.04);top:-180px;right:-200px;pointer-events:none}
+.left::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,255,255,0.04);bottom:-80px;left:-100px;pointer-events:none}
+.deco-dot{position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(240,78,35,0.07);bottom:140px;right:30px;pointer-events:none}
+.left-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+.brand-mark{width:32px;height:32px;background:var(--o);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-mark svg{width:15px;height:15px}
+.brand-text{color:var(--w);font-size:16px;font-weight:600;letter-spacing:-0.01em;line-height:1}
+.brand-text span{color:var(--o)}
+.brand-sub{font-size:9px;font-weight:400;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-top:2px}
+.left-content{margin-top:auto;padding-top:60px}
+.shield-wrap{margin-bottom:28px}
+.shield{width:64px;height:64px;background:rgba(240,78,35,0.1);border:1px solid rgba(240,78,35,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center}
+.shield svg{width:28px;height:28px;color:var(--o)}
+.left-title{font-size:24px;font-weight:700;color:var(--w);letter-spacing:-0.025em;line-height:1.2;margin-bottom:12px}
+.left-desc{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;max-width:280px;margin-bottom:32px}
+.security-points{display:flex;flex-direction:column;gap:12px}
+.sec-point{display:flex;align-items:flex-start;gap:10px}
+.sec-dot{width:6px;height:6px;border-radius:50%;background:var(--o);flex-shrink:0;margin-top:5px}
+.sec-text{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.5}
+.sec-text strong{color:rgba(255,255,255,0.6);font-weight:500}
+.left-footer{padding-top:32px;border-top:1px solid rgba(255,255,255,0.05);margin-top:40px}
+.left-footer p{font-size:12px;color:rgba(255,255,255,0.25);line-height:1.6}
+.left-footer a{color:rgba(255,255,255,0.4);text-decoration:none}
+.left-footer a:hover{color:rgba(255,255,255,0.65)}
+/* RIGHT */
+.right{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 40px;background:var(--off)}
+.form-card{width:100%;max-width:400px}
+/* loader */
+.loader-wrapper{display:flex;align-items:center;justify-content:center;min-height:200px}
+.loader{width:32px;height:32px;border:2.5px solid var(--b2);border-top-color:var(--o);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* login box (hidden until token verified) */
+.login-box{animation:fadeUp 0.3s ease both}
+.login-box.hide{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.form-eyebrow{font-size:10px;font-weight:600;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
+.form-title{font-size:26px;font-weight:700;color:var(--t1);letter-spacing:-0.02em;line-height:1.15;margin-bottom:8px}
+.form-desc{font-size:14px;color:var(--t3);line-height:1.6;margin-bottom:32px}
+.form-desc strong{color:var(--t2);font-weight:500}
+/* OTP — 4 inputs matching otp.js (.otp-group input) */
+.otp-group{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.otp-group input{
+  width:100%;height:64px;
+  border:1px solid var(--b2);border-radius:10px;
+  background:var(--w);font-size:28px;font-weight:600;
+  color:var(--t1);font-family:var(--mono);
+  text-align:center;outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
+  caret-color:var(--o);
+}
+.otp-group input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.1);transform:translateY(-1px)}
+.otp-group input.filled{border-color:var(--b3)}
+.otp-group input.error{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.08);animation:shake 0.35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.btn-primary{width:100%;height:46px;background:var(--o);border:none;border-radius:9px;color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:7px;position:relative}
+.btn-primary:hover:not(:disabled){background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(240,78,35,0.25)}
+.btn-primary:active{transform:none;box-shadow:none}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.resend-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px}
+.resend-info{font-size:13px;color:var(--t3)}
+.resend-btn{font-size:13px;font-weight:500;color:var(--o);background:none;border:none;cursor:pointer;font-family:var(--sans);padding:0;transition:color 0.13s}
+.resend-btn:hover:not(:disabled){color:var(--o2)}
+.resend-btn:disabled{color:var(--t4);cursor:default}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--t3);background:none;border:none;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:none;transition:color 0.13s}
+.back-link:hover{color:var(--t1)}
+.back-link svg{width:13px;height:13px}
+/* spinner inside button */
+.spinner-btn-clicked{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-left:6px}
+.notification{position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:8px;animation:fadeUp 0.25s ease both;box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.notification.success{background:#16a34a;color:white}
+.notification.error{background:#ef4444;color:white}
+@media(max-width:860px){.left{display:none}.right{padding:32px 24px}}
+@media(max-width:480px){.right{padding:24px 16px;align-items:flex-start;padding-top:48px}.otp-group input{height:56px;font-size:24px}.otp-group{gap:8px}}
+</style>
 </head>
 <body>
-  <div class="screen">
-    <div class="brand">
-      <div class="float-left">
-          <a href="./" style="text-decoration: none;"><span style="font-size: 30px;color: var(--black);"><strong>UDDER</strong></span><br/><span style="color: grey;font-size: 21px;">DATABASE</span></a>
-        </div>
-    </div>
 
-    <div class="cow-icon">
-        <img src="assets/images/cow.png" alt="Cow illustration">
+<div class="left">
+  <div class="deco-dot"></div>
+  <div class="left-inner">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="4.2" stroke="white" stroke-width="1.4"/><circle cx="6.5" cy="6.5" r="1.7" fill="white"/></svg></div>
+      <div><div class="brand-text">UDDER <span>DB</span></div><span class="brand-sub">HR Tech Database</span></div>
     </div>
-    <div class="loader-wrapper">
-        <span class="loader"></span>
-    </div>
-    <div class="login-box hide">
-        <span>We sent a verification code to <span id="email"></span>. Enter the OTP below to continue.</span>
-        <!-- <label for="otp">OTP Code</label> -->
-        <div class="otp-group" style="margin-top: 20px;">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
-            <input type="text" maxlength="1">
+    <div class="left-content">
+      <div class="shield-wrap">
+        <div class="shield">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 3v5c0 5-3.5 9.3-8 10.5C7.5 20.3 4 16 4 11V6l8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-      <button class="cta" id="verifyBtn">Verify</button>
-      <span style="color: var(--grey);font-size: 12px;margin-top: 20px;">
-        Didn't receive it?
-        <a href="javascript:void(0)" class="" id="resendBtn">Re-send</a>
-      </span>
+      </div>
+      <h2 class="left-title">Email<br>verification</h2>
+      <p class="left-desc">We send a 4-digit code to confirm your email address before granting access to your account.</p>
+      <div class="security-points">
+        <div class="sec-point"><div class="sec-dot"></div><div class="sec-text"><strong>Check your spam folder</strong> if the code doesn't arrive within a minute.</div></div>
+        <div class="sec-point"><div class="sec-dot"></div><div class="sec-text"><strong>Never share your code.</strong> Udder will never ask for it via phone or chat.</div></div>
+        <div class="sec-point"><div class="sec-dot"></div><div class="sec-text">Still stuck? <strong><a href="#" style="color:rgba(255,255,255,0.5);text-decoration:none">Contact support</a></strong> and we'll help you in.</div></div>
+      </div>
+    </div>
+    <div class="left-footer">
+      <p>Wrong account? <a href="login.html">Sign in a different way</a></p>
     </div>
   </div>
+</div>
+
+<div class="right">
+  <div class="form-card">
+
+    <!-- Loading while token is verified -->
+    <div class="loader-wrapper" id="loaderWrapper">
+      <div class="loader"></div>
+    </div>
+
+    <!-- Login box — shown after token verification (matches otp.js: .login-box.hide) -->
+    <div class="login-box hide" id="loginBox">
+      <div class="form-eyebrow">Email verification</div>
+      <h1 class="form-title">Check your inbox</h1>
+      <p class="form-desc">We sent a 4-digit code to <strong id="email"></strong>. Enter it below to verify your account.</p>
+
+      <!-- 4 OTP inputs matching otp.js selector: .otp-group input -->
+      <div class="otp-group">
+        <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code">
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+        <input type="text" inputmode="numeric" maxlength="1">
+      </div>
+
+      <button class="btn-primary" id="verifyBtn" disabled>Verify email</button>
+
+      <div class="resend-row">
+        <span class="resend-info">Didn't receive it?</span>
+        <button class="resend-btn" id="resendBtn">Resend code</button>
+      </div>
+
+      <a href="login.html" class="back-link">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to sign in
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- keyboard navigation for OTP inputs (enhances the otp.js behaviour) -->
+<script>
+(function(){
+  var inputs = document.querySelectorAll('.otp-group input');
+
+  inputs.forEach(function(inp, idx){
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'Backspace'){
+        if(!this.value && idx > 0){ inputs[idx-1].focus(); inputs[idx-1].value=''; }
+        return;
+      }
+      if(e.key === 'ArrowLeft' && idx > 0){ e.preventDefault(); inputs[idx-1].focus(); return; }
+      if(e.key === 'ArrowRight' && idx < inputs.length-1){ e.preventDefault(); inputs[idx+1].focus(); }
+    });
+
+    inp.addEventListener('paste', function(e){
+      var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+      if(text.length >= 4){
+        e.preventDefault();
+        inputs.forEach(function(ip, i){ ip.value = text[i] || ''; });
+        inputs[3].focus();
+        /* Trigger input event on last box so otp.js picks it up */
+        var ev = new Event('input', {bubbles:true});
+        inputs[3].dispatchEvent(ev);
+      }
+    });
+
+    inp.addEventListener('focus', function(){ this.select(); });
+  });
+})();
+</script>
+<script type="module" src="assets/js/core/auth/otp.js"></script>
 </body>
 </html>

@@ -23,7 +23,7 @@ $(function(){
                 // handle error
                 console.error('error', data.error);
                 $('.loader-wrapper').addClass('hide');
-                App.errorNotification(data.error);
+                App.showToast(data.error, 'error');
                 location.href = '../../login.html';
                 //location.href = '../../login.html';
                 return;
@@ -72,7 +72,7 @@ $(function(){
             $btn.css('pointer-events', 'auto');
             $btn.data('...', false);
 
-            App.errorNotification('Verification failed!');
+            App.showToast('Verification failed!', 'error');
             return;
         }
 
@@ -89,7 +89,7 @@ $(function(){
             $btn.css('pointer-events', 'auto');
             $btn.data('...', false);
 
-            App.errorNotification(result.error);
+            App.showToast(result.error, 'error');
             return;
         }
 
@@ -102,7 +102,7 @@ $(function(){
         //     showConfirmButton: false,
         //     timer: 1500
         // });
-        App.successNotification('Verification Successful!');
+        App.showToast('Verification Successful!', 'success');
 
         location.href = '../../login.html';
     });
@@ -136,7 +136,7 @@ $(function(){
 
         const result = await response.json();
         if (result.error){
-            App.errorNotification(result.error);
+            App.showToast(result.error, 'error');
             return;
         }
 
@@ -146,7 +146,7 @@ $(function(){
         });
 
         const filters = await res.json();
-        App.successNotification('Email Re-sent!');
+        App.showToast('Email Re-sent!', 'error');
 
         userOtp = otp;
     });

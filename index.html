@@ -1,593 +1,852 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>HR Tech Stack</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <style>
-    /* ── VARIABLES ───────────────────────────────────────── */
-    :root {
-      --black:   #0f0f0f;
-      --white:   #ffffff;
-      --orange:  #f04e23;
-      --orange2: #d43d14;
-      --grey:    #6b7280;
-      --light:   #f5f5f5;
-      --border:  #e5e7eb;
-      --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UdderDB — HR Tech Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─────────────────────────────────── */
+:root {
+  --black:    #000000;
+  --black2:   #1F1F1F;
+  --white:    #ffffff;
+  --off:      #F3F3F3;
+  --off2:     #EEEEEE;
+  --orange:   #F15025;
+  --orange2:  #D03E14;
+  --grey:     #595959;
+  --muted:    #9E9E9E;
+  --border:   #EEEEEE;
+  --display:  'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --body:     'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --mono:     ui-monospace, 'SF Mono', Menlo, monospace;
+}
 
-    /* ── RESET ───────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--body);
+  background: var(--off);
+  color: var(--black);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
 
-    body {
-      font-family: var(--font);
-      background: var(--light);
-      min-height: 100vh;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      -webkit-font-smoothing: antialiased;
-    }
+/* ─── NAV ─────────────────────────────────────── */
+.public-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 64px;
+  height: 60px;
+  gap: 32px;
+}
 
-    a { text-decoration: none; }
+.brand {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--black);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.brand em { font-style: normal; color: var(--orange); }
 
-    /* ── MAIN CONTAINER ──────────────────────────────────── */
-    .container {
-      width: 100%;
-      min-height: 100vh;
-      background: var(--white);
-      display: grid;
-      grid-template-columns: 38% 62%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-      overflow: hidden;
-    }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 24px;
+}
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--grey);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: all 0.18s;
+}
+.nav-link:hover { background: var(--off2); color: var(--black); }
 
-    /* ══════════════════════════════════════════════════════
-       LEFT PANEL
-    ══════════════════════════════════════════════════════ */
-    .left {
-      background: var(--black);
-      color: var(--white);
-      padding: 56px 48px 56px 52px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
 
-    /* ── decorative shapes – left panel ── */
-    .left .shape-circle-lg {
-      position: absolute;
-      width: 340px;
-      height: 340px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(240,78,35,0.18);
-      bottom: -100px;
-      right: -120px;
-      pointer-events: none;
-    }
+.nav-ext {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--grey);
+  font-weight: 400;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.18s;
+}
+.nav-ext:hover { background: var(--off2); border-color: var(--border); color: var(--black); }
+.nav-ext svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    .left .shape-circle-sm {
-      position: absolute;
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      background: rgba(240,78,35,0.07);
-      top: -40px;
-      left: -50px;
-      pointer-events: none;
-    }
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 999px;
+  /* border: 1.5px solid var(--border); */
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--body);
+  transition: all 0.18s;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-nav:hover { border-color: var(--black); }
+.btn-nav.primary {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: var(--white);
+}
+.btn-nav.primary:hover { background: var(--orange2); border-color: var(--orange2); }
 
-    .left .shape-dot-grid {
-      position: absolute;
-      bottom: 48px;
-      left: 48px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      pointer-events: none;
-    }
+/* ─── HERO ────────────────────────────────────────────── */
+.hero {
+  background: var(--white);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  align-items: center; /* vertically center both columns */
+  padding: 72px 64px 64px; /* move padding from hero-left to hero itself */
+}
 
-    .left .shape-dot-grid span {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      display: block;
-    }
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  padding-right: 64px; /* just right padding now */
+}
 
-    .left .shape-line {
-      position: absolute;
-      top: 80px;
-      right: 48px;
-      width: 1px;
-      height: 80px;
-      background: linear-gradient(to bottom, transparent, rgba(240,78,35,0.5), transparent);
-      pointer-events: none;
-    }
+.hero-right {
+  position: relative;
+  background: var(--orange);
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  align-self: center;
+  border-radius: 4px;
+}
+.hero-right .arc-outer {
+  position: absolute;
+  width: 140%; padding-bottom: 140%;
+  border-radius: 50%;
+  border: 32px solid var(--black);
+  top: -50%; right: -35%;
+  pointer-events: none;
+}
+.hero-right .arc-white {
+  position: absolute;
+  width: 108%; padding-bottom: 108%;
+  border-radius: 50%;
+  border: 32px solid var(--white);
+  top: -25%; right: -15%;
+  pointer-events: none;
+}
+.hero-right .circle-bottom {
+  position: absolute;
+  width: 58%; padding-bottom: 58%;
+  border-radius: 50%;
+  border: 32px solid var(--black);
+  bottom: -12%; right: 8%;
+  pointer-events: none;
+}
+.hero-right .circle-fill {
+  position: absolute;
+  width: 28%; padding-bottom: 28%;
+  border-radius: 50%;
+  background: var(--white);
+  bottom: 10%; right: 22%;
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.05s forwards;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 7.5vw, 112px);
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.1s forwards;
+}
+.hero h1 .accent { color: var(--orange); }
+.hero-desc {
+  font-size: 16px;
+  color: var(--grey);
+  font-weight: 400;
+  line-height: 1.68;
+  max-width: 480px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.18s forwards;
+}
+.hero-search {
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--black);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 520px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.26s forwards;
+  background: var(--white);
+}
+.hero-search input {
+  flex: 1;
+  border: none; outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: var(--body);
+  color: var(--black);
+  padding: 14px 20px;
+  min-width: 0;
+}
+.hero-search input::placeholder { color: var(--muted); }
+.hero-search-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 28px;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  font-family: var(--body);
+  transition: background 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.hero-search-btn:hover { background: var(--orange2); }
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.34s forwards;
+}
+.hero-stat strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat span {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+/* ─── SECTION BASE ────────────────────────────── */
+.section {
+  padding: 100px 64px;
+  background: var(--white);
+}
+.section.alt { background: var(--off); }
+.section-inner { max-width: 1200px; margin: 0 auto; }
 
-    .left .shape-arc {
-      position: absolute;
-      width: 200px;
-      height: 100px;
-      border-top: 1.5px solid rgba(240,78,35,0.22);
-      border-radius: 50% 50% 0 0;
-      top: 40px;
-      right: -60px;
-      pointer-events: none;
-    }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+.eyebrow::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1.5px;
+  background: var(--orange);
+}
 
-    /* ── left content ── */
-    .left-content { position: relative; z-index: 2; }
+.section-h2 {
+  font-family: var(--display);
+  font-size: clamp(28px, 3.2vw, 48px);
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 48px;
+}
 
-    .left h4 {
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-      font-weight: 600;
-      color: var(--orange);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+/* ─── TRUST / VERIFICATION SECTION ───────────── */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
 
-    .left h4::before {
-      content: '';
-      display: inline-block;
-      width: 28px;
-      height: 1.5px;
-      background: var(--orange);
-      flex-shrink: 0;
-    }
+.trust-card {
+  background: var(--off);
+  /* border: 1.5px solid var(--border); */
+  /* border-radius: 12px; */
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.trust-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+/* .trust-card:hover {
+  border-color: rgba(240,78,35,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+.trust-card:hover::before { transform: scaleX(1); } */
 
-    .left ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
+.trust-card h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
 
-    .left li {
-      display: flex;
-      gap: 16px;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      line-height: 1.65;
-      font-size: 15px;
-      color: #d1d5db;
-      font-weight: 300;
-      align-items: flex-start;
-    }
+.trust-card p {
+  font-size: 13px;
+  color: var(--grey);
+  line-height: 1.65;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
 
-    .left li:last-child { border-bottom: none; }
+.badge-wrap { margin-top: auto; }
 
-    .left li .bullet {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(240,78,35,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
+.vbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.vbadge.ai       { background: rgba(15,15,15,0.06);   color: var(--grey); }
+.vbadge.vendor   { background: white;   color: var(--black); }
+.vbadge.verified { background: rgba(240,78,35,0.1);   color: var(--orange); }
+.vbadge.approved { background: var(--orange);          color: var(--white); }
+.vbadge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.vbadge.approved .vbadge-dot { background: rgba(255,255,255,0.7); }
 
-    .left li .bullet svg {
-      width: 12px;
-      height: 12px;
-      stroke: var(--orange);
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+/* ─── AUDIENCE SECTION ────────────────────────── */
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
 
-    /* orange accent bar at top of left panel */
-    .left::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--orange);
-    }
+.audience-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+}
 
-    /* ══════════════════════════════════════════════════════
-       RIGHT PANEL
-    ══════════════════════════════════════════════════════ */
-    .right {
-      padding: 56px 64px;
-      background: var(--white);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
+.audience-card h3 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
 
-    /* ── decorative shapes – right panel ── */
-    .right .shape-blob {
-      position: absolute;
-      width: 480px;
-      height: 480px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(240,78,35,0.04) 0%, transparent 70%);
-      top: -80px;
-      right: -120px;
-      pointer-events: none;
-    }
+.audience-card > p {
+  font-size: 14px;
+  color: var(--grey);
+  line-height: 1.65;
+  margin-bottom: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
 
-    .right .shape-ring {
-      position: absolute;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: 1px solid rgba(240,78,35,0.1);
-      bottom: 60px;
-      right: 40px;
-      pointer-events: none;
-    }
+.audience-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 
-    .right .shape-ring-inner {
-      position: absolute;
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      border: 1px solid rgba(240,78,35,0.15);
-      bottom: 105px;
-      right: 85px;
-      pointer-events: none;
-    }
+.audience-card ul li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--black);
+  font-weight: 400;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
 
-    .right .shape-half-circle {
-      position: absolute;
-      width: 160px;
-      height: 80px;
-      border-radius: 0 0 80px 80px;
-      border: 1.5px solid rgba(15,15,15,0.06);
-      border-top: none;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      pointer-events: none;
-    }
+.audience-card ul li::before {
+  content: '✳';
+  color: var(--orange);
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1;
+}
 
-    .right .shape-corner-bracket {
-      position: absolute;
-      bottom: 40px;
-      left: 64px;
-      width: 32px;
-      height: 32px;
-      border-bottom: 2px solid rgba(240,78,35,0.25);
-      border-left: 2px solid rgba(240,78,35,0.25);
-      pointer-events: none;
-    }
+.btn-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--body);
+  transition: all 0.18s;
+  align-self: flex-start;
+  border: none;
+  cursor: pointer;
+}
+.btn-card.primary {
+  background: var(--orange);
+  color: var(--white);
+}
+.btn-card.primary:hover { background: var(--orange2); }
+.btn-card.black {
+  background: var(--black);
+  color: var(--white);
+}
+.btn-card.black:hover { background: var(--black2); }
 
-    .right .shape-dots-tr {
-      position: absolute;
-      top: 56px;
-      right: 64px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-      pointer-events: none;
-    }
+/* ─── FOOTER CTA ──────────────────────────────── */
+.footer-cta {
+  background: var(--black);
+  padding: 120px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.footer-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--orange);
+}
+.footer-cta-geo {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(240,78,35,0.08);
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.footer-cta-geo2 {
+  position: absolute;
+  width: 350px; height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,78,35,0.1) 0%, transparent 65%);
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
 
-    .right .shape-dots-tr span {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: rgba(15,15,15,0.1);
-      display: block;
-    }
+.footer-cta-inner { position: relative; z-index: 2; }
 
-    /* ── right content ── */
-    .right-content { position: relative; z-index: 2; }
+.footer-cta h2 {
+  font-family: var(--display);
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  margin-bottom: 40px;
+}
+.footer-cta h2 em {
+  font-style: normal;
+  color: var(--orange);
+}
 
-    /* brand / top bar */
-    .brand {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 64px;
-    }
+.footer-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 36px;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 2px solid var(--orange);
+  font-family: var(--body);
+  transition: all 0.18s;
+  margin-bottom: 48px;
+}
+.footer-cta-btn:hover { background: var(--orange2); border-color: var(--orange2); transform: translateY(-1px); }
+.footer-cta-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-    .brand-name {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+.footer-cta-note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--body);
+}
 
-    .brand-name strong {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--black);
-      letter-spacing: -0.5px;
-      line-height: 1;
-    }
+/* ─── ANIMATIONS ──────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    .brand-name span {
-      font-size: 13px;
-      color: var(--grey);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      font-weight: 400;
-    }
+/* ─── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 1100px) {
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .public-nav { padding: 0 32px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { min-height: 300px; display: block; }
+  .hero-left { padding: 56px 32px; }
+  .section { padding: 72px 32px; }
+  .footer-cta { padding: 80px 32px; }
+  .audience-grid { grid-template-columns: 1fr; }
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  .public-nav { padding: 0 20px; height: 52px; }
+  .hero-left { padding: 48px 20px; }
+  .hero h1 { font-size: 52px; }
+  .hero-right { min-height: 260px; }
+  .hero-search { border-radius: 12px; }
+  .hero-search input { padding: 12px 16px; }
+  .hero-search-btn { padding: 12px 20px; }
+  .hero-stats { flex-wrap: wrap; gap: 20px 32px; }
+  .section { padding: 56px 20px; }
+  .footer-cta { padding: 64px 20px; }
+  .trust-grid { grid-template-columns: 1fr; }
+}
+.section-h2 {
+  font-family: var(--display);
+  font-size: clamp(32px, 4.5vw, 64px);
+  font-weight: 800;
+  color: var(--black);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 48px;
+  text-transform: uppercase;
+}
 
-    /* sign in link */
-    .cta-signin {
-      font-size: 13px;
-      color: var(--black);
-      font-weight: 500;
-      padding: 9px 20px;
-      border: 1.5px solid var(--border);
-      border-radius: 999px;
-      transition: border-color 0.2s, color 0.2s;
-      margin-top: 4px;
-    }
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 2px solid var(--black);
+  border-bottom: 2px solid var(--black);
+}
 
-    .cta-signin:hover {
-      border-color: var(--orange);
-      color: var(--orange);
-    }
+.trust-card {
+  padding: 36px 28px;
+  border-right: 1px solid var(--border);
+  position: relative;
+  transition: all 0.2s;
+}
+.trust-card:last-child { border-right: none; }
 
-    /* headline */
-    .headline {
-      font-size: clamp(32px, 4.5vw, 68px);
-      font-weight: 700;
-      line-height: 1.1;
-      color: var(--black);
-      margin-bottom: 40px;
-      letter-spacing: -1.5px;
-    }
+.trust-card.active {
+  background: #FEF0EB;
+}
+.trust-card.muted {
+  background: var(--off);
+}
 
-    .headline span {
-      position: relative;
-      display: inline-block;
-      color: var(--orange);
-      text-decoration: none;
-    }
+.trust-num {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+.trust-card.active .trust-num { color: var(--orange); }
+.trust-card.muted  .trust-num { color: var(--muted); }
 
-    /* wavy underline on the accent word */
-    .headline span::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: var(--orange);
-      border-radius: 2px;
-    }
+.trust-card h3 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
 
-    /* subtext – optional tagline */
-    .subtext {
-      font-size: 16px;
-      color: var(--grey);
-      font-weight: 300;
-      margin-bottom: 48px;
-      max-width: 440px;
-      line-height: 1.7;
-    }
+.trust-card p {
+  font-size: 13px;
+  color: var(--grey);
+  line-height: 1.65;
+  font-weight: 400;
+  margin-bottom: 24px;
+}
 
-    /* CTA buttons */
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+.badge-wrap { margin-top: auto; }
 
-    .cta-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 32px;
-      background: var(--orange);
-      color: var(--white);
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 999px;
-      border: 2px solid var(--orange);
-      transition: background 0.2s, transform 0.2s;
-      font-family: var(--font);
-    }
+.vbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.vbadge.ai       { background: transparent; color: var(--grey); border: 1px solid var(--border); }
+.vbadge.vendor   { background: transparent; color: var(--black); border: 1.5px solid var(--black); }
+.vbadge.verified { background: var(--orange); color: var(--white); border: none; }
+.vbadge.approved { background: var(--black);  color: var(--white); border: none; }
+.vbadge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
-    .cta-primary:hover {
-      background: var(--orange2);
-      border-color: var(--orange2);
-      transform: translateY(-1px);
-    }
-
-    .cta-primary svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .cta-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 14px 28px;
-      background: transparent;
-      color: var(--black);
-      font-size: 15px;
-      font-weight: 500;
-      border-radius: 999px;
-      border: 2px solid var(--border);
-      transition: border-color 0.2s, color 0.2s;
-      font-family: var(--font);
-    }
-
-    .cta-secondary:hover {
-      border-color: var(--black);
-    }
-
-    /* trust strip */
-    .trust-strip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 36px;
-      font-size: 12px;
-      color: var(--grey);
-    }
-
-    .trust-strip .dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--orange);
-      flex-shrink: 0;
-    }
-
-    /* ── RESPONSIVE ────────────────────────────────────── */
-    @media (max-width: 960px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-      .left {
-        padding: 48px 40px;
-      }
-      .right {
-        padding: 48px 40px;
-      }
-      .brand {
-        margin-bottom: 48px;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .left, .right { padding: 36px 24px; }
-      .headline { letter-spacing: -0.5px; margin-bottom: 28px; }
-      .actions { flex-direction: column; align-items: stretch; }
-      .cta-primary, .cta-secondary { justify-content: center; }
-    }
-  </style>
+.trust-footnote {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+</style>
 </head>
 <body>
 
-<div class="container">
+<!-- ── NAV ── -->
+<nav class="public-nav">
+  <a class="brand" href="index.html">Udder<em>DB</em></a>
+  <div class="nav-links">
+    <a class="nav-link" href="db/index.html">Browse products</a>
+    <a class="nav-link" href="db/index.html">Categories</a>
+    <a class="nav-link" href="#verification">Verification</a>
+    <a class="nav-link" href="signup.html?role=vendor">For vendors</a>
+    <a class="nav-link" href="https://udder.rocks" target="_blank">About</a>
+  </div>
+  <div class="nav-right">
+    <a class="btn-nav" href="login.html">Sign in</a>
+    <a class="btn-nav primary" href="signup.html">Get started</a>
+  </div>
+</nav>
 
-  <!-- ══ LEFT PANEL ══ -->
-  <div class="left">
-
-    <!-- Decorative shapes -->
-    <div class="shape-circle-lg"></div>
-    <div class="shape-circle-sm"></div>
-    <div class="shape-arc"></div>
-    <div class="shape-line"></div>
-    <div class="shape-dot-grid">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">The HR tech database</div>
+    <h1>Choose HR<br>tech with<br><span class="accent">no noise.</span></h1>
+    <p class="hero-desc">340+ HR technology products. Independently verified by the consultants at Udder. No sponsored rankings, no vendor-written fluff. Just what actually works for your org.</p>
+    <div class="hero-search">
+      <input type="text" placeholder="What are you trying to solve? e.g. 'high-volume retail ATS'">
+      <a class="hero-search-btn" id="searchBtn" href="javascript:void(0)">Search</a>
     </div>
-
-    <div class="left-content">
-      <h4>The Intelligence Layer</h4>
-      <ul>
-        <li>
-          <div class="bullet">
-            <svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg>
-          </div>
-          Cut your HR technology research time from months to days with structured platform comparisons
-        </li>
-        <li>
-          <div class="bullet">
-            <svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg>
-          </div>
-          Find platforms that actually fit your company size and existing tech stack
-        </li>
-        <li>
-          <div class="bullet">
-            <svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg>
-          </div>
-          Compare solutions side-by-side on features, integrations, implementation speed, and regional support
-        </li>
-        <li>
-          <div class="bullet">
-            <svg viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg>
-          </div>
-          Make confident vendor decisions backed by consultant-grade platform intelligence
-        </li>
-      </ul>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <strong>342</strong>
+        <span>Products</span>
+      </div>
+      <div class="hero-stat">
+        <strong>47</strong>
+        <span>Udder Approved</span>
+      </div>
+      <div class="hero-stat">
+        <strong>12</strong>
+        <span>Categories</span>
+      </div>
+      <div class="hero-stat">
+        <strong>&pound;0</strong>
+        <span>To Browse</span>
+      </div>
     </div>
   </div>
+  <div class="hero-right">
+    <div class="arc-outer"></div>
+    <div class="arc-white"></div>
+    <div class="circle-bottom"></div>
+    <div class="circle-fill"></div>
+  </div>
+</section>
 
-  <!-- ══ RIGHT PANEL ══ -->
-  <div class="right">
+<!-- ── VERIFICATION SECTION ── -->
+<section class="section alt" id="verification">
+  <div class="section-inner">
+    <div class="eyebrow">How verification works</div>
+    <h2 class="section-h2">Four tiers of trust. <span style="color:var(--orange)">No pay-to-play.</span></h2>
 
-    <!-- Decorative shapes -->
-    <div class="shape-blob"></div>
-    <div class="shape-ring"></div>
-    <div class="shape-ring-inner"></div>
-    <div class="shape-half-circle"></div>
-    <div class="shape-corner-bracket"></div>
-    <div class="shape-dots-tr">
-      <span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span>
-    </div>
-
-    <div class="right-content">
-
-      <!-- Brand / top bar -->
-      <div class="brand">
-        <div class="brand-name">
-          <strong>UDDER</strong>
-          <span>Database</span>
+    <div class="trust-grid">
+      <div class="trust-card active">
+        <div class="trust-num">01</div>
+        <h3>AI-Generated</h3>
+        <p>Auto-scraped from public sources. A starting point — not verified.<br/><br/></p>
+        <div class="badge-wrap">
+          <span class="vbadge ai"><span class="vbadge-dot"></span>AI-Generated</span>
         </div>
-        <a href="login.html" class="cta-signin">Sign In</a>
       </div>
-
-      <!-- Headline -->
-      <div class="headline">
-        Your HR Tech Stack<br />
-        <span>Deciphered.</span>
+      <div class="trust-card active">
+        <div class="trust-num">02</div>
+        <h3>Vendor Owned</h3>
+        <p>Vendor has claimed the listing and confirmed the details themselves.<br/><br/></p>
+        <div class="badge-wrap">
+          <span class="vbadge vendor"><span class="vbadge-dot"></span>Vendor Owned</span>
+        </div>
       </div>
+      <div class="trust-card muted">
+        <div class="trust-num">03</div>
+        <h3>Udder Verified</h3>
+        <p>Our consultants have demoed the product and validated every feature claimed.</p>
+        <div class="badge-wrap">
+          <span class="vbadge verified"><span class="vbadge-dot"></span>Udder Verified</span>
+        </div>
+      </div>
+      <div class="trust-card muted">
+        <div class="trust-num">04</div>
+        <h3>Udder Approved</h3>
+        <p>We've delivered a hands-on implementation ourselves. Highest tier.<br/><br/></p>
+        <div class="badge-wrap">
+          <span class="vbadge approved"><span class="vbadge-dot"></span>Udder Approved</span>
+        </div>
+      </div>
+    </div>
 
-      <!-- Subtext -->
-      <p class="subtext">
-        From vendor selection to seamless implementation — consultant-grade intelligence for HR teams who mean business.
-      </p>
+    <p class="trust-footnote">MVP launches with tiers 01 and 02. Tiers 03 and 04 roll out in Phase 2.</p>
+  </div>
+</section>
 
-      <!-- CTAs -->
-      <div class="actions">
-        <a href="about.html" class="cta-primary">
-          Get started
-          <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+<!-- ── AUDIENCE SECTION ── -->
+<section class="section">
+  <div class="section-inner">
+    <div class="eyebrow">Who it's for</div>
+    <h2 class="section-h2">Built for both sides of <em style="font-style:normal;color:var(--orange)">vendor selection.</em></h2>
+    <div class="audience-grid">
+
+      <div class="audience-card">
+        <h3>HR Buyers</h3>
+        <p>Shortlist, compare and connect with vendors — without the analyst tax.</p>
+        <ul>
+          <li>Filter by 40+ attributes</li>
+          <li>Side-by-side comparison</li>
+          <li>Direct intro requests</li>
+          <li>Udder-verified claims</li>
+        </ul>
+        <a class="btn-card primary" href="signup.html?role=hr">
+          Start searching →
         </a>
-        <a href="db/" class="cta-secondary">
-          Browse database
+      </div>
+
+      <div class="audience-card">
+        <h3>Vendors</h3>
+        <p>Claim your listing, manage capabilities, receive qualified intro requests.</p>
+        <ul>
+          <li>Free listing, always</li>
+          <li>Qualified buyer intel</li>
+          <li>Audit-trailed claims</li>
+          <li>Quarterly market reports</li>
+        </ul>
+        <a class="btn-card primary" href="signup.html?role=vendor">
+          Claim your listing →
         </a>
       </div>
 
-      <!-- Trust strip -->
-      <div class="trust-strip">
-        <div class="dot"></div>
-        Trusted by HR teams across Africa, Europe &amp; beyond
+      <div class="audience-card">
+        <h3>Need consulting?</h3>
+        <p>Udder consultants help HR teams select, procure and implement technology — independently.</p>
+        <ul>
+          <li>Vendor selection &amp; RFP</li>
+          <li>HR tech strategy</li>
+          <li>Implementation support</li>
+          <li>Maturity assessments</li>
+        </ul>
+        <a class="btn-card black" href="request-services.html">
+          Request Udder services →
+        </a>
       </div>
 
     </div>
   </div>
+</section>
 
-</div>
+<!-- ── FOOTER CTA ── -->
+<section class="footer-cta">
+  <div class="footer-cta-geo"></div>
+  <div class="footer-cta-geo2"></div>
+  <div class="footer-cta-inner">
+    <h2>STOP DOING.<br>START CHOOSING.</h2>
+    <br>
+    <a class="footer-cta-btn" href="signup.html">
+      Create your free account
+      <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+    </a>
+    <div class="footer-cta-note">An independent product by The Udder Group · udder.rocks</div>
+  </div>
+</section>
 
 </body>
 </html>

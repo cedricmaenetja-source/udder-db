@@ -1,8 +1,10 @@
 import * as App from '../app.js';
+import { PAGES } from  '../utils/constants.js'
 
 let vendorData = {};
 let vendorList = [];
 let employeeCountSupported = [];
+let user;
 
 // muti-select and searchable features
 let availableFeaturesGrouped = {};
@@ -26,6 +28,15 @@ let searchFilters = App.searchQueries;
 $(document).ready(function() {
     let compareMode = false;
     let selectedCards = new Set();
+
+    const isLoggedIn = App.getCookie('is_logged_in');
+    if (isLoggedIn === 'true') {
+        loadUserProfile();
+        $('#sbSignIn').addClass('hide');
+    }else{
+        $('#sbSignIn').removeClass('hide');
+        $('#sb-user-profile').addClass('hide');
+    }
 
     const searchInput = document.getElementById('search');
     const modal = document.getElementById('searchModal');
@@ -98,7 +109,7 @@ $(document).ready(function() {
         //runSearch();
     }else{
         loadVendors().then(() => {
-            setupPagination();
+            // setupPagination();
             regionServed.forEach(region => {
                 $('#regionFilter').append(`<option>${region}</option>`);
             });
@@ -193,17 +204,17 @@ $(document).ready(function() {
     });
 
     // Compare action
-    $('#compareActionBtn').click(function() {
-        //alert('Comparing cards: ' + Array.from(selectedCards).join(', '));
-        if (selectedCards.size == 1){
-            App.swal.fire({
-                title: "Error",
-                text: "Choose another vendor to add to the comparison.",
-            });
-            return;
-        }
-        openComparisonModal(selectedCards);
-    });
+    // $('#compareActionBtn').click(function() {
+    //     //alert('Comparing cards: ' + Array.from(selectedCards).join(', '));
+    //     if (selectedCards.size == 1){
+    //         App.swal.fire({
+    //             title: "Error",
+    //             text: "Choose another vendor to add to the comparison.",
+    //         });
+    //         return;
+    //     }
+    //     openComparisonModal(selectedCards);
+    // });
 
     $('#comparisonCloseModalBtn').click(function(){
         closeComparisonModal();
@@ -223,59 +234,151 @@ $(document).ready(function() {
         }, 300);
     });
 
-    // filter by module
-    $(document).on('change', '.radio-wrapper input[type="radio"]', function(){
-        const value = $(this).val();
+    // ── Multi-select category + sub-category filtering ──
+async function loadUserProfile(){
+    const userId = App.getCookie('user_id');
+    const response = await fetch(`/api/supabase?action=getUserById&userId=${userId}`);
+    const result = await response.json();
 
-        $('input[type="checkbox"]').not('[data-module="' + value + '"]').prop('checked', false);
+    if (result.error) {
+        console.error(result.error);
+        App.showToast(App.OPERATION_FAILED, 'error');
+        return;
+    }
 
-        $(".card").each(function () {
-            if (value == 'all'){
-                $(this).show();
-            }else{
-                var modules = $(this).data("modules");
+    user = result.data;
+    if (user.role != 'hr-professional'){
+        App.setCookie('is_logged_in', false);
+        location.href = PAGES.login;
+        return;
+    }
 
-                if (modules.includes(value)) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                }
-            }
-        });
-      
-        if (value != 'all') loadFeaturesByValue('module', value);
-        updateVendorTotalFiltered();
-        setupPagination();
+    console.info('user', user);
+    const fullName = `${user.first_name} ${user.last_name}`;
+    $('#sb-uname').text(fullName);
+    $('#sb-initials').text(App.initials(fullName));
+    $('#sb-user-profile').removeClass('hide');
+}
+
+// Helper: get all checked parent module values
+function getCheckedModules(){
+    return $('.ct-lbl > input[type="checkbox"]:checked').map(function(){
+        return $(this).val();
+    }).get();
+}
+
+// Helper: get all checked sub-category values
+function getCheckedSubs(){
+    return $('.ct-sub input[type="checkbox"]:checked').map(function(){
+        return $(this).val();
+    }).get();
+}
+
+// Core filter — runs whenever any category checkbox changes
+function applyModuleFilter(){
+    const checkedModules = getCheckedModules();
+    const checkedSubs    = getCheckedSubs();
+
+    const noModules = checkedModules.length === 0;
+    const noSubs    = checkedSubs.length === 0;
+
+    $(".card").each(function(){
+        const cardModules = String($(this).data("modules") || '');
+        const cardSubs    = String($(this).data("subcategories") || '');
+
+        // Nothing checked — show all
+        if(noModules && noSubs){
+            $(this).show();
+            return;
+        }
+
+        // Sub-categories take precedence if any are checked
+        if(!noSubs){
+            const subMatch = checkedSubs.some(function(s){ return cardSubs.includes(s); });
+            $(this).toggle(subMatch);
+            return;
+        }
+
+        // Otherwise filter by parent modules
+        const modMatch = checkedModules.some(function(m){ return cardModules.includes(m); });
+        $(this).toggle(modMatch);
     });
 
-    // filter on sub-Category
-    $(document).on('change', '.sub-category input[type="checkbox"]', function(){
-        const value = $(this).val();
-        const module = $(this).data('module');
+    // Update features panel
+    if(!noSubs){
+        const subModules = $('.ct-sub input[type="checkbox"]:checked')
+            .map(function(){ return $(this).data('module'); }).get();
+        loadFeaturesByValue('subModule', subModules[0], checkedSubs);
+    } else if(!noModules){
+        loadFeaturesByValue('module', checkedModules[0]);
+    }
 
-        $('input[name="module"]').prop('checked', false);
-        $('input[name="module"][value="' + module + '"]').prop('checked', true).trigger('change');
+    updateVendorTotalFiltered();
+}
 
-        $(".card").each(function () {
-            var subCategories = $(this).data("subcategories");
+// Parent module checkbox changed
+$(document).on('change', '.ct-lbl > input[type="checkbox"]', function(){
+    const module = $(this).val();
+    const isChecked = $(this).is(':checked');
 
-            if (subCategories.includes(value)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
+    // If unchecking a parent, also uncheck its children
+    if(!isChecked){
+        $('.ct-sub input[type="checkbox"][data-module="' + module + '"]')
+            .prop('checked', false);
+    }
 
-        const subModules = $('input[name="module"]:checked')
-            .map(function () {
-                return $(this).val();
-            })
-            .get();
+    applyModuleFilter();
+});
 
-        loadFeaturesByValue('subModule', module, subModules);
+// ── Results panel search — filter cards by name, category, features ──
+$(document).on('input', '.rp-search input', function(){
+    var q = $(this).val().toLowerCase().trim();
+
+    if(!q){
+        $('.card').show();
         updateVendorTotalFiltered();
-        setupPagination();
+        return;
+    }
+
+    $('.card').each(function(){
+        var name         = String($(this).data('name')         || '').toLowerCase();
+        var modules      = String($(this).data('modules')      || '').toLowerCase();
+        var features     = String($(this).data('features')     || '').toLowerCase();
+        var subcategories = String($(this).data('subcategories')|| '').toLowerCase();
+        var integrations = String($(this).data('integrations') || '').toLowerCase();
+
+        var match = name.includes(q)
+                 || modules.includes(q)
+                 || features.includes(q)
+                 || subcategories.includes(q)
+                 || integrations.includes(q);
+
+        $(this).toggle(match);
     });
+
+    updateVendorTotalFiltered();
+});
+
+// Sub-category checkbox changed
+$(document).on('change', '.ct-sub input[type="checkbox"]', function(){
+    const module = $(this).data('module');
+
+    // Auto-check the parent if a child is checked
+    if($(this).is(':checked')){
+        $('.ct-lbl > input[type="checkbox"][value="' + module + '"]')
+            .prop('checked', true);
+    }
+
+    // If all children of a parent are unchecked, uncheck the parent too
+    const allSiblings = $('.ct-sub input[type="checkbox"][data-module="' + module + '"]');
+    const anyChecked  = allSiblings.filter(':checked').length > 0;
+    if(!anyChecked){
+        $('.ct-lbl > input[type="checkbox"][value="' + module + '"]')
+            .prop('checked', false);
+    }
+
+    applyModuleFilter();
+});
 
     // $(document).on('change', '#moduleList input[type="checkbox"]', function(){
     //     let count = 0;
@@ -326,7 +429,7 @@ $(document).ready(function() {
         });
 
         updateVendorTotalFiltered();
-        setupPagination();
+        // setupPagination();
     });
 
     // filter by region
@@ -351,7 +454,7 @@ $(document).ready(function() {
         });
 
         updateVendorTotalFiltered();
-        setupPagination();
+        // setupPagination();
     });
 
     $("#modalSearch").on("keypress", function(event) {
@@ -378,33 +481,33 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click', '.view-platform', function (e) {
-        e.preventDefault();
+    // $(document).on('click', '.view-platform', function (e) {
+    //     e.preventDefault();
 
-        if (compareMode){
-            App.swal.fire({
-                title: "Error",
-                text: "You are currently in Compare Mode. To continue click 'Cancel Compare'",
-            });
-            return;
-        }
+    //     if (compareMode){
+    //         App.swal.fire({
+    //             title: "Error",
+    //             text: "You are currently in Compare Mode. To continue click 'Cancel Compare'",
+    //         });
+    //         return;
+    //     }
 
-        const vendorId = $(this).data('id');
-        const matchScore = $(this).data('matchscore');
-        const score = $(this).data('score');
-        const matchedItems = $(this).data('matcheditems');
-        const totalFilters = $(this).data('filterscount');
+    //     const vendorId = $(this).data('id');
+    //     const matchScore = $(this).data('matchscore');
+    //     const score = $(this).data('score');
+    //     const matchedItems = $(this).data('matcheditems');
+    //     const totalFilters = $(this).data('filterscount');
 
-        App.setCookie('vendor_id', vendorId);
-        console.info('matchScore',score);
-        if (matchScore !== undefined) App.setCookie('match_score', parseInt(matchScore));
-        if (matchedItems !== undefined) App.setCookie('matched_items', matchedItems);
-        if (score !== undefined) App.setCookie('score', score);
-        if (totalFilters !== undefined) App.setCookie('filters_count', totalFilters);
+    //     App.setCookie('vendor_id', vendorId);
+    //     console.info('matchScore',score);
+    //     if (matchScore !== undefined) App.setCookie('match_score', parseInt(matchScore));
+    //     if (matchedItems !== undefined) App.setCookie('matched_items', matchedItems);
+    //     if (score !== undefined) App.setCookie('score', score);
+    //     if (totalFilters !== undefined) App.setCookie('filters_count', totalFilters);
 
-        const origin = window.location.origin;
-        window.open(`${origin}/db/platform.html`, '_blank');
-    });
+    //     const origin = window.location.origin;
+    //     window.open(`${origin}/db/platform.html`, '_blank');
+    // });
 });
 
 async function getHistoricalSearchFilters(){
@@ -423,54 +526,41 @@ async function getHistoricalSearchFilters(){
 }
 
 function addCategories(){
-   App.modules.forEach((module, index) => {
-        $('#moduleList').append(`<input id="module-${index}" value="${module}" class="substituted" type="checkbox" aria-hidden="true" />
-        <label for="module-${index}">${module}</label>`);
+  App.modules.forEach(function(module, index) {
 
-        let subHtml = "";
-        $.each(App.subCategories[module], function(index, subName) {
-            subHtml += `
-                <label>
-                    <input type="checkbox" data-module="${module}" value="${subName}">
-                    <span>${subName}</span>
-                </label>
-            `;
-        });
+    $('#moduleList').append(
+      '<input id="module-' + index + '" value="' + module + '" class="substituted" type="checkbox" aria-hidden="true" />' +
+      '<label for="module-' + index + '">' + module + '</label>'
+    );
 
-        const categoryHtml = `
-            <div class="category-item">
-                <div class="category-header">
-                    <div class="radio-wrapper">
-                        <input type="radio" name="module" value="${module}">
-                        <span>${module}</span>
-                    </div>
-                    <button class="expand-btn" onclick="toggleSub(this)">▾</button>
-                </div>
-
-                <div class="sub-category">
-                    ${subHtml}
-                </div>
-            </div>
-        `;
-
-        $("#categories").append(categoryHtml);
+    var subHtml = '';
+    $.each(App.subCategories[module], function(i, subName) {
+      subHtml +=
+        '<li><div class="ct-row">' +
+          '<button class="ct-exp noc" type="button">›</button>' +
+          '<label class="ct-lbl">' +
+            '<input type="checkbox" name="module" data-module="' + module + '" value="' + subName + '">' +
+            '<span class="ct-name">' + subName + '</span>' +
+          '</label>' +
+        '</div></li>';
     });
-    // $('#categories').append(`<div class="category-item">
-    //       <div class="category-header">
-    //           <div class="radio-wrapper">
-    //               <input type="radio" name="category">
-    //               <span>AI</span>
-    //           </div>
-    //           <button class="expand-btn" onclick="toggleSub(this)">▾</button>
-    //       </div>
 
-    //       <div class="sub-category">
-    //           <label><input type="checkbox"> Machine Learning</label>
-    //           <label><input type="checkbox"> NLP</label>
-    //           <label><input type="checkbox"> Computer Vision</label>
-    //           <label><input type="checkbox"> Generative AI</label>
-    //       </div>
-    //   </div>`);
+    var hasChildren = subHtml.length > 0;
+
+    $('#catTree').append(
+      '<li>' +
+        '<div class="ct-row">' +
+          '<button class="' + (hasChildren ? 'ct-exp' : 'ct-exp noc') + '" type="button"' +
+            (hasChildren ? ' onclick="toggleCat(this)"' : '') + '>›</button>' +
+          '<label class="ct-lbl">' +
+            '<input type="checkbox" name="module" value="' + module + '">' +
+            '<span class="ct-name">' + module + '</span>' +
+          '</label>' +
+        '</div>' +
+        (hasChildren ? '<ul class="ct-sub">' + subHtml + '</ul>' : '') +
+      '</li>'
+    );
+  });
 }
 
 function resetFilter(){
@@ -893,9 +983,20 @@ async function loadVendors(filters = null){
             });
 
             $('#vendors').append(`
-                <div class="card" data-modules="${modules.modules.join(',')}" data-subcategories="${modules.subCategories.join(',')}" data-name="${vendor.name}" 
-                    data-score="${vendor.score}" data-companysize="${companySize}" data-features="${allFeatures.join(',')}" data-id="${vendor.id}" data-headcount="${vendor.employee_count}" data-region="${region.join(', ')}"
-                    data-integrations="${supportedIntegrations.join(', ')}">
+                <div class="card" 
+                    data-modules="${modules.modules.join(',')}"
+                    data-subcategories="${modules.subCategories.join(',')}"
+                    data-name="${vendor.name}"
+                    data-score="${vendor.score}"
+                    data-companysize="${companySize}"
+                    data-features="${allFeatures.join(',')}"
+                    data-id="${vendor.id}"
+                    data-headcount="${vendor.employee_count}"
+                    data-region="${region.join(', ')}"
+                    data-integrations="${supportedIntegrations.join(', ')}"
+                    data-description="${(vendor.description || vendor.categories || '').replace(/"/g, '&quot;')}"
+                    data-logo="${vendor.logo || ''}"
+                    data-verified="${vendor.verified ? '1' : '0'}">
                         ${verifiedBadge}
                         <div class="card-header">
                             <img src="${vendor.logo}" alt="${vendor.name} logo" class="card-logo" />
@@ -905,8 +1006,12 @@ async function loadVendors(filters = null){
                         <ul>
                             ${features}
                         </ul>
-                        <button type="button" class="cta view-platform" data-id="${vendor.id}" data-score="${vendor.score}" 
-                            data-matchScore="${vendor.match_score}" data-matcheditems="${vendor.matched_items}" data-filterscount="${vendor.filters_count}">View Platform</button>
+                        <button type="button" class="cta view-platform" 
+                            data-id="${vendor.id}"
+                            data-score="${vendor.score}" 
+                            data-matchScore="${vendor.match_score}"
+                            data-matcheditems="${vendor.matched_items}"
+                            data-filterscount="${vendor.filters_count}">View Platform</button>
                 </div>`);
         }
     });
@@ -960,7 +1065,7 @@ function renderSelectedFeature() {
     //     $(".card").show();
     // }
 
-    setupPagination();
+    // setupPagination();
 }
 
 $(".select-box").on("click", function () {

@@ -30,6 +30,22 @@ export default async function handler(req, res) {
     if (action === 'getVendorLeads') return await getVendorLeads(res, vendorId);
     if (action === 'getVendorViews') return await getVendorViews(res, vendorId);
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
+    if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
+
+    if (action === 'verifyOtp'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { token, otp } = req.body;
+            
+            return await verifyOtp(res, token, otp);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
 
     if (action === 'addVisitor'){
         if (req.method !== "POST") {
@@ -482,7 +498,10 @@ export async function userSignUp(res, user) {
         email: user['email'], 
         password: hashedPassword, 
         role: user['role'], 
-        otp: user['otp']
+        otp: user['otp'],
+        categories_of_interests: user['pref_categories'],
+        geolocation_of_interest: user['pref_geo'],
+        organization_size: user['pref_org_size']
     })
     .select('id, verified, email, otp')
     .single();
@@ -511,6 +530,24 @@ async function getUserByEmail(email) {
     return res.status(200).json({ data });
 }
 
+async function getAssignedVendorIds(res){
+    let ids = [];
+
+    const { data, error } = await supabase
+    .from('tblusers')
+    .select('vendor_id')
+    .not('vendor_id', 'is', null)
+    .neq('vendor_id', '');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    
+    data.forEach(vendor => {
+        ids.push(vendor.vendor_id);
+    });
+
+    return { ids, error: null };
+}
+
 async function getUserById(res, id) {
   const { data, error } = await supabase
     .from('tblusers')
@@ -528,7 +565,8 @@ async function updateOtp(res, id, otp) {
     .update({ 
         otp: otp, 
     })
-    .eq('id', id);
+    .eq('id', id)
+    .select('email');
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
@@ -751,4 +789,47 @@ export async function getVendorViews(res, vendorId) {
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
+}
+
+export async function verifyOtp(res, token, otp){
+    if (!token) {
+        return res.status(400).json({
+            error: 'Token required'
+        });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const id = decoded.id;
+
+    const { data, error } = await supabase
+    .from('tblusers')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    if (data.otp != otp){
+        return res.status(500).json({ data: null, error: 'Invalid OTP.' });
+    }
+
+    return res.status(200).json({ message: 'success' });
+}
+
+async function GetVendorsForClaiming(res){
+    let vendors = [];
+
+    const {ids, error} = await getAssignedVendorIds(res);
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    const { data, e } = await supabase
+    .from('tblvendors')
+    .select('*');
+    console.log('d', ids);
+    if (e) return res.status(500).json({ data: null, error: e.message });
+    
+    data.forEach(vendor => {
+        if (vendor.data !== null && vendor.data.company !== null && !ids.includes(vendor.id)) vendors.push({name: vendor.name, url: vendor.data.company.website});
+    });
+
+    return res.status(200).json({ vendors });
 }
