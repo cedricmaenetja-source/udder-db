@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Request Services — Udder Consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#F15025;--o2:#D03E14;
+  --k:#0f0f0f;--k2:#1a1a1a;--k3:#2a2a2a;
+  --w:#ffffff;--off:#fafaf9;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.10);
+  --t1:#ffffff;--t2:rgba(255,255,255,0.7);--t3:rgba(255,255,255,0.4);
+  --rt1:#111110;--rt2:#4a4a46;--rt3:#8a8a85;--rt4:#b8b8b2;
+  --rb:rgba(15,15,15,0.1);--rb2:rgba(15,15,15,0.16);
+  --display:'Poppins',sans-serif;--body:'Inter',sans-serif;
+}
+html{height:100%}
+body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── TOP NAV ── */
+.top-nav{
+  height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+  background:var(--k);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+  z-index:10;
+}
+.nav-brand{
+  font-family:var(--display);
+  font-size:18px;font-weight:900;
+  color:var(--w);letter-spacing:-0.03em;text-transform:uppercase;
+  text-decoration:none;
+}
+.nav-brand span{color:var(--o)}
+.nav-ext{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:rgba(255,255,255,0.5);
+  text-decoration:none;font-weight:400;
+  transition:color 0.15s;
+}
+.nav-ext:hover{color:rgba(255,255,255,0.8)}
+.nav-ext svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-back{
+  font-size:12px;color:rgba(255,255,255,0.5);
+  text-decoration:none;font-weight:400;
+  transition:color 0.15s;
+  display:flex;align-items:center;gap:6px;
+}
+.nav-back:hover{color:rgba(255,255,255,0.8)}
+
+/* ── MAIN LAYOUT ── */
+.layout{
+  display:flex;flex:1;overflow:hidden;min-height:0;
+}
+
+/* ── LEFT PANEL ── */
+.left{
+  width:46%;
+  flex-shrink:0;
+  background:var(--k);
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  padding:52px 56px 48px;
+}
+
+/* geometric arcs */
+.geo{position:absolute;pointer-events:none;}
+.geo-arc1{
+  width:520px;height:520px;border-radius:50%;
+  border:80px solid rgba(241,80,37,0.18);
+  top:-120px;right:-160px;
+}
+.geo-arc2{
+  width:360px;height:360px;border-radius:50%;
+  background:rgba(241,80,37,0.07);
+  bottom:-100px;right:-60px;
+}
+.geo-arc3{
+  width:200px;height:200px;border-radius:50%;
+  border:3px solid rgba(241,80,37,0.12);
+  bottom:80px;right:80px;
+}
+
+.left-inner{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+
+.left-eyebrow{
+  font-size:10px;font-weight:700;
+  color:var(--o);letter-spacing:0.16em;
+  text-transform:uppercase;margin-bottom:28px;
+}
+.left-headline{
+  font-family:var(--display);
+  font-size:clamp(36px,4.5vw,60px);
+  font-weight:900;
+  color:var(--w);
+  letter-spacing:-0.03em;
+  line-height:0.96;
+  text-transform:uppercase;
+  margin-bottom:32px;
+}
+.left-headline .accent{color:var(--o)}
+
+.left-desc{
+  font-size:15px;color:var(--t2);
+  line-height:1.65;max-width:400px;
+  margin-bottom:auto;
+}
+
+.left-stats{
+  display:flex;flex-direction:column;gap:20px;
+  padding-top:40px;
+}
+.stat-row{display:flex;align-items:center;gap:16px;}
+.stat-num{
+  font-family:var(--display);
+  font-size:36px;font-weight:900;
+  color:var(--o);letter-spacing:-0.04em;
+  line-height:1;min-width:80px;
+}
+.stat-label{font-size:14px;color:var(--t2);font-weight:400;}
+
+.left-footer{
+  padding-top:32px;
+  font-size:11px;color:var(--t3);
+}
+.left-footer a{color:rgba(255,255,255,0.35);text-decoration:none;}
+.left-footer a:hover{color:rgba(255,255,255,0.6)}
+
+/* ── RIGHT PANEL ── */
+.right{
+  flex:1;
+  background:var(--w);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  min-height:0;
+}
+
+/* step nav */
+.step-nav{
+  display:flex;align-items:center;gap:0;
+  padding:0 52px;
+  height:64px;
+  border-bottom:1px solid var(--rb);
+  flex-shrink:0;
+}
+.step-nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:0 20px 0 0;
+  position:relative;
+  cursor:default;
+}
+.step-nav-item:not(:last-child)::after{
+  content:'';
+  display:block;
+  width:40px;height:1px;
+  background:var(--rb2);
+  margin-right:20px;
+}
+.step-num-badge{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+  font-family:var(--display);
+  flex-shrink:0;
+  transition:all 0.2s;
+}
+.step-num-badge.active{background:var(--o);color:var(--w);}
+.step-num-badge.done{background:var(--k);color:var(--w);}
+.step-num-badge.pending{background:var(--rb);color:var(--rt3);}
+.step-nav-label{
+  font-size:13px;font-weight:500;
+  transition:color 0.2s;
+}
+.step-nav-item.active .step-nav-label{color:var(--rt1);}
+.step-nav-item.done .step-nav-label{color:var(--rt2);}
+.step-nav-item.pending .step-nav-label{color:var(--rt4);}
+
+/* right content */
+.right-content{
+  flex:1;overflow-y:auto;
+  padding:48px 52px 32px;
+  min-height:0;
+}
+
+.panel{display:none;}
+.panel.active{display:flex;flex-direction:column;animation:fadeUp 0.3s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.panel-title{
+  font-family:var(--display);
+  font-size:clamp(22px,2.5vw,30px);
+  font-weight:800;color:var(--rt1);
+  letter-spacing:-0.025em;line-height:1.1;
+  margin-bottom:10px;
+}
+.panel-sub{font-size:14px;color:var(--rt3);line-height:1.5;margin-bottom:32px;}
+
+/* service cards grid */
+.services-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:24px;
+}
+.service-card{
+  border:1.5px solid var(--rb2);
+  border-radius:10px;
+  padding:20px 22px;
+  cursor:pointer;
+  transition:all 0.15s;
+  background:var(--w);
+  text-align:left;
+  display:flex;flex-direction:column;
+  gap:6px;
+}
+.service-card:hover{
+  border-color:rgba(241,80,37,0.3);
+  background:rgba(241,80,37,0.02);
+}
+.service-card.selected{
+  border-color:var(--o);
+  background:#FEF0EB;
+}
+.service-card h4{
+  font-family:var(--display);
+  font-size:14px;font-weight:700;
+  color:var(--rt1);letter-spacing:-0.01em;
+  display:flex;align-items:center;gap:8px;
+}
+.service-card h4 .check{
+  width:16px;height:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-left:auto;
+  transition:all 0.15s;
+  color:transparent;
+  font-size:13px;
+}
+.service-card.selected h4 .check{
+  color:var(--o);
+}
+.service-card p{
+  font-size:12px;color:var(--rt3);
+  line-height:1.5;font-weight:400;
+}
+
+/* bottom bar */
+.right-footer{
+  padding:16px 52px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--rb);
+  flex-shrink:0;
+}
+.validation-msg{
+  font-size:13px;color:var(--rt3);
+  min-height:20px;
+}
+.validation-msg.error{color:#ef4444;}
+
+.btn-continue{
+  height:48px;padding:0 28px;
+  background:var(--o);border:none;border-radius:999px;
+  color:var(--w);font-size:14px;font-weight:600;
+  cursor:pointer;font-family:var(--body);
+  transition:all 0.18s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-continue:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,80,37,0.3);}
+.btn-continue:active{transform:none;box-shadow:none;}
+.btn-continue:disabled{background:rgba(241,80,37,0.35);cursor:default;transform:none;box-shadow:none;}
+.btn-continue svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+.btn-back-right{
+  font-size:13px;color:var(--rt3);
+  background:none;border:none;cursor:pointer;
+  font-family:var(--body);font-weight:500;
+  transition:color 0.15s;
+  display:none;
+}
+.btn-back-right:hover{color:var(--rt1);}
+.btn-back-right.visible{display:block;}
+
+/* placeholder panels */
+.placeholder-panel{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:12px;color:var(--rt4);
+  padding:48px 0;
+}
+.placeholder-panel svg{width:40px;height:40px;stroke:var(--rb2);fill:none;stroke-width:1.5;stroke-linecap:round;}
+.placeholder-panel p{font-size:14px;}
+
+/* contact form */
+.contact-form{display:flex;flex-direction:column;}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{margin-bottom:20px;}
+.form-label{
+  display:block;font-size:10px;font-weight:700;
+  color:var(--rt3);letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:7px;
+}
+.req{color:var(--o);margin-left:2px;}
+.form-input{
+  width:100%;height:46px;
+  padding:0 14px;
+  border:1.5px solid var(--rb2);border-radius:8px;
+  background:var(--w);font-size:14px;color:var(--rt1);
+  font-family:var(--body);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.form-input::placeholder{color:var(--rt4);}
+.form-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(241,80,37,0.08);}
+.form-input:hover:not(:focus){border-color:rgba(15,15,15,0.25);}
+.form-textarea{
+  height:auto;padding:12px 14px;
+  resize:vertical;min-height:120px;
+  line-height:1.6;
+}
+.consent-row{
+  display:flex;align-items:flex-start;gap:10px;
+  margin-bottom:8px;
+}
+.consent-checkbox{
+  width:16px;height:16px;flex-shrink:0;
+  margin-top:2px;cursor:pointer;
+  accent-color:var(--o);
+}
+.consent-label{
+  font-size:13px;color:var(--rt2);line-height:1.55;cursor:pointer;
+}
+.consent-label a{color:var(--o);text-decoration:none;font-weight:500;}
+.consent-label a:hover{color:var(--o2);}
+
+/* situation sections */
+.situation-section{margin-bottom:28px;}
+.situation-label{
+  font-size:10px;font-weight:700;
+  color:var(--rt3);letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;}
+.sit-pill{
+  padding:9px 18px;
+  border:1.5px solid var(--rb2);
+  border-radius:999px;
+  font-size:13px;font-weight:500;
+  color:var(--rt2);
+  background:var(--w);
+  cursor:pointer;
+  transition:all 0.15s;
+  font-family:var(--body);
+}
+.sit-pill:hover{border-color:rgba(241,80,37,0.35);color:var(--rt1);}
+.sit-pill.selected{
+  background:var(--k);
+  border-color:var(--k);
+  color:var(--w);
+}
+
+/* ── SUCCESS MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.modal-overlay.visible{
+  opacity:1;pointer-events:all;
+}
+.modal-box{
+  width:100%;max-width:560px;
+  text-align:center;
+  padding:0 32px;
+  transform:translateY(20px);
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.visible .modal-box{
+  transform:translateY(0);
+}
+.modal-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--o);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.4)}to{opacity:1;transform:scale(1)}}
+.modal-icon svg{width:30px;height:30px;}
+.modal-title{
+  font-family:var(--display);
+  font-size:clamp(32px,5vw,56px);
+  font-weight:900;
+  color:var(--k);
+  letter-spacing:-0.03em;
+  line-height:1;
+  margin-bottom:20px;
+  text-transform:uppercase;
+}
+.modal-desc{
+  font-size:15px;color:var(--rt2);
+  line-height:1.65;max-width:480px;
+  margin:0 auto 28px;
+}
+.modal-desc strong{color:var(--rt1);}
+.modal-actions{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-bottom:40px;
+}
+.modal-btn-primary{
+  height:46px;padding:0 24px;
+  background:var(--o);border:none;border-radius:999px;
+  color:var(--w);font-size:14px;font-weight:600;
+  cursor:pointer;font-family:var(--body);
+  transition:all 0.18s;
+  display:inline-flex;align-items:center;
+  text-decoration:none;
+}
+.modal-btn-primary:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,80,37,0.28);}
+.modal-btn-ghost{
+  height:46px;padding:0 20px;
+  background:transparent;
+  border:1.5px solid var(--rb2);
+  border-radius:999px;
+  color:var(--rt1);font-size:14px;font-weight:500;
+  cursor:pointer;font-family:var(--body);
+  transition:all 0.18s;
+  display:inline-flex;align-items:center;gap:6px;
+  text-decoration:none;
+}
+.modal-btn-ghost:hover{border-color:var(--rt2);}
+.modal-btn-ghost svg{width:11px;height:11px;}
+.modal-summary{
+  background:var(--off);
+  border:1px solid var(--rb2);
+  border-radius:12px;
+  padding:24px 28px;
+  text-align:left;
+}
+.modal-summary-label{
+  font-size:10px;font-weight:700;
+  color:var(--o);letter-spacing:0.14em;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.modal-summary-row{
+  display:flex;align-items:baseline;gap:16px;
+  padding:10px 0;
+  border-bottom:1px solid var(--rb);
+}
+.modal-summary-row:last-child{border-bottom:none;}
+.modal-row-key{
+  font-size:10px;font-weight:700;
+  color:var(--rt3);letter-spacing:0.1em;
+  text-transform:uppercase;
+  min-width:110px;flex-shrink:0;
+}
+.modal-row-val{
+  font-size:14px;color:var(--rt1);font-weight:400;
+}
+
+@media(max-width:600px){
+  .modal-box{padding:0 20px;}
+  .modal-actions{flex-direction:column;}
+  .modal-btn-primary,.modal-btn-ghost{width:100%;justify-content:center;}
+}
+
+@media(max-width:900px){
+  html,body{overflow:auto;}
+  .layout{flex-direction:column;}
+  .left{width:100%;min-height:auto;padding:40px 32px;}
+  .left-stats{flex-direction:row;flex-wrap:wrap;gap:24px 40px;}
+  .step-nav{padding:0 24px;}
+  .right-content{padding:32px 24px 24px;}
+  .right-footer{padding:16px 24px 20px;}
+  .services-grid{grid-template-columns:1fr;}
+}
+</style>
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a class="nav-brand" href="index.html">Udder<span>DB</span></a>
+    <a class="nav-ext" href="https://udder.rocks" target="_blank">
+      udder.rocks
+      <svg viewBox="0 0 10 10"><path d="M2 2h6v6M8 2L2 8"/></svg>
+    </a>
+  </div>
+  <a class="nav-back" href="index.html">← Back to UdderDB</a>
+</nav>
+
+<!-- MAIN -->
+<div class="layout">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="geo geo-arc1"></div>
+    <div class="geo geo-arc2"></div>
+    <div class="geo geo-arc3"></div>
+    <div class="left-inner">
+      <div class="left-eyebrow">Udder Consulting</div>
+      <h1 class="left-headline">
+        Get the HR<br>tech call<br>right<span class="accent">.</span>
+      </h1>
+      <p class="left-desc">
+        Udder consultants have delivered HR technology selection and implementation projects across 40+ organisations. We don't sell software — we tell you what works.
+      </p>
+      <div class="left-stats">
+        <div class="stat-row">
+          <div class="stat-num">40+</div>
+          <div class="stat-label">HR tech implementations delivered</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">12</div>
+          <div class="stat-label">Category specialisms</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-num">1 day</div>
+          <div class="stat-label">Typical response time</div>
+        </div>
+      </div>
+      <div class="left-footer">
+        Part of The Udder Group · <a href="https://udder.rocks" target="_blank">udder.rocks</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <!-- step nav -->
+    <div class="step-nav">
+      <div class="step-nav-item active" id="stepNav1">
+        <div class="step-num-badge active" id="badge1">1</div>
+        <span class="step-nav-label">Services</span>
+      </div>
+      <div class="step-nav-item pending" id="stepNav2">
+        <div class="step-num-badge pending" id="badge2">2</div>
+        <span class="step-nav-label">Your situation</span>
+      </div>
+      <div class="step-nav-item pending" id="stepNav3">
+        <div class="step-num-badge pending" id="badge3">3</div>
+        <span class="step-nav-label">Contact</span>
+      </div>
+    </div>
+
+    <!-- scrollable content -->
+    <div class="right-content">
+
+      <!-- PANEL 1: Services -->
+      <div class="panel active" id="panel1">
+        <h2 class="panel-title">What do you need help with?</h2>
+        <p class="panel-sub">Select all that apply — we'll tailor our response to your specific needs.</p>
+
+        <div class="services-grid">
+
+          <button class="service-card" data-service="vendor-selection" type="button">
+            <h4>Vendor selection <span class="check">✓</span></h4>
+            <p>Shortlist and select the right HR tech for your needs</p>
+          </button>
+
+          <button class="service-card" data-service="rfi-rfp" type="button">
+            <h4>RFI / RFP management <span class="check">✓</span></h4>
+            <p>Structure and run a competitive procurement process</p>
+          </button>
+
+          <button class="service-card" data-service="hr-tech-strategy" type="button">
+            <h4>HR tech strategy <span class="check">✓</span></h4>
+            <p>Build a multi-year HR technology roadmap</p>
+          </button>
+
+          <button class="service-card" data-service="implementation" type="button">
+            <h4>Implementation support <span class="check">✓</span></h4>
+            <p>Hands-on delivery of your chosen platform</p>
+          </button>
+
+          <button class="service-card" data-service="digital-maturity" type="button">
+            <h4>Digital maturity assessment <span class="check">✓</span></h4>
+            <p>Benchmark where you are and where to go next</p>
+          </button>
+
+          <button class="service-card" data-service="market-landscape" type="button">
+            <h4>Market landscape review <span class="check">✓</span></h4>
+            <p>Independent view of the HR tech market for your category</p>
+          </button>
+
+          <button class="service-card" data-service="platform-optimisation" type="button">
+            <h4>Platform optimisation <span class="check">✓</span></h4>
+            <p>Get more from your existing HR technology investment</p>
+          </button>
+
+          <button class="service-card" data-service="change-management" type="button">
+            <h4>Change management <span class="check">✓</span></h4>
+            <p>People, process and adoption support for tech change</p>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- PANEL 2: Your situation -->
+      <div class="panel" id="panel2">
+        <h2 class="panel-title">Tell us about your situation</h2>
+        <p class="panel-sub">This helps us send the right consultant for your first conversation.</p>
+
+        <div class="situation-section">
+          <div class="situation-label">Organisation size</div>
+          <div class="pill-group" id="orgSizeGroup">
+            <button class="sit-pill" data-group="orgSize" data-val="1-50" type="button">1–50</button>
+            <button class="sit-pill" data-group="orgSize" data-val="50-500" type="button">50–500</button>
+            <button class="sit-pill" data-group="orgSize" data-val="500-5000" type="button">500–5,000</button>
+            <button class="sit-pill" data-group="orgSize" data-val="5000-25000" type="button">5,000–25,000</button>
+            <button class="sit-pill" data-group="orgSize" data-val="25000+" type="button">25,000+</button>
+          </div>
+        </div>
+
+        <div class="situation-section">
+          <div class="situation-label">Project timeline</div>
+          <div class="pill-group" id="timelineGroup">
+            <button class="sit-pill" data-group="timeline" data-val="immediate" type="button">Immediate (&lt; 1 month)</button>
+            <button class="sit-pill" data-group="timeline" data-val="q3-2026" type="button">Q3 2026</button>
+            <button class="sit-pill" data-group="timeline" data-val="q4-2026" type="button">Q4 2026</button>
+            <button class="sit-pill" data-group="timeline" data-val="h1-2027" type="button">H1 2027</button>
+            <button class="sit-pill" data-group="timeline" data-val="exploratory" type="button">Exploratory — no date yet</button>
+          </div>
+        </div>
+
+        <div class="situation-section">
+          <div class="situation-label">Approximate budget (consulting fee)</div>
+          <div class="pill-group" id="budgetGroup">
+            <button class="sit-pill" data-group="budget" data-val="<50k" type="button">&lt; £50k</button>
+            <button class="sit-pill" data-group="budget" data-val="50k-100k" type="button">£50k – £100k</button>
+            <button class="sit-pill" data-group="budget" data-val="100k-250k" type="button">£100k – £250k</button>
+            <button class="sit-pill" data-group="budget" data-val="250k-500k" type="button">£250k – £500k</button>
+            <button class="sit-pill" data-group="budget" data-val="500k+" type="button">£500k+</button>
+            <button class="sit-pill" data-group="budget" data-val="undetermined" type="button">Not yet determined</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 3: Contact -->
+      <div class="panel" id="panel3">
+        <h2 class="panel-title">Your details</h2>
+        <p class="panel-sub">We'll use these to get back to you. No spam, ever.</p>
+
+        <div class="contact-form">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="c_fname">First name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_fname" placeholder="Sarah" autocomplete="given-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c_lname">Last name <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_lname" placeholder="Chen" autocomplete="family-name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_email">Work email <span class="req">*</span></label>
+            <input class="form-input" type="email" id="c_email" placeholder="sarah@company.co.uk" autocomplete="email">
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="c_company">Company <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_company" placeholder="Kinetik Retail Group" autocomplete="organization">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c_role">Your role <span class="req">*</span></label>
+              <input class="form-input" type="text" id="c_role" placeholder="Head of People Technology" autocomplete="organization-title">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="c_message">Message</label>
+            <textarea class="form-input form-textarea" id="c_message" placeholder="Give us a sense of your challenge, current systems, and what success looks like. The more context, the better we can help." rows="5"></textarea>
+          </div>
+
+          <div class="consent-row">
+            <input type="checkbox" id="c_consent" class="consent-checkbox">
+            <label for="c_consent" class="consent-label">
+              I agree to Udder processing my data to respond to this enquiry, in accordance with their
+              <a href="https://udder.rocks/privacy" target="_blank">privacy policy</a>.
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- footer bar -->
+    <div class="right-footer">
+      <div>
+        <button class="btn-back-right" id="backBtn" type="button">← Back</button>
+        <div class="validation-msg" id="validationMsg">Please select at least one service to continue.</div>
+      </div>
+      <button class="btn-continue" id="continueBtn" type="button" disabled>
+        Continue
+        <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 28 28" fill="none"><path d="M5 14l6 6L23 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2 class="modal-title">REQUEST RECEIVED.</h2>
+    <p class="modal-desc">
+      Thanks, <strong id="modalName">there</strong>. A member of the Udder team will be in touch within 1 business day. In the meantime, you can explore the database or read more about our services at udder.rocks.
+    </p>
+    <div class="modal-actions">
+      <a class="modal-btn-primary" href="db/index.html">Browse UdderDB</a>
+      <a class="modal-btn-ghost" href="https://udder.rocks" target="_blank">
+        Visit udder.rocks
+        <svg viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="modal-summary">
+      <div class="modal-summary-label">Your request summary</div>
+      <div class="modal-summary-rows" id="modalSummaryRows"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  let currentStep = 1;
+  const totalSteps = 3;
+  const selectedServices = new Set();
+  const step2Selections = { orgSize: null, timeline: null, budget: null };
+
+  /* ── service card toggles ── */
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('selected');
+      const svc = card.dataset.service;
+      if(card.classList.contains('selected')) selectedServices.add(svc);
+      else selectedServices.delete(svc);
+      updateContinueBtn();
+    });
+  });
+
+  /* ── situation pill toggles (single-select per group) ── */
+  document.querySelectorAll('.sit-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const group = pill.dataset.group;
+      // deselect others in same group
+      document.querySelectorAll(`.sit-pill[data-group="${group}"]`).forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      step2Selections[group] = pill.dataset.val;
+      updateContinueBtn();
+    });
+  });
+
+  function updateContinueBtn(){
+    const btn = document.getElementById('continueBtn');
+    const msg = document.getElementById('validationMsg');
+    if(currentStep === 1){
+      const ok = selectedServices.size > 0;
+      btn.disabled = !ok;
+      msg.textContent = ok ? '' : 'Please select at least one service to continue.';
+      msg.classList.remove('error');
+    } else if(currentStep === 2){
+      const ok = step2Selections.orgSize && step2Selections.timeline && step2Selections.budget;
+      btn.disabled = !ok;
+      msg.textContent = ok ? '' : 'Please answer all three questions to continue.';
+      msg.classList.remove('error');
+    } else if(currentStep === 3){
+      const fname   = document.getElementById('c_fname').value.trim();
+      const lname   = document.getElementById('c_lname').value.trim();
+      const email   = document.getElementById('c_email').value.trim();
+      const company = document.getElementById('c_company').value.trim();
+      const role    = document.getElementById('c_role').value.trim();
+      const consent = document.getElementById('c_consent').checked;
+      const ok = fname && lname && email && company && role && consent;
+      btn.disabled = !ok;
+      msg.textContent = '';
+    } else {
+      btn.disabled = false;
+      msg.textContent = '';
+    }
+  }
+
+  /* ── step navigation ── */
+  function goTo(step){
+    // hide all panels
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel'+step).classList.add('active');
+
+    // update step badges
+    for(let i=1; i<=totalSteps; i++){
+      const nav   = document.getElementById('stepNav'+i);
+      const badge = document.getElementById('badge'+i);
+      nav.className   = 'step-nav-item';
+      badge.className = 'step-num-badge';
+
+      if(i < step){
+        nav.classList.add('done');
+        badge.classList.add('done');
+        badge.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      } else if(i === step){
+        nav.classList.add('active');
+        badge.classList.add('active');
+        badge.textContent = i;
+      } else {
+        nav.classList.add('pending');
+        badge.classList.add('pending');
+        badge.textContent = i;
+      }
+    }
+
+    // back button visibility
+    const backBtn = document.getElementById('backBtn');
+    const msg     = document.getElementById('validationMsg');
+    const continueBtn = document.getElementById('continueBtn');
+    if(step > 1){
+      backBtn.classList.add('visible');
+      msg.style.display = 'none';
+    } else {
+      backBtn.classList.remove('visible');
+      msg.style.display = 'block';
+    }
+    // rename button on last step
+    const btnLabel = continueBtn.querySelector('span') || continueBtn;
+    if(step === totalSteps){
+      continueBtn.innerHTML = 'Send request <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>';
+    } else {
+      continueBtn.innerHTML = 'Continue <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>';
+    }
+
+    currentStep = step;
+    updateContinueBtn();
+    window.scrollTo(0,0);
+  }
+
+  /* ── step 3 field listeners ── */
+  ['c_fname','c_lname','c_email','c_company','c_role'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateContinueBtn);
+  });
+  document.getElementById('c_consent').addEventListener('change', updateContinueBtn);
+
+  document.getElementById('continueBtn').addEventListener('click', () => {
+    if(currentStep < totalSteps){
+      goTo(currentStep + 1);
+    } else {
+      showSuccessModal();
+    }
+  });
+
+  /* ── success modal ── */
+  function showSuccessModal(){
+    const fname    = document.getElementById('c_fname').value.trim();
+    const company  = document.getElementById('c_company').value.trim();
+
+    // populate name
+    document.getElementById('modalName').textContent = fname || 'there';
+
+    // build summary rows
+    const serviceLabels = {
+      'vendor-selection':    'Vendor selection',
+      'rfi-rfp':             'RFI / RFP management',
+      'hr-tech-strategy':    'HR tech strategy',
+      'implementation':      'Implementation support',
+      'digital-maturity':    'Digital maturity assessment',
+      'market-landscape':    'Market landscape review',
+      'platform-optimisation':'Platform optimisation',
+      'change-management':   'Change management',
+    };
+    const timelineLabels = {
+      'immediate':'Immediate (< 1 month)',
+      'q3-2026':'Q3 2026','q4-2026':'Q4 2026','h1-2027':'H1 2027',
+      'exploratory':'Exploratory — no date yet',
+    };
+    const budgetLabels = {
+      '<50k':'< £50k','50k-100k':'£50k – £100k','100k-250k':'£100k – £250k',
+      '250k-500k':'£250k – £500k','500k+':'£500k+','undetermined':'Not yet determined',
+    };
+
+    const svcsText = [...selectedServices].map(s => serviceLabels[s] || s).join(', ');
+
+    const rows = [
+      { key:'Services',     val: svcsText || '—' },
+      { key:'Organisation', val: company  || '—' },
+      { key:'Timeline',     val: timelineLabels[step2Selections.timeline] || '—' },
+      { key:'Budget',       val: budgetLabels[step2Selections.budget]     || '—' },
+    ];
+
+    document.getElementById('modalSummaryRows').innerHTML = rows.map(r => `
+      <div class="modal-summary-row">
+        <div class="modal-row-key">${r.key}</div>
+        <div class="modal-row-val">${r.val}</div>
+      </div>`).join('');
+
+    document.getElementById('successModal').classList.add('visible');
+  }
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if(currentStep > 1) goTo(currentStep - 1);
+  });
+
+  /* init */
+  updateContinueBtn();
+
+})();
+</script>
+</body>
+</html>

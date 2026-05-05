@@ -4,220 +4,430 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sign in — UDDER DB</title>
+<link rel="stylesheet" href="assets/css/common.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --o:#f04e23;--o2:#c93d18;
-  --k:#0f0f0f;--k2:#1c1c1c;
-  --w:#ffffff;--off:#fafaf9;--off2:#f3f2ef;
-  --b1:rgba(15,15,15,0.06);--b2:rgba(15,15,15,0.10);--b3:rgba(15,15,15,0.18);
+  --o:#F15025;--o2:#D03E14;--od:#c23a12;
+  --k:#0f0f0f;--w:#ffffff;--off:#fafaf9;
+  --b1:rgba(15,15,15,0.07);--b2:rgba(15,15,15,0.12);--b3:rgba(15,15,15,0.22);
   --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
-  --sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --display:'Poppins',sans-serif;--body:'Inter',sans-serif;
 }
-html,body{height:100%;background:var(--off)}
-body{font-family:var(--sans);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+html,body{min-height:100%;background:var(--off)}
+body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
 
-/* LEFT */
-.left{width:460px;flex-shrink:0;background:var(--k);display:flex;flex-direction:column;padding:40px;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;border:1px solid rgba(255,255,255,0.05);top:-120px;right:-140px;pointer-events:none}
-.left::after{content:'';position:absolute;width:600px;height:600px;border-radius:50%;border:1px solid rgba(255,255,255,0.03);bottom:-280px;left:-200px;pointer-events:none}
-.left-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
-.brand{display:flex;align-items:center;gap:10px;margin-bottom:auto}
-.brand-mark{width:32px;height:32px;background:var(--o);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.brand-mark svg{width:15px;height:15px}
-.brand-text{color:var(--w);font-size:16px;font-weight:600;letter-spacing:-0.01em;line-height:1}
-.brand-text span{color:var(--o)}
-.brand-sub{font-size:9px;font-weight:400;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;display:block;margin-top:2px}
-.left-content{margin-top:auto;padding-top:60px}
-.tagline{font-size:32px;font-weight:700;color:var(--w);letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px}
-.tagline em{color:var(--o);font-style:normal}
-.left-desc{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;max-width:300px;margin-bottom:40px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;margin-bottom:40px}
-.stat{padding:16px 18px;background:rgba(255,255,255,0.03)}
-.stat-n{font-size:22px;font-weight:700;color:var(--w);letter-spacing:-0.02em;line-height:1}
-.stat-l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
-.trust{display:flex;align-items:center;gap:8px}
-.trust-avatars{display:flex}
-.trust-avatar{width:26px;height:26px;border-radius:50%;background:var(--k2);border:2px solid var(--k);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:rgba(255,255,255,0.6);margin-left:-6px;letter-spacing:0.02em}
-.trust-avatar:first-child{margin-left:0}
-.trust-text{font-size:11px;color:rgba(255,255,255,0.35);margin-left:4px;line-height:1.4}
-.trust-text strong{color:rgba(255,255,255,0.6);font-weight:500}
+/* ── LEFT PANEL ── */
+.left{
+  width:44%;max-width:680px;flex-shrink:0;
+  background:var(--o);
+  display:flex;flex-direction:column;
+  padding:40px;
+  position:relative;overflow:hidden;
+  border-radius:0 16px 16px 0;
+}
+.left-arc{
+  position:absolute;
+  width:85%;padding-bottom:85%;
+  border-radius:50%;
+  border:40px solid var(--od);
+  top:-10%;right:-20%;
+  pointer-events:none;
+}
+.brand{
+  position:relative;z-index:2;
+  font-family:var(--display);
+  font-size:20px;font-weight:900;
+  color:var(--w);
+  letter-spacing:-0.03em;
+  text-transform:uppercase;
+}
+.brand span{color:var(--k)}
+.left-quote{
+  position:relative;z-index:2;
+  margin-top:auto;
+}
+.left-quote blockquote{
+  font-family:var(--display);
+  font-size:clamp(28px,3.5vw,42px);
+  font-weight:900;
+  color:var(--w);
+  letter-spacing:-0.02em;
+  line-height:1.05;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.left-quote cite{
+  font-style:normal;
+  font-size:13px;
+  color:rgba(255,255,255,0.6);
+  font-weight:400;
+}
 
-/* RIGHT */
-.right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;background:var(--off)}
-.form-card{width:100%;max-width:420px;animation:fadeUp 0.35s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.form-header{margin-bottom:32px}
-.form-title{font-size:26px;font-weight:700;color:var(--t1);letter-spacing:-0.02em;margin-bottom:6px}
-.form-sub{font-size:14px;color:var(--t3);line-height:1.5}
+/* ── RIGHT PANEL ── */
+.right{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:56px 48px;
+  overflow-y:auto;
+  background:var(--w);
+}
+.form-card{
+  width:100%;max-width:420px;
+  animation:fadeUp 0.35s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* form elements */
+.form-title{
+  font-family:var(--display);
+  font-size:clamp(24px,3vw,34px);
+  font-weight:800;color:var(--t1);
+  letter-spacing:-0.03em;line-height:1.1;
+  margin-bottom:8px;
+}
+.form-sub{
+  font-size:14px;color:var(--t3);
+  line-height:1.5;margin-bottom:36px;
+}
 .form-sub a{color:var(--o);text-decoration:none;font-weight:500}
 .form-sub a:hover{color:var(--o2)}
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:12px;font-weight:500;color:var(--t2);margin-bottom:6px;letter-spacing:0.01em}
-.form-input{width:100%;height:42px;padding:0 14px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+
+.form-label{
+  display:block;font-size:10px;font-weight:700;
+  color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:7px;
+}
+.form-group{margin-bottom:18px;}
+
+.form-input{
+  width:100%;height:46px;
+  padding:0 42px 0 14px;
+  border:1.5px solid var(--b2);border-radius:8px;
+  background:var(--w);font-size:14px;color:var(--t1);
+  font-family:var(--body);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
 .form-input::placeholder{color:var(--t4)}
-.form-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.08)}
+.form-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(241,80,37,0.09)}
 .form-input:hover:not(:focus){border-color:var(--b3)}
-.form-input-wrap{position:relative}
-.form-input-wrap .form-input{padding-right:42px}
-.toggle-pwd{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--t3);display:flex;align-items:center;padding:2px}
-.toggle-pwd:hover{color:var(--t1)}
-.toggle-pwd svg{width:15px;height:15px}
-.form-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.checkbox-wrap{display:flex;align-items:center;gap:7px;cursor:pointer}
-.checkbox-wrap input{width:14px;height:14px;accent-color:var(--o);cursor:pointer}
-.checkbox-wrap span{font-size:13px;color:var(--t2)}
-.forgot-link{font-size:13px;color:var(--o);text-decoration:none;font-weight:500;cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color 0.15s;padding:0}
-.forgot-link:hover{color:var(--o2)}
-.btn-primary{width:100%;height:44px;background:var(--o);border:none;border-radius:8px;color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative}
-.btn-primary:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(240,78,35,0.25)}
-.btn-primary:active{transform:none;box-shadow:none}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0}
-.divider-line{flex:1;height:1px;background:var(--b1)}
-.divider-text{font-size:11px;color:var(--t4);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
-.btn-sso{width:100%;height:42px;background:var(--w);border:1px solid var(--b2);border-radius:8px;color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all 0.13s;display:flex;align-items:center;justify-content:center;gap:9px}
-.btn-sso:hover{border-color:var(--b3);background:var(--off)}
-.btn-sso svg{width:16px;height:16px;flex-shrink:0}
-.form-footer{margin-top:28px;padding-top:20px;border-top:1px solid var(--b1);text-align:center}
-.form-footer p{font-size:12px;color:var(--t4);line-height:1.6}
-.form-footer a{color:var(--t3);text-decoration:none}
-.form-footer a:hover{color:var(--t1)}
-/* spinner */
-.spinner-btn-clicked{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block;vertical-align:middle;margin-left:6px}
+
+.form-input-plain{padding-right:14px;}
+
+.form-input-wrap{position:relative;}
+.input-icon{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border-radius:6px;
+  background:var(--o);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border:none;
+}
+.input-icon svg{width:12px;height:12px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* forgot password */
+.forgot-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:7px;
+}
+.forgot-row .form-label{margin-bottom:0;}
+.forgot-link{
+  font-size:12px;color:var(--t3);
+  text-decoration:none;font-weight:500;
+  transition:color 0.15s;
+}
+.forgot-link:hover{color:var(--o);}
+
+/* submit button */
+.btn-submit{
+  width:100%;height:48px;
+  background:var(--o);border:none;border-radius:999px;
+  color:var(--w);font-size:14px;font-weight:600;
+  cursor:pointer;font-family:var(--body);
+  transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:24px;
+}
+.btn-submit:hover{background:var(--o2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,80,37,0.28);}
+.btn-submit:active{transform:none;box-shadow:none;}
+.btn-submit svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.spinner-inline{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin 0.6s linear infinite;
+  display:none;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
-/* forgot modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,15,15,0.4);z-index:500;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--w);border-radius:12px;border:1px solid var(--b2);padding:28px;width:100%;max-width:400px;animation:fadeUp 0.25s ease both}
-.modal-title{font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:6px}
-.modal-desc{font-size:13px;color:var(--t3);margin-bottom:20px;line-height:1.5}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:18px;line-height:1}
-.modal-close:hover{color:var(--t1)}
-.notification{position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:9px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:8px;animation:fadeUp 0.25s ease both;box-shadow:0 4px 16px rgba(0,0,0,0.12)}
-.notification.success{background:#16a34a;color:white}
-.notification.error{background:#ef4444;color:white}
-@media(max-width:860px){.left{display:none}.right{padding:24px 20px}}
+
+/* divider */
+.divider{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;
+}
+.divider-line{flex:1;height:1px;background:var(--b1);}
+.divider-text{font-size:11px;color:var(--t4);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;}
+
+/* SSO buttons */
+.sso-row{display:flex;gap:10px;margin-bottom:28px;}
+.btn-sso{
+  flex:1;height:42px;
+  background:var(--w);border:1.5px solid var(--b2);border-radius:8px;
+  color:var(--t1);font-size:13px;font-weight:500;
+  cursor:pointer;font-family:var(--body);
+  transition:all 0.13s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-sso:hover{border-color:var(--b3);background:var(--off);}
+.btn-sso svg{width:16px;height:16px;flex-shrink:0;}
+
+/* error */
+.form-error{
+  font-size:12px;color:#ef4444;
+  margin-bottom:16px;min-height:18px;
+  display:none;
+}
+.form-error.visible{display:block;}
+
+/* sign up prompt */
+.signup-prompt{
+  text-align:center;
+  font-size:13px;color:var(--t3);
+  padding-top:4px;
+}
+.signup-prompt a{color:var(--o);text-decoration:none;font-weight:500;}
+.signup-prompt a:hover{color:var(--o2);}
+
+@media(max-width:860px){.left{display:none}.right{padding:32px 24px;align-items:flex-start;}}
+@media(max-width:480px){.right{padding:24px 16px;}.sso-row{flex-direction:column;}}
 </style>
 </head>
 <body>
 
+<!-- ── LEFT ── -->
 <div class="left">
-  <div class="left-inner">
-    <div class="brand">
-      <div class="brand-mark"><svg viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="4.2" stroke="white" stroke-width="1.4"/><circle cx="6.5" cy="6.5" r="1.7" fill="white"/></svg></div>
-      <div><div class="brand-text">UDDER <span>DB</span></div><span class="brand-sub">HR Tech Database</span></div>
-    </div>
-    <div class="left-content">
-      <h1 class="tagline">The HR tech database<br>built for <em>buyers</em>.</h1>
-      <p class="left-desc">Independent research and verified data on 340+ HR technology vendors. Find, compare, and evaluate with confidence.</p>
-      <div class="stats">
-        <div class="stat"><div class="stat-n">340+</div><div class="stat-l">Vendors</div></div>
-        <div class="stat"><div class="stat-n">7</div><div class="stat-l">Categories</div></div>
-        <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Independent</div></div>
-        <div class="stat"><div class="stat-n">Udder</div><div class="stat-l">Verified data</div></div>
-      </div>
-      <div class="trust">
-        <div class="trust-avatars">
-          <div class="trust-avatar">SC</div><div class="trust-avatar">MK</div>
-          <div class="trust-avatar">JL</div><div class="trust-avatar">AR</div>
-        </div>
-        <div class="trust-text">Trusted by <strong>2,400+</strong> HR professionals<br>across 60 countries</div>
-      </div>
-    </div>
+  <div class="left-arc"></div>
+  <div class="brand">Udder<span>DB</span></div>
+  <div class="left-quote">
+    <blockquote>"They need an advisor, not just a technician."</blockquote>
+    <cite>— How Udder thinks about HR tech selection</cite>
   </div>
 </div>
 
+<!-- ── RIGHT ── -->
 <div class="right">
   <div class="form-card">
-    <div class="form-header">
-      <h2 class="form-title">Welcome back</h2>
-      <p class="form-sub">New to Udder DB? <a href="signup.html">Create a free account →</a></p>
+
+    <h2 class="form-title">Welcome back</h2>
+    <p class="form-sub">
+      Don't have an account? <a href="signup.html">Create one free →</a>
+    </p>
+
+    <!-- SSO -->
+    <div class="sso-row">
+      <button class="btn-sso" type="button" id="googleBtn">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button class="btn-sso" type="button" id="microsoftBtn">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+          <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+          <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+          <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+        </svg>
+        Microsoft
+      </button>
     </div>
 
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">or sign in with email</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Email -->
     <div class="form-group">
       <label class="form-label" for="email">Work email</label>
-      <input class="form-input" type="email" id="email" placeholder="you@company.com" autocomplete="email">
+      <input class="form-input form-input-plain" type="email" id="email" placeholder="alice@example.co.uk" autocomplete="email">
     </div>
 
+    <!-- Password -->
     <div class="form-group">
-      <label class="form-label" for="password">Password</label>
+      <div class="forgot-row">
+        <label class="form-label" for="password">Password</label>
+        <button type="button" class="forgot-link" id="forgotPassBtnTrigger">Forgot password?</button>
+      </div>
       <div class="form-input-wrap">
         <input class="form-input" type="password" id="password" placeholder="Your password" autocomplete="current-password">
-        <button type="button" class="toggle-pwd" id="togglePwd" aria-label="Toggle password">
-          <svg id="eyeIcon" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
+        <button class="input-icon" type="button" id="togglePwd">
+          <svg id="eyeIcon" viewBox="0 0 16 16" fill="none">
+            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
         </button>
       </div>
     </div>
 
-    <div class="form-row">
-      <label class="checkbox-wrap"><input type="checkbox" id="remember"><span>Keep me signed in</span></label>
-      <button class="forgot-link" id="forgotTrigger">Forgot password?</button>
+    <!-- <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+      <input type="checkbox" id="remember" style="width:15px;height:15px;accent-color:var(--o);cursor:pointer;flex-shrink:0;">
+      <label for="remember" style="font-size:13px;color:var(--t2);cursor:pointer;">Remember me</label>
+    </div> -->
+
+    <div class="form-error" id="loginError"></div>
+
+    <button class="btn-submit" id="loginBtn" type="button" disabled>
+      Sign in
+      <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+    </button>
+
+    <div class="signup-prompt">
+      New to UdderDB? <a href="signup.html">Create a free account</a>
     </div>
 
-    <button class="btn-primary" id="loginBtn">Sign in</button>
-
-    <div class="divider"><div class="divider-line"></div><span class="divider-text">or continue with</span><div class="divider-line"></div></div>
-
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <button class="btn-sso">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        Continue with Google
-      </button>
-      <button class="btn-sso">
-        <svg viewBox="0 0 24 24" fill="none"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
-        Continue with Microsoft
-      </button>
-    </div>
-
-    <div class="form-footer">
-      <p>By signing in you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
-    </div>
   </div>
 </div>
 
-<!-- Forgot password modal -->
-<div class="modal-overlay" id="forgotModal">
-  <div class="modal-box" style="position:relative">
-    <button class="modal-close" id="forgotClose">&times;</button>
-    <div class="modal-title">Reset your password</div>
-    <div class="modal-desc">Enter your work email and we'll send you a link to reset your password.</div>
-    <div class="form-group">
+<!-- FORGOT PASSWORD MODAL -->
+<div class="fp-overlay" id="fpModal">
+  <div class="fp-box">
+    <button class="fp-close" id="fpClose" type="button">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="fp-icon">
+      <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <h3 class="fp-title">Reset your password</h3>
+    <p class="fp-desc">Enter your work email and we'll send you a link to reset your password.</p>
+    <div class="fp-group">
       <label class="form-label" for="forgotPasswordEmail">Work email</label>
-      <input class="form-input" type="email" id="forgotPasswordEmail" placeholder="you@company.com">
+      <input class="form-input" style="padding-right:14px" type="email" id="forgotPasswordEmail" placeholder="alice@example.co.uk" autocomplete="email">
     </div>
-    <button class="btn-primary" id="forgotPassBtn" style="margin-top:8px">Send reset link</button>
+    <button class="fp-submit" id="forgotPassBtn" type="button" disabled>
+      Send reset link
+      <svg viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="fp-success" id="fpSuccess">
+      <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#16a34a" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Email sent! Check your inbox.
+    </div>
   </div>
 </div>
 
+<style>
+.forgot-link{background:none;border:none;cursor:pointer;font-family:var(--body);}
+.fp-overlay{position:fixed;inset:0;background:rgba(15,15,15,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
+.fp-overlay.visible{opacity:1;pointer-events:all;}
+.fp-box{background:var(--w);border-radius:16px;padding:36px 32px 32px;width:100%;max-width:400px;position:relative;transform:translateY(16px) scale(0.98);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 24px 64px rgba(0,0,0,0.18);}
+.fp-overlay.visible .fp-box{transform:translateY(0) scale(1);}
+.fp-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:var(--off);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;color:var(--t3);}
+.fp-close:hover{background:var(--b2);color:var(--t1);}
+.fp-close svg{width:11px;height:11px;}
+.fp-icon{width:48px;height:48px;border-radius:12px;background:rgba(241,80,37,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--o);}
+.fp-icon svg{width:22px;height:22px;}
+.fp-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;margin-bottom:8px;}
+.fp-desc{font-size:13px;color:var(--t3);line-height:1.55;margin-bottom:24px;}
+.fp-group{margin-bottom:16px;}
+.fp-submit{width:100%;height:46px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--body);transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.fp-submit:hover{background:var(--o2);}
+.fp-submit:disabled{background:rgba(241,80,37,0.35);cursor:default;}
+.fp-submit svg{width:13px;height:13px;}
+.fp-success{display:none;align-items:center;gap:8px;font-size:13px;color:#16a34a;font-weight:500;margin-top:14px;padding:10px 14px;background:rgba(22,163,74,0.07);border-radius:8px;}
+.fp-success.visible{display:flex;}
+.fp-success svg{width:18px;height:18px;flex-shrink:0;}
+@media(max-width:480px){.fp-box{margin:0 16px;padding:28px 20px 24px;}}
+</style>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script type="module">
+  import { lockBtn } from './assets/js/app.js';
+  window.lockBtn = lockBtn;
+</script>
 <script type="module" src="assets/js/core/auth/login.js"></script>
 <script>
-/* Toggle password */
-document.getElementById('togglePwd').addEventListener('click', function(){
-  var p = document.getElementById('password');
-  var show = p.type === 'password';
-  p.type = show ? 'text' : 'password';
-  document.getElementById('eyeIcon').innerHTML = show
-    ? '<path d="M13.4 13.4A5.97 5.97 0 0 1 8 16c-4.5 0-7-5-7-5a12.6 12.6 0 0 1 2.6-3.4M6.3 6.3A5.97 5.97 0 0 1 8 6c4.5 0 7 5 7 5a12.6 12.6 0 0 1-1.67 2.3M1 1l14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>'
-    : '<path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>';
-});
+(function(){
 
-/* Forgot password modal */
-document.getElementById('forgotTrigger').addEventListener('click', function(){
-  document.getElementById('forgotModal').classList.add('open');
-  setTimeout(function(){ document.getElementById('forgotPasswordEmail').focus(); }, 100);
-});
-document.getElementById('forgotClose').addEventListener('click', function(){
-  document.getElementById('forgotModal').classList.remove('open');
-});
-document.getElementById('forgotModal').addEventListener('click', function(e){
-  if(e.target === this) this.classList.remove('open');
-});
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape') document.getElementById('forgotModal').classList.remove('open');
-});
+  /* ── password toggle ── */
+  document.getElementById('togglePwd').addEventListener('click', function(){
+    const p = document.getElementById('password');
+    const show = p.type === 'password';
+    p.type = show ? 'text' : 'password';
+    document.getElementById('eyeIcon').innerHTML = show
+      ? '<path d="M13.4 13.4A5.97 5.97 0 0 1 8 16c-4.5 0-7-5-7-5a12.6 12.6 0 0 1 2.6-3.4M6.3 6.3A5.97 5.97 0 0 1 8 6c4.5 0 7 5 7 5a12.6 12.6 0 0 1-1.67 2.3M1 1l14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>'
+      : '<path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>';
+  });
+
+  /* ── login field validation ── */
+  function checkFields(){
+    const email = document.getElementById('email').value.trim();
+    const pwd   = document.getElementById('password').value;
+    document.getElementById('loginBtn').disabled = !(email && pwd);
+  }
+  document.getElementById('email').addEventListener('input', checkFields);
+  document.getElementById('password').addEventListener('input', checkFields);
+  checkFields();
+
+  /* ── enter key submits ── */
+  ['email','password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if(e.key === 'Enter') document.getElementById('loginBtn').click();
+    });
+  });
+
+  /* ── forgot password modal ── */
+  const fpModal   = document.getElementById('fpModal');
+  const fpEmail   = document.getElementById('forgotPasswordEmail');
+  const fpSubmit  = document.getElementById('forgotPassBtn');
+  const fpSuccess = document.getElementById('fpSuccess');
+
+  function openModal(){
+    // pre-fill with whatever is in the login email field
+    fpEmail.value = document.getElementById('email').value.trim();
+    fpSuccess.classList.remove('visible');
+    fpSubmit.style.display = 'flex';
+    checkFpEmail();
+    fpModal.classList.add('visible');
+    setTimeout(() => fpEmail.focus(), 200);
+  }
+
+  document.getElementById('forgotPassBtnTrigger').addEventListener('click', openModal);
+  document.getElementById('fpClose').addEventListener('click', () => fpModal.classList.remove('visible'));
+  fpModal.addEventListener('click', e => { if(e.target === fpModal) fpModal.classList.remove('visible'); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') fpModal.classList.remove('visible'); });
+
+  function checkFpEmail(){
+    fpSubmit.disabled = !fpEmail.value.trim();
+  }
+  fpEmail.addEventListener('input', checkFpEmail);
+  fpEmail.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !fpSubmit.disabled) fpSubmit.click();
+  });
+
+  // After login.js calls showToast('Email sent!'), also show inline success in modal
+  // Override App.showToast to detect the sent state
+  window.addEventListener('load', () => {
+    if(window.App && window.App.showToast){
+      const orig = window.App.showToast;
+      window.App.showToast = function(msg, type){
+        orig.call(this, msg, type);
+        if(msg === 'Email sent!'){
+          fpSuccess.classList.add('visible');
+          fpSubmit.style.display = 'none';
+        }
+      };
+    }
+  });
+
+})();
 </script>
 </body>
 </html>

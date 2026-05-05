@@ -6,14 +6,30 @@ $(function(){
     if (isLoggedIn === 'true') location.href = PAGES.vendor;
 
     $('#forgotPassBtn').on('click', async function(){
-        var $btn = $(this);
-        const email = $('#forgotPasswordEmail').val();
+        const email = $('#forgotPasswordEmail').val().trim();
         if (!email) return;
 
-        if ($btn.data('...')) return;
-        $btn.data('...', true);
-        $btn.append('<span class="spinner-btn-clicked"></span>');
-        $btn.css('pointer-events', 'none');
+        const reset = App.lockBtn($(this));
+        if (!reset) return;
+
+        const r = await fetch('/api/supabase?action=getUserByEmail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({'email': email}),
+        });
+
+        const rs = await r.json();
+        if (rs.error){
+            reset();
+            App.showToast(rs.error, 'error');
+            return;
+        }
+
+        if (rs.data === null){
+            App.showToast('Email address could not be found.', 'error');
+            reset();
+            return;
+        }
 
         const response = await fetch('/api/token', {
             method: 'POST',
@@ -23,7 +39,7 @@ $(function(){
 
         const result = await response.json();
         if (result.error){
-            resetBtn();
+            reset();
             App.showToast(result.error, 'error');
             return;
         }
@@ -37,30 +53,19 @@ $(function(){
         });
 
         const filters = await res.json();
-        App.showToast('Email sent!', 'error');
-        resetBtn();
-
-        function resetBtn(){
-            $btn.data('loading', false);
-            $btn.find('.spinner-btn-clicked').remove();
-            $btn.css('pointer-events', 'auto');
-            $btn.data('...', false);
-        }
+        App.showToast('Email sent!', 'success');
+        reset();
     });
 
     $('#loginBtn').on('click', async function(){
-        var $btn = $(this);
-
         const email = $('#email').val();
         const pwd = $('#password').val();
-        const remember = $('#remember').is(':checked');;
+        //const remember = $('#remember').is(':checked');;
 
         if (!email || !pwd) return;
-        
-        if ($btn.data('...')) return;
-        $btn.data('...', true);
-        $btn.append('<span class="spinner-btn-clicked"></span>');
-        $btn.css('pointer-events', 'none');
+
+        const reset = App.lockBtn($(this));
+        if (!reset) return;
 
         const response = await fetch('/api/supabase?action=userExists', {
             method: 'POST',
@@ -70,22 +75,15 @@ $(function(){
 
         const result = await response.json();
         if (result.error){
-            resetBtn();
+            reset();
             App.showToast(result.error, 'error');
             return;
         }
         
-        var days = remember ? 365 : 1;
+        var days = 365; //remember ? 365 : 1;
         App.setCookie('is_logged_in', true, days);
         App.setCookie('user_id', result.data.id, days);
 
         location.href = (result.data.role == 'hr-professional') ? PAGES.home : `user/${result.data.role}`;
-
-        function resetBtn(){
-            $btn.data('loading', false);
-            $btn.find('.spinner-btn-clicked').remove();
-            $btn.css('pointer-events', 'auto');
-            $btn.data('...', false);
-        }
     });
 });

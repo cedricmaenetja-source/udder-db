@@ -32,6 +32,21 @@ export default async function handler(req, res) {
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
 
+    if (action === 'getUserByEmail'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { email } = req.body;
+            
+            return await getUserByEmail(res, email);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    } 
+
     if (action === 'verifyOtp'){
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
@@ -519,7 +534,7 @@ export async function userSignUp(res, user) {
     return res.status(200).json({ data });
 }
 
-async function getUserByEmail(email) {
+async function getUserByEmail(res, email) {
   const { data, error } = await supabase
     .from('tblusers')
     .select('*')
