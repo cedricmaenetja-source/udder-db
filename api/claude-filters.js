@@ -1,3 +1,4 @@
+import { authorize } from './header';
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -48,6 +49,8 @@ ${JSON.stringify(EMPTY_FILTERS, null, 2)}
 Query: "${query}"`;
 
 export default async function handler(req, res) {
+  authorize(req, res);
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST allowed" });
   }

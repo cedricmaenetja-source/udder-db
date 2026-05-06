@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "sass assets/css/scss/main.scss assets/css/common.css --no-source-map --style=compressed"
+    "build:css": "sass src/css/scss/main.scss src/css/common.css --no-source-map --style=compressed"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.89.0",
     "@supabase/supabase-js": "^2.99.0",
     "bcrypt": "^6.0.0",
+    "cookie": "^1.1.1",
     "formidable": "^3.5.4",
     "iceberg-js": "^0.8.1",
     "json-schema-to-ts": "^3.1.1",

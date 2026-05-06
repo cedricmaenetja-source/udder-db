@@ -1,5 +1,6 @@
 import * as App from '../app.js';
-import { PAGES } from  '../utils/constants.js'
+import { PAGES } from  '../utils/constants.js';
+import { isLoggedIn } from '../core/auth/session.js';
 
 let vendorData = {};
 let vendorList = [];
@@ -25,18 +26,22 @@ var $featureSelectedItems = $(".selected-items");
 
 let searchFilters = App.searchQueries;
 
+$(async function () {
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn) {
+        $('#sbSignIn').removeClass('hide');
+        $('#sb-user-profile').addClass('hide');
+        $('.link-secured').addClass('hide');
+    }else{
+        loadUserProfile();
+        $('#sbSignIn').addClass('hide');
+        $('.link-secured').removeClass('hide');
+    }
+});
+
 $(document).ready(function() {
     let compareMode = false;
     let selectedCards = new Set();
-
-    const isLoggedIn = App.getCookie('is_logged_in');
-    if (isLoggedIn === 'true') {
-        loadUserProfile();
-        $('#sbSignIn').addClass('hide');
-    }else{
-        $('#sbSignIn').removeClass('hide');
-        $('#sb-user-profile').addClass('hide');
-    }
 
     const searchInput = document.getElementById('search');
     const modal = document.getElementById('searchModal');
@@ -98,7 +103,8 @@ $(document).ready(function() {
         runSearch();
     });
 
-    const query = App.getCookie('query');
+    let query = App.getCookie('query');
+    query = null;
     if (query !== null && (query !== undefined || typeof value !== 'undefined') && query != ''){
         const value = decodeURIComponent(query);
         $("#search").val(value);
@@ -519,7 +525,7 @@ async function getHistoricalSearchFilters(){
         console.error(result.error);
         return;
     }
-    console.log('data', data);
+    if (result.data === null) return;
     result.data.forEach(filter => {
         searchFilters.push(filter.query);
     });

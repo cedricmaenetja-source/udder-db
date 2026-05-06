@@ -28,7 +28,6 @@ export const OOOPS = 'Oops, something went wrong!';
 export const REQUEST_NOT_PROCESSED = 'The request can not be processed at this time.';
 
 export const ZAPIER_CREATE_SEARCH_FILTERS = 'https://hooks.zapier.com/hooks/catch/25735666/uel2qx3/';
-export const ZAPIER_SEND_EMAIL = 'https://hooks.zapier.com/hooks/catch/25735666/uptnlxt/';
 
 export const modules = [
     'Core HR / HRIS',

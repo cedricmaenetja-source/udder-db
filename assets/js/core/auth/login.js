@@ -2,8 +2,8 @@ import * as App from '../../app.js';
 import { PAGES, RESET_PASSWORD_EMAIL, HOSTNAME } from '../../utils/constants.js';
 
 $(function(){
-    const isLoggedIn = App.getCookie('is_logged_in');
-    if (isLoggedIn === 'true') location.href = PAGES.vendor;
+    // const isLoggedIn = App.getCookie('is_logged_in');
+    // if (isLoggedIn === 'true') location.href = PAGES.vendor;
 
     $('#forgotPassBtn').on('click', async function(){
         const email = $('#forgotPasswordEmail').val().trim();
@@ -44,7 +44,7 @@ $(function(){
             return;
         }
 
-        const res = await fetch(App.ZAPIER_SEND_EMAIL, {
+        const res = await fetch('/api/send-email', {
             method: "POST",
             body: JSON.stringify({ 
                 to: email, 
@@ -52,7 +52,8 @@ $(function(){
                 body: RESET_PASSWORD_EMAIL.replace('{{LINK}}', `${HOSTNAME}/password.html?t=${result.token}`) })
         });
 
-        const filters = await res.json();
+        const resetres = await res.json();
+        console.log('resetres', resetres);
         App.showToast('Email sent!', 'success');
         reset();
     });
@@ -67,7 +68,7 @@ $(function(){
         const reset = App.lockBtn($(this));
         if (!reset) return;
 
-        const response = await fetch('/api/supabase?action=userExists', {
+        const response = await fetch('/api/supabase?action=login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, password: pwd}),
@@ -81,9 +82,9 @@ $(function(){
         }
         
         var days = 365; //remember ? 365 : 1;
-        App.setCookie('is_logged_in', true, days);
-        App.setCookie('user_id', result.data.id, days);
+        // App.setCookie('is_logged_in', true, days);
+        // App.setCookie('user_id', result.data.id, days);
 
-        location.href = (result.data.role == 'hr-professional') ? PAGES.home : `user/${result.data.role}`;
+        location.href = PAGES.home;
     });
 });

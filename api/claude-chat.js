@@ -4,6 +4,7 @@
  * Body:   { messages: [{ role: 'user'|'assistant', content: string }] }
  * Returns { reply: string, vendorsQueried: number }
  */
+import { authorize } from './header';
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { createClient } = require('@supabase/supabase-js');
@@ -240,6 +241,8 @@ function formatVendorContext(vendors) {
    MAIN HANDLER
 ───────────────────────────────────────────────────────────── */
 async function claudeChat(req, res) {
+  authorize(req, res);
+
   try {
     const { messages } = req.body;
 

@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>UdderDB — HR Tech Database</title>
+<link rel="stylesheet" href="assets/css/common.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -705,7 +706,7 @@ a { text-decoration: none; color: inherit; }
     <h1>Choose HR<br>tech with<br><span class="accent">no noise.</span></h1>
     <p class="hero-desc">340+ HR technology products. Independently verified by the consultants at Udder. No sponsored rankings, no vendor-written fluff. Just what actually works for your org.</p>
     <div class="hero-search">
-      <input type="text" placeholder="What are you trying to solve? e.g. 'high-volume retail ATS'">
+      <input type="text" id="query" placeholder="What are you trying to solve? e.g. 'high-volume retail ATS'">
       <a class="hero-search-btn" id="searchBtn" href="javascript:void(0)">Search</a>
     </div>
     <div class="hero-stats">
@@ -796,7 +797,7 @@ a { text-decoration: none; color: inherit; }
           <li>Direct intro requests</li>
           <li>Udder-verified claims</li>
         </ul>
-        <a class="btn-card primary" href="signup.html?role=hr">
+        <a class="btn-card primary" href="db/">
           Start searching →
         </a>
       </div>
@@ -847,6 +848,21 @@ a { text-decoration: none; color: inherit; }
     <div class="footer-cta-note">An independent product by The Udder Group · udder.rocks</div>
   </div>
 </section>
+<script type="module">
+  import { setCookie, showToast } from '/assets/js/app.js';
+  (function(){
+    document.getElementById('searchBtn').addEventListener('click', function(){
+      const q = document.getElementById('query').value.trim();
+      console.log('in here', q);
+      if (!q){
+        showToast('Enter text to begin search', 'error');
+        return;
+      } 
 
+      setCookie('query', q);
+      location.href = `db/?q=${q}`;
+    });
+  })();
+</script>
 </body>
 </html>

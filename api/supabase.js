@@ -1,8 +1,10 @@
+import { authorize } from './header';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { IncomingForm } from 'formidable';
 import fs from "fs";
+import { serialize } from "cookie";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -16,6 +18,8 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+    authorize(req, res);
+
     const { action, vendorId, userId } = req.query;
 
     if (action === 'getVendors') {
@@ -132,7 +136,7 @@ export default async function handler(req, res) {
         }
     }
 
-    if (action === 'userExists'){
+    if (action === 'login'){
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
         }
@@ -140,7 +144,7 @@ export default async function handler(req, res) {
         try {
             const { email, password } = req.body;
             
-            return await userExists(res, email, password);
+            return await login(res, email, password);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -280,6 +284,21 @@ export default async function handler(req, res) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
         }
+    } 
+
+    if (action === 'addClientInquiry'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { inquiry, client } = req.body;
+            
+            return await addClientInquiry(res, inquiry, client);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
     }
 
     if (action === 'uploadVendorScreenshots') {
@@ -297,9 +316,6 @@ export default async function handler(req, res) {
                     return res.status(500).json({ error: err.message });
                 }
 
-                console.log("FIELDS:", fields);
-                console.log("FILES:", files);
-
                 const uploadedFiles = files.files || files.file || files;
 
                 if (!uploadedFiles) {
@@ -313,7 +329,6 @@ export default async function handler(req, res) {
                 );
 
             } catch (error) {
-                console.error("Upload error:", error);
                 return res.status(500).json({ error: error.message });
             }
         });
@@ -387,6 +402,13 @@ async function getVendors(res){
         .order('name', { ascending: true });
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+
+    // Cache on Vercel Edge for 5 hours
+    res.setHeader(
+        'Cache-Control', 
+        'public, s-maxage=18000, stale-while-revalidate=86400'
+    );
+
     return res.status(200).json({ data });
 }
 
@@ -632,7 +654,7 @@ async function updateVerification(res, verified, id) {
     return res.status(200).json({ data });
 }
 
-async function userExists(res, email, password) {
+async function login(res, email, password) {
     const { data, error } = await supabase
     .from('tblusers')
     .select('id, password, role')
@@ -646,9 +668,24 @@ async function userExists(res, email, password) {
         const match = await bcrypt.compare(password, data.password);
         if (!match){
             return res.status(401).json({ data: null, error: 'Invalid login details.' });
-        }else{
-            return res.status(200).json({ data });
         }
+
+        const token = crypto.randomUUID();
+
+        await supabase.from('tblsessions').insert({
+            session_id: token,
+            user_id: data.id
+        });
+
+        res.setHeader("Set-Cookie", serialize("auth", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24
+        }));
+
+        return res.status(200).json({ data });
     }
 
     return res.status(401).json({ data: null, error: 'Invalid login details.' });
@@ -839,7 +876,7 @@ async function GetVendorsForClaiming(res){
     const { data, e } = await supabase
     .from('tblvendors')
     .select('*');
-    console.log('d', ids);
+    
     if (e) return res.status(500).json({ data: null, error: e.message });
     
     data.forEach(vendor => {
@@ -847,4 +884,18 @@ async function GetVendorsForClaiming(res){
     });
 
     return res.status(200).json({ vendors });
+}
+
+async function addClientInquiry(res, inquiry, client){
+    const { data, error } = await supabase
+    .from('tblclientinquiries')
+    .insert({ 
+        inquiry: inquiry,
+        client: client
+    })
+    .select('*')
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
 }

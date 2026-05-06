@@ -865,9 +865,22 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
   });
 
   /* ── success modal ── */
-  function showSuccessModal(){
+  async function showSuccessModal(){
     const fname    = document.getElementById('c_fname').value.trim();
+    const lname    = document.getElementById('c_lname').value.trim();
     const company  = document.getElementById('c_company').value.trim();
+    const email  = document.getElementById('c_email').value.trim();
+    const role  = document.getElementById('c_role').value.trim();
+    const message  = document.getElementById('c_message').value.trim();
+    
+    const client = {
+      fname: fname,
+      lname: lname,
+      company: company,
+      email: email,
+      role: role,
+      message: message
+    };
 
     // populate name
     document.getElementById('modalName').textContent = fname || 'there';
@@ -909,6 +922,11 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       </div>`).join('');
 
     document.getElementById('successModal').classList.add('visible');
+    const response=await fetch('/api/supabase?action=addClientInquiry',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ inquiry: rows, client: client})
+    });
+    const result=await response.json();
   }
 
   document.getElementById('backBtn').addEventListener('click', () => {

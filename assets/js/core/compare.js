@@ -182,9 +182,9 @@
 
     /* ── Row builders ── */
     function secHead(label) {
-      return '<div class="cp-sec-head cp-grid" style="grid-template-columns:' + cols + '">' +
+      return '<div class="cp-sec-head cp-grid" style="grid-template-columns:' + cols + ';background:black">' +
         '<div class="cp-sec-label">' + label + '</div>' +
-        Array(vendors.length).fill('<div></div>').join('') +
+        Array(vendors.length).fill('<div style="background:black"></div>').join('') +
       '</div>';
     }
     function dataRow(label, cells) {
@@ -446,14 +446,14 @@
 
       /* Section headers — grey */
       '.cp-sec-head{border-bottom:1px solid #eee}' +
-      '.cp-sec-label{padding:10px 20px;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.1em;background:#f5f5f5;border-right:1px solid #eee}' +
-      '.cp-sec-head > div:not(.cp-sec-label){background:#f5f5f5;border-right:1px solid #eee}' +
+      '.cp-sec-label{padding:10px 20px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em;}' +
+      '.cp-sec-head > div:not(.cp-sec-label){background:#f5f5f5;}' +
       '.cp-sec-head > div:last-child{border-right:none}' +
 
       /* Data rows */
       '.cp-row{border-bottom:1px solid #f0f0f0}' +
       '.cp-row:hover{background:#fafafa}' +
-      '.cp-row-lbl{padding:10px 20px;font-size:11px;font-weight:500;color:#999;background:#fff;border-right:1px solid #eee;display:flex;align-items:center;line-height:1.35}' +
+      '.cp-row-lbl{padding:10px 20px;font-size:11px;font-weight:500;color:#3d3d3d;background:#f5f5f5;border-right:1px solid #eee;display:flex;align-items:center;line-height:1.35}' +
       '.cp-row-cell{padding:10px 20px;border-right:1px solid #f0f0f0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff}' +
       '.cp-row-cell:last-child{border-right:none}' +
 
