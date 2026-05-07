@@ -762,7 +762,7 @@ a { text-decoration: none; color: inherit; }
       <div class="trust-card muted">
         <div class="trust-num">03</div>
         <h3>Udder Verified</h3>
-        <p>Our consultants have demoed the product and validated every feature claimed.</p>
+        <p>Our consultants have demoed the product and validated every feature claimed.<br/><br/></p>
         <div class="badge-wrap">
           <span class="vbadge verified"><span class="vbadge-dot"></span>Udder Verified</span>
         </div>
@@ -853,13 +853,13 @@ a { text-decoration: none; color: inherit; }
   (function(){
     document.getElementById('searchBtn').addEventListener('click', function(){
       const q = document.getElementById('query').value.trim();
-      console.log('in here', q);
-      if (!q){
-        showToast('Enter text to begin search', 'error');
-        return;
-      } 
+      // console.log('in here', q);
+      // if (!q){
+      //   showToast('Enter text to begin search', 'error');
+      //   return;
+      // } 
 
-      setCookie('query', q);
+      if (q) setCookie('query', q);
       location.href = `db/?q=${q}`;
     });
   })();

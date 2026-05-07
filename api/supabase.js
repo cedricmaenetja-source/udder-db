@@ -35,6 +35,7 @@ export default async function handler(req, res) {
     if (action === 'getVendorViews') return await getVendorViews(res, vendorId);
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
+    if (action === 'getTopVendors') return await getTopVendors(res);
 
     if (action === 'getUserByEmail'){
         if (req.method !== "POST") {
@@ -898,4 +899,63 @@ async function addClientInquiry(res, inquiry, client){
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
+}
+
+async function getTopVendors(res) {
+    const { data, error } = await supabase
+        .from('tbldbanalytics')
+        .select('vendor_id');
+
+    if (error) {
+        return res.status(500).json({
+            data: null,
+            error: error.message
+        });
+    }
+
+    const vendorCounts = {};
+
+    data.forEach((row) => {
+        if (row.vendor_id) {
+            vendorCounts[row.vendor_id] =
+                (vendorCounts[row.vendor_id] || 0) + 1;
+        }
+    });
+
+    const topVendorIds = Object.entries(vendorCounts)
+        .map(([vendor_id, count]) => ({
+            vendor_id,
+            count
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 4);
+
+    const vendorIds = topVendorIds.map(v => v.vendor_id);
+
+    const { data: vendors, error: vendorError } = await supabase
+        .from('tblvendors')
+        .select('*')
+        .in('id', vendorIds);
+
+    if (vendorError) {
+        return res.status(500).json({
+            data: null,
+            error: vendorError.message
+        });
+    }
+
+    const result = topVendorIds.map((topVendor) => {
+        const vendorInfo = vendors.find(
+            (v) => v.id == topVendor.vendor_id
+        );
+
+        return {
+            ...vendorInfo,
+            count: topVendor.count
+        };
+    });
+
+    return res.status(200).json({
+        data: result
+    });
 }

@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>UDDER Database</title>
+<link rel="stylesheet" href="assets/css/common.css" />
 <link rel="stylesheet" href="../assets/css/styles.css" />
 <link rel="stylesheet" href="../assets/css/chatbot.css" />
 <link rel="stylesheet" href="../assets/css/skeleton.css" />
@@ -177,7 +178,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 #vendors .card .card-header p,#vendors .card .card-header span{font-size:11px;color:var(--t3);display:block;line-height:1.35}
 #vendors .card>p{font-size:13px;color:var(--t2);padding:14px 16px 10px;margin:0;line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;flex-shrink:0}
 #vendors .card ul{list-style:none;padding:0 16px 14px;margin:0;display:flex;flex-wrap:wrap;gap:6px;flex:1}
-#vendors .card ul li{font-size:11px;color:var(--t2);border:1px solid var(--b2);border-radius:20px;padding:4px 11px;display:inline-block;white-space:nowrap;margin:0}
+#vendors .card ul li{font-size:11px;color:var(--t2);border:1px solid var(--b2);border-radius:20px;padding:4px 11px;display:inline-block;white-space:nowrap;margin:0;height: fit-content;}
 #vendors .card ul li::before,#vendors .card ul li::after{display:none;content:none}
 #vendors .card .card-meta-row{display:flex;align-items:center;gap:14px;padding:9px 16px;border-top:1px solid var(--b1);flex-shrink:0}
 #vendors .card .card-meta-row .mi{display:flex;align-items:baseline;gap:3px}
@@ -222,7 +223,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .ai-search-box input::placeholder{color:var(--t4)}
 .send-btn{width:32px;height:32px;background:var(--o);border:none;border-radius:20px;cursor:pointer;transition:background 0.13s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .send-btn:hover{background:var(--o2)}
-.spinner-container{padding:20px;text-align:center;flex-shrink:0}
+.spinner-container{text-align:center;flex-shrink:0}
 .spinner-dots{display:inline-flex;gap:6px}
 .spinner-dots div{width:7px;height:7px;border-radius:50%;background:var(--o);animation:sdot 0.8s infinite alternate}
 .spinner-dots div:nth-child(2){animation-delay:.15s}
@@ -603,6 +604,62 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:499;backdrop-filter:blur(1px)}
 .layout{display:contents}
 .main-wrap.layout:not(.hide){display:flex!important}
+
+/* ── REQUEST INTRO MODAL ── */
+.ri-overlay{position:fixed;inset:0;background:rgba(15,15,15,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
+.ri-overlay.visible{opacity:1;pointer-events:all;}
+.ri-box{background:var(--w);border-radius:16px;padding:28px 32px 24px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;position:relative;transform:translateY(16px) scale(0.98);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 24px 64px rgba(0,0,0,0.18);scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;}
+.ri-overlay.visible .ri-box{transform:translateY(0) scale(1);}
+.ri-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.ri-title{font-family:var(--sans);font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;}
+.ri-close{background:none;border:none;cursor:pointer;color:var(--t3);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.ri-close:hover{background:var(--off2);color:var(--t1);}
+
+/* vendor chip */
+.ri-vendor-chip{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--off);border:1px solid var(--b1);border-radius:10px;margin-bottom:20px;}
+.ri-vendor-logo{width:40px;height:40px;border-radius:8px;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0;overflow:hidden;}
+.ri-vendor-logo img{width:100%;height:100%;object-fit:contain;padding:4px;}
+.ri-vendor-info{flex:1;min-width:0;}
+.ri-vendor-name{font-size:14px;font-weight:600;color:var(--t1);}
+.ri-vendor-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.ri-vendor-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;flex-shrink:0;}
+.ri-vendor-badge.approved{background:var(--k);color:var(--w);}
+.ri-vendor-badge.verified{background:var(--o);color:var(--w);}
+
+/* fields */
+.ri-field{margin-bottom:16px;}
+.ri-label{display:block;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;}
+.ri-textarea{width:100%;padding:10px 12px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:13px;font-family:var(--sans);color:var(--t1);resize:vertical;min-height:90px;outline:none;transition:border-color 0.15s;line-height:1.6;}
+.ri-textarea:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07);}
+.ri-textarea::placeholder{color:var(--t4);}
+
+/* tags */
+.ri-tags-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--w);cursor:text;transition:border-color 0.15s;}
+.ri-tags-wrap:focus-within{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07);}
+.ri-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--off2);border:1px solid var(--b2);border-radius:20px;font-size:12px;color:var(--t1);}
+.ri-tag-x{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;line-height:1;padding:0;margin-left:2px;}
+.ri-tag-x:hover{color:var(--t1);}
+.ri-tag-input{border:none;outline:none;font-size:13px;font-family:var(--sans);color:var(--t1);background:transparent;min-width:120px;flex:1;}
+.ri-tag-input::placeholder{color:var(--t4);}
+
+/* two-col row */
+.ri-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.ri-select{width:100%;height:38px;padding:0 12px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:13px;font-family:var(--sans);color:var(--t1);outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23888' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color 0.15s;cursor:pointer;}
+.ri-select:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07);}
+
+/* checkbox */
+.ri-check-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.ri-check-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--o);cursor:pointer;flex-shrink:0;}
+.ri-check-label{font-size:13px;color:var(--t2);cursor:pointer;}
+
+/* footer */
+.ri-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:4px;}
+.ri-cancel{height:40px;padding:0 20px;background:none;border:1px solid var(--b2);border-radius:999px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.ri-cancel:hover{border-color:var(--b3);color:var(--t1);}
+.ri-submit{height:40px;padding:0 24px;background:var(--o);border:none;border-radius:999px;font-size:13px;font-weight:600;color:var(--w);cursor:pointer;font-family:var(--sans);transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;}
+.ri-submit:hover{background:var(--o2);}
+
+@media(max-width:600px){.ri-box{margin:0 12px;padding:20px 16px 18px;}.ri-row-2{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -637,6 +694,13 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     <div><div class="sb-uname">Sign in</div><div class="sb-urole">or create a free account</div></div>
     <span class="sb-chev">›</span>
   </a>
+  <div id="sbSignInNote" style="margin:8px 14px 4px;padding:10px 12px;background:rgba(240,78,35,0.06);border:1px solid rgba(240,78,35,0.15);border-radius:8px;">
+    <div style="font-size:11px;font-weight:600;color:var(--o);margin-bottom:3px;display:flex;align-items:center;gap:5px;">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.8 3.7 4 .6-2.9 2.8.7 4L8 10.5l-3.6 1.9.7-4L2.2 5.8l4-.6z" fill="var(--o)"/></svg>
+      Unlock more with a free account
+    </div>
+    <div style="font-size:11px;color:var(--t3);line-height:1.55;">Shortlist vendors, compare side-by-side, save evaluations and request intros.</div>
+  </div>
   <div class="sb-user" id="sbUser" style="display:none">
     <div class="sb-avatar" id="sb-initials"></div>
     <div><div class="sb-uname" id="sb-uname">--</div><div class="sb-urole" id="sb-role">HR Professional</div></div>
@@ -681,7 +745,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     <div class="ai-search-box">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--t3);flex-shrink:0"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       <input id="modalSearch" type="text" autocomplete="off" placeholder="e.g. HR software with onboarding automation…">
-      <button class="send-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="white"/></svg></button>
+      <button class="send-btn" id="askAiBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><line x1="22" y1="2" x2="11" y2="13" stroke="white" stroke-width="2" stroke-linecap="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="white"/></svg></button>
     </div>
     <div class="spinner-container hide"><div class="spinner-dots"><div></div><div></div><div></div></div></div>
     <div class="autocomplete-results" id="results"></div>
@@ -753,7 +817,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     <button class="vd-back" id="vendorDetailBack"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to results</button>
     <div class="vd-topbar-actions">
       <button class="vd-action-btn" id="vdShortlistBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 13L3 8a3.2 3.2 0 0 1 5-4 3.2 3.2 0 0 1 5 4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>Shortlist</button>
-      <button class="vd-action-btn vd-primary" id="vdIntroBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.4"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Request intro</button>
+      <!-- <button class="vd-action-btn vd-primary" id="vdIntroBtn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.4"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Request intro</button> -->
     </div>
   </div>
   <div class="vd-scroll" id="vendorDetailScroll">
@@ -766,6 +830,15 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           <div class="vd-byline" id="vdByline"></div>
           <p class="vd-desc" id="vdDesc"></p>
           <div class="vd-meta-row" id="vdStats"></div>
+          <div class="vd-meta-row" id="vdStats"></div>
+
+          <div id="vdRationale" style="display:none;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;background:rgba(15,15,15,0.04);border-radius:8px;border-left:3px solid var(--o)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:2px;color:var(--o)">
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <p id="vdRationaleText" style="font-size:13px;color:var(--t2);line-height:1.6;margin:0"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -1181,6 +1254,75 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   </div>
 </div>
 
+<!-- REQUEST INTRO MODAL -->
+<div class="ri-overlay" id="introModal">
+  <div class="ri-box">
+    <div class="ri-header">
+      <h3 class="ri-title" id="riTitle">Request intro to Vendor</h3>
+      <button class="ri-close" id="riClose" type="button">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Vendor chip -->
+    <div class="ri-vendor-chip" id="riVendorChip">
+      <div class="ri-vendor-logo" id="riVendorLogo"></div>
+      <div class="ri-vendor-info">
+        <div class="ri-vendor-name" id="riVendorName"></div>
+        <div class="ri-vendor-sub" id="riVendorSub"></div>
+      </div>
+      <div class="ri-vendor-badge" id="riVendorBadge"></div>
+    </div>
+
+    <!-- What are you trying to solve -->
+    <div class="ri-field">
+      <label class="ri-label">What are you trying to solve?</label>
+      <textarea class="ri-textarea" id="riChallenge" placeholder="Describe your challenge, current systems, and goals…" rows="4"></textarea>
+    </div>
+
+    <!-- Must-haves -->
+    <div class="ri-field">
+      <label class="ri-label">Must-haves</label>
+      <div class="ri-tags-wrap" id="riTagsWrap">
+        <div class="ri-tags" id="riTags"></div>
+        <input class="ri-tag-input" id="riTagInput" type="text" placeholder="Add requirement">
+      </div>
+    </div>
+
+    <!-- Target implementation + Budget -->
+    <div class="ri-row-2">
+      <div class="ri-field">
+        <label class="ri-label">Target implementation</label>
+        <select class="ri-select" id="riTimeline">
+          <option value="">Select…</option>
+          <option>Immediate (&lt; 1 month)</option>
+          <option>Q3 2026</option>
+          <option>Q4 2026</option>
+          <option>Q1 2027</option>
+          <option>Exploratory — no date yet</option>
+        </select>
+      </div>
+      <div class="ri-field">
+        <label class="ri-label">Budget indication</label>
+        <select class="ri-select" id="riBudget">
+          <option value="">Select…</option>
+          <option>£250k – £500k</option>
+          <option>£500k – £1m</option>
+          <option>£1m+</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ri-footer">
+      <button class="ri-cancel" id="riCancel" type="button">Cancel</button>
+      <button class="ri-submit" id="riSubmit" type="button">
+        Send intro request →
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- CHAT FAB -->
 <!-- <button class="chat-fab" id="chatFab" aria-label="Open chat">
   <div class="chat-fab-dot"></div>
@@ -1276,7 +1418,7 @@ if(cs)cs.addEventListener('input',function(){var q=this.value.toLowerCase();docu
 
 /* Vendor detail panel */
 var vdPanel=document.getElementById('vendorDetail'),vdScroll=document.getElementById('vendorDetailScroll');
-function openVendorDetail(card){
+async function openVendorDetail(card){
   var name=card.dataset.name||'',modules=card.dataset.modules||'',subcats=card.dataset.subcategories||'',features=card.dataset.features||'',integrations=card.dataset.integrations||'',headcount=card.dataset.headcount||'',region=card.dataset.region||'',description=card.dataset.description||'',logoSrc=card.dataset.logo||'';
   if(!logoSrc){var li=card.querySelector('.card-logo');logoSrc=li?li.src:''}
   if(!description){var dp=card.querySelector('p');description=dp?dp.textContent.trim():''}
@@ -1294,11 +1436,62 @@ function openVendorDetail(card){
   document.getElementById('vdUtTitle').textContent='Evaluating '+name+'?';
   document.getElementById('vdUtBody').textContent='Udder\u2019s independent assessment will appear here once this vendor has been reviewed by our team.';
   document.getElementById('vdUtBtn').textContent='Request intro to '+name;
+  var score=card.dataset.score||'';
+  var rationale=card.dataset.rationale||'';
   var sh='';
+  var scorePct=parseFloat(score)||0;
+  if(score && scorePct>0){
+    var scorePct=parseFloat(score)||0;
+    var scoreBg=scorePct>=75?'rgba(22,163,74,0.1)':scorePct>=50?'rgba(234,179,8,0.1)':'rgba(239,68,68,0.1)';
+    var scoreColor=scorePct>=75?'#16a34a':scorePct>=50?'#b45309':'#dc2626';
+    sh+='<div class="vd-meta-item" style="align-items:center;gap:8px">'+
+      '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:'+scoreBg+';color:'+scoreColor+';font-size:11px;font-weight:700">'+score+'% match</span>'+
+      '<button id="vdWhyBtn" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:11px;color:var(--t3);font-family:var(--sans);padding:0;transition:color 0.15s" onmouseover="this.style.color=\'var(--o)\'" onmouseout="this.style.color=\'var(--t3)\'">'+
+        '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'+
+        'Find out why'+
+      '</button>'+
+    '</div>';
+  }
   if(region)sh+='<div class="vd-meta-item"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-18c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18M3 12h18" stroke="currentColor" stroke-width="1.4"/></svg><strong>'+region+'</strong></div>';
   if(headcount)sh+='<div class="vd-meta-item"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M16 10a3 3 0 1 0-3-3m3 3a3 3 0 1 1-3-3m3 3c2.5 0 4 1.5 4 4v2h-4M3 19v-2c0-2.5 1.5-4 4-4h2c2.5 0 4 1.5 4 4v2H3Zm5-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><strong>'+headcount+'</strong></div>';
   if(integrations){var ic=integrations.split(',').filter(function(i){return i.trim()}).length;sh+='<div class="vd-meta-item"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M4 6c0-2 4-3 8-3s8 1 8 3-4 3-8 3-8-1-8-3Zm0 0v12c0 2 4 3 8 3s8-1 8-3V6m-16 6c0 2 4 3 8 3s8-1 8-3" stroke="currentColor" stroke-width="1.4"/></svg><strong>'+ic+'+ integrations</strong></div>'}
   document.getElementById('vdStats').innerHTML=sh;
+  /* Rationale block — show below stats if exists */
+  var rationaleWrap=document.getElementById('vdRationale');
+  if(rationaleWrap){
+    if(rationale){
+      rationaleWrap.style.display='flex';
+      document.getElementById('vdRationaleText').textContent=rationale;
+      // hide the why button since we already have rationale
+      var whyBtn=document.getElementById('vdWhyBtn');
+      if(whyBtn) whyBtn.style.display='none';
+    } else {
+      rationaleWrap.style.display='none';
+    }
+  }
+
+  // wire the why button
+  setTimeout(function(){
+    var whyBtn=document.getElementById('vdWhyBtn');
+    if(!whyBtn) return;
+    whyBtn.addEventListener('click', function(){
+      var btn=this;
+      btn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="animation:spin 0.6s linear infinite"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" stroke-dasharray="20" stroke-dashoffset="5"/></svg> Analysing…';
+      btn.style.pointerEvents='none';
+      deriveMatchScore(_currentDetailCard, window._activeFilters).then(function(){
+        var r=_currentDetailCard ? (_currentDetailCard.dataset.rationale||'') : '';
+        var rationaleWrap=document.getElementById('vdRationale');
+        if(r && rationaleWrap){
+          document.getElementById('vdRationaleText').textContent=r;
+          rationaleWrap.style.display='flex';
+          btn.style.display='none';
+        } else {
+          btn.innerHTML='<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Find out why';
+          btn.style.pointerEvents='auto';
+        }
+      });
+    });
+  }, 0);
   var cats=(modules+','+subcats).split(',').filter(function(c){return c.trim()});
   document.getElementById('vdCategories').innerHTML=cats.map(function(c){return'<span class="vd-chip">'+c.trim()+'</span>'}).join('');
   var fh='';
@@ -1318,18 +1511,79 @@ function openVendorDetail(card){
   var op=document.getElementById('vd-overview');if(op)op.classList.add('active');
   vdPanel.classList.add('open');if(vdScroll)vdScroll.scrollTop=0;
   _currentDetailCard = card; if(typeof updateShortlistBtn==='function') updateShortlistBtn(card);
+  const res = await fetch('/api/supabase?action=addToVendorAnalytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendorId: card.dataset.id, ipAddress:  window._ipAddress}),
+  });
 }
 function closeVendorDetail(){if(vdPanel)vdPanel.classList.remove('open')}
 if(document.getElementById('vendorDetailBack'))document.getElementById('vendorDetailBack').addEventListener('click',closeVendorDetail);
 document.querySelectorAll('.vd-tab').forEach(function(tab){tab.addEventListener('click',function(){var t=this.dataset.tab;document.querySelectorAll('.vd-tab').forEach(function(x){x.classList.remove('active')});document.querySelectorAll('.vd-tab-pane').forEach(function(x){x.classList.remove('active')});this.classList.add('active');var p=document.getElementById('vd-'+t);if(p)p.classList.add('active')})});
 $(document).on('click','.cta.view-platform',function(e){e.preventDefault();e.stopPropagation();var card=$(this).closest('.card')[0];if(card)openVendorDetail(card)});
+async function deriveMatchScore(card, filters = window._filters || []) {
+  const filtersKey = JSON.stringify(filters || {});
+  if(card.dataset.scoreLoaded === filtersKey) return;
+  card.dataset.scoreLoaded = filtersKey;
 
+  const vendorData = {
+    name:          card.dataset.name          || '',
+    modules:       card.dataset.modules       || '',
+    subcategories: card.dataset.subcategories || '',
+    features:      card.dataset.features      || '',
+    integrations:  card.dataset.integrations  || '',
+    region:        card.dataset.region        || '',
+    headcount:     card.dataset.headcount     || '',
+    description:   card.dataset.description   || '',
+  };
+
+  if(!filters || !Object.keys(filters).length) return;
+
+  try {
+    const response = await fetch('/api/claude-rationale', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendor: vendorData, filters })
+    });
+
+    if(!response.ok) throw new Error('API error: ' + response.status);
+
+    const { score, rationale } = await response.json();
+
+    if(typeof score !== 'number' || score <= 0) throw new Error('Invalid score returned');
+
+    card.dataset.score     = score;
+    card.dataset.rationale = rationale || '';
+
+    // update badge
+    const metaRow = card.querySelector('.card-meta-row');
+    if(metaRow) {
+      const scoreBg    = score>=75?'rgba(22,163,74,0.1)':score>=50?'rgba(234,179,8,0.1)':'rgba(239,68,68,0.1)';
+      const scoreColor = score>=75?'#16a34a':score>=50?'#b45309':'#dc2626';
+      const existing   = metaRow.querySelector('.score-badge');
+      if(existing) existing.remove();
+      const badge = document.createElement('span');
+      badge.className = 'mi score-badge';
+      badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:'+scoreBg+';color:'+scoreColor+';font-size:10px;font-weight:700;letter-spacing:0.03em">'+score+'% match</span>';
+      metaRow.prepend(badge);
+    }
+
+  } catch(e) {
+    console.warn('Score failed for', vendorData.name, e);
+    card.dataset.scoreLoaded = ''; // allow retry
+  }
+}
 /* Card enhancer */
 function enhanceCard(card){
   if(card.dataset.enhanced)return;if(!card.querySelector('.cta.view-platform'))return;card.dataset.enhanced='1';
   var hc=card.dataset.headcount||'—',reg=card.dataset.region||'',rc=reg?reg.split(',').filter(function(r){return r.trim()}).length:'—';
+  var score=card.dataset.score||'';
   var meta=document.createElement('div');meta.className='card-meta-row';
-  meta.innerHTML='<span class="mi"><span class="mk">Org</span><span class="mv">'+hc+'</span></span><span class="mi"><span class="mk">Regions</span><span class="mv">'+rc+'</span></span>';
+  var scorePct=parseFloat(score)||0;
+  var scoreBg=scorePct>=75?'rgba(22,163,74,0.1)':scorePct>=50?'rgba(234,179,8,0.1)':'rgba(239,68,68,0.1)';
+  var scoreColor=scorePct>=75?'#16a34a':scorePct>=50?'#b45309':'#dc2626';
+  var scoreBadge=(score && scorePct>0)?'<span class="mi score-badge"><span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:'+scoreBg+';color:'+scoreColor+';font-size:10px;font-weight:700;letter-spacing:0.03em">'+score+'% match</span></span>':'';
+  meta.innerHTML=scoreBadge+'<span class="mi"><span class="mk">Org</span><span class="mv">'+hc+'</span></span><span class="mi"><span class="mk">Regions</span><span class="mv">'+rc+'</span></span>';
   var footer=document.createElement('div');footer.className='card-footer-row';
   var addBtn=document.createElement('button');addBtn.className='card-add-btn';addBtn.setAttribute('type','button');
   addBtn.innerHTML='<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>&nbsp;Add';
@@ -2090,6 +2344,192 @@ function showSidebarToast(msg){
 }
 
 document.querySelectorAll('.sb-nav a').forEach(function(a){a.addEventListener('click',function(e){if(this.getAttribute('href')==='#')e.preventDefault();document.querySelectorAll('.sb-nav a').forEach(function(x){x.classList.remove('on')});this.classList.add('on')})});
+</script>
+<script type="module">
+  import { showToast } from '../assets/js/app.js';
+  /* ── REQUEST INTRO MODAL ── */
+(function(){
+  var modal    = document.getElementById('introModal');
+  var riTags   = [];
+
+  document.getElementById('vdUtBtn').addEventListener('click', function(){
+    openIntroModal(_currentDetailCard);
+  });
+
+  function openIntroModal(card){
+    var name     = card ? (card.dataset.name || '') : '';
+    var logoSrc  = card ? (card.dataset.logo || '') : '';
+    var badgeEl  = card ? card.querySelector('.verification-badge') : null;
+    var badgeText= badgeEl ? badgeEl.textContent.trim() : '';
+    var isVer    = badgeText.toLowerCase().indexOf('verified') !== -1;
+
+    // title
+    document.getElementById('riTitle').textContent = 'Request intro to ' + name;
+
+    // vendor chip
+    var logoEl = document.getElementById('riVendorLogo');
+    if(logoSrc && logoSrc.indexOf('undefined') === -1 && logoSrc.indexOf('null') === -1){
+      logoEl.innerHTML = '<img src="'+logoSrc+'" alt="">';
+    } else {
+      logoEl.textContent = name.substring(0,2).toUpperCase();
+    }
+    document.getElementById('riVendorName').textContent = name;
+    document.getElementById('riVendorSub').textContent  = '';
+
+    var badgeDiv = document.getElementById('riVendorBadge');
+    if(badgeText){
+      badgeDiv.className = 'ri-vendor-badge ' + (isVer ? 'verified' : 'approved');
+      badgeDiv.innerHTML = '<span style="width:5px;height:5px;border-radius:50%;background:'+(isVer?'rgba(255,255,255,0.6)':'#22c55e')+';flex-shrink:0;display:inline-block"></span> '+badgeText;
+    } else {
+      badgeDiv.innerHTML = '';
+    }
+
+    // pre-fill from active filters if available
+    var f = window._activeFilters || {};
+    document.getElementById('riChallenge').value = f.query || '';
+
+    // pre-fill must-haves from required features
+    riTags = [];
+    var reqs = (f.required_modules || []).concat(f.required_features || []);
+    reqs.forEach(function(r){ if(r) addTag(r); });
+    renderTags();
+
+    // timeline / budget
+    document.getElementById('riTimeline').value = '';
+    document.getElementById('riBudget').value   = '';
+
+    modal.classList.add('visible');
+    setTimeout(function(){ document.getElementById('riChallenge').focus(); }, 200);
+  }
+
+  function closeIntroModal(){
+    modal.classList.remove('visible');
+  }
+
+  // tag management
+  function addTag(val){
+    val = val.trim();
+    if(!val || riTags.indexOf(val) !== -1) return;
+    riTags.push(val);
+  }
+  function removeTag(val){
+    riTags = riTags.filter(function(t){ return t !== val; });
+    renderTags();
+  }
+  function renderTags(){
+    var container = document.getElementById('riTags');
+    container.innerHTML = '';
+    riTags.forEach(function(tag){
+      var span = document.createElement('span');
+      span.className = 'ri-tag';
+      span.innerHTML = tag + '<button class="ri-tag-x" type="button" title="Remove">×</button>';
+      span.querySelector('.ri-tag-x').addEventListener('click', function(){ removeTag(tag); });
+      container.appendChild(span);
+    });
+  }
+
+  // tag input — add on Enter or comma
+  document.getElementById('riTagInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ','){
+      e.preventDefault();
+      addTag(this.value.replace(',',''));
+      this.value = '';
+      renderTags();
+    }
+  });
+  document.getElementById('riTagInput').addEventListener('blur', function(){
+    if(this.value.trim()){ addTag(this.value); this.value=''; renderTags(); }
+  });
+  // clicking the wrap focuses the input
+  document.getElementById('riTagsWrap').addEventListener('click', function(){
+    document.getElementById('riTagInput').focus();
+  });
+
+  // close handlers
+  document.getElementById('riClose').addEventListener('click', closeIntroModal);
+  document.getElementById('riCancel').addEventListener('click', closeIntroModal);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeIntroModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeIntroModal(); });
+
+  // submit
+  document.getElementById('riSubmit').addEventListener('click', async function(){
+    var btn       = this;
+    var challenge = document.getElementById('riChallenge');
+    var timeline  = document.getElementById('riTimeline');
+    var budget    = document.getElementById('riBudget');
+
+    // validate
+    var valid = true;
+    if(!challenge.value.trim()){
+      showToast('Please describe what you are trying to solve.', 'error');
+      return;
+    }
+
+    if(!timeline.value){
+      showToast('Please select a target implementation date.', 'error');
+      return;
+    } 
+
+    if(!budget.value){
+      showToast('Please select a budget range.', 'error');
+      return;
+    } 
+
+    if(riTags.length === 0){
+      showToast('Please add at least one must-have requirement.', 'error');
+      return;
+    }
+
+    // collect data
+    var vendorName = document.getElementById('riVendorName').textContent;
+
+    const payload = {
+      vendor:       vendorName,
+      challenge:    challenge.value.trim(),
+      must_haves:   riTags,
+      timeline:     timeline.value,
+      budget:       budget.value,
+    };
+
+    // lock button
+    btn.textContent        = 'Sending…';
+    btn.style.opacity      = '0.7';
+    btn.style.pointerEvents= 'none';
+
+    try {
+      // const response = await fetch('/api/supabase?action=requestIntro', {
+      //   method:  'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body:    JSON.stringify(payload)
+      // });
+
+      // const result = await response.json();
+
+      // if(result.error){
+      //   btn.textContent         = 'Send intro request →';
+      //   btn.style.opacity       = '';
+      //   btn.style.pointerEvents = '';
+      //   // show error below button
+      //   showToast(result.error, 'error');
+      //   return;
+      // }
+
+      showToast('A request has been sent.', 'success');
+
+      // success
+      closeIntroModal();
+
+    } catch(e) {
+      btn.textContent         = 'Send intro request →';
+      btn.style.opacity       = '';
+      btn.style.pointerEvents = '';
+      console.error('Intro request failed:', e);
+    }
+  });
+
+  // expose opener globally so buttons can call it
+  window.openIntroModal = openIntroModal;
+})();
 </script>
 
 <script type="module" src="../assets/js/core/main.js"></script>

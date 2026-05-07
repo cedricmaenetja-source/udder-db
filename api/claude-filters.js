@@ -36,7 +36,15 @@ Field constraints:
 - region: normalise to one of ["global","north america","south america","europe","africa","asia","middle east","australia"]
   or a specific lowercase country name. null if not mentioned.
 - required_modules: top-level HR module names explicitly requested, e.g. ["Payroll", "ATS / Recruiting", "Performance Management", "Employee Engagement", "Core HR / HRIS", "People Analytics", "Time & Attendance"]
-- required_features: specific sub-module capabilities explicitly requested, e.g. ["Payroll Processing", "Goal Setting & OKRs", "Candidate Pipeline Management"]
+- required_features: specific sub-module capabilities explicitly requested. Values MUST be chosen exclusively from the following taxonomy — do not invent or paraphrase:
+    Core HR / HRIS        → "Employee Records & Profiles" | "Onboarding & Offboarding" | "Organization Management" | "Leave & Absence Management" | "Compensation & Benefits" | "Document Management" | "Compliance & Audit"
+    ATS / Recruiting      → "Job Posting & Distribution" | "Candidate Pipeline Management" | "Interview Scheduling & Feedback" | "Offer Management" | "Employer Branding"
+    Payroll               → "Payroll Processing" | "Tax Filing & Compliance" | "Compensation Adjustments" | "Payslips & Reporting"
+    Time & Attendance     → "Time Tracking" | "Shift & Schedule Management" | "Overtime & Absence Tracking"
+    Performance Mgmt      → "Goal Setting & OKRs" | "Performance Reviews & Cycles" | "Continuous Feedback" | "360 Feedback"
+    Employee Engagement   → "Surveys & Pulse Checks" | "Recognition & Rewards" | "Communication & Announcements"
+    People Analytics      → "Workforce Dashboards & Reports" | "Headcount & Turnover Analysis" | "DEI Analytics" | "Predictive Insights"
+  e.g. ["Payroll Processing", "Goal Setting & OKRs", "Candidate Pipeline Management"]
 - required_integrations: third-party tools or platforms the vendor must integrate with, e.g. ["Workday", "HiBob", "Slack", "Salesforce", "BambooHR", "ADP"]. Use the commonly known product name.
 - optional_features: enhancements or nice-to-haves
 - use_cases: business scenarios implied by the query

@@ -111,28 +111,34 @@ export let searchQueries = [
 
 export const mockUpFilter = {
     "industry": "human resources",
-    "product_type": "system",
-    "target_market": [
-        "mid-size businesses",
-        "small to mid-sized businesses"
-    ],
-    "employee_count": "120+",
-    "region": "new york",
+    "product_type": "platform",
+    "target_market": null,
+    "employee_count": null,
+    "region": "global",
     "required_modules": [
-        "payroll"
+        "Core HR / HRIS"
     ],
     "required_features": [
-        "payroll processing"
+        "Employee Records & Profiles",
+        "Organization Management"
+    ],
+    "required_integrations": [],
+    "optional_features": [
+        "Employee self-service portal"
+    ],
+    "use_cases": [
+        "remote team management",
+        "distributed workforce administration"
     ],
     "technology": [],
-    "use_cases": [
-        "payroll processing"
-    ],
     "keywords": [
-        "payroll system",
-        "new york",
-        "120+ employees"
-    ]
+        "hris platforms",
+        "remote teams",
+        "employee self-service",
+        "distributed workforce",
+        "core hr"
+    ],
+    "query": "HRIS platforms for remote teams with employee self-service features."
 };
 
 export function lockBtn($btn) {

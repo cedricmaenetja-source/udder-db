@@ -32,11 +32,21 @@ $(async function () {
         $('#sbSignIn').removeClass('hide');
         $('#sb-user-profile').addClass('hide');
         $('.link-secured').addClass('hide');
+        $('#vdShortlistBtn').addClass('hide');
+        $('#sbSignInNote').removeClass('hide');
     }else{
         loadUserProfile();
         $('#sbSignIn').addClass('hide');
         $('.link-secured').removeClass('hide');
+        $('#vdShortlistBtn').removeClass('hide');
+        $('#sbSignInNote').addClass('hide');
     }
+
+    $.getJSON("https://api.ipify.org?format=json", function(data) {
+        window._ipAddress = data.ip;
+    });
+
+    populateTopVendors();
 });
 
 $(document).ready(function() {
@@ -69,10 +79,10 @@ $(document).ready(function() {
     modalSearch.addEventListener('input', () => {
         const query = modalSearch.value.toLowerCase();
         results.innerHTML = '';
-
+        
         if (query.length === 0) return;
-
-        const filtered = searchFilters.filter(item => item.toLowerCase().includes(query));
+        
+        const filtered = searchFilters.filter(item => item && item.toLowerCase().includes(query));
 
         filtered.forEach(item => {
             const div = document.createElement('div');
@@ -85,6 +95,7 @@ $(document).ready(function() {
             div.addEventListener('click', () => {
                 modalSearch.value = item;
                 results.innerHTML = '';
+                runSearch();
             });
 
             results.appendChild(div);
@@ -516,6 +527,51 @@ $(document).on('change', '.ct-sub input[type="checkbox"]', function(){
     // });
 });
 
+async function populateTopVendors() {
+    try {
+        const response = await fetch('/api/supabase?action=getTopVendors');
+        const result = await response.json();
+
+        if (!result.data) return;
+
+        const container = document.getElementById('vdAlsoEvaluating');
+        container.innerHTML = '';
+        
+        result.data.forEach((vendor) => {
+            const status = vendor.status || 'Listed';
+            const statusClass = status.toLowerCase();
+
+            const item = `
+                <div class="vd-also-item">
+                    <div class="vd-also-logo">
+                        ${App.initials(vendor.name)}
+                    </div>
+
+                    <div>
+                        <div class="vd-also-name">
+                            ${vendor.name}
+                        </div>
+
+                        <div class="vd-also-sub">
+                            ${vendor.data.company.website || ''}
+                        </div>
+                    </div>
+
+                    <div class="vd-also-badge hide ${statusClass}">
+                        <span class="vd-also-badge-dot"></span>
+                        ${status}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML += item;
+        });
+
+    } catch (err) {
+        console.error('Failed to load vendors:', err);
+    }
+}
+
 async function getHistoricalSearchFilters(){
     const response = await fetch('/api/supabase?action=getFilter');
     const result = await response.json();
@@ -587,89 +643,51 @@ async function runSearch(){
     
     $('.layout').hide();
     $('.spinner-container').removeClass('hide');
-    $('#gridBtn').hide();
+    $('#askAiBtn').addClass('hide');
+  
     //$('#search').val(value);
     results.innerHTML = '';
   
     const filters = await runWithClaude(value);
-    console.log('LLM Response:', filters);
     if (filters.error){
-        console.error('Groq Error:', filters.error);
-        App.swal.fire({
-            title: "Error",
-            text: App.REQUEST_NOT_PROCESSED,
-        }).then((result) =>{
-            location.reload();
-        });
+        console.error('Claude Error:', filters.error);
+        App.showToast(App.REQUEST_NOT_PROCESSED, 'error');
+        $('.layout').show();
+        $('#xloader').empty();
+        $('.spinner-container').addClass('hide');
+        $('#modalSearch').prop('disabled', false);
+        $('#askAiBtn').removeClass('hide');
         return;
     }
 
     console.log('Claude Response:', filters);
+    // apply filters
+    filters.required_modules.forEach(module => {
+        $(`input[name="module"][value="${module}"]`).prop('checked', true);
+
+        filters.required_features.forEach(feature => {
+            $(`input[name="module"][data-module="${module}"][value="${feature}"]`).prop('checked', true);
+        });
+    });
+
     saveQuery(filters, value);
+    filters['query'] = value;
+    
     await loadVendors(filters);
     
     $('.layout').show();
-    $('#gridBtn').show();
     $('#xloader').empty();
     $('.spinner-container').addClass('hide');
     $('#modalSearch').prop('disabled', false);
+    $('#askAiBtn').removeClass('hide');
     App.setCookie('query', '');
 
     const modal = document.getElementById('searchModal');
     const body = document.body;
-    modal.classList.remove('active');
+    modal.classList.remove('active', 'open');
     body.classList.remove('modal-active');
     $('#modalSearch').val('');
     $('#search').val('');
-    
-    // const timeInSec = Math.floor(Date.now() / 1000);
-    // const random4Digits = Math.floor(1000 + Math.random() * 9000);
-    // const ref = `${timeInSec}${random4Digits}`;
-
-    // $.ajax({
-    //     url: App.ZAPIER_CREATE_SEARCH_FILTERS,   
-    //     type: 'POST',
-    //     data: JSON.stringify({
-    //         ref: ref,
-    //         query: value
-    //     }),         
-    //     success: async function (response) {
-    //         console.info('response', response);
-    //         if (response.status == 'success'){
-    //             const timeoutId = setTimeout(onTimeout, 3 * 60 * 1000);
-
-    //             const f = setInterval(async () => {
-    //                 const data = await getSearchFilters(ref);
-    //                 console.info('getSearchFilters', data);
-
-    //                 if (data !== null && data !== undefined){
-    //                     console.info('getSearchFilters2', data);
-    //                     clearInterval(f);
-    //                     clearTimeout(timeoutId);
-
-    //                     await loadVendors(data.filters);
-    //                     $('.layout').show();
-    //                     $('#gridBtn').show();
-    //                     $('#xloader').empty();
-    //                     $('#search').prop('disabled', false);
-    //                     App.setCookie('query', '');
-    //                 }
-    //             }, 2000);
-    //         }else{
-    //             App.customError(App.OPERATION_FAILED);
-    //             console.log(response);
-    //         }
-    //     },
-    //     error: function (xhr) {
-    //         console.error('Error:', xhr.responseText);
-            
-    //         App.customOopsError();
-    //         $('#search').prop('disabled', false);
-    //         $('.layout').show();
-    //         $('#gridBtn').show();
-    //         $('#xloader').empty();
-    //     }
-    // });
 }
 
 async function runWithClaude(value){
@@ -912,6 +930,7 @@ async function loadVendors(filters = null){
     //filters = App.mockUpFilter;
 
     if (filters !== null){
+        window._filters = filters;
         vendors = applyFilters(filters, vendors);
         if (vendors.length > 0){
             $('#search-title').text('YOUR CUSTOMIZED HR TECH STACKS');
@@ -993,7 +1012,7 @@ async function loadVendors(filters = null){
                     data-modules="${modules.modules.join(',')}"
                     data-subcategories="${modules.subCategories.join(',')}"
                     data-name="${vendor.name}"
-                    data-score="${vendor.score}"
+                    data-score="${vendor.match_score}"
                     data-companysize="${companySize}"
                     data-features="${allFeatures.join(',')}"
                     data-id="${vendor.id}"
@@ -1014,8 +1033,7 @@ async function loadVendors(filters = null){
                         </ul>
                         <button type="button" class="cta view-platform" 
                             data-id="${vendor.id}"
-                            data-score="${vendor.score}" 
-                            data-matchScore="${vendor.match_score}"
+                            data-score="${vendor.match_score}" 
                             data-matcheditems="${vendor.matched_items}"
                             data-filterscount="${vendor.filters_count}">View Platform</button>
                 </div>`);
@@ -1243,126 +1261,94 @@ function updateVendorTotal(){
 }
 
 function applyFilters(filters, vendors) {
-    if (!filters || !vendors) return [];
+    if (!filters || !Array.isArray(vendors)) return [];
 
-    const results = [];
+    return vendors
+        .map(vendor => {
+            const company = vendor?.data?.company;
 
-    vendors.forEach(vendor => {
-        if (!vendor.data?.company) return;
+            if (!company) return null;
 
-        const company = vendor.data.company;
-        const meta    = company.meta || {};
+            const meta = company.meta || {};
 
-        const { modules, subCategories } = App.getModules(company.modules);
-        const modulesLower       = modules.map(m => m.toLowerCase());
-        const subCategoriesLower = subCategories.map(s => s.toLowerCase());
+            const { modules, subCategories } =
+                App.getModules(company.modules || {});
 
-        // Flatten vendor integrations into a searchable lowercase string array
-        const vendorIntegrations = (company.integrations || [])
-            .map(i => (i.name || '').toLowerCase());
+            const modulesLower =
+                modules.map(v => v.toLowerCase());
 
-        let matchScore   = 0;
-        let filtersCount = 0;
-        const matched    = [];
+            const subCategoriesLower =
+                subCategories.map(v => v.toLowerCase());
 
-        // ── Target market ──────────────────────────────────────────
-        if (filters.target_market) {
-            filtersCount++;
-            const companySize = (meta.target_market || '').toLowerCase().trim();
+            let score = 0;
+            let filtersCount = 0;
+            const matched = [];
 
-            if (companySize && companySize.includes(filters.target_market.toLowerCase())) {
-                matchScore++;
-                matched.push(`Fits ${filters.target_market}`);
-            }
-        }
+            // ── Target Market ───────────────────────────────
+            if (filters.target_market) {
+                filtersCount++;
 
-        // ── Region ─────────────────────────────────────────────────
-        if (filters.region) {
-            filtersCount++;
-            const regionList = Array.isArray(meta.region) ? meta.region : [];
+                const hasMatch = (meta.target_market || '')
+                    .toLowerCase()
+                    .includes(filters.target_market.toLowerCase());
 
-            if (regionList.length > 0) {
-                const regionStr = regionList.join(', ').toLowerCase();
-                if (regionStr.includes(filters.region.toLowerCase())) {
-                    matchScore++;
-                    matched.push(`${regionStr} presence`);
+                if (hasMatch) {
+                    score++;
+                    matched.push(`Fits ${filters.target_market}`);
                 }
             }
-        }
 
-        // ── Required modules ───────────────────────────────────────
-        if (filters.required_modules?.length > 0) {
-            filters.required_modules.forEach(module => {
+            // ── Region ──────────────────────────────────────
+            if (filters.region) {
                 filtersCount++;
+
+                const regions = Array.isArray(meta.region)
+                    ? meta.region.join(' ').toLowerCase()
+                    : '';
+
+                if (regions.includes(filters.region.toLowerCase())) {
+                    score++;
+                    matched.push(`${filters.region} presence`);
+                }
+            }
+
+            // ── Required Modules ───────────────────────────
+            (filters.required_modules || []).forEach(module => {
+                filtersCount++;
+
                 if (modulesLower.includes(module.toLowerCase())) {
-                    matchScore++;
+                    score++;
                     matched.push(`${module} module`);
                 }
             });
-        }
 
-        // ── Required features (sub-modules) ────────────────────────
-        if (filters.required_features?.length > 0) {
-            filters.required_features.forEach(feature => {
+            // ── Required Features ──────────────────────────
+            (filters.required_features || []).forEach(feature => {
                 filtersCount++;
+
                 if (subCategoriesLower.includes(feature.toLowerCase())) {
-                    matchScore++;
-                    matched.push(`${feature}`);
+                    score++;
+                    matched.push(feature);
                 }
             });
-        }
 
-        // ── Required integrations ──────────────────────────────────
-        if (filters.required_integrations?.length > 0) {
-            filters.required_integrations.forEach(integration => {
-                filtersCount++;
-                const integrationLower = integration.toLowerCase();
+            // ── Skip vendors with no matches ───────────────
+            if (score === 0 || filtersCount === 0) {
+                return null;
+            }
 
-                // Exact match first, then partial (e.g. "workday" matches "workday hcm")
-                const hasIntegration = vendorIntegrations.some(i =>
-                    i === integrationLower || i.includes(integrationLower)
-                );
-
-                if (hasIntegration) {
-                    matchScore++;
-                    matched.push(`Integrates with ${integration}`);
-                }
-            });
-        }
-
-        // ── Keywords ───────────────────────────────────────────────
-        if (filters.keywords?.length > 0) {
-            const searchableText = [
-                vendor.name,
-                vendor.short_description,
-                vendor.categories,
-            ].filter(Boolean).join(' ').toLowerCase();
-
-            filters.keywords.forEach(keyword => {
-                filtersCount++;
-                if (searchableText.includes(keyword.toLowerCase())) {
-                    matchScore++;
-                    matched.push(`Matches "${keyword}"`);
-                }
-            });
-        }
-
-        // ── Include vendors with at least one match ─────────────────
-        if (matchScore > 0 && filtersCount > 0) {
-            results.push({
+            return {
                 ...vendor,
-                filters_count:  filtersCount,
-                score:          matchScore,
-                matched_items:  matched,
-                match_score:    Math.round((matchScore / filtersCount) * 100),
-            });
-        }
-    });
-
-    results.sort((a, b) => b.match_score - a.match_score);
-
-    return results;
+                filters_count: filtersCount,
+                score,
+                matched_items: [...new Set(matched)],
+                match_score: Math.round((score / filtersCount) * 100)
+            };
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.match_score - a.match_score);
 }
+
 // only use once-off
 async function generateEmbedding(vendorId) {
   try {
