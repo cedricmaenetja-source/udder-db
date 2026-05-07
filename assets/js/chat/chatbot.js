@@ -1,4 +1,7 @@
 import { PAGES } from '../utils/constants.js';
+import { isLoggedIn } from '../core/auth/session.js';
+import { requireLogin } from '../core/auth/loginRequired.js';
+import { lockBtn } from '../app.js';
 
 $(function () {
 
@@ -155,7 +158,20 @@ $(function () {
      OPEN / CLOSE
   ═══════════════════════════════════════════════════ */
 
-  function openChat() {
+  async function openChat() {
+    const reset = lockBtn($('#chatFab'));
+    if (!reset) return;
+
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn){
+      requireLogin({
+          title: 'Sign in to use AI assistant',
+          desc:  'Create an account or login for AI Assistant access.'
+      });
+      reset();
+      return;
+    }
+
     $('#gridBtn').css('z-index', 'unset');
     $('#chatOverlay').css('display', 'flex');
     requestAnimationFrame(() => $('#chatOverlay').addClass('open'));

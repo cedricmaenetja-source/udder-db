@@ -37,6 +37,21 @@ export default async function handler(req, res) {
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
     if (action === 'getTopVendors') return await getTopVendors(res);
 
+    if (action === 'checkGuestLimit'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { session_id } = req.body;
+            
+            return await checkGuestLimit(res, session_id);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    } 
+
     if (action === 'getUserByEmail'){
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
@@ -957,5 +972,51 @@ async function getTopVendors(res) {
 
     return res.status(200).json({
         data: result
+    });
+}
+
+async function checkGuestLimit(res, sessionId) {
+    const { data, error } = await supabase
+        .from('tblguest_ai_usage')
+        .select('*')
+        .eq('session_id', sessionId)
+        .single();
+
+    if (error && error.code !== 'PGRST116') {
+        return res.status(500).json({
+            data: null,
+            error: error
+        });
+    }
+
+    if (!data) {
+        await supabase
+            .from('tblguest_ai_usage')
+            .insert({
+                session_id: sessionId,
+                usage_count: 1
+            });
+
+        return res.status(200).json({
+            allow: true
+        });
+    }
+
+    if (data.usage_count >= 5) {
+       return res.status(200).json({
+            allow: false
+        });
+    }
+
+    await supabase
+        .from('tblguest_ai_usage')
+        .update({
+            usage_count: data.usage_count + 1,
+            updated_at: new Date()
+        })
+        .eq('session_id', sessionId);
+
+    return res.status(200).json({
+        allow: true
     });
 }

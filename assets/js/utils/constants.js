@@ -3,6 +3,7 @@ export const HOSTNAME = window.location.origin;
 export const PAGES = {
     home: `${HOSTNAME}/db`,
     login: `${HOSTNAME}/login.html`,
+    signup: `${HOSTNAME}/signup.html`,
     vendor: `${HOSTNAME}/user/vendor`,
     platform: `${HOSTNAME}/db/platform.html`,
     assign_vendor: `${HOSTNAME}/user/vendor/assign.html`,

@@ -1,6 +1,7 @@
 import * as App from '../app.js';
 import { PAGES } from  '../utils/constants.js';
 import { isLoggedIn } from '../core/auth/session.js';
+import { requireLogin } from '../core/auth/loginRequired.js';
 
 let vendorData = {};
 let vendorList = [];
@@ -25,15 +26,24 @@ var $featureSelectedItems = $(".selected-items");
 // var $integrationsSelectedItems = $(".selected-items-integrations");
 
 let searchFilters = App.searchQueries;
+let sessionId;
+let loggedIn;
 
 $(async function () {
-    const loggedIn = await isLoggedIn();
+    loggedIn = await isLoggedIn();
     if (!loggedIn) {
         $('#sbSignIn').removeClass('hide');
         $('#sb-user-profile').addClass('hide');
         $('.link-secured').addClass('hide');
         $('#vdShortlistBtn').addClass('hide');
         $('#sbSignInNote').removeClass('hide');
+
+        sessionId = getSessionId();
+        if (!sessionId) {
+            sessionId = crypto.randomUUID();
+
+            document.cookie = `guest_session=${sessionId}; path=/; max-age=2592000; SameSite=Lax`;
+        }
     }else{
         loadUserProfile();
         $('#sbSignIn').addClass('hide');
@@ -527,6 +537,17 @@ $(document).on('change', '.ct-sub input[type="checkbox"]', function(){
     // });
 });
 
+function getSessionId() {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; guest_session=`);
+   
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+    }
+
+    return null;
+}
+
 async function populateTopVendors() {
     try {
         const response = await fetch('/api/supabase?action=getTopVendors');
@@ -630,7 +651,23 @@ function resetFilter(){
     updateVendorTotal();
 }
 
+async function checkGuestAILimit(){
+    const reslimit = await fetch("/api/supabase?action=checkGuestLimit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId })
+    });
+
+    const res = await reslimit.json();
+    return res;
+}
+
 async function runSearch(){
+    const modal = document.getElementById('searchModal');
+    const body = document.body;
+
+    let allow = true;
+
     const value = $('#modalSearch').val();
     if (value == '') return;
     if (value == 'undefined'){
@@ -647,6 +684,32 @@ async function runSearch(){
   
     //$('#search').val(value);
     results.innerHTML = '';
+
+    if (!loggedIn){
+        const r = await checkGuestAILimit();
+        if (r.error){
+            App.showToast(App.OPERATION_FAILED, 'error');
+            $('.layout').show();
+            $('#xloader').empty();
+            $('.spinner-container').addClass('hide');
+            $('#modalSearch').prop('disabled', false);
+            $('#askAiBtn').removeClass('hide');
+            return;
+        }
+
+        allow = r.allow;
+    }
+
+    if (!allow){
+        requireLogin({
+            title: 'Guest AI limit reached',
+            desc:  'Create an account or login for unlimited access.'
+        });
+
+        modal.classList.remove('active', 'open');
+        body.classList.remove('modal-active');
+        return;
+    }
   
     const filters = await runWithClaude(value);
     if (filters.error){
@@ -682,8 +745,6 @@ async function runSearch(){
     $('#askAiBtn').removeClass('hide');
     App.setCookie('query', '');
 
-    const modal = document.getElementById('searchModal');
-    const body = document.body;
     modal.classList.remove('active', 'open');
     body.classList.remove('modal-active');
     $('#modalSearch').val('');
