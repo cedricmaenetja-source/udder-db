@@ -27,3 +27,20 @@ export async function requireAuth(redirect = `${HOSTNAME}/login.html`) {
 
   return true;
 }
+
+export async function getCurrentUser(){
+    try {
+        const res = await fetch("/api/session", {
+            method: "GET",
+            credentials: "include" 
+        });
+
+        if (!res.ok) return false;
+
+        const data = await res.json();
+        return data;
+
+    } catch (err) {
+        return null;
+    }
+}

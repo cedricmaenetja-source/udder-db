@@ -172,6 +172,8 @@ $(function () {
       return;
     }
 
+    reset();
+
     $('#gridBtn').css('z-index', 'unset');
     $('#chatOverlay').css('display', 'flex');
     requestAnimationFrame(() => $('#chatOverlay').addClass('open'));

@@ -480,49 +480,41 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .st-back{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--b2);border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--t2);font-family:var(--sans);padding:5px 12px;transition:all 0.13s}
 .st-back:hover{border-color:var(--b3);color:var(--t1)}
 .st-topbar-title{font-size:14px;font-weight:600;color:var(--t1);letter-spacing:-0.01em}
-.st-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;width:100%;background: white;}
+.st-scroll{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;width:100%}
 .st-scroll::-webkit-scrollbar{width:4px}
 .st-scroll::-webkit-scrollbar-track{background:transparent}
 .st-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
 .st-scroll::-webkit-scrollbar-thumb:hover{background:var(--o)}
-/* Settings page header */
-.st-page-header{padding:32px 40px 24px;flex-shrink:0}
-.st-page-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
-.st-page-title{font-size:32px;font-weight:800;color:var(--t1);letter-spacing:-0.025em;line-height:1.1}
-/* Two-column layout */
-.st-layout{display:flex;padding:0 40px 40px;align-items:flex-start}
-.st-sidenav{width:220px;flex-shrink:0;padding-right:24px;padding-top:4px}
-.st-sidenav-list{list-style:none;padding:0;margin:0}
-.st-sidenav-list li{margin-bottom:2px}
-.st-sidenav-list a,.st-sidenav-link{display:block;padding:9px 12px;font-size:14px;color:var(--t2);text-decoration:none;border-radius:7px;cursor:pointer;background:none;border:none;font-family:var(--sans);width:100%;text-align:left;transition:all 0.13s;border-bottom:none}
-.st-sidenav-list a:hover,.st-sidenav-link:hover{color:var(--t1);background:var(--b1)}
-.st-sidenav-list a.active,.st-sidenav-link.active{font-weight:600;color:var(--t1);background:var(--b1);border-bottom:2px solid var(--o);border-radius:0;padding-bottom:7px}
-.st-sidenav-div{height:1px;background:var(--b1);margin:12px 0}
-.st-sidenav-ext{display:flex;align-items:center;gap:6px;padding:9px 12px;font-size:14px;color:var(--t3);text-decoration:none;cursor:pointer;transition:color 0.13s}
-.st-sidenav-ext:hover{color:var(--t1)}
-.st-sidenav-ext svg{width:13px;height:13px;flex-shrink:0}
-/* Content pane */
-.st-content{flex:1;min-width:0;background:var(--w);border:1px solid var(--b1);border-radius:12px}
-.st-tab-pane{display:none;padding:32px 36px}
-.st-tab-pane.active{display:block}
-.st-pane-title{font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-0.015em;margin-bottom:28px}
-/* Form fields */
-.st-field{margin-bottom:20px}
-.st-field-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.st-label{display:block;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
-.st-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s}
-.st-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
+/* Section */
+.st-section{margin-bottom:36px}
+.st-section-eyebrow{font-size:10px;font-weight:600;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px}
+.st-section-title{font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.015em;margin-bottom:4px}
+.st-section-desc{font-size:13px;color:var(--t3);margin-bottom:20px;line-height:1.5}
+/* Card */
+.st-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.st-card:last-child{margin-bottom:0}
+/* Form rows */
+.st-row{padding:16px 20px;border-bottom:1px solid var(--b1)}
+.st-row:last-child{border-bottom:none}
+.st-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px;border-bottom:1px solid var(--b1)}
+.st-row-2:last-child{border-bottom:none}
+.st-label{display:block;font-size:11px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px}
+.st-input{width:100%;height:38px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--off);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s}
+.st-input:focus{border-color:var(--o);background:var(--w);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
 .st-input:hover:not(:focus){border-color:var(--b3)}
 .st-input::placeholder{color:var(--t4)}
-.st-select{width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color 0.15s;cursor:pointer}
+.st-select{width:100%;height:38px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--off);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23888' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color 0.15s;cursor:pointer}
 .st-select:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
-/* Save bar */
-.st-save-bar{display:flex;align-items:center;justify-content:flex-end;padding:16px 40px;background:var(--w);border-top:1px solid var(--b1);flex-shrink:0}
-.st-save-info{font-size:12px;color:var(--t3);margin-right:auto}
-.st-save-btn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 24px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
-.st-save-btn:hover{background:var(--o2)}
+/* Avatar upload */
+.st-avatar-row{display:flex;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--b1)}
+.st-avatar-lg{width:56px;height:56px;border-radius:12px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--w);flex-shrink:0;letter-spacing:0.02em}
+.st-avatar-info{flex:1}
+.st-avatar-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.st-avatar-hint{font-size:12px;color:var(--t3)}
+.st-avatar-btn{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 12px;border:1px solid var(--b2);border-radius:6px;background:transparent;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.st-avatar-btn:hover{border-color:var(--b3);color:var(--t1)}
 /* Toggle switch */
-.st-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--b1)}
+.st-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid var(--b1)}
 .st-toggle-row:last-child{border-bottom:none}
 .st-toggle-info{flex:1;min-width:0}
 .st-toggle-label{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:3px}
@@ -533,13 +525,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .st-toggle input:checked + .st-toggle-track{background:var(--o)}
 .st-toggle-track::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:white;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
 .st-toggle input:checked + .st-toggle-track::after{transform:translateX(16px)}
-/* Avatar */
-.st-avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:24px}
-.st-avatar-lg{width:56px;height:56px;border-radius:12px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--w);flex-shrink:0;letter-spacing:0.02em}
-.st-avatar-info{flex:1}
-.st-avatar-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:2px}
-.st-avatar-hint{font-size:12px;color:var(--t3)}
-@media(max-width:900px){.st-panel{left:0}.st-layout{padding:0 16px 32px;flex-direction:column}.st-sidenav{width:100%;padding-right:0;padding-bottom:16px}.st-page-header{padding:20px 16px 16px}.st-tab-pane{padding:20px}}
+/* Save bar */
+.st-save-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 32px;background:var(--w);border-top:1px solid var(--b1);flex-shrink:0}
+.st-save-info{font-size:12px;color:var(--t3)}
+.st-save-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 20px;background:var(--o);border:none;border-radius:8px;color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
+.st-save-btn:hover{background:var(--o2)}
+@media(max-width:900px){.st-panel{left:0}.st-scroll{padding:16px}.st-row-2{grid-template-columns:1fr}}
 
 /* COMPARISON PANEL */
 .cp-panel{position:fixed;top:var(--th);left:var(--lw);right:0;bottom:0;background:#f5f5f5;z-index:160;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);overflow:hidden}
@@ -1071,7 +1062,6 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </div>
 
 <!-- SETTINGS PANEL -->
-<!-- SETTINGS PANEL -->
 <div class="st-panel" id="settingsPanel">
   <div class="st-topbar">
     <button class="st-back" id="settingsBack">
@@ -1083,105 +1073,71 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   </div>
 
   <div class="st-scroll">
-    <div class="st-page-header">
-      <div class="st-page-eyebrow">Account</div>
-      <div class="st-page-title">Account settings</div>
-    </div>
 
-    <div class="st-layout">
-      <!-- Left nav -->
-      <nav class="st-sidenav">
-        <ul class="st-sidenav-list">
-          <li><a href="#" class="active" data-stab="details">My details</a></li>
-          <li><a href="#" data-stab="notifications">Notifications</a></li>
-          <li><a href="#" data-stab="password">Password</a></li>
-          <li><a href="#" data-stab="account">Account</a></li>
-        </ul>
-        <div class="st-sidenav-div"></div>
-        <a href="https://udder.rocks/privacy-policy" target="_blank" class="st-sidenav-ext">
-          <svg viewBox="0 0 16 16" fill="none"><path d="M9 2h5v5M14 2L8 8M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Privacy policy
-        </a>
-      </nav>
+    <!-- ── PROFILE ── -->
+    <div class="st-section">
+      <div class="st-section-eyebrow">Account</div>
+      <div class="st-section-title">Profile details</div>
+      <div class="st-section-desc">Update your personal information and how you appear in the platform.</div>
 
-      <!-- Right content -->
-      <div class="st-content">
-
-        <!-- My details -->
-        <div class="st-tab-pane active" id="st-details">
-          <div class="st-pane-title">Personal details</div>
-
-          <div class="st-field-2">
-            <div>
-              <label class="st-label" for="stFirstName">First name</label>
-              <input class="st-input" type="text" id="stFirstName" placeholder="Sarah">
-            </div>
-            <div>
-              <label class="st-label" for="stLastName">Last name</label>
-              <input class="st-input" type="text" id="stLastName" placeholder="Chen">
-            </div>
+      <div class="st-card">
+        <!-- Avatar row -->
+        <div class="st-avatar-row">
+          <div class="st-avatar-lg" id="stAvatarPreview">SC</div>
+          <div class="st-avatar-info">
+            <div class="st-avatar-name" id="stAvatarName">Sarah Chen</div>
+            <!-- <div class="st-avatar-hint">JPG or PNG, max 2MB</div> -->
           </div>
+          <!-- <button class="st-avatar-btn">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Change photo
+          </button> -->
+        </div>
 
-          <div class="st-field">
-            <label class="st-label" for="stEmail">Work email</label>
-            <input class="st-input" type="email" id="stEmail" placeholder="sarah@company.com">
+        <!-- Name -->
+        <div class="st-row-2">
+          <div>
+            <label class="st-label" for="stFirstName">First name</label>
+            <input class="st-input" type="text" id="stFirstName" placeholder="Sarah">
           </div>
-
-          <div class="st-field">
-            <label class="st-label" for="stJobTitle">Job title</label>
-            <input class="st-input" type="text" id="stJobTitle" placeholder="Head of People Technology">
+          <div>
+            <label class="st-label" for="stLastName">Last name</label>
+            <input class="st-input" type="text" id="stLastName" placeholder="Chen">
           </div>
+        </div>
 
-          <div class="st-field">
-            <label class="st-label" for="stOrg">Organisation</label>
-            <input class="st-input" type="text" id="stOrg" placeholder="Acme Corp">
+        <!-- Email -->
+        <div class="st-row">
+          <label class="st-label" for="stEmail">Work email</label>
+          <input class="st-input" type="email" id="stEmail" placeholder="sarah@company.com">
+        </div>
+
+        <!-- Categories + Geolocation Interests -->
+        <div class="st-row-2">
+          <div>
+            <label class="st-label" for="stCategories">Categories of Interest</label>
+            <input class="st-input" type="text" id="stCategories" placeholder="e.g. ATS, HRIS">
           </div>
-
-          <div class="st-field-2">
-            <div>
-              <label class="st-label" for="stCompanySize">Organisation size</label>
-              <select class="st-select" id="stCompanySize">
-                <option value="">Select…</option>
-                <option value="1-50">1–50</option>
-                <option value="50-500">50–500</option>
-                <option value="500-5,000">500–5,000</option>
-                <option value="5,000-25,000">5,000–25,000</option>
-                <option value="25,000+">25,000+</option>
-              </select>
-            </div>
-            <div>
-              <label class="st-label" for="stRegion">Primary region</label>
-              <select class="st-select" id="stRegion">
-                <option value="">Select…</option>
-                <option>Africa</option>
-                <option>Asia Pacific</option>
-                <option>Europe</option>
-                <option>Latin America</option>
-                <option>Middle East</option>
-                <option>North America</option>
-                <option>UK</option>
-                <option>South Africa</option>
-              </select>
-            </div>
+          <div>
+            <label class="st-label" for="stGeolocation">Geolocations of Interest</label>
+            <input class="st-input" type="text" id="stGeolocation" placeholder="e.g UK, EU">
           </div>
+        </div>
 
-          <div class="st-field">
-            <label class="st-label" for="stPhone">Phone (optional)</label>
-            <input class="st-input" type="tel" id="stPhone" placeholder="+44 7700 …">
+        <!-- Company Size + Role -->
+        <div class="st-row-2">
+          <div>
+            <label class="st-label" for="stCompanySize">Company size</label>
+            <select class="st-select" id="stCompanySize">
+              <option value="">Select…</option>
+              <option value="1-50">1–50</option>
+              <option value="50-500">50-500</option>
+              <option value="500-5,000">500-5,000</option>
+              <option value="5,000–25,000">5,000–25,000</option>
+              <option value="25,000+">25,000+</option>
+            </select>
           </div>
-
-          <div class="st-field-2">
-            <div>
-              <label class="st-label" for="stCategories">Categories of interest</label>
-              <input class="st-input" type="text" id="stCategories" placeholder="e.g. ATS, HRIS">
-            </div>
-            <div>
-              <label class="st-label" for="stGeolocation">Geolocations of interest</label>
-              <input class="st-input" type="text" id="stGeolocation" placeholder="e.g. UK, EU">
-            </div>
-          </div>
-
-          <div class="st-field">
+          <div>
             <label class="st-label" for="stRole">Role</label>
             <select class="st-select" id="stRole">
               <option value="hr-professional">HR Professional</option>
@@ -1190,145 +1146,141 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           </div>
         </div>
 
-        <!-- Notifications -->
-        <div class="st-tab-pane" id="st-notifications">
-          <div class="st-pane-title">Notification preferences</div>
-          <p style="font-size:14px;color:var(--t3);margin-bottom:28px">Choose what you hear about — we'll never spam you.</p>
-
-          <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px">Vendor activity</div>
-
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">Intro request updates</div>
-              <div class="st-toggle-desc">When a vendor responds to your intro request</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifIntros" checked>
-              <div class="st-toggle-track"></div>
-            </label>
+        <!-- Company size -->
+        <!-- <div class="st-row-2">
+          <div>
+            <label class="st-label" for="stCompanySize">Company size</label>
+            <select class="st-select" id="stCompanySize">
+              <option value="">Select…</option>
+              <option value="1-50">1–50 employees</option>
+              <option value="51-200">51–200 employees</option>
+              <option value="201-1000">201–1,000 employees</option>
+              <option value="1000+">1,000+ employees</option>
+            </select>
           </div>
-
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">New comparisons</div>
-              <div class="st-toggle-desc">When a vendor adds new comparison data</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifComparisons">
-              <div class="st-toggle-track"></div>
-            </label>
+          <div>
+            <label class="st-label" for="stRegion">Primary region</label>
+            <select class="st-select" id="stRegion">
+              <option value="">Select…</option>
+              <option>Africa</option>
+              <option>Asia Pacific</option>
+              <option>Europe</option>
+              <option>Latin America</option>
+              <option>Middle East</option>
+              <option>North America</option>
+              <option>South Africa</option>
+            </select>
           </div>
+        </div> -->
+      </div>
+    </div>
 
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">Verification updates</div>
-              <div class="st-toggle-desc">When a shortlisted vendor changes verification tier</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifVendorUpdates" checked>
-              <div class="st-toggle-track"></div>
-            </label>
-          </div>
+    <!-- ── PASSWORD ── -->
+    <div class="st-section">
+      <div class="st-section-eyebrow">Security</div>
+      <div class="st-section-title">Password</div>
+      <div class="st-section-desc">Change your password. You'll be asked to log in again after saving.</div>
 
-          <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin:24px 0 16px">Platform</div>
-
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">Weekly digest</div>
-              <div class="st-toggle-desc">Your shortlist and market updates, once a week</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifDigest" checked>
-              <div class="st-toggle-track"></div>
-            </label>
-          </div>
-
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">Product updates</div>
-              <div class="st-toggle-desc">New features and platform improvements</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifTips">
-              <div class="st-toggle-track"></div>
-            </label>
-          </div>
-
-          <div class="st-toggle-row">
-            <div class="st-toggle-info">
-              <div class="st-toggle-label">Market insights</div>
-              <div class="st-toggle-desc">Monthly trends in HR technology from Udder</div>
-            </div>
-            <label class="st-toggle">
-              <input type="checkbox" id="notifNewVendors">
-              <div class="st-toggle-track"></div>
-            </label>
-          </div>
+      <div class="st-card">
+        <div class="st-row">
+          <label class="st-label" for="stCurrentPwd">Current password</label>
+          <input class="st-input" type="password" id="stCurrentPwd" placeholder="••••••••">
         </div>
-
-        <!-- Password -->
-        <div class="st-tab-pane" id="st-password">
-          <div class="st-pane-title">Change password</div>
-
-          <div class="st-field">
-            <label class="st-label" for="stCurrentPwd">Current password</label>
-            <input class="st-input" type="password" id="stCurrentPwd" placeholder="Current password">
-          </div>
-
-          <div class="st-field">
+        <div class="st-row-2">
+          <div>
             <label class="st-label" for="stNewPwd">New password</label>
-            <input class="st-input" type="password" id="stNewPwd" placeholder="At least 12 characters">
+            <input class="st-input" type="password" id="stNewPwd" placeholder="Min 8 characters">
           </div>
-
-          <div class="st-field">
+          <div>
             <label class="st-label" for="stConfirmPwd">Confirm new password</label>
             <input class="st-input" type="password" id="stConfirmPwd" placeholder="Repeat new password">
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div style="background:var(--off);border-radius:8px;padding:16px 20px;margin-bottom:24px">
-            <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:10px">Password requirements</div>
-            <ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:5px">
-              <li style="font-size:13px;color:var(--t2)">At least 12 characters</li>
-              <li style="font-size:13px;color:var(--t2)">One uppercase letter</li>
-              <li style="font-size:13px;color:var(--t2)">One number or symbol</li>
-            </ul>
-          </div>
+    <!-- ── NOTIFICATIONS ── -->
+    <div class="st-section">
+      <div class="st-section-eyebrow">Notifications</div>
+      <div class="st-section-title">Email preferences</div>
+      <div class="st-section-desc">Choose what you'd like to be notified about. We'll send updates to your work email.</div>
 
-          <div style="border-top:1px solid var(--b1);padding-top:20px">
-            <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Forgot your password?</div>
-            <p style="font-size:13px;color:var(--t2);margin-bottom:14px">We'll send a reset link to your registered email address.</p>
-            <button id="stResetEmailBtn" style="height:34px;padding:0 16px;border:1px solid var(--b2);border-radius:7px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)';this.style.color='var(--t1)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">Send reset email</button>
-          </div>
+      <div class="st-card">
 
-          <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;border-top:1px solid var(--b1);margin-top:28px;padding-top:20px">
-            <button onclick="document.querySelector('.st-sidenav-list a[data-stab=details]').click()" style="height:40px;padding:0 20px;border:1px solid var(--b2);border-radius:999px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="this.style.borderColor='var(--b2)'">Cancel</button>
-            <button id="stUpdatePwdBtn" style="height:40px;padding:0 24px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">Update password</button>
+        <div class="st-toggle-row">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label">New vendors added</div>
+            <div class="st-toggle-desc">Get notified when new HR tech vendors are added to the database.</div>
           </div>
+          <label class="st-toggle">
+            <input type="checkbox" id="notifNewVendors" checked>
+            <div class="st-toggle-track"></div>
+          </label>
         </div>
 
-        <!-- Account -->
-        <div class="st-tab-pane" id="st-account">
-
-          <!-- <div style="border:1px solid var(--b1);border-radius:12px;padding:24px 28px;margin-bottom:16px">
-            <div style="font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-0.015em;margin-bottom:10px">Privacy policy</div>
-            <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px">Understand how UdderDB collects, stores, and uses your data.</p>
-            <a href="https://udder.rocks/privacy-policy" target="_blank" style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid var(--b2);border-radius:999px;font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)';this.style.color='var(--t1)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M9 2h5v5M14 2L8 8M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Read privacy policy ↗
-            </a>
-          </div> -->
-
-          <div style="border:1.5px solid #ef4444;border-radius:12px;padding:24px 28px">
-            <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px">Danger zone</div>
-            <div style="font-size:20px;font-weight:700;color:var(--t1);letter-spacing:-0.015em;margin-bottom:10px">Delete account</div>
-            <p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:18px">Deleting your account will permanently remove your profile, shortlist, comparisons, and evaluations. This cannot be undone.</p>
-            <button style="height:36px;padding:0 18px;border:1.5px solid #ef4444;border-radius:999px;background:transparent;font-size:13px;font-weight:600;color:#ef4444;cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.background='#ef4444';this.style.color='white'" onmouseout="this.style.background='transparent';this.style.color='#ef4444'">Delete my account</button>
+        <div class="st-toggle-row">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label">Vendor profile updates</div>
+            <div class="st-toggle-desc">Be alerted when a shortlisted vendor updates their features, pricing, or verification status.</div>
           </div>
-
+          <label class="st-toggle">
+            <input type="checkbox" id="notifVendorUpdates" checked>
+            <div class="st-toggle-track"></div>
+          </label>
         </div>
 
-      </div><!-- /st-content -->
-    </div><!-- /st-layout -->
+        <div class="st-toggle-row">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label">Introduction requests</div>
+            <div class="st-toggle-desc">Notify me when a vendor responds to my introduction request.</div>
+          </div>
+          <label class="st-toggle">
+            <input type="checkbox" id="notifIntros" checked>
+            <div class="st-toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="st-toggle-row">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label">Weekly digest</div>
+            <div class="st-toggle-desc">A weekly summary of new vendors, platform updates, and HR tech news.</div>
+          </div>
+          <label class="st-toggle">
+            <input type="checkbox" id="notifDigest">
+            <div class="st-toggle-track"></div>
+          </label>
+        </div>
+
+        <div class="st-toggle-row">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label">Udder tips &amp; guides</div>
+            <div class="st-toggle-desc">Occasional emails on how to get the most out of the platform.</div>
+          </div>
+          <label class="st-toggle">
+            <input type="checkbox" id="notifTips">
+            <div class="st-toggle-track"></div>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── DANGER ZONE ── -->
+    <div class="st-section">
+      <div class="st-section-eyebrow">Account</div>
+      <div class="st-section-title">Danger zone</div>
+      <div class="st-section-desc">Irreversible actions. Please proceed with care.</div>
+      <div class="st-card">
+        <div class="st-toggle-row" style="align-items:center">
+          <div class="st-toggle-info">
+            <div class="st-toggle-label" style="color:#ef4444">Delete account</div>
+            <div class="st-toggle-desc">Permanently delete your account and all associated data. This cannot be undone.</div>
+          </div>
+          <button style="height:32px;padding:0 14px;border-radius:7px;border:1px solid #ef4444;background:transparent;color:#ef4444;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all 0.13s;white-space:nowrap" onmouseover="this.style.background='#ef4444';this.style.color='white'" onmouseout="this.style.background='transparent';this.style.color='#ef4444'">Delete account</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /st-scroll -->
 
   <div class="st-save-bar">
@@ -2462,8 +2414,6 @@ function populateSettingsFromCookies(){
   var geolocations = window._user.geolocation_of_interest;
   var companySize = window._user.organization_size;
 
-  console.log('window._user.first_name', window._user.first_name);
-
   if (role == 'hr-professional') role = 'HR Professional';
   if (role == 'vendor') role = 'Vendor';
 
@@ -2481,31 +2431,24 @@ function populateSettingsFromCookies(){
   }
   /* Update avatar initials preview */
   var initials = ((fname[0]||'') + (lname[0]||'')).toUpperCase() || 'U';
-  var stAvatarPreview = document.getElementById('stAvatarPreview');
-  var stAvatarName = document.getElementById('stAvatarName');
-  if(stAvatarPreview) stAvatarPreview.textContent = initials;
-  if(stAvatarName) stAvatarName.textContent = (fname+' '+lname).trim() || 'Your name';
+  document.getElementById('stAvatarPreview').textContent = initials;
+  document.getElementById('stAvatarName').textContent    = (fname+' '+lname).trim() || 'Your name';
 
   /* Notification toggles from localStorage */
   ['notifNewVendors','notifVendorUpdates','notifIntros','notifDigest','notifTips'].forEach(function(id){
     var stored = localStorage.getItem('st_'+id);
-    var el = document.getElementById(id);
-    if(stored !== null && el) el.checked = stored === 'true';
+    if(stored !== null) document.getElementById(id).checked = stored === 'true';
   });
 }
 
 /* Live avatar preview as user types */
 ['stFirstName','stLastName'].forEach(function(id){
-  var el = document.getElementById(id);
-  if(!el) return;
-  el.addEventListener('input', function(){
+  document.getElementById(id).addEventListener('input', function(){
     var f = document.getElementById('stFirstName').value.trim();
     var l = document.getElementById('stLastName').value.trim();
     var initials = ((f[0]||'')+(l[0]||'')).toUpperCase() || 'U';
-    var ap = document.getElementById('stAvatarPreview');
-    var an = document.getElementById('stAvatarName');
-    if(ap) ap.textContent = initials;
-    if(an) an.textContent = (f+' '+l).trim() || 'Your name';
+    document.getElementById('stAvatarPreview').textContent = initials;
+    document.getElementById('stAvatarName').textContent = (f+' '+l).trim() || 'Your name';
   });
 });
 
@@ -2533,9 +2476,9 @@ document.getElementById('stSaveBtn').addEventListener('click', function(){
   if(email) setCookie('user_email', email);
   if(role)  setCookie('user_role',  role);
 
+  /* Save notification prefs to localStorage */
   ['notifNewVendors','notifVendorUpdates','notifIntros','notifDigest','notifTips'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el) localStorage.setItem('st_'+id, el.checked);
+    localStorage.setItem('st_'+id, document.getElementById(id).checked);
   });
 
   /* Update sidebar user display if logged in */
@@ -2916,24 +2859,6 @@ document.querySelectorAll('.sb-nav a').forEach(function(a){a.addEventListener('c
   // expose so other code can trigger a re-filter
   window.applyVerificationFilter = applyVerificationFilter;
 })();
-
-/* Settings sidenav tab switching */
-var stSaveLabels = { details:'Save changes', notifications:'Save preferences', password:null, account:null };
-document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link){
-  link.addEventListener('click', function(e){
-    e.preventDefault();
-    var tab = this.dataset.stab;
-    document.querySelectorAll('.st-sidenav-list a').forEach(function(a){ a.classList.remove('active'); });
-    document.querySelectorAll('.st-tab-pane').forEach(function(p){ p.classList.remove('active'); });
-    this.classList.add('active');
-    var pane = document.getElementById('st-' + tab);
-    if(pane) pane.classList.add('active');
-    var saveBtn = document.getElementById('stSaveBtn');
-    if(saveBtn) saveBtn.textContent = stSaveLabels[tab] || 'Save changes';
-    var saveBar = document.querySelector('.st-save-bar');
-    if(saveBar) saveBar.style.display = (tab === 'password' || tab === 'account') ? 'none' : 'flex';
-  });
-});
 </script>
 
 <script type="module" src="../assets/js/core/main.js"></script>

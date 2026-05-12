@@ -36,6 +36,7 @@ export default async function handler(req, res) {
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
     if (action === 'getTopVendors') return await getTopVendors(res);
+    if (action === 'getEvaluations') return await getEvaluations(res, vendorId, userId);
 
     if (action === 'checkGuestLimit'){
         if (req.method !== "POST") {
@@ -90,6 +91,20 @@ export default async function handler(req, res) {
         try {
             const { payload } = req.body;
             return await addVisitor(res, payload);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'saveEvaluation'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { payload } = req.body;
+            return await saveEvaluation(res, payload);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -160,7 +175,7 @@ export default async function handler(req, res) {
         try {
             const { email, password } = req.body;
             
-            return await login(res, email, password);
+            return await login(req, res, email, password);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -500,6 +515,22 @@ export async function upsertFilter(res, payload) {
     return res.status(200).json({ data });
 }
 
+export async function saveEvaluation(res, payload) {
+    const { data, error } = await supabase
+    .from('tblbuyerevaluations')
+    .upsert({ 
+        user_id: payload['user_id'], 
+        criteria:  payload['criteria'], 
+        vendor_id: payload['vendor_id'], 
+    },
+    { onConflict: 'user_id,vendor_id' })
+    .select()
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
 export async function getFilter(res) {
     const { data, error } = await supabase
     .from('tblsearchfilters')
@@ -604,7 +635,7 @@ async function getAssignedVendorIds(res){
 async function getUserById(res, id) {
   const { data, error } = await supabase
     .from('tblusers')
-    .select('first_name, last_name, email, role, verified, vendor_id')
+    .select('first_name, last_name, email, role, verified, vendor_id, id, auto_refresh, categories_of_interests, geolocation_of_interest, organization_size')
     .eq('id', id)
     .maybeSingle();
 
@@ -670,7 +701,7 @@ async function updateVerification(res, verified, id) {
     return res.status(200).json({ data });
 }
 
-async function login(res, email, password) {
+async function login(req, res, email, password) {
     const { data, error } = await supabase
     .from('tblusers')
     .select('id, password, role')
@@ -687,18 +718,20 @@ async function login(res, email, password) {
         }
 
         const token = crypto.randomUUID();
-
-        await supabase.from('tblsessions').insert({
-            session_id: token,
-            user_id: data.id
-        });
+        const { data: sessionData, error: sessionError } = await supabase
+            .from('tblsessions')
+            .insert({
+                session_id: token,
+                user_id: data.id
+            })
+            .select('*');
 
         res.setHeader("Set-Cookie", serialize("auth", token, {
             httpOnly: true,
-            secure: true,
+            secure: req.headers.host.includes('localhost') ? false : true,
             sameSite: "lax",
             path: "/",
-            maxAge: 60 * 60 * 24
+            maxAge: 60 * 60 * 24 * 7 // 7 days
         }));
 
         return res.status(200).json({ data });
@@ -813,6 +846,17 @@ export async function getVendorViewCountLast7Days(res, vendorId) {
     return res.status(200).json({ data: { vendorId, views_last_7_days: count } });
 }
 
+export async function getEvaluations(res, vendorId, userId) {
+    const { data, error } = await supabase
+    .from('tblbuyerevaluations')
+    .select('*')
+    .eq('vendor_id', vendorId)
+    .eq('user_id', userId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
 export async function getVendorLeads(res, vendorId) {
     const { data, error } = await supabase
     .from('tbldbleads')
@@ -895,10 +939,12 @@ async function GetVendorsForClaiming(res){
     
     if (e) return res.status(500).json({ data: null, error: e.message });
     
-    data.forEach(vendor => {
-        if (vendor.data !== null && vendor.data.company !== null && !ids.includes(vendor.id)) vendors.push({name: vendor.name, url: vendor.data.company.website});
-    });
-
+    if (data !== null){
+        data.forEach(vendor => {
+            if (vendor.data !== null && vendor.data.company !== null && !ids.includes(vendor.id)) vendors.push({name: vendor.name, url: vendor.data.company.website});
+        });
+    }
+    
     return res.status(200).json({ vendors });
 }
 

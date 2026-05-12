@@ -1,6 +1,6 @@
 import * as App from '../app.js';
 import { PAGES } from  '../utils/constants.js';
-import { isLoggedIn } from '../core/auth/session.js';
+import { isLoggedIn, getCurrentUser } from '../core/auth/session.js';
 import { requireLogin } from '../core/auth/loginRequired.js';
 
 let vendorData = {};
@@ -31,12 +31,14 @@ let loggedIn;
 
 $(async function () {
     loggedIn = await isLoggedIn();
+    console.log('loggedIn', loggedIn);
     if (!loggedIn) {
         $('#sbSignIn').removeClass('hide');
         $('#sb-user-profile').addClass('hide');
         $('.link-secured').addClass('hide');
         $('#vdShortlistBtn').addClass('hide');
         $('#sbSignInNote').removeClass('hide');
+        $('#sbUser').addClass('hide');
 
         sessionId = getSessionId();
         if (!sessionId) {
@@ -50,6 +52,7 @@ $(async function () {
         $('.link-secured').removeClass('hide');
         $('#vdShortlistBtn').removeClass('hide');
         $('#sbSignInNote').addClass('hide');
+        $('#sbUser').removeClass('hide');
     }
 
     $.getJSON("https://api.ipify.org?format=json", function(data) {
@@ -262,30 +265,6 @@ $(document).ready(function() {
     });
 
     // ── Multi-select category + sub-category filtering ──
-async function loadUserProfile(){
-    const userId = App.getCookie('user_id');
-    const response = await fetch(`/api/supabase?action=getUserById&userId=${userId}`);
-    const result = await response.json();
-
-    if (result.error) {
-        console.error(result.error);
-        App.showToast(App.OPERATION_FAILED, 'error');
-        return;
-    }
-
-    user = result.data;
-    if (user.role != 'hr-professional'){
-        App.setCookie('is_logged_in', false);
-        location.href = PAGES.login;
-        return;
-    }
-
-    console.info('user', user);
-    const fullName = `${user.first_name} ${user.last_name}`;
-    $('#sb-uname').text(fullName);
-    $('#sb-initials').text(App.initials(fullName));
-    $('#sb-user-profile').removeClass('hide');
-}
 
 // Helper: get all checked parent module values
 function getCheckedModules(){
@@ -546,6 +525,37 @@ function getSessionId() {
     }
 
     return null;
+}
+
+async function loadUserProfile(){
+    const { user } = await getCurrentUser();
+    const userId = user.id;
+    if (userId === null){
+        // logout
+        return;
+    }
+
+    const response = await fetch(`/api/supabase?action=getUserById&userId=${userId}`);
+    const result = await response.json();
+
+    if (result.error) {
+        console.error(result.error);
+        App.showToast(App.OPERATION_FAILED, 'error');
+        return;
+    }
+
+    window._user = result.data;
+    console.log('result.data', result.data);
+    // if (user.role != 'hr-professional'){
+    //     App.setCookie('is_logged_in', false);
+    //     location.href = PAGES.login;
+    //     return;
+    // }
+    
+    const fullName = `${window._user.first_name} ${window._user.last_name}`;
+    $('#sb-uname').text(fullName);
+    $('#sb-initials').text(App.initials(fullName));
+    //$('#sbUser').removeClass('hide');
 }
 
 async function populateTopVendors() {
@@ -1067,7 +1077,12 @@ async function loadVendors(filters = null){
             integrations.forEach(integration => {
                 supportedIntegrations.push(integration.name);
             });
+            
+            if (vendor.match_score === undefined) vendor.match_score = 0;
 
+            // add 
+            // data-trending="true"
+            // data-implementations="3"
             $('#vendors').append(`
                 <div class="card" 
                     data-modules="${modules.modules.join(',')}"
