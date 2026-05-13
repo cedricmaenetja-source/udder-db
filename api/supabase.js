@@ -22,6 +22,54 @@ export default async function handler(req, res) {
 
     const { action, vendorId, userId } = req.query;
 
+    const VALID_ACTIONS = [
+        'getVendors',
+        'getVendorById',
+        'getFilter',
+        'getUserById',
+        'getVendorViewCount',
+        'getVendorViewCountLast7Days',
+        'getVendorLeads',
+        'getVendorViews',
+        'getVendorScreenshots',
+        'GetVendorsForClaiming',
+        'getTopVendors',
+        'getEvaluations',
+        'getNotificationPrefs',
+        'saveNotificationPrefs',
+        'checkGuestLimit',
+        'getUserByEmail',
+        'verifyOtp',
+        'addVisitor',
+        'saveEvaluation',
+        'upsertFilter',
+        'userSignUp',
+        'updateOtp',
+        'updateVerification',
+        'login',
+        'addVendorClaim',
+        'addVendorRequest',
+        'addToVendorAnalytics',
+        'updateUserPassword',
+        'addVendorLead',
+        'updateLeadStatus',
+        'updatePersonalDetails',
+        'updateUserProfile',
+        'updateVendor',
+        'updateVendorAutoRefresh',
+        'addClientInquiry',
+        'uploadVendorScreenshots',
+        'deleteAccount'
+    ];
+
+    if (!action) {
+        return res.status(400).json({ error: 'No action provided' });
+    }
+
+    if (!VALID_ACTIONS.includes(action)) {
+        return res.status(400).json({ error: `Unknown action: "${action}". Did you forget to register it in VALID_ACTIONS?` });
+    }
+
     if (action === 'getVendors') {
         return await getVendors(res);
     }
@@ -37,6 +85,36 @@ export default async function handler(req, res) {
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
     if (action === 'getTopVendors') return await getTopVendors(res);
     if (action === 'getEvaluations') return await getEvaluations(res, vendorId, userId);
+    if (action === 'getNotificationPrefs') return await getNotificationPrefs(res, userId);
+
+    if (action === 'deleteAccount') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { userId } = req.body;
+            return await deleteAccount(res, userId);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'saveNotificationPrefs'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { user_id, prefs } = req.body;
+            
+            return await saveNotificationPrefs(res, user_id, prefs);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
 
     if (action === 'checkGuestLimit'){
         if (req.method !== "POST") {
@@ -271,6 +349,21 @@ export default async function handler(req, res) {
             res.status(500).json({ error: 'Internal error' });
         }
     } 
+    
+    if (action === 'updatePersonalDetails'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { id, payload } = req.body;
+            
+            return await updatePersonalDetails(res, id, payload);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
 
     if (action === 'updateUserProfile'){
         if (req.method !== "POST") {
@@ -364,6 +457,39 @@ export default async function handler(req, res) {
             }
         });
     }
+}
+
+async function deleteAccount(res, userId) {
+    const tables = [
+        'tblnotificationpreferences',
+        'tblevaluations',
+        'tblvendorclaims',
+        'tblvendorrequests',
+    ];
+
+    for (const table of tables) {
+        const { error } = await supabase
+            .from(table)
+            .delete()
+            .eq('user_id', userId);
+
+        if (error) {
+            console.warn(`Could not delete from ${table}:`, error.message);
+            // Non-fatal — continue cleanup
+        }
+    }
+
+    // Delete the user record from your own users table
+    const { error: userError } = await supabase
+        .from('tblusers')
+        .delete()
+        .eq('id', userId);
+
+    if (userError) {
+        return res.status(500).json({ error: userError.message });
+    }
+
+    return res.status(200).json({ success: true });
 }
 
 async function uploadVendorScreenshots(res, vendorId, filesToUpload) {
@@ -517,7 +643,7 @@ export async function upsertFilter(res, payload) {
 
 export async function saveEvaluation(res, payload) {
     const { data, error } = await supabase
-    .from('tblbuyerevaluations')
+    .from('tblevaluations')
     .upsert({ 
         user_id: payload['user_id'], 
         criteria:  payload['criteria'], 
@@ -635,7 +761,7 @@ async function getAssignedVendorIds(res){
 async function getUserById(res, id) {
   const { data, error } = await supabase
     .from('tblusers')
-    .select('first_name, last_name, email, role, verified, vendor_id, id, auto_refresh, categories_of_interests, geolocation_of_interest, organization_size')
+    .select('first_name, last_name, email, role, verified, vendor_id, id, auto_refresh, categories_of_interests, geolocation_of_interest, organization_size, organization, primary_region, phone, job_title')
     .eq('id', id)
     .maybeSingle();
 
@@ -671,6 +797,39 @@ async function updateUserProfile(res, id, payload) {
     .from('tblusers')
     .update(updateData)
     .eq('id', id);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function updatePersonalDetails(res, id, payload) {
+    const { data, error } = await supabase
+    .from('tblusers')
+    .update(payload)
+    .eq('id', id)
+    .select('first_name, last_name, email, role, verified, vendor_id, id, auto_refresh, categories_of_interests, geolocation_of_interest, organization_size, organization, primary_region, phone, job_title');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function getNotificationPrefs(res, userId){
+    const { data, error } = await supabase
+    .from('tblnotificationpreferences')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function saveNotificationPrefs(res, user_id, prefs){
+    const { data, error } = await supabase
+    .from('tblnotificationpreferences')
+    .upsert({ user_id, ...prefs }, { onConflict: 'user_id' })
+    .select()
+    .single();
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
@@ -848,7 +1007,7 @@ export async function getVendorViewCountLast7Days(res, vendorId) {
 
 export async function getEvaluations(res, vendorId, userId) {
     const { data, error } = await supabase
-    .from('tblbuyerevaluations')
+    .from('tblevaluations')
     .select('*')
     .eq('vendor_id', vendorId)
     .eq('user_id', userId);

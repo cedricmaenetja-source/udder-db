@@ -1,7 +1,11 @@
 import * as App from '../../app.js';
 import * as Constant from '../../utils/constants.js';
+import { isLoggedIn, getCurrentUser } from '../auth/session.js';
 
-$(function(){
+$(async function(){
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {location.href = Constant.PAGES.home; return;}
+
     loadVendorsForClaiming();
     /* Password toggle */
     document.getElementById('togglePwd').addEventListener('click', function(){

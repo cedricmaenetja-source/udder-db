@@ -1,9 +1,12 @@
 import * as App from '../../app.js';
 import { PAGES, RESET_PASSWORD_EMAIL, HOSTNAME } from '../../utils/constants.js';
+import { isLoggedIn, getCurrentUser } from '../auth/session.js';
 
-$(function(){
-    // const isLoggedIn = App.getCookie('is_logged_in');
-    // if (isLoggedIn === 'true') location.href = PAGES.vendor;
+let loggedIn;
+
+$(async function(){
+    loggedIn = await isLoggedIn();
+    if (loggedIn) {location.href = PAGES.home; return;}
 
     $('#forgotPassBtn').on('click', async function(){
         const email = $('#forgotPasswordEmail').val().trim();

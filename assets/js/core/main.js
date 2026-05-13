@@ -1111,7 +1111,7 @@ async function loadVendors(filters = null){
                             data-id="${vendor.id}"
                             data-score="${vendor.match_score}" 
                             data-matcheditems="${vendor.matched_items}"
-                            data-filterscount="${vendor.filters_count}">View Platform</button>
+                            data-filterscount="${vendor.filters_count}">View</button>
                 </div>`);
         }
     });
