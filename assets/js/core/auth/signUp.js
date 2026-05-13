@@ -150,14 +150,22 @@ $(async function(){
             document.getElementById('otpEmailChip').textContent    = result.data.email;
 
             // Re-send OTP email with existing OTP from DB
-            await fetch(App.ZAPIER_SEND_EMAIL, {
+            const res = await fetch('/api/send-email?action=otpVerification', {
                 method: "POST",
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    to: result.data.email, 
-                    subject: 'Your Verification Code', 
-                    body: Constant.OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', result.data.otp) 
+                    to: result.data.email,
+                    otp: result.data.otp
                 })
             });
+            // await fetch(App.ZAPIER_SEND_EMAIL, {
+            //     method: "POST",
+            //     body: JSON.stringify({ 
+            //         to: result.data.email, 
+            //         subject: 'Your Verification Code', 
+            //         body: Constant.OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', result.data.otp) 
+            //     })
+            // });
 
             App.showToast('A new verification code has been sent.', 'success');
             goStep(3);
@@ -175,9 +183,18 @@ $(async function(){
         window._signupToken = result.data.token;
         window._userId = result.data.id;
 
-        const res = await fetch(App.ZAPIER_SEND_EMAIL, {
+        // const res = await fetch(App.ZAPIER_SEND_EMAIL, {
+        //     method: "POST",
+        //     body: JSON.stringify({ to: result.data.email, subject: 'Your Verification Code', body: Constant.OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', result.data.otp) })
+        // });
+
+        const res = await fetch('/api/send-email?action=otpVerification', {
             method: "POST",
-            body: JSON.stringify({ to: result.data.email, subject: 'Your Verification Code', body: Constant.OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', result.data.otp) })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                to: result.data.email,
+                otp: result.data.otp
+            })
         });
 
         const filters = await res.json();

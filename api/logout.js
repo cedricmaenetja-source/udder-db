@@ -1,7 +1,13 @@
 import { serialize } from "cookie";
 import { authorize } from "./header";
+import { createClient } from '@supabase/supabase-js';
 
-export default function handler(req, res) {
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+export default async function handler(req, res) {
   authorize(req, res);
 
   const token = req.cookies.auth;

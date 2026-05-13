@@ -311,9 +311,9 @@ export default async function handler(req, res) {
         }
 
         try {
-            const { email, password } = req.body;
+            const { email, oldPassword, newPassword } = req.body;
             
-            return await updateUserPassword(res, email, password);
+            return await updateUserPassword(res, email, oldPassword, newPassword);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -835,17 +835,31 @@ async function saveNotificationPrefs(res, user_id, prefs){
     return res.status(200).json({ data });
 }
 
-async function updateUserPassword(res, email, password) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+async function updateUserPassword(res, email, oldPassword, newPassword) {
     const { data, error } = await supabase
     .from('tblusers')
+    .select('id, password')
+    .eq('email', email)
+    .maybeSingle();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    if (data === null) return res.status(500).json({ data: null, error: 'Invalid User.' });
+
+    const match = await bcrypt.compare(oldPassword, data.password);
+    if (!match){
+        return res.status(401).json({ data: null, error: 'Invalid current password.' });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const { data: existing, error: checkError } = await supabase
+    .from('tblusers')
     .update({ 
-        password: hashedPassword, 
+        password: hashedNewPassword, 
     })
     .eq('email', email);
 
-    if (error) return res.status(500).json({ data: null, error: error.message });
-    return res.status(200).json({ data });
+    if (checkError) return res.status(500).json({ data: null, error: checkError.message });
+    return res.status(200).json({ existing });
 }
 
 async function updateVerification(res, verified, id) {

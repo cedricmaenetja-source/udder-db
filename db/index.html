@@ -23,6 +23,7 @@
 html,body{height:100%;overflow:hidden;background:var(--off)}
 body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
+#stResetEmailBtn > .spinner-btn-clicked{border: 2px solid var(--b3);}
 /* NOTIFICATIONS */
 .notification {
   position: fixed;
@@ -1549,7 +1550,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           </div>
 
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;border-top:1px solid var(--b1);margin-top:28px;padding-top:20px">
-            <button onclick="document.querySelector('.st-sidenav-list a[data-stab=details]').click()" style="height:40px;padding:0 20px;border:1px solid var(--b2);border-radius:999px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="this.style.borderColor='var(--b2)'">Cancel</button>
+            <div id="stPwdFlash" style="font-size:13px;margin-top:16p;margin-right: auto;"></div>
+            <!-- <button onclick="document.querySelector('.st-sidenav-list a[data-stab=details]').click()" style="height:40px;padding:0 20px;border:1px solid var(--b2);border-radius:999px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="this.style.borderColor='var(--b2)'">Cancel</button> -->
             <button id="stUpdatePwdBtn" style="height:40px;padding:0 24px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">Update password</button>
           </div>
         </div>
@@ -1761,6 +1763,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </div>
 <script type="module">
   import { showToast, lockBtn } from '../assets/js/app.js';
+  import { RESET_PASSWORD_EMAIL, HOSTNAME } from '../assets/js/utils/constants.js';
 /* Sidebar */
 /* Sidebar: show sign-in link or user block based on login cookie */
 (function(){
@@ -3061,31 +3064,49 @@ document.getElementById('stUpdatePwdBtn').addEventListener('click', async functi
   var newPwd     = document.getElementById('stNewPwd').value;
   var confirmPwd = document.getElementById('stConfirmPwd').value;
 
-  if(!currentPwd){ stFlash('Please enter your current password', true); return; }
-  if(!newPwd){ stFlash('Please enter a new password', true); return; }
-  if(newPwd.length < 12){ stFlash('New password must be at least 12 characters', true); return; }
-  if(!/[A-Z]/.test(newPwd)){ stFlash('Password must contain at least one uppercase letter', true); return; }
-  if(!/[0-9!@#$%^&*]/.test(newPwd)){ stFlash('Password must contain a number or symbol', true); return; }
-  if(newPwd !== confirmPwd){ stFlash('Passwords do not match', true); return; }
+  if(!currentPwd){ stPwdFlash('Please enter your current password', true); return; }
+  if(!newPwd){ stPwdFlash('Please enter a new password', true); return; }
+  if(newPwd.length < 12){ stPwdFlash('New password must be at least 12 characters', true); return; }
+  if(!/[A-Z]/.test(newPwd)){ stPwdFlash('Password must contain at least one uppercase letter', true); return; }
+  if(!/[0-9!@#$%^&*]/.test(newPwd)){ stPwdFlash('Password must contain a number or symbol', true); return; }
+  if(newPwd !== confirmPwd){ stPwdFlash('Passwords do not match', true); return; }
 
   console.log('Updating password');
+  const reset = lockBtn($(this));
+  if (!reset) return;
   const response = await fetch('/api/supabase?action=updateUserPassword', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: window._user.email, password: newPwd })
+    body: JSON.stringify({ email: window._user.email, oldPassword: currentPwd, newPassword: newPwd })
   });
 
   const result = await response.json();
-  if(result.error){stFlash(result.error, true); reset(); return;}
-  stFlash('Password updated ✓', false);
+  if(result.error){stPwdFlash(result.error, true); reset(); return;}
+  stPwdFlash('Password updated ✓', false);
 
   document.getElementById('stCurrentPwd').value = '';
   document.getElementById('stNewPwd').value = '';
   document.getElementById('stConfirmPwd').value = '';
+
+  showToast('Logging out...', 'neutral');
+  const res = await fetch('/api/logout', {
+    method: 'GET',
+  });
+
+  const r = await res.json();
+  if (r.error){showToast(r.error, 'error'); reset(); return;}
+  window.location.href = '/login.html';
 });
 
 function stFlash(msg, isError){
   var el = document.getElementById('stSaveInfo');
+  el.textContent = msg;
+  el.style.color = isError ? '#ef4444' : '#16a34a';
+  setTimeout(function(){ el.textContent = 'Unsaved changes will be lost'; el.style.color = ''; }, 3000);
+}
+
+function stPwdFlash(msg, isError){
+  var el = document.getElementById('stPwdFlash');
   el.textContent = msg;
   el.style.color = isError ? '#ef4444' : '#16a34a';
   setTimeout(function(){ el.textContent = 'Unsaved changes will be lost'; el.style.color = ''; }, 3000);
@@ -3525,6 +3546,7 @@ document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link
       console.log('Delete account confirmed for user:', window._user?.id);
       closeDeleteModal();
       showToast('Account deleted. Redirecting…', 'success');
+      await fetch('/api/logout', {method: 'GET'});
       setTimeout(function(){ window.location.href = '/'; }, 2000);
     } catch(e) {
       console.error('Delete account failed:', e);
@@ -3568,7 +3590,7 @@ document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link
     const reset = lockBtn($(this));
     if (!reset) return;
 
-    showToast('Logging out', 'neutral');
+    showToast('Logging out...', 'neutral');
     const response = await fetch('/api/logout', {
       method: 'GET',
     });
@@ -3577,6 +3599,44 @@ document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link
     reset();
     if (result.error){showToast(result.error, 'error');return;}
     window.location.href = '/login.html';
+  });
+  
+  document.getElementById('stResetEmailBtn').addEventListener('click', async function(){
+    const reset = lockBtn($(this));
+    if (!reset) return;
+    
+    const r = await fetch('/api/supabase?action=getUserByEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({'email': window._user.email}),
+    });
+    const rs = await r.json();
+    if (rs.error){reset();showToast(rs.error, 'error');return;}
+    if (rs.data === null){showToast('Email address could not be found.', 'error');reset();return;}
+
+    const response = await fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: {'email': window._user.email}, expiresIn: '1h'}),
+    });
+
+    const result = await response.json();
+    if (result.error){reset();showToast(result.error, 'error');return;}
+    
+    const res = await fetch('/api/send-email?action=resetPassword', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            to: window._user.email, 
+            token: result.token, 
+            host: window.location.origin
+        })
+    });
+
+    const resetres = await res.json();
+    if (resetres.error){reset();showToast(resetres.error, 'error');return;}
+    showToast('Email sent!', 'success');
+    reset();
   });
 })();
 </script>
