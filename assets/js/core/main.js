@@ -8,6 +8,16 @@ let vendorList = [];
 let employeeCountSupported = [];
 let user;
 
+var ORG_SIZES = [
+  { value: '1-50',         label: '1–50' },
+  { value: '50-500',       label: '50–500' },
+  { value: '500-5,000',    label: '500–5,000' },
+  { value: '5,000-25,000', label: '5,000–25,000' },
+  { value: '25,000+',      label: '25,000+' }
+];
+
+var REGIONS = ['UK', 'EU', 'US', 'APAC', 'LATAM', 'MEA'];
+
 // muti-select and searchable features
 let availableFeaturesGrouped = {};
 let availableFeaturesList = [];
@@ -49,7 +59,7 @@ $(async function () {
     }else{
         loadUserProfile();
         $('#sbSignIn').addClass('hide');
-        $('.link-secured').removeClass('hide');
+        
         $('#vdShortlistBtn').removeClass('hide');
         $('#sbSignInNote').addClass('hide');
         $('#sbUser').removeClass('hide');
@@ -151,6 +161,7 @@ $(document).ready(function() {
     //loadVendors();
     addCategories();
     getHistoricalSearchFilters();
+    // renderRegionFilter();
 
     const $textarea = $('#search');
     const maxHeight = 200;
@@ -167,6 +178,22 @@ $(document).ready(function() {
         this.style.height = 'auto';            
         this.style.height = this.scrollHeight + 'px'; 
     });
+
+    var clearRegionBtn = document.getElementById('clearRegion');
+    if (clearRegionBtn) {
+    clearRegionBtn.addEventListener('click', function() {
+        document.querySelectorAll('.region-cb').forEach(function(cb){ cb.checked = false; });
+        applyCheckboxFilters();
+    });
+    }
+
+    var clearOrgSizeBtn = document.getElementById('clearOrgSize');
+    if (clearOrgSizeBtn) {
+    clearOrgSizeBtn.addEventListener('click', function() {
+        document.querySelectorAll('.orgsize-cb').forEach(function(cb){ cb.checked = false; });
+        applyCheckboxFilters();
+    });
+    }
 
     // sort by filter
     $('.sort-option').on('click', function(){
@@ -299,6 +326,7 @@ function applyModuleFilter(){
     }
 
     updateVendorTotalFiltered();
+    applyCheckboxFilters();
 }
 
 // Parent module checkbox changed
@@ -342,6 +370,7 @@ $(document).on('input', '.rp-search input', function(){
     });
 
     updateVendorTotalFiltered();
+    applyCheckboxFilters();
 });
 
 // Sub-category checkbox changed
@@ -395,52 +424,52 @@ $(document).on('change', '.ct-sub input[type="checkbox"]', function(){
     //     updateVendorTotalFiltered();
     // });
 
-    $(document).on("change", '#companySizeFilter', function () {
-        var value = lowerCase($(this).val());
+    // $(document).on("change", '#companySizeFilter', function () {
+    //     var value = lowerCase($(this).val());
         
-        if (value == '') {
-            resetFilter();
-            return;
-        }
+    //     if (value == '') {
+    //         resetFilter();
+    //         return;
+    //     }
         
-        $(".card").each(function () {
-            var companySize = $(this).data("companysize");
+    //     $(".card").each(function () {
+    //         var companySize = $(this).data("companysize");
 
-            if (value.includes(companySize)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
+    //         if (value.includes(companySize)) {
+    //             $(this).show();
+    //         } else {
+    //             $(this).hide();
+    //         }
+    //     });
 
-        updateVendorTotalFiltered();
-        // setupPagination();
-    });
+    //     updateVendorTotalFiltered();
+    //     // setupPagination();
+    // });
 
     // filter by region
-    $(document).on("change", '#regionFilter', function () {
-        let count = 0;
-        var value = $(this).val();
+    // $(document).on("change", '#regionFilter', function () {
+    //     let count = 0;
+    //     var value = $(this).val();
         
-        if (value == '') {
-            resetFilter();
-            return;
-        }
+    //     if (value == '') {
+    //         resetFilter();
+    //         return;
+    //     }
         
-        $(".card").each(function () {
-            var region = $(this).data("region");
+    //     $(".card").each(function () {
+    //         var region = $(this).data("region");
 
-            if (value.includes(region)) {
-                $(this).show();
-                count++;
-            } else {
-                $(this).hide();
-            }
-        });
+    //         if (value.includes(region)) {
+    //             $(this).show();
+    //             count++;
+    //         } else {
+    //             $(this).hide();
+    //         }
+    //     });
 
-        updateVendorTotalFiltered();
-        // setupPagination();
-    });
+    //     updateVendorTotalFiltered();
+    //     // setupPagination();
+    // });
 
     $("#modalSearch").on("keypress", function(event) {
         if (event.which === 13) { 
@@ -534,6 +563,7 @@ async function loadUserProfile(){
     const fullName = `${window._user.first_name} ${window._user.last_name}`;
     $('#sb-uname').text(fullName);
     $('#sb-initials').text(App.initials(fullName));
+    $('.link-secured').removeClass('hide');
     //$('#sbUser').removeClass('hide');
 }
 
@@ -613,6 +643,7 @@ function addCategories(){
           '<label class="ct-lbl">' +
             '<input type="checkbox" name="module" data-module="' + module + '" value="' + subName + '">' +
             '<span class="ct-name">' + subName + '</span>' +
+            '<span class="ct-n">0</span>' +
           '</label>' +
         '</div></li>';
     });
@@ -627,6 +658,7 @@ function addCategories(){
           '<label class="ct-lbl">' +
             '<input type="checkbox" name="module" value="' + module + '">' +
             '<span class="ct-name">' + module + '</span>' +
+            '<span class="ct-n">0</span>' +
           '</label>' +
         '</div>' +
         (hasChildren ? '<ul class="ct-sub">' + subHtml + '</ul>' : '') +
@@ -875,6 +907,99 @@ async function openComparisonModal(selectedCards) {
   $('.vendor-body-grid').removeClass('hide');
 }
 
+function renderOrgSizeFilter() {
+  var list = document.getElementById('orgSizeList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  var counts = {};
+  document.querySelectorAll('#vendors .card').forEach(function(card) {
+    var size = (card.dataset.companysize || '').trim();
+    if (size) counts[size] = (counts[size] || 0) + 1;
+  });
+
+  ORG_SIZES.forEach(function(size) {
+    var li = document.createElement('li');
+    li.innerHTML =
+      '<div class="ct-row">'+
+        '<button class="ct-exp noc" type="button">›</button>'+
+        '<label class="ct-lbl">'+
+          '<input type="checkbox" class="orgsize-cb" value="'+size.value+'">'+
+          '<span class="ct-name">'+size.label+'</span>'+
+          '<span class="ct-n">'+(counts[size.value] || 0)+'</span>'+
+        '</label>'+
+      '</div>';
+    list.appendChild(li);
+  });
+
+  list.querySelectorAll('.orgsize-cb').forEach(function(cb) {
+    cb.addEventListener('change', applyCheckboxFilters);
+  });
+}
+
+function applyCheckboxFilters() {
+  var checkedRegions = Array.from(document.querySelectorAll('.region-cb:checked'))
+    .map(function(cb){ return cb.value.toLowerCase(); });
+
+  var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
+    .map(function(cb){ return cb.value; });
+
+  document.querySelectorAll('#vendors .card').forEach(function(card) {
+    var cardRegion = (card.dataset.region || '').toLowerCase();
+    var cardSize   = (card.dataset.companysize || '').trim();
+
+    var regionMatch = !checkedRegions.length || checkedRegions.some(function(r){
+      return cardRegion.includes(r);
+    });
+
+    var sizeMatch = !checkedSizes.length || checkedSizes.some(function(s){
+      return cardSize === s;
+    });
+
+    card.style.display = (regionMatch && sizeMatch) ? '' : 'none';
+  });
+
+  updateVendorTotalFiltered();
+}
+
+function renderRegionFilter() {
+  var list = document.getElementById('regionList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  // Count per region from loaded cards
+  var counts = {};
+  document.querySelectorAll('#vendors .card').forEach(function(card) {
+    var cardRegions = (card.dataset.region || '').split(',').map(function(r){ return r.trim(); }).filter(Boolean);
+    cardRegions.forEach(function(r) {
+      // Match against our fixed list (case-insensitive)
+      REGIONS.forEach(function(fixed) {
+        if (r.toLowerCase().includes(fixed.toLowerCase())) {
+          counts[fixed] = (counts[fixed] || 0) + 1;
+        }
+      });
+    });
+  });
+
+  REGIONS.forEach(function(region) {
+    var li = document.createElement('li');
+    li.innerHTML =
+      '<div class="ct-row">'+
+        '<button class="ct-exp noc" type="button">›</button>'+
+        '<label class="ct-lbl">'+
+          '<input type="checkbox" class="region-cb" value="'+region+'">'+
+          '<span class="ct-name">'+region+'</span>'+
+          '<span class="ct-n">'+(counts[region] || 0)+'</span>'+
+        '</label>'+
+      '</div>';
+    list.appendChild(li);
+  });
+
+  list.querySelectorAll('.region-cb').forEach(function(cb) {
+    cb.addEventListener('change', applyCheckboxFilters);
+  });
+}
+
 function onTimeout() {
     App.swal.fire({
         title: "Taking Too Long?",
@@ -1092,12 +1217,76 @@ async function loadVendors(filters = null){
     });
 
     updateVendorTotal();
+    renderRegionFilter();
     renderDropdownFeature();
+    renderOrgSizeFilter();
+    updateCategoryCounts();
 
     $('.skeleton').remove();
     $('.layout').removeClass('hide');
     $('.sort-dropdown').removeClass('hide');
     $('.faqs-section').removeClass('hide');
+}
+
+function updateCategoryCounts() {
+  // Count vendors per module and sub-category
+  var moduleCounts = {};
+  var subCounts    = {};
+
+  document.querySelectorAll('#vendors .card').forEach(function(card) {
+    var modules = (card.dataset.modules || '').split(',').map(function(m){ return m.trim(); }).filter(Boolean);
+    var subs    = (card.dataset.subcategories || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+
+    modules.forEach(function(m) {
+      moduleCounts[m] = (moduleCounts[m] || 0) + 1;
+    });
+    subs.forEach(function(s) {
+      subCounts[s] = (subCounts[s] || 0) + 1;
+    });
+  });
+
+  // Update parent module counts
+  document.querySelectorAll('#catTree > li').forEach(function(li) {
+    var cb   = li.querySelector('.ct-lbl > input[type="checkbox"]');
+    var name = cb ? cb.value : '';
+    var ct_n = li.querySelector(':scope > .ct-row .ct-n');
+
+    if (!ct_n) {
+      // Add count span if not present
+      var ctName = li.querySelector(':scope > .ct-row .ct-name');
+      if (ctName) {
+        var span = document.createElement('span');
+        span.className = 'ct-n';
+        ctName.parentNode.appendChild(span);
+        ct_n = span;
+      }
+    }
+
+    if (ct_n && name) {
+      ct_n.textContent = moduleCounts[name] || 0;
+    }
+
+    // Update sub-category counts
+    li.querySelectorAll('.ct-sub li').forEach(function(subLi) {
+      var subCb   = subLi.querySelector('input[type="checkbox"]');
+      var subName = subCb ? subCb.value : '';
+      var subCt_n = subLi.querySelector('.ct-n');
+
+      if (!subCt_n) {
+        var subCtName = subLi.querySelector('.ct-name');
+        if (subCtName) {
+          var subSpan = document.createElement('span');
+          subSpan.className = 'ct-n';
+          subCtName.parentNode.appendChild(subSpan);
+          subCt_n = subSpan;
+        }
+      }
+
+      if (subCt_n && subName) {
+        subCt_n.textContent = subCounts[subName] || 0;
+      }
+    });
+  });
 }
 
 function renderDropdownFeature(filter = "") {
@@ -1304,6 +1493,7 @@ function lowerCase(str){
 
 function updateVendorTotalFiltered(){
     $('#totalVendors').text($('#vendors .card').not(':hidden').length);
+    updateCategoryCounts();
 }
 
 function updateVendorTotal(){

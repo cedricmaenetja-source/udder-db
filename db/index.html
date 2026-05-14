@@ -54,7 +54,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .tb-wordmark{font-size:15px;font-weight:600;color:var(--k);letter-spacing:-0.01em;line-height:1}
 .tb-wordmark span{color:var(--o)}
 .tb-wordmark small{display:block;font-size:9px;font-weight:400;color:var(--t4);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
-.tb-crumb{display:flex;align-items:center;gap:7px;padding:0 18px;height:100%;border-right:1px solid var(--b1);font-size:12px;color:var(--t3)}
+.tb-crumb{display:flex;align-items:center;gap:7px;padding:0 18px;height:100%;border-right:1px solid var(--b1);font-size:12px;color:var(--t3);width: 270px;}
 .tb-crumb a{color:var(--t3);text-decoration:none;transition:color 0.15s}
 .tb-crumb a:hover{color:var(--t1)}
 .tb-crumb .sep{color:var(--t4);font-size:10px}
@@ -102,7 +102,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .main-wrap{position:fixed;top:var(--th);left:var(--lw);right:0;bottom:0;display:flex;overflow:hidden}
 
 /* FILTER PANEL */
-.filters{width:220px;flex-shrink:0;background:var(--w);border-right:1px solid var(--b1);overflow-y:auto;overflow-x:hidden;padding:6px 0 20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.filters{width:270px;flex-shrink:0;background:var(--w);border-right:1px solid var(--b1);overflow-y:auto;overflow-x:hidden;padding:6px 0 20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
 .filters::-webkit-scrollbar{width:4px}
 .filters::-webkit-scrollbar-track{background:transparent}
 .filters::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
@@ -134,12 +134,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .fi{width:100%;padding:6px 9px;font-size:12px;font-family:var(--sans);border:1px solid var(--b2);border-radius:6px;background:var(--off);color:var(--t2);outline:none;transition:border-color 0.15s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23888' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
 .fi:focus{border-color:var(--o)}
 .fi.no-arrow{background-image:none;padding-right:9px}
-.vbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.vbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-right: 50px;}
 .vbadge.approved{background:var(--k);color:var(--w)}
 .vbadge.verified{background:var(--o);color:var(--w)}
 .vdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.5)}
 .vbadge.approved .vdot{background:#22c55e}
-.v-row{display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:5px;cursor:pointer;margin-bottom:2px;transition:background 0.12s}
+.v-row{display:flex;align-items:center;justify-content:space-between;padding:5px 15px;border-radius:5px;cursor:pointer;margin-bottom:2px;transition:background 0.12s;gap: 8px;}
 .v-row:hover{background:var(--off)}
 .v-row input[type=checkbox]{width:13px;height:13px;accent-color:var(--o);flex-shrink:0}
 .v-count{font-size:10px;color:var(--t4);font-variant-numeric:tabular-nums}
@@ -174,7 +174,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .sort-option{padding:8px 13px;font-size:12px;cursor:pointer;transition:background 0.12s;color:var(--t2)}
 .sort-option:hover{background:var(--off)}
 .sort-option.active{color:var(--o);font-weight:500}
-.rp-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.rp-scroll{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background: white;}
 .rp-scroll::-webkit-scrollbar{width:4px}
 .rp-scroll::-webkit-scrollbar-track{background:transparent}
 .rp-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
@@ -962,12 +962,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         <div class="v-row"><input type="checkbox"><span class="vbadge ai-generated"><span class="vdot"></span>AI-GENERATED</span><span class="v-count">0</span></div>
       </div>
       <div class="fs">
-        <div class="fs-head"><span class="fs-lbl">Company size</span></div>
-        <select class="fi" id="companySizeFilter"><option value="">Any size</option><option>1–50</option><option>51–200</option><option>201–1,000</option><option>1,000+</option></select>
+        <div class="fs-head"><span class="fs-lbl">Org size</span><button class="fs-clear" id="clearOrgSize">clear</button></div>
+        <ul class="ct" id="orgSizeList"></ul>
       </div>
       <div class="fs">
-        <div class="fs-head"><span class="fs-lbl">Region</span></div>
-        <select class="fi" id="regionFilter"><option value="">Any region</option></select>
+        <div class="fs-head"><span class="fs-lbl">Region</span><button class="fs-clear" id="clearRegion">clear</button></div>
+        <ul class="ct" id="regionList"></ul>
       </div>
     </div>
   </aside>
@@ -2262,7 +2262,7 @@ async function loadAndRenderEvaluations() {
       if(!evData[name]) evData[name] = { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
 
       evData[name].overall     = payload.overall     || 0;
-      evData[name].generalNote = payload.generalNote || '';
+      evData[name].generalNote = payload.general_note || '';
       evData[name].nextSteps   = payload.nextSteps   || EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; });
 
       (payload.criteria || []).forEach(function(c){
@@ -2417,7 +2417,7 @@ function mpRenderEvList(activeIdx) {
         sub:       '',
         badge:     badgeText.toLowerCase().indexOf('verified') !== -1 ? 'verified' : 'approved',
         badgeLabel: badgeText || '',
-        facts:     {}
+        facts:     buildFactsFromCard(c)
       });
     });
 
@@ -2436,9 +2436,21 @@ function mpRenderEvList(activeIdx) {
       sub:       '',
       badge:     badgeText.toLowerCase().indexOf('verified') !== -1 ? 'verified' : 'approved',
       badgeLabel: badgeText || '',
-      facts:     {}
+      facts:     buildFactsFromCard(c)
     });
   }
+}
+
+function buildFactsFromCard(card) {
+  if (!card) return {};
+  var facts = {};
+  facts['Pricing']        = card.dataset.pricing ?? '';
+  facts['Deployment']     = card.dataset.deployment ?? '';
+  facts['Regions']        = card.dataset.region ?? '';
+  facts['Certifications'] = card.dataset.certifications ?? '';
+  facts['HQ']             = card.dataset.hq ?? '';
+  facts['Founded']        = card.dataset.founded ?? '';
+  return facts;
 }
 
 function mpRenderEvDetail(v){
@@ -2768,6 +2780,19 @@ async function openEvaluation(card){
   var score    = card.dataset.score   || '—';
   var vendorId = card.dataset.id;
 
+  document.getElementById('evaluationPanel').classList.add('open');
+  var evScroll = document.querySelector('#evaluationPanel .ev-scroll');
+  var originalContent = evScroll.innerHTML;
+  evScroll.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:300px">'+
+      '<div style="text-align:center">'+
+        '<div class="spinner-dots" style="justify-content:center;margin-bottom:12px">'+
+          '<div></div><div></div><div></div>'+
+        '</div>'+
+        '<div style="font-size:13px;color:var(--t3)">Loading evaluation…</div>'+
+      '</div>'+
+    '</div>';
+
   // Load from Supabase
   const response = await fetch(`/api/supabase?action=getEvaluations&vendorId=${vendorId}&userId=${window._user.id}`, {
     method: 'GET',
@@ -2786,6 +2811,7 @@ async function openEvaluation(card){
     });
   }
 
+  evScroll.innerHTML = originalContent;
   var d = evData[name] || { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
 
   /* Logo */
