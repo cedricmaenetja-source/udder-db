@@ -49,7 +49,11 @@
 
   /* ── Mode toggle ── */
   $(document).on('click', '#compareBtn', function () {
-    compareMode ? exitMode() : enterMode();
+    if (compareMode) {
+      exitMode();
+    } else {
+      enterMode();
+    }
   });
 
   function enterMode() {
@@ -60,6 +64,7 @@
   }
 
   function exitMode() {
+    console.log('exitMode called', new Error().stack);
     compareMode   = false;
     selectedCards = [];
     $('#compareBtn').removeClass('active').html(ICON_CMP + '&nbsp;Select to compare');
@@ -91,8 +96,12 @@
     var n = selectedCards.length;
     $('#compareCount').text(n);
     $('#moreBtn .nb').text(n);
-    n >= 2 ? $('#compareActionBtn').removeClass('hide').prop('disabled', false)
-           : $('#compareActionBtn').addClass('hide').prop('disabled', true);
+    if (n >= 2) {
+      $('#compareActionBtn').removeClass('hide').prop('disabled', false);
+      $('#compareBtn').removeClass('hide'); /* keep Cancel visible alongside */
+    } else {
+      $('#compareActionBtn').addClass('hide').prop('disabled', true);
+    }
   }
 
   $(document).on('click', '#compareActionBtn', function () {
@@ -101,7 +110,12 @@
     $('#compareModal').addClass('open');
   });
 
-  $(document).on('click', '#comparisonCloseModalBtn', function () { $('#compareModal').removeClass('open'); });
+  $(document).on('click', '#comparisonCloseModalBtn', function () {
+    $('#compareModal').removeClass('open');
+    $('#compareBtn').removeClass('hide').show();
+    syncActionBtn();
+  });
+
   $(document).on('click', '#cmExitCompareBtn', function () { $('#compareModal').removeClass('open'); exitMode(); });
 
   /* ── Build comparison panel ── */
@@ -484,5 +498,19 @@
       });
     }).observe(vendorsEl, { childList: true });
   }
+
+  // Expose internals for external use
+window._compare = {
+  open: function() {
+    if (selectedCards.length >= 2) {
+      buildPanel(selectedCards);
+      $('#compareModal').addClass('open');
+    }
+  },
+  enterMode: enterMode,
+  exitMode: exitMode,
+  getSelected: function() { return selectedCards; },
+  isActive: function() { return compareMode; }
+};
 
 }(jQuery));

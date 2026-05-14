@@ -444,7 +444,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .ev-back:hover{border-color:var(--b3);color:var(--t1)}
 .ev-topbar-title{font-size:14px;font-weight:600;color:var(--t1);letter-spacing:-0.01em}
 .ev-topbar-right{display:flex;align-items:center;gap:8px}
-.ev-scroll{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.ev-scroll{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background: white;}
 .ev-scroll::-webkit-scrollbar{width:4px}
 .ev-scroll::-webkit-scrollbar-track{background:transparent}
 .ev-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
@@ -822,6 +822,24 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .sb-dropdown-item.danger:hover{background:rgba(239,68,68,0.06)}
 .sb-chev{transition:transform 0.2s}
 .sb-chev.open{transform:rotate(180deg)}
+/* SAVE COMPARISON MODAL */
+.sc-overlay{position:fixed;inset:0;background:rgba(15,15,15,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.2s ease}
+.sc-overlay.visible{opacity:1;pointer-events:all}
+.sc-box{background:var(--w);border-radius:14px;padding:26px 28px 22px;width:100%;max-width:460px;transform:translateY(14px) scale(0.98);transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 56px rgba(0,0,0,0.16)}
+.sc-overlay.visible .sc-box{transform:translateY(0) scale(1)}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sc-title{font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-0.01em}
+.sc-close{background:none;border:none;cursor:pointer;color:var(--t3);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.sc-close:hover{background:var(--off2);color:var(--t1)}
+.sc-label{display:block;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
+.sc-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s;margin-bottom:20px}
+.sc-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
+.sc-input::placeholder{color:var(--t4)}
+.sc-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.sc-cancel{height:38px;padding:0 18px;background:none;border:1px solid var(--b2);border-radius:999px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.15s}
+.sc-cancel:hover{border-color:var(--b3);color:var(--t1)}
+.sc-submit{height:38px;padding:0 22px;background:var(--o);border:none;border-radius:999px;font-size:13px;font-weight:600;color:var(--w);cursor:pointer;font-family:var(--sans);transition:background 0.13s}
+.sc-submit:hover{background:var(--o2)}
 </style>
 </head>
 <body>
@@ -1281,11 +1299,32 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       </div>
     </div>
 
+    <div style="margin-bottom:24px">
+      <div class="ev-section-title">Overall rating</div>
+      <div id="evOverallStars" style="display:flex;align-items:center;gap:4px"></div>
+    </div>
+
     <!-- Criteria -->
     <div class="ev-section-title">Evaluation criteria</div>
     <table class="ev-table" id="evTable">
       <tbody></tbody>
     </table>
+
+    <div style="margin-top:24px">
+      <div class="ev-section-title">Evaluation notes</div>
+      <textarea id="evGeneralNote" class="ev-notes" placeholder="General notes about this vendor..." 
+        style="width:100%;min-height:80px;height:auto"></textarea>
+    </div>
+
+    <div style="margin-top:24px;margin-bottom:24px">
+      <div class="ev-section-title">Next steps</div>
+      <div id="evNextSteps"></div>
+      <button id="evAddStep" style="display:flex;align-items:center;gap:5px;background:none;border:1px dashed var(--b2);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--t3);cursor:pointer;font-family:var(--sans);margin-top:8px;transition:all 0.13s"
+        onmouseover="this.style.borderColor='var(--o)';this.style.color='var(--o)'"
+        onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t3)'">
+        + Add next step
+      </button>
+    </div>
   </div>
 
   <div class="ev-save-bar">
@@ -1592,7 +1631,15 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   <div class="cm-topbar">
     <button class="cm-back" id="comparisonCloseModalBtn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to results</button>
     <div class="cm-topbar-title">Vendor Comparison</div>
-    <div class="cm-topbar-right"><button class="vd-action-btn vd-primary" id="cmExitCompareBtn">Done</button></div>
+    <div class="cm-topbar-right">
+    <button class="vd-action-btn" id="cmSaveComparisonBtn">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M13 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h7l3 3v8a1 1 0 0 1-1 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M5 14V9h6v5M5 2v4h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Save comparison
+    </button>
+    <button class="vd-action-btn vd-primary" id="cmExitCompareBtn">Done</button></div>
   </div>
   <div class="cp-scroll">
     <div class="vendor-header-grid"></div>
@@ -1758,6 +1805,69 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     <div class="da-actions">
       <button class="da-cancel" id="daCancel">Cancel</button>
       <button class="da-submit" id="daSubmit" disabled>Delete my account</button>
+    </div>
+  </div>
+</div>
+<!-- SAVE COMPARISON MODAL -->
+<div class="sc-overlay" id="saveCompModal">
+  <div class="sc-box">
+    <div class="sc-header">
+      <h3 class="sc-title">Save comparison</h3>
+      <button class="sc-close" id="scClose" type="button">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p style="font-size:13px;color:var(--t3);margin-bottom:16px;line-height:1.55">
+      Give this comparison a name so you can find it later under <strong>My Platforms → Saved comparisons</strong>.
+    </p>
+    <div id="scVendorChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px"></div>
+    <label class="sc-label" for="scTitleInput">Comparison name</label>
+    <input class="sc-input" id="scTitleInput" type="text" placeholder="e.g. ATS Shortlist — Round 1" maxlength="80" autocomplete="off">
+    <div class="sc-footer">
+      <button class="sc-cancel" id="scCancel" type="button">Cancel</button>
+      <button class="sc-submit" id="scSubmit" type="button">Save comparison</button>
+    </div>
+  </div>
+</div>
+<!-- RENAME COMPARISON MODAL -->
+<div class="sc-overlay" id="renameCompModal">
+  <div class="sc-box">
+    <div class="sc-header">
+      <h3 class="sc-title">Rename comparison</h3>
+      <button class="sc-close" id="renameCompClose" type="button">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <label class="sc-label" for="renameCompInput">Comparison name</label>
+    <input class="sc-input" id="renameCompInput" type="text" maxlength="80" autocomplete="off">
+    <div class="sc-footer">
+      <button class="sc-cancel" id="renameCompCancel" type="button">Cancel</button>
+      <button class="sc-submit" id="renameCompSubmit" type="button">Save name</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE COMPARISON MODAL -->
+<div class="sc-overlay" id="deleteCompModal">
+  <div class="sc-box" style="max-width:400px;text-align:center">
+    <div class="sc-header" style="justify-content:center;position:relative">
+      <h3 class="sc-title">Delete comparison?</h3>
+      <button class="sc-close" id="deleteCompClose" type="button" style="position:absolute;right:0;top:0">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.08);display:flex;align-items:center;justify-content:center;margin:4px auto 16px">
+      <svg width="22" height="22" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" stroke="#ef4444" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:6px;line-height:1.55">
+      This will permanently remove <strong id="deleteCompName"></strong> from your saved comparisons.
+    </p>
+    <p style="font-size:12px;color:var(--t3);margin-bottom:22px">This cannot be undone.</p>
+    <div class="sc-footer" style="justify-content:center;gap:12px">
+      <button class="sc-cancel" id="deleteCompCancel" type="button" style="min-width:100px">Cancel</button>
+      <button class="sc-submit" id="deleteCompSubmit" type="button" style="background:#ef4444;min-width:120px">Delete</button>
     </div>
   </div>
 </div>
@@ -2039,7 +2149,72 @@ var layoutEl=document.querySelector('.main-wrap.layout');
 if(layoutEl)new MutationObserver(function(){if(!layoutEl.classList.contains('hide'))layoutEl.style.display='flex'}).observe(layoutEl,{attributes:true,attributeFilter:['class']});
 
 /* ── SHORTLIST ── */
-var shortlistItems = {}; /* key: vendor name, value: {card, rating} */
+var shortlistItems = {};
+
+async function saveShortlistToStorage(){
+  try {
+    var serialized = {};
+    Object.keys(shortlistItems).forEach(function(name){
+      var item = shortlistItems[name];
+      var card = item.card;
+      serialized[name] = {
+        rating: item.rating || 0,
+        note:   item.note   || '',
+        cardData: {
+          name:           card.dataset.name           || '',
+          logo:           card.dataset.logo           || '',
+          modules:        card.dataset.modules        || '',
+          subcategories:  card.dataset.subcategories  || '',
+          features:       card.dataset.features       || '',
+          integrations:   card.dataset.integrations   || '',
+          headcount:      card.dataset.headcount      || '',
+          region:         card.dataset.region         || '',
+          description:    card.dataset.description    || '',
+          score:          card.dataset.score          || '',
+          id:             card.dataset.id             || '',
+          hq:             card.dataset.hq             || '',
+          founded:        card.dataset.founded        || '',
+          pricing:        card.dataset.pricing        || '',
+          deployment:     card.dataset.deployment     || '',
+          languages:      card.dataset.languages      || '',
+          certifications: card.dataset.certifications || '',
+          trending:       card.dataset.trending       || '',
+          badge:          (function(){ var b = card.querySelector('.verification-badge'); return b ? b.textContent.trim() : ''; })()
+        }
+      };
+    });
+    localStorage.setItem('udder:shortlist', JSON.stringify(serialized));
+  } catch(e){ console.warn('shortlist save failed', e); }
+}
+
+function makeCardFromData(cardData){
+  var card = document.createElement('div');
+  card.className = 'card';
+  Object.keys(cardData).forEach(function(k){
+    if(k !== 'badge') card.dataset[k] = cardData[k];
+  });
+  if(cardData.badge){
+    var badge = document.createElement('span');
+    badge.className = 'verification-badge';
+    badge.textContent = cardData.badge;
+    card.appendChild(badge);
+  }
+  return card;
+}
+
+function loadShortlistFromStorage(){
+  try {
+    var raw = localStorage.getItem('udder:shortlist');
+    if(!raw) return;
+    var serialized = JSON.parse(raw);
+    Object.keys(serialized).forEach(function(name){
+      var item = serialized[name];
+      var card = makeCardFromData(item.cardData);
+      shortlistItems[name] = { card: card, rating: item.rating || 0, note: item.note || '' };
+    });
+    updateShortlistCount();
+  } catch(e){ console.warn('shortlist load failed', e); }
+}
 
 /* Open/close panel */
 function openShortlist(){
@@ -2058,8 +2233,60 @@ document.querySelectorAll('.mp-tab').forEach(function(tab){
     this.classList.add('active');
     var pane = document.getElementById('mp-' + this.dataset.mptab);
     if(pane) pane.classList.add('active');
+    if(this.dataset.mptab === 'evaluations') loadAndRenderEvaluations();
   });
 });
+
+async function loadAndRenderEvaluations() {
+  var list   = document.getElementById('mpEvVendorList');
+  var detail = document.getElementById('mpEvDetail');
+  if(list) list.innerHTML = '<div style="padding:20px;text-align:center;font-size:13px;color:var(--t3)">Loading…</div>';
+  if(detail) detail.innerHTML = '';
+
+  try {
+    if(!window._user || !window._user.id) {
+      mpRenderEvList(0);
+      return;
+    }
+
+    const response = await fetch('/api/supabase?action=getAllEvaluations&userId=' + window._user.id);
+    const result   = await response.json();
+
+    if(result.error) throw new Error(result.error);
+    console.log('result.data', result.data);
+    // Merge into evData
+    (result.data || []).forEach(function(payload) {
+      var name = payload.vendor;
+      if(!name) return;
+
+      if(!evData[name]) evData[name] = { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
+
+      evData[name].overall     = payload.overall     || 0;
+      evData[name].generalNote = payload.generalNote || '';
+      evData[name].nextSteps   = payload.nextSteps   || EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; });
+
+      (payload.criteria || []).forEach(function(c){
+        evData[name].ratings[c.criterion] = c.rating || 0;
+        evData[name].notes[c.criterion]   = c.note   || '';
+      });
+
+      // Also restore card data into shortlistItems if not already there
+      if(!shortlistItems[name] && payload.vendor_id) {
+        var card = document.querySelector('#vendors .card[data-id="'+payload.vendor_id+'"]');
+        if(card) shortlistItems[name] = { card: card, rating: 0 };
+      }
+    });
+
+    // Update eval count badge
+    var evalCount = document.getElementById('mpEvalCount');
+    if(evalCount) evalCount.textContent = (result.data || []).length;
+
+  } catch(e) {
+    console.warn('Failed to load evaluations:', e);
+  }
+
+  mpRenderEvList(0);
+}
 
 /* ── EVALUATIONS TAB ── */
 var MP_EV_DATA = [
@@ -2126,34 +2353,132 @@ function mpStars(count, total, size){
   return h;
 }
 
-function mpRenderEvList(activeIdx){
+function mpRenderEvList(activeIdx) {
   var list = document.getElementById('mpEvVendorList');
-  if(!list) return;
+  if (!list) return;
   list.innerHTML = '';
-  MP_EV_DATA.forEach(function(v, i){
+
+  // Only show vendors that have actual saved evaluation data
+  var evaluated = Object.keys(evData).filter(function(name) {
+    var d = evData[name];
+    return d.overall > 0 ||
+      Object.keys(d.ratings || {}).some(function(k){ return d.ratings[k] > 0; }) ||
+      Object.keys(d.notes   || {}).some(function(k){ return (d.notes[k]||'').trim(); }) ||
+      (d.generalNote || '').trim() ||
+      (d.nextSteps   || []).some(function(s){ return s.done; });
+  });
+
+  if (!evaluated.length) {
+    list.innerHTML =
+      '<div style="padding:20px 0;text-align:center">'+
+        '<div style="font-size:13px;color:var(--t3);line-height:1.55">No evaluations yet.<br>'+
+        'Use the Evaluate button on a shortlisted vendor.</div>'+
+      '</div>';
+    document.getElementById('mpEvDetail').innerHTML = '';
+    return;
+  }
+
+  evaluated.forEach(function(name, i) {
+    var d      = evData[name];
+    var card   = shortlistItems[name] ? shortlistItems[name].card : null;
+    var logoSrc = card ? (card.dataset.logo || '') : '';
+    var ratings = d.ratings || {};
+    var ratingValues = EV_CRITERIA.map(function(c){ return ratings[c] || 0; });
+    var avgScore = ratingValues.reduce(function(s, v){ return s + v; }, 0) / EV_CRITERIA.length;
+    var overall = Math.round(avgScore);
+
+    var logoHtml = (logoSrc && logoSrc.indexOf('undefined') === -1 && logoSrc.indexOf('null') === -1)
+      ? '<img src="'+logoSrc+'" style="width:32px;height:32px;border-radius:7px;object-fit:contain;border:1px solid var(--b1);padding:3px">'
+      : '<div class="mp-ev-vendor-logo">'+name.substring(0,2).toUpperCase()+'</div>';
+
     var el = document.createElement('div');
-    el.className = 'mp-ev-vendor-item' + (i===activeIdx?' active':'');
-    el.dataset.idx = i;
+    el.className = 'mp-ev-vendor-item' + (i === activeIdx ? ' active' : '');
+    el.dataset.idx  = i;
+    el.dataset.name = name;
     el.innerHTML =
-      '<div class="mp-ev-vendor-logo">'+v.initials+'</div>'+
+      logoHtml +
       '<div class="mp-ev-vendor-info">'+
-        '<div class="mp-ev-vendor-name">'+v.name+'</div>'+
-        '<div style="display:flex;gap:1px;margin-top:3px">'+mpStars(v.overallRating,5,13)+'</div>'+
-      '</div>'+
-      '<div class="mp-ev-vendor-ago">'+v.ago+'</div>';
-    el.addEventListener('click', function(){
-      mpRenderEvList(parseInt(this.dataset.idx));
-      mpRenderEvDetail(MP_EV_DATA[parseInt(this.dataset.idx)]);
+        '<div class="mp-ev-vendor-name">'+name+'</div>'+
+        '<div style="display:flex;gap:1px;margin-top:3px">'+mpStars(overall, 5, 13)+'</div>'+
+      '</div>';
+
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.mp-ev-vendor-item').forEach(function(x){ x.classList.remove('active'); });
+      this.classList.add('active');
+
+      // Build a v object from evData + shortlist card for mpRenderEvDetail
+      var n    = this.dataset.name;
+      var c    = shortlistItems[n] ? shortlistItems[n].card : null;
+      var badgeEl  = c ? c.querySelector('.verification-badge') : null;
+      var badgeText = badgeEl ? badgeEl.textContent.trim() : '';
+      mpRenderEvDetail({
+        name:      n,
+        initials:  n.substring(0,2).toUpperCase(),
+        sub:       '',
+        badge:     badgeText.toLowerCase().indexOf('verified') !== -1 ? 'verified' : 'approved',
+        badgeLabel: badgeText || '',
+        facts:     {}
+      });
     });
+
     list.appendChild(el);
   });
+
+  // Auto-select first
+  if (evaluated.length > 0) {
+    var firstName = evaluated[activeIdx] || evaluated[0];
+    var c    = shortlistItems[firstName] ? shortlistItems[firstName].card : null;
+    var badgeEl  = c ? c.querySelector('.verification-badge') : null;
+    var badgeText = badgeEl ? badgeEl.textContent.trim() : '';
+    mpRenderEvDetail({
+      name:      firstName,
+      initials:  firstName.substring(0,2).toUpperCase(),
+      sub:       '',
+      badge:     badgeText.toLowerCase().indexOf('verified') !== -1 ? 'verified' : 'approved',
+      badgeLabel: badgeText || '',
+      facts:     {}
+    });
+  }
 }
 
 function mpRenderEvDetail(v){
   var detail = document.getElementById('mpEvDetail');
-  if(!detail) return;
+  if (!detail) return;
 
-  var criteriaHtml = v.criteria.map(function(c){
+  // Guard — ensure evData entry exists
+  if (!evData[v.name]) {
+    evData[v.name] = { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps: EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; }) };
+  }
+  if (!evData[v.name].nextSteps || !evData[v.name].nextSteps.length) {
+    evData[v.name].nextSteps = EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; });
+  }
+
+  var saved    = evData[v.name];
+  var ratings  = saved.ratings     || {};
+  var notes    = saved.notes       || {};
+  var ratings  = saved.ratings || {};
+  var avgForOverall = EV_CRITERIA.reduce(function(s,c){ return s + (ratings[c]||0); }, 0) / EV_CRITERIA.length;
+  var overall  = saved.overall || Math.round(avgForOverall) || v.overallRating || 0;
+  var genNote  = saved.generalNote || v.notes         || '';
+
+  // Map evData ratings back to the criteria format MP_EV_DATA expects
+  var criteria = EV_CRITERIA.map(function(crit){
+    var rating = ratings[crit] || 0;
+    return {
+      label: crit,
+      score: rating,
+      pct:   rating * 20,
+      color: rating * 20 >= 60 ? '#16a34a' : '#f04e23'
+    };
+  });
+
+  var avgScore = criteria.reduce(function(sum, c){ return sum + c.score; }, 0) / criteria.length;
+  avgScore = Math.round(avgScore * 10) / 10;
+  var avgStars = Math.round(avgScore);
+
+  // Now build the same HTML as before but using these local variables
+  // instead of v.criteria, v.avgScore etc.
+  var criteriaHtml = criteria.map(function(c){
     return '<div class="mp-ev-crit-row">'+
       '<span class="mp-ev-crit-label">'+c.label+'</span>'+
       '<div class="mp-ev-bar-wrap"><div class="mp-ev-bar" style="width:'+c.pct+'%;background:'+c.color+'"></div></div>'+
@@ -2161,18 +2486,19 @@ function mpRenderEvDetail(v){
     '</div>';
   }).join('');
 
-  var factsHtml = Object.keys(v.facts).map(function(k){
+  var factsHtml = Object.keys(v.facts||{}).map(function(k){
     return '<div class="mp-ev-fact-row"><span class="mp-ev-fact-k">'+k+'</span><span class="mp-ev-fact-v">'+v.facts[k]+'</span></div>';
   }).join('');
 
-  var nextStepsHtml = v.nextSteps.length
-    ? v.nextSteps.map(function(s){
-        return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer">'+
-          '<input type="checkbox" checked style="width:14px;height:14px;accent-color:var(--o)">'+
-          '<span style="font-size:13px;color:var(--t2)">'+s+'</span>'+
-        '</label>';
-      }).join('')
-    : '<p style="font-size:13px;color:var(--t4)">No next steps added.</p>';
+  var nextStepsHtml = EV_NEXT_STEPS.map(function(stepText){
+    var stepEntry = (evData[v.name] && evData[v.name].nextSteps || [])
+      .find(function(s){ return s.text === stepText; });
+    var done = stepEntry ? stepEntry.done : false;
+    return '<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer">'+
+      '<input type="checkbox" '+(done?'checked':'')+' disabled style="width:15px;height:15px;accent-color:var(--o)">'+
+      '<span style="font-size:13px;color:var(--t2)">'+stepText+'</span>'+
+    '</label>';
+  }).join('');
 
   detail.innerHTML =
     /* Hero */
@@ -2186,59 +2512,62 @@ function mpRenderEvDetail(v){
           '</div>'+
           '<div style="font-size:12px;color:var(--t3);margin-bottom:10px">'+v.sub+'</div>'+
           '<div style="font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Overall rating</div>'+
-          '<div style="display:flex;align-items:center;gap:3px">'+mpStars(v.overallRating,5,28)+'</div>'+
+          '<div style="display:flex;align-items:center;gap:3px">'+mpStars(overall,5,28)+'</div>'+
         '</div>'+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+
-        '<button class="mp-card-btn">View listing</button>'+
-        '<button class="mp-card-btn view">Compare</button>'+
+        '<button class="mp-card-btn ev-edit-btn" data-name="'+v.name+'">'+
+          '<svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Edit'+
+        '</button>'+
       '</div>'+
     '</div>'+
 
-    /* Two-col */
+    /* Two-col — same as before */
     '<div style="display:flex;gap:12px;align-items:flex-start">'+
-
-      /* Main col */
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">'+
         '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px">'+
           '<div style="font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:20px">Scoring criteria</div>'+
           '<div class="mp-ev-criteria-list">'+criteriaHtml+'</div>'+
         '</div>'+
         '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px">'+
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-            '<div style="font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.01em">Evaluation notes</div>'+
-            '<div style="display:flex;align-items:center;gap:10px">'+
-              '<span style="font-size:12px;color:var(--t3)">Updated '+v.notesAgo+'</span>'+
-              '<button class="mp-card-btn" style="gap:5px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Edit</button>'+
-            '</div>'+
-          '</div>'+
-          '<p style="font-size:14px;color:var(--t2);line-height:1.65">'+v.notes+'</p>'+
+          '<div style="font-size:18px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:14px">Evaluation notes</div>'+
+          '<p style="font-size:14px;color:var(--t2);line-height:1.65">'+(genNote||'<span style="color:var(--t4)">No notes added yet.</span>')+'</p>'+
         '</div>'+
       '</div>'+
-
-      /* Sidebar */
       '<div style="width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:12px">'+
         '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px">'+
           '<div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px">Score summary</div>'+
-          '<div style="font-size:52px;font-weight:800;color:var(--o);letter-spacing:-0.03em;line-height:1;margin-bottom:4px">'+v.avgScore+'</div>'+
-          '<div style="font-size:12px;color:var(--t3);margin-bottom:10px">avg across '+v.criteria.length+' criteria</div>'+
-          '<div style="display:flex;align-items:center;gap:3px">'+mpStars(v.avgStars,5,18)+'</div>'+
+          '<div style="font-size:52px;font-weight:800;color:var(--o);letter-spacing:-0.03em;line-height:1;margin-bottom:4px">'+(avgScore || '—')+'</div>'+
+          '<div style="font-size:12px;color:var(--t3);margin-bottom:10px">avg across '+criteria.length+' criteria</div>'+
+          '<div style="display:flex;align-items:center;gap:3px">'+mpStars(avgStars,5,18)+'</div>'+
         '</div>'+
-        '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px">'+
+        (factsHtml ? '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px">'+
           '<div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:14px">Key facts</div>'+
           factsHtml+
-        '</div>'+
+        '</div>' : '')+
         '<div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px">'+
           '<div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:14px">Next steps</div>'+
           nextStepsHtml+
         '</div>'+
       '</div>'+
     '</div>';
-}
 
-/* Initial render */
-mpRenderEvList(0);
-mpRenderEvDetail(MP_EV_DATA[0]);
+  /* Wire edit button — opens evaluationPanel for this vendor */
+  var editBtn = detail.querySelector('.ev-edit-btn');
+  if (editBtn) {
+    editBtn.addEventListener('click', function(){
+      var name = this.dataset.name;
+      var item = shortlistItems[name];
+      if (item) {
+        openEvaluation(item.card);
+      } else {
+        /* If not in shortlist, find the card in the DOM */
+        var card = document.querySelector('#vendors .card[data-name="'+name+'"]');
+        if (card) openEvaluation(card);
+      }
+    });
+  }
+}
 
 /* Sidebar shortlist link */
 document.getElementById('shortlistTabBtn').addEventListener('click', function(e){
@@ -2260,6 +2589,7 @@ function updateShortlistCount(){
   if(countEl) countEl.textContent = n;
   var mpCount = document.getElementById('mpShortlistCount');
   if(mpCount) mpCount.textContent = n;
+  saveShortlistToStorage();
 }
 
 /* Render table */
@@ -2400,15 +2730,30 @@ function updateShortlistBtn(card){
 
 /* ── EVALUATION PANEL ── */
 var EV_CRITERIA = [
-  'Module availability',
-  'User interface',
-  'Geographic coverage',
-  'Integration options',
-  'Fit to our business'
+  'Ease of use',
+  'Implementation complexity',
+  'Feature coverage',
+  'Pricing value',
+  'Support quality',
+  'Integration depth'
+];
+
+var EV_NEXT_STEPS = [
+  'Request intro',
+  'Demo scheduled',
+  'Reference calls done',
+  'Pricing received'
 ];
 
 var evData = {}; /* key: vendor name, value: { ratings: {crit: n}, notes: {crit: str} } */
 var _currentEvCard = null;
+
+/* Initial render */
+// mpRenderEvList(0);
+// mpRenderEvDetail(MP_EV_DATA[0]);
+
+/* Load persisted data */
+loadShortlistFromStorage();
 
 function getEvData(name){
   if(!evData[name]){ evData[name] = { ratings:{}, notes:{} }; }
@@ -2417,25 +2762,31 @@ function getEvData(name){
 
 async function openEvaluation(card){
   _currentEvCard = card;
-  var name    = card.dataset.name    || '';
-  var logoSrc = card.dataset.logo    || '';
-  var modules = card.dataset.modules || '';
-  var score   = card.dataset.score   || '—';
+  var name     = card.dataset.name    || '';
+  var logoSrc  = card.dataset.logo    || '';
+  var modules  = card.dataset.modules || '';
+  var score    = card.dataset.score   || '—';
   var vendorId = card.dataset.id;
 
+  // Load from Supabase
   const response = await fetch(`/api/supabase?action=getEvaluations&vendorId=${vendorId}&userId=${window._user.id}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
+  });
   const result = await response.json();
-  if(!result.error && result.data && result.data.length){
+  if (!result.error && result.data && result.data.length) {
     const saved = result.data[0];
-    if(!evData[name]) evData[name] = { ratings:{}, notes:{} };
+    if (!evData[name]) evData[name] = { ratings:{}, notes:{} };
+    evData[name].overall     = saved.overall     || 0;
+    evData[name].generalNote = saved.generalNote || '';
+    evData[name].nextSteps   = saved.nextSteps   || [];
     (saved.criteria || []).forEach(function(c){
       evData[name].ratings[c.criterion] = c.rating || 0;
       evData[name].notes[c.criterion]   = c.note   || '';
     });
   }
+
+  var d = evData[name] || { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
 
   /* Logo */
   var evLogoEl = document.getElementById('evLogo');
@@ -2451,30 +2802,73 @@ async function openEvaluation(card){
   document.getElementById('evType').textContent = (modules.split(',')[0]||'').trim() || 'HR Technology';
 
   /* Score circle */
-  var scoreEl = document.getElementById('evScore');
+  var scoreEl  = document.getElementById('evScore');
   var circleEl = document.getElementById('evScoreCircle');
-  scoreEl.textContent = score !== '—' ? score + '%' : '—';
+  scoreEl.textContent  = score !== '—' ? score + '%' : '—';
   circleEl.style.borderColor = score !== '—' ? 'var(--k)' : 'var(--b2)';
 
-  /* Build criteria rows */
-  var d = getEvData(name);
+  /* Overall stars */
+  var overallEl = document.getElementById('evOverallStars');
+  if (overallEl) {
+    overallEl.innerHTML = '';
+    for (var s = 1; s <= 5; s++) {
+      var star = document.createElement('svg');
+      star.setAttribute('width', '26');
+      star.setAttribute('height', '26');
+      star.setAttribute('viewBox', '0 0 24 24');
+      star.setAttribute('fill', s <= (d.overall||0) ? '#f59e0b' : 'none');
+      star.setAttribute('stroke', s <= (d.overall||0) ? '#f59e0b' : '#d1d5db');
+      star.setAttribute('stroke-width', '1.5');
+      star.setAttribute('data-val', s);
+      star.style.cursor = 'pointer';
+      star.style.flexShrink = '0';
+      star.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>';
+      overallEl.appendChild(star);
+    }
+
+    // Wire overall stars
+    overallEl.querySelectorAll('svg').forEach(function(star) {
+      star.addEventListener('click', function() {
+        var val = parseInt(this.dataset.val);
+        if (!evData[name]) evData[name] = { ratings:{}, notes:{} };
+        evData[name].overall = val;
+        overallEl.querySelectorAll('svg').forEach(function(s) {
+          var sv = parseInt(s.dataset.val);
+          s.setAttribute('fill',   sv <= val ? '#f59e0b' : 'none');
+          s.setAttribute('stroke', sv <= val ? '#f59e0b' : '#d1d5db');
+        });
+      });
+      star.addEventListener('mouseenter', function() {
+        var val = parseInt(this.dataset.val);
+        overallEl.querySelectorAll('svg').forEach(function(s) {
+          s.setAttribute('fill',   parseInt(s.dataset.val) <= val ? '#f59e0b' : 'none');
+          s.setAttribute('stroke', parseInt(s.dataset.val) <= val ? '#f59e0b' : '#d1d5db');
+        });
+      });
+      star.addEventListener('mouseleave', function() {
+        var current = evData[name] && evData[name].overall || 0;
+        overallEl.querySelectorAll('svg').forEach(function(s) {
+          s.setAttribute('fill',   parseInt(s.dataset.val) <= current ? '#f59e0b' : 'none');
+          s.setAttribute('stroke', parseInt(s.dataset.val) <= current ? '#f59e0b' : '#d1d5db');
+        });
+      });
+    });
+  }
+
+  /* Criteria table */
   var tbody = document.querySelector('#evTable tbody');
   tbody.innerHTML = '';
-
   EV_CRITERIA.forEach(function(crit){
     var rating = d.ratings[crit] || 0;
     var note   = d.notes[crit]   || '';
-
-    /* Stars */
     var starsHtml = '';
-    for(var s = 1; s <= 5; s++){
+    for (var s = 1; s <= 5; s++) {
       var filled = s <= rating;
       starsHtml +=
         '<svg class="ev-star" data-crit="'+crit+'" data-val="'+s+'" viewBox="0 0 24 24" fill="'+(filled?'#f59e0b':'none')+'" stroke="'+(filled?'#f59e0b':'#d1d5db')+'" stroke-width="1.5">'+
           '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'+
         '</svg>';
     }
-
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td class="ev-crit-name" style="width:20%">'+crit+'</td>'+
@@ -2483,63 +2877,112 @@ async function openEvaluation(card){
     tbody.appendChild(tr);
   });
 
-  /* Wire star clicks */
+  /* Wire criteria stars */
   tbody.querySelectorAll('.ev-star').forEach(function(star){
     star.addEventListener('click', function(){
       var crit = this.dataset.crit;
       var val  = parseInt(this.dataset.val);
-      var name = _currentEvCard ? _currentEvCard.dataset.name : '';
-      var d2   = getEvData(name);
-      d2.ratings[crit] = val;
-      /* Re-render row stars */
+      if (!evData[name]) evData[name] = { ratings:{}, notes:{} };
+      evData[name].ratings[crit] = val;
       var row = this.closest('tr');
       row.querySelectorAll('.ev-star').forEach(function(s){
         var sv = parseInt(s.dataset.val);
-        var fill = sv <= val ? '#f59e0b' : 'none';
-        var stroke = sv <= val ? '#f59e0b' : '#d1d5db';
-        s.setAttribute('fill', fill);
-        s.setAttribute('stroke', stroke);
+        s.setAttribute('fill',   sv <= val ? '#f59e0b' : 'none');
+        s.setAttribute('stroke', sv <= val ? '#f59e0b' : '#d1d5db');
       });
       flashSaveInfo();
     });
-
-    /* Hover preview */
     star.addEventListener('mouseenter', function(){
       var val = parseInt(this.dataset.val);
       var row = this.closest('tr');
       row.querySelectorAll('.ev-star').forEach(function(s){
-        var sv = parseInt(s.dataset.val);
-        s.setAttribute('fill', sv <= val ? '#f59e0b' : 'none');
-        s.setAttribute('stroke', sv <= val ? '#f59e0b' : '#d1d5db');
+        s.setAttribute('fill',   parseInt(s.dataset.val) <= val ? '#f59e0b' : 'none');
+        s.setAttribute('stroke', parseInt(s.dataset.val) <= val ? '#f59e0b' : '#d1d5db');
       });
     });
     star.addEventListener('mouseleave', function(){
-      var crit = this.dataset.crit;
-      var name = _currentEvCard ? _currentEvCard.dataset.name : '';
-      var rating = getEvData(name).ratings[crit] || 0;
-      var row = this.closest('tr');
+      var crit   = this.dataset.crit;
+      var rating = evData[name] && evData[name].ratings && evData[name].ratings[crit] || 0;
+      var row    = this.closest('tr');
       row.querySelectorAll('.ev-star').forEach(function(s){
-        var sv = parseInt(s.dataset.val);
-        s.setAttribute('fill', sv <= rating ? '#f59e0b' : 'none');
-        s.setAttribute('stroke', sv <= rating ? '#f59e0b' : '#d1d5db');
+        s.setAttribute('fill',   parseInt(s.dataset.val) <= rating ? '#f59e0b' : 'none');
+        s.setAttribute('stroke', parseInt(s.dataset.val) <= rating ? '#f59e0b' : '#d1d5db');
       });
     });
   });
 
-  /* Wire notes */
+  /* Wire criteria notes */
   tbody.querySelectorAll('.ev-notes').forEach(function(ta){
-    /* Auto-resize */
     ta.addEventListener('input', function(){
       this.style.height = 'auto';
       this.style.height = Math.max(36, this.scrollHeight) + 'px';
-      var crit = this.dataset.crit;
-      var name = _currentEvCard ? _currentEvCard.dataset.name : '';
-      getEvData(name).notes[crit] = this.value;
+      if (!evData[name]) evData[name] = { ratings:{}, notes:{} };
+      evData[name].notes[this.dataset.crit] = this.value;
       flashSaveInfo();
     });
-    /* Trigger resize on open */
-    if(ta.value){ ta.style.height = 'auto'; ta.style.height = Math.max(36, ta.scrollHeight) + 'px'; }
+    if (ta.value){ ta.style.height = 'auto'; ta.style.height = Math.max(36, ta.scrollHeight) + 'px'; }
   });
+
+  /* General note */
+  var genNote = document.getElementById('evGeneralNote');
+  if (genNote) {
+    genNote.value = d.generalNote || '';
+    genNote.addEventListener('input', function(){
+      if (!evData[name]) evData[name] = { ratings:{}, notes:{} };
+      evData[name].generalNote = this.value;
+      flashSaveInfo();
+    });
+  }
+
+  /* Next steps */
+  function renderNextSteps() {
+    var steps     = evData[name].nextSteps || EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; });
+    var container = document.getElementById('evNextSteps');
+    if (!container) return;
+
+    // Ensure evData has next steps initialised
+    if (!evData[name].nextSteps || !evData[name].nextSteps.length) {
+      evData[name].nextSteps = EV_NEXT_STEPS.map(function(t){ return { text:t, done:false }; });
+    }
+
+    container.innerHTML = evData[name].nextSteps.map(function(step, i){
+      return '<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer">'+
+        '<input type="checkbox" class="ev-step-check" data-idx="'+i+'" '+(step.done?'checked':'')+' style="width:15px;height:15px;accent-color:var(--o)">'+
+        '<span style="font-size:13px;color:var(--t2)">'+step.text+'</span>'+
+      '</label>';
+    }).join('');
+
+    wireStepEvents();
+  }
+
+  function wireStepEvents() {
+    var container = document.getElementById('evNextSteps');
+    if (!container) return;
+    container.querySelectorAll('.ev-step-check').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        evData[name].nextSteps[parseInt(this.dataset.idx)].done = this.checked;
+        flashSaveInfo();
+      });
+    });
+  }
+
+  if (!evData[name]) evData[name] = { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
+  if (!evData[name].nextSteps) evData[name].nextSteps = [];
+  renderNextSteps();
+
+  var addStepBtn = document.getElementById('evAddStep');
+  if (addStepBtn) {
+    // Remove old listener
+    var newAddStepBtn = addStepBtn.cloneNode(true);
+    addStepBtn.parentNode.replaceChild(newAddStepBtn, addStepBtn);
+    newAddStepBtn.addEventListener('click', function(){
+      if (!evData[name]) evData[name] = { ratings:{}, notes:{}, overall:0, generalNote:'', nextSteps:[] };
+      evData[name].nextSteps.push({ text:'', done:false });
+      renderNextSteps();
+      var inputs = document.querySelectorAll('.ev-step-text');
+      if (inputs.length) inputs[inputs.length-1].focus();
+    });
+  }
 
   document.getElementById('evaluationPanel').classList.add('open');
 }
@@ -2569,17 +3012,20 @@ document.getElementById('evSaveBtn').addEventListener('click', async function(){
   if (!reset) return;
 
   var name = _currentEvCard ? _currentEvCard.dataset.name : '';
-  var d    = getEvData(name);
+  var d    = evData[name] || {};
 
   const payload = {
-    vendor:    name,
-    vendor_id: _currentEvCard ? (_currentEvCard.dataset.id || '') : '',
-    score:     _currentEvCard ? (_currentEvCard.dataset.score || '') : '',
-    criteria:  EV_CRITERIA.map(function(crit){
+    vendor:      name,
+    vendor_id:   _currentEvCard ? (_currentEvCard.dataset.id    || '') : '',
+    score:       _currentEvCard ? (_currentEvCard.dataset.score || '') : '',
+    overall:     d.overall     || 0,
+    generalNote: d.generalNote || '',
+    nextSteps:   d.nextSteps   || [],
+    criteria:    EV_CRITERIA.map(function(crit){
       return {
         criterion: crit,
-        rating:    d.ratings[crit] || 0,
-        note:      (d.notes[crit]  || '').trim()
+        rating:    d.ratings && d.ratings[crit] || 0,
+        note:      d.notes   && d.notes[crit]   || ''
       };
     }),
     user_id: window._user.id
@@ -2588,17 +3034,24 @@ document.getElementById('evSaveBtn').addEventListener('click', async function(){
   const response = await fetch('/api/supabase?action=saveEvaluation', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({payload: payload})
+    body:    JSON.stringify({ payload })
   });
 
   const result = await response.json();
   reset();
-  if (result.error){
-    showToast(result.error, 'error');
-    return;
-  }
+  if (result.error){ showToast(result.error, 'error'); return; }
 
   flashSaveInfo();
+
+  // Refresh evaluations tab if open
+  await loadAndRenderEvaluations();
+  var evalCount = document.getElementById('mpEvalCount');
+  if(evalCount) {
+    evalCount.textContent = Object.keys(evData).filter(function(n){
+      var d = evData[n];
+      return d.overall > 0 || Object.keys(d.ratings||{}).some(function(k){ return d.ratings[k] > 0; });
+    }).length;
+  }
 });
 
 /* ── Wire vendor name as clickable link in shortlist table ── */
@@ -3131,37 +3584,17 @@ document.getElementById('moreBtn').addEventListener('click', function(e){
   closeVendorDetail();
   closeShortlist();
 
-  var modal = document.getElementById('compareModal');
-
-  /* Check how many cards are currently selected */
-  var selected = document.querySelectorAll('#vendors .card.compare-selected').length;
-
-  if(selected >= 2){
-    /* Panel has content — just open it */
-    modal.classList.add('open');
-  } else if(selected === 1){
-    showSidebarToast('Select one more vendor to compare');
+  if (window._compare && window._compare.isActive() && window._compare.getSelected().length >= 2) {
+    window._compare.open();
+  } else if (window._compare && !window._compare.isActive()) {
+    window._compare.enterMode();
+    window.showSidebarToast('Select at least 2 vendors to compare');
   } else {
-    /* Not in compare mode or nothing selected yet — trigger compareActionBtn
-       which will enter compare mode or open panel depending on state.
-       Do it via a real click so compare.js handles everything. */
-    var actionBtn = document.getElementById('compareActionBtn');
-    var compareBtn = document.getElementById('compareBtn');
-
-    if(actionBtn && !actionBtn.classList.contains('hide')){
-      /* Vendors selected, panel just closed — reopen */
-      modal.classList.add('open');
-    } else if(compareBtn){
-      /* Not in compare mode — enter it so user can select */
-      if(!compareBtn.classList.contains('active')){
-        compareBtn.click();
-      }
-      showSidebarToast('Now select at least 2 vendors to compare');
-    }
+    window.showSidebarToast('Select at least 2 vendors to compare');
   }
 });
 
-function showSidebarToast(msg){
+window.showSidebarToast = function showSidebarToast(msg){
   var existing = document.getElementById('sidebarToast');
   if(existing) existing.remove();
   var t = document.createElement('div');
@@ -3638,6 +4071,421 @@ document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link
     showToast('Email sent!', 'success');
     reset();
   });
+})();
+
+/* ── SAVE COMPARISON ── */
+(function(){
+  var savedComparisons = [];
+
+function saveComparisonsToStorage(){
+  try {
+    var serializable = savedComparisons.map(function(comp){
+      return { id: comp.id, title: comp.title, vendors: comp.vendors, savedAt: comp.savedAt.toISOString() };
+    });
+    localStorage.setItem('udder:comparisons', JSON.stringify(serializable));
+  } catch(e){ console.warn('comparisons save failed', e); }
+}
+
+function loadComparisonsFromStorage(){
+  try {
+    var raw = localStorage.getItem('udder:comparisons');
+    if(!raw) return;
+    var parsed = JSON.parse(raw);
+    savedComparisons = parsed.map(function(c){
+      return { id: c.id, title: c.title, vendors: c.vendors, savedAt: new Date(c.savedAt) };
+    });
+    renderSavedComparisons();
+    updateComparisonTabCount();
+  } catch(e){ console.warn('comparisons load failed', e); }
+}
+
+  function getSelectedCards(){
+    return Array.from(document.querySelectorAll('#vendors .card.compare-selected'));
+  }
+
+  /* ── SAVE MODAL ── */
+  function openSaveCompModal(){
+    var cards = getSelectedCards();
+    if(cards.length < 2){ window.showSidebarToast('Select at least 2 vendors to save a comparison.'); return; }
+
+    var chipsEl = document.getElementById('scVendorChips');
+    chipsEl.innerHTML = cards.map(function(card){
+      var name = card.dataset.name || 'Vendor';
+      var logoSrc = card.dataset.logo || '';
+      var initials = name.substring(0,2).toUpperCase();
+      var logoHtml = (logoSrc && logoSrc.indexOf('undefined')===-1 && logoSrc.indexOf('null')===-1)
+        ? '<img src="'+logoSrc+'" style="width:20px;height:20px;border-radius:4px;object-fit:contain;vertical-align:middle;margin-right:6px">'
+        : '<span style="width:20px;height:20px;border-radius:4px;background:var(--off2);border:1px solid var(--b1);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--t3);margin-right:6px;flex-shrink:0;vertical-align:middle">'+initials+'</span>';
+      return '<span style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:12px;font-weight:500;color:var(--t2)">'+logoHtml+name+'</span>';
+    }).join('');
+
+    var titleEl = document.getElementById('scTitleInput');
+    titleEl.value = '';
+    var firstMod = cards[0] ? (cards[0].dataset.modules || '').split(',')[0].trim() : '';
+    if(firstMod) titleEl.placeholder = firstMod + ' comparison';
+    else titleEl.placeholder = 'e.g. ATS Shortlist — Round 1';
+
+    document.getElementById('saveCompModal').classList.add('visible');
+    setTimeout(function(){ titleEl.focus(); }, 180);
+  }
+
+  function closeSaveCompModal(){
+    document.getElementById('saveCompModal').classList.remove('visible');
+  }
+
+  var saveBtn = document.getElementById('cmSaveComparisonBtn');
+  if(saveBtn) saveBtn.addEventListener('click', openSaveCompModal);
+
+  document.getElementById('scClose').addEventListener('click', closeSaveCompModal);
+  document.getElementById('scCancel').addEventListener('click', closeSaveCompModal);
+  document.getElementById('saveCompModal').addEventListener('click', function(e){ if(e.target===this) closeSaveCompModal(); });
+  document.getElementById('scTitleInput').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('scSubmit').click(); });
+
+  document.getElementById('scSubmit').addEventListener('click', function(){
+    var titleEl = document.getElementById('scTitleInput');
+    var title = titleEl.value.trim();
+    if(!title){
+      titleEl.focus();
+      titleEl.style.borderColor='#ef4444';
+      titleEl.style.boxShadow='0 0 0 3px rgba(239,68,68,0.1)';
+      setTimeout(function(){ titleEl.style.borderColor=''; titleEl.style.boxShadow=''; }, 1600);
+      return;
+    }
+    var cards = getSelectedCards();
+    var vendors = cards.map(function(card){
+      var b = card.querySelector('.verification-badge');
+      return { name: card.dataset.name||'', logo: card.dataset.logo||'', modules: card.dataset.modules||'', id: card.dataset.id||'', badge: b ? b.textContent.trim() : '' };
+    });
+    savedComparisons.push({ id: Date.now(), title: title, vendors: vendors, savedAt: new Date() });
+    renderSavedComparisons();
+    updateComparisonTabCount();
+    closeSaveCompModal();
+    saveComparisonsToStorage();
+    window.showSidebarToast('✓ Comparison saved — view it under My Platforms');
+  });
+
+  /* ── RENAME MODAL ── */
+  var _renameTargetId = null;
+
+  function openRenameModal(id){
+    var comp = savedComparisons.find(function(c){ return c.id===id; });
+    if(!comp) return;
+    _renameTargetId = id;
+    var inp = document.getElementById('renameCompInput');
+    inp.value = comp.title;
+    document.getElementById('renameCompModal').classList.add('visible');
+    setTimeout(function(){ inp.focus(); inp.select(); }, 180);
+  }
+
+  function closeRenameModal(){
+    document.getElementById('renameCompModal').classList.remove('visible');
+    _renameTargetId = null;
+  }
+
+  document.getElementById('renameCompClose').addEventListener('click', closeRenameModal);
+  document.getElementById('renameCompCancel').addEventListener('click', closeRenameModal);
+  document.getElementById('renameCompModal').addEventListener('click', function(e){ if(e.target===this) closeRenameModal(); });
+  document.getElementById('renameCompInput').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('renameCompSubmit').click(); });
+
+  document.getElementById('renameCompSubmit').addEventListener('click', function(){
+    var inp = document.getElementById('renameCompInput');
+    var val = inp.value.trim();
+    if(!val){
+      inp.focus();
+      inp.style.borderColor='#ef4444';
+      inp.style.boxShadow='0 0 0 3px rgba(239,68,68,0.1)';
+      setTimeout(function(){ inp.style.borderColor=''; inp.style.boxShadow=''; }, 1600);
+      return;
+    }
+    var comp = savedComparisons.find(function(c){ return c.id===_renameTargetId; });
+    if(comp){ comp.title = val; renderSavedComparisons(); saveComparisonsToStorage();}
+    closeRenameModal();
+  });
+
+  /* ── DELETE MODAL ── */
+  var _deleteTargetId = null;
+
+  function openDeleteModal(id){
+    var comp = savedComparisons.find(function(c){ return c.id===id; });
+    if(!comp) return;
+    _deleteTargetId = id;
+    var nameEl = document.getElementById('deleteCompName');
+    if(nameEl) nameEl.textContent = '"' + comp.title + '"';
+    document.getElementById('deleteCompModal').classList.add('visible');
+  }
+
+  function closeDeleteModal(){
+    document.getElementById('deleteCompModal').classList.remove('visible');
+    _deleteTargetId = null;
+  }
+
+  document.getElementById('deleteCompClose').addEventListener('click', closeDeleteModal);
+  document.getElementById('deleteCompCancel').addEventListener('click', closeDeleteModal);
+  document.getElementById('deleteCompModal').addEventListener('click', function(e){ if(e.target===this) closeDeleteModal(); });
+
+  document.getElementById('deleteCompSubmit').addEventListener('click', function(){
+    savedComparisons = savedComparisons.filter(function(c){ return c.id!==_deleteTargetId; });
+    renderSavedComparisons();
+    updateComparisonTabCount();
+    closeDeleteModal();
+    saveComparisonsToStorage();
+    window.showSidebarToast('Comparison deleted');
+  });
+
+  /* ── OPEN SAVED COMPARISON ── */
+  function openSavedComparison(id){
+    var comp = savedComparisons.find(function(c){ return c.id===id; });
+    if(!comp || !comp.vendors.length) return;
+
+    /* Close My Platforms panel */
+    var slPanel = document.getElementById('shortlistPanel');
+    if(slPanel) slPanel.classList.remove('open');
+
+    var compareBtn       = document.getElementById('compareBtn');
+    var compareActionBtn = document.getElementById('compareActionBtn');
+
+    /* Step 1 — if already in compare mode, exit it first so compare.js
+      resets its internal selectedCards array and DOM state cleanly */
+    if(compareBtn && compareBtn.classList.contains('active')){
+      compareBtn.click(); /* triggers exitMode() inside compare.js */
+    }
+
+    /* Step 2 — enter compare mode (triggers enterMode() inside compare.js) */
+    setTimeout(function(){
+      if(compareBtn) compareBtn.click();
+
+      /* Step 3 — now click each matching card's add button so compare.js
+        pushes them into its own selectedCards array */
+      setTimeout(function(){
+        var savedNames = comp.vendors.map(function(v){
+          return (v.name||'').toLowerCase().trim();
+        });
+        var matched = 0;
+
+        document.querySelectorAll('#vendors .card').forEach(function(card){
+          var cardName = (card.dataset.name||'').toLowerCase().trim();
+          if(savedNames.indexOf(cardName) === -1) return;
+          var addBtn = card.querySelector('.card-add-btn');
+          if(addBtn && !addBtn.classList.contains('added')){
+            addBtn.click(); /* compare.js handles this — pushes to selectedCards, updates UI */
+            matched++;
+          }
+        });
+
+        /* Step 4 — open the panel. compareActionBtn is now enabled
+          because compare.js called syncActionBtn() after each click */
+        setTimeout(function(){
+          var actionBtn = document.getElementById('compareActionBtn');
+          if(actionBtn && !actionBtn.classList.contains('hide')){
+            actionBtn.click(); /* triggers buildPanel() + opens #compareModal */
+          } else {
+            window.showSidebarToast(matched === 0
+              ? 'None of these vendors are currently loaded — try adjusting your filters'
+              : 'Only ' + matched + ' of ' + comp.vendors.length + ' vendors found — others may be filtered out'
+            );
+          }
+        }, 80);
+
+      }, 80);
+    }, 80);
+  }
+
+  /* ── RENDER ── */
+  function relativeTime(date){
+    var diff = Math.floor((Date.now()-date.getTime())/1000);
+    if(diff<60)    return 'just now';
+    if(diff<3600)  return Math.floor(diff/60)+'m ago';
+    if(diff<86400) return Math.floor(diff/3600)+'h ago';
+    return Math.floor(diff/86400)+'d ago';
+  }
+
+  function escHtml(str){
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderSavedComparisons(){
+    var container = document.getElementById('mpComparisonsList');
+    if(!container) return;
+
+    if(!savedComparisons.length){
+      container.innerHTML =
+        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center">'+
+          '<div style="width:52px;height:52px;border-radius:12px;background:var(--off2);display:flex;align-items:center;justify-content:center;margin-bottom:16px">'+
+            '<svg width="22" height="22" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="6" height="10" rx="1" stroke="var(--t3)" stroke-width="1.3"/><rect x="9" y="1" width="6" height="13" rx="1" stroke="var(--t3)" stroke-width="1.3"/></svg>'+
+          '</div>'+
+          '<h3 style="font-size:16px;font-weight:600;color:var(--t1);margin-bottom:6px">No saved comparisons yet</h3>'+
+          '<p style="font-size:13px;color:var(--t3);line-height:1.55;max-width:280px">Select vendors to compare, then click "Save comparison" to store them here.</p>'+
+        '</div>';
+      return;
+    }
+
+    container.innerHTML = savedComparisons.map(function(comp){
+      var vendorCards = comp.vendors.map(function(v){
+        var initials = (v.name||'??').substring(0,2).toUpperCase();
+        var logoHtml = (v.logo && v.logo.indexOf('undefined')===-1 && v.logo.indexOf('null')===-1)
+          ? '<img src="'+v.logo+'" style="width:100%;height:100%;object-fit:contain;padding:4px;">'
+          : initials;
+        var isVer = (v.badge||'').toLowerCase().indexOf('verified')!==-1;
+        var badgeHtml = v.badge
+          ? '<span class="mp-card-badge '+(isVer?'verified':'approved')+'"><span class="mp-card-badge-dot"></span>'+escHtml(v.badge)+'</span>'
+          : '';
+        var modType = (v.modules||'').split(',')[0].trim()||'HR Technology';
+        return '<div class="mp-comp-card">'+
+          '<div class="mp-comp-card-top">'+
+            '<div class="mp-comp-logo" style="overflow:hidden">'+logoHtml+'</div>'+
+            '<div><div class="mp-comp-name">'+escHtml(v.name)+'</div><div class="mp-comp-type">'+escHtml(modType)+'</div></div>'+
+          '</div>'+badgeHtml+
+        '</div>';
+      }).join('');
+
+      if(comp.vendors.length < 3){
+        vendorCards += '<div class="mp-comp-card mp-comp-add add-to-comp" data-comp-id="'+comp.id+'" style="display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">'+
+          '<div class="mp-comp-add-icon">+</div>'+
+          '<div class="mp-comp-add-label">Add product</div>'+
+        '</div>';
+      }
+
+      return '<div class="mp-comparison-group" data-comp-id="'+comp.id+'">'+
+        '<div class="mp-comparison-header">'+
+          '<div>'+
+            '<div class="mp-comparison-title">'+escHtml(comp.title)+'</div>'+
+            '<div class="mp-comparison-meta">Saved '+relativeTime(comp.savedAt)+' · '+comp.vendors.length+' products</div>'+
+          '</div>'+
+          '<div class="mp-comparison-actions">'+
+            '<button class="mp-card-btn rename-saved" data-comp-id="'+comp.id+'">'+
+              '<svg viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Rename'+
+            '</button>'+
+            '<button class="mp-card-btn delete-saved" data-comp-id="'+comp.id+'" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">'+
+              '<svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 10h8l1-10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>Delete'+
+            '</button>'+
+            '<button class="mp-card-btn view open-saved" data-comp-id="'+comp.id+'">'+
+              '<svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="6" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="13" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>Open comparison'+
+            '</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="mp-comparison-grid">'+vendorCards+'</div>'+
+      '</div>';
+    }).join('');
+
+    /* Wire all action buttons */
+    container.querySelectorAll('.rename-saved').forEach(function(btn){
+      btn.addEventListener('click', function(){ openRenameModal(parseInt(this.dataset.compId)); });
+    });
+    container.querySelectorAll('.delete-saved').forEach(function(btn){
+      btn.addEventListener('click', function(){ openDeleteModal(parseInt(this.dataset.compId)); });
+    });
+    container.querySelectorAll('.open-saved').forEach(function(btn){
+      btn.addEventListener('click', function(){ openSavedComparison(parseInt(this.dataset.compId)); });
+    });
+
+    container.querySelectorAll('.add-to-comp').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = parseInt(this.dataset.compId);
+        var comp = savedComparisons.find(function(c){ return c.id === id; });
+        if(!comp) return;
+
+        /* Close My Platforms panel */
+        var slPanel = document.getElementById('shortlistPanel');
+        if(slPanel) slPanel.classList.remove('open');
+
+        var compareBtn       = document.getElementById('compareBtn');
+        var compareActionBtn = document.getElementById('compareActionBtn');
+
+        /* Exit compare mode first if active, to get a clean reset */
+        if(compareBtn && compareBtn.classList.contains('active')){
+          compareBtn.click();
+        }
+
+        setTimeout(function(){
+          /* Enter compare mode */
+          if(compareBtn) compareBtn.click();
+
+          setTimeout(function(){
+            var savedNames = comp.vendors.map(function(v){
+              return (v.name||'').toLowerCase().trim();
+            });
+
+            /* Click each matching card's add button to pre-select saved vendors */
+            document.querySelectorAll('#vendors .card').forEach(function(card){
+              var cardName = (card.dataset.name||'').toLowerCase().trim();
+              if(savedNames.indexOf(cardName) === -1) return;
+              var addBtn = card.querySelector('.card-add-btn');
+              if(addBtn && !addBtn.classList.contains('added')){
+                addBtn.click();
+              }
+            });
+
+            /* Show a toast guiding the user to pick the additional vendor */
+            var remaining = 3 - comp.vendors.length;
+            window.showSidebarToast(
+              'Select ' + remaining + ' more vendor' + (remaining > 1 ? 's' : '') + ' to add to this comparison'
+            );
+
+            /* Watch for when the user adds another vendor and auto-save it back */
+            var _watchInterval = setInterval(function(){
+              var selected = document.querySelectorAll('#vendors .card.compare-selected');
+              /* Once they've selected more than the original count, update the saved comparison */
+              if(selected.length > comp.vendors.length){
+                clearInterval(_watchInterval);
+
+                /* Collect the full new vendor set */
+                var newVendors = Array.from(selected).map(function(card){
+                  var b = card.querySelector('.verification-badge');
+                  return {
+                    name:    card.dataset.name    || '',
+                    logo:    card.dataset.logo    || '',
+                    modules: card.dataset.modules || '',
+                    id:      card.dataset.id      || '',
+                    badge:   b ? b.textContent.trim() : ''
+                  };
+                });
+
+                comp.vendors = newVendors;
+                saveComparisonsToStorage();
+                renderSavedComparisons();
+                updateComparisonTabCount();
+
+                /* Now open the comparison panel with all selected vendors */
+                var actionBtn = document.getElementById('compareActionBtn');
+                if(actionBtn && !actionBtn.classList.contains('hide')){
+                  actionBtn.click();
+                }
+              }
+            }, 400);
+
+            /* Stop watching if the user exits compare mode without adding anyone */
+            var _exitWatch = setInterval(function(){
+              var btn = document.getElementById('compareBtn');
+              if(btn && !btn.classList.contains('active')){
+                clearInterval(_watchInterval);
+                clearInterval(_exitWatch);
+              }
+            }, 500);
+
+          }, 80);
+        }, 80);
+      });
+    });
+  }
+
+  function updateComparisonTabCount(){
+    document.querySelectorAll('.mp-tab').forEach(function(tab){
+      if((tab.dataset.mptab||'') === 'comparisons'){
+        var c = tab.querySelector('.mp-tab-count');
+        if(c) c.textContent = savedComparisons.length;
+      }
+    });
+  }
+
+  /* Global escape key closes any open modal */
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    closeSaveCompModal();
+    closeRenameModal();
+    closeDeleteModal();
+  });
+
+  loadComparisonsFromStorage();
 })();
 </script>
 

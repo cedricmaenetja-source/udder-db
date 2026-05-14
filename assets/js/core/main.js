@@ -197,23 +197,6 @@ $(document).ready(function() {
         $container.append($vendors);
     });
 
-    // Toggle compare mode
-    $('#compareBtn').click(function() {
-        compareMode = !compareMode;
-        $(this).text(compareMode ? 'Cancel Compare' : 'Select to Compare');
-
-        if(compareMode) {
-            $('.card').addClass('selectable');
-            $('#compareActionBtn').removeClass('hide');
-        } else {
-            $('.card').removeClass('selectable selected');
-            selectedCards.clear();
-            $('#compareActionBtn').text('Compare');
-            $('#compareActionBtn').prop('disabled', true);
-            $('#compareActionBtn').addClass('hide');
-        }
-    });
-
     // Select / deselect cards
     $('.cards-container').on('click', '.card', function() {
         if(!compareMode) return;
@@ -245,10 +228,6 @@ $(document).ready(function() {
     //     }
     //     openComparisonModal(selectedCards);
     // });
-
-    $('#comparisonCloseModalBtn').click(function(){
-        closeComparisonModal();
-    });
 
     $(document).on('click', 'a[href]', function (e) {
         const url = $(this).attr('href');
@@ -896,10 +875,6 @@ async function openComparisonModal(selectedCards) {
   $('.vendor-body-grid').removeClass('hide');
 }
 
-function closeComparisonModal() {
-  document.getElementById("compareModal").style.display = "none";
-}
-
 function onTimeout() {
     App.swal.fire({
         title: "Taking Too Long?",
@@ -1123,7 +1098,6 @@ async function loadVendors(filters = null){
     $('.layout').removeClass('hide');
     $('.sort-dropdown').removeClass('hide');
     $('.faqs-section').removeClass('hide');
-    if (vendors.length > 0) $('#compareBtn').removeClass('hide');
 }
 
 function renderDropdownFeature(filter = "") {

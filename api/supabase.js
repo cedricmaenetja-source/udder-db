@@ -59,7 +59,8 @@ export default async function handler(req, res) {
         'updateVendorAutoRefresh',
         'addClientInquiry',
         'uploadVendorScreenshots',
-        'deleteAccount'
+        'deleteAccount',
+        'getAllEvaluations'
     ];
 
     if (!action) {
@@ -86,6 +87,7 @@ export default async function handler(req, res) {
     if (action === 'getTopVendors') return await getTopVendors(res);
     if (action === 'getEvaluations') return await getEvaluations(res, vendorId, userId);
     if (action === 'getNotificationPrefs') return await getNotificationPrefs(res, userId);
+    if (action === 'getAllEvaluations') return await getAllEvaluations(res, userId);
 
     if (action === 'deleteAccount') {
         if (req.method !== "POST") {
@@ -645,9 +647,14 @@ export async function saveEvaluation(res, payload) {
     const { data, error } = await supabase
     .from('tblevaluations')
     .upsert({ 
-        user_id: payload['user_id'], 
-        criteria:  payload['criteria'], 
-        vendor_id: payload['vendor_id'], 
+        user_id: payload.user_id, 
+        criteria: payload.criteria, 
+        vendor_id: payload.vendor_id, 
+        vendor: payload.vendor,
+        score: payload.score,
+        overall: payload.overall      || 0,
+        general_note: payload.generalNote  || '',
+        next_steps: payload.nextSteps    || [],
     },
     { onConflict: 'user_id,vendor_id' })
     .select()
@@ -819,6 +826,17 @@ async function getNotificationPrefs(res, userId){
     .select('*')
     .eq('user_id', userId)
     .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function getAllEvaluations(res, userId){
+    const { data, error } = await supabase
+    .from('tblevaluations')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
