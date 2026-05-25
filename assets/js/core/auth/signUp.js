@@ -42,11 +42,21 @@ $(async function(){
     document.getElementById('step1Next').addEventListener('click', function(){
     var email = document.getElementById('email').value.trim();
     var pwd   = document.getElementById('pwd').value;
+    var fname = document.getElementById('fname').value.trim();
+    var lname   = document.getElementById('lname').value;
     if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
         App.showToast('Please enter a valid email address.','error'); return;
     }
-    if(pwd.length < 8){
-        App.showToast('Password must be at least 8 characters.','error'); return;
+    if(pwd.length < 12){
+        App.showToast('Password must be at least 12 characters.','error'); return;
+    }
+
+    if (!fname || !lname){
+        App.showToast('First name and last name are required.','error'); return;
+    }
+
+    if (fname.length < 2 || lname.length < 2){
+        App.showToast('First name and last name must be at least 2 characters.','error'); return;
     }
     /* Copy into the hidden fields inside .login-box so signUp.js picks them up */
     document.getElementById('email').value = email;
@@ -81,19 +91,19 @@ $(async function(){
         const reset = App.lockBtn($(this));
         if (!reset) return;
 
-        let hasError = false;
-        $('.login-box').find('input, select').each(function(index, el) {
-            const val = $(el).val();
-            if (val == ''){
-                hasError = true;
-                return false;
-            }
-        });
+        // let hasError = false;
+        // $('.login-box').find('input, select').each(function(index, el) {
+        //     const val = $(el).val();
+        //     if (val == ''){
+        //         hasError = true;
+        //         return false;
+        //     }
+        // });
 
-        if (hasError) {
-            App.showToast('All fields with * are required.', 'error');
-            return;
-        }
+        // if (hasError) {
+        //     App.showToast('All fields with * are required.', 'error');
+        //     return;
+        // }
 
         const fname = $('#fname').val().trim();
         const lname = $('#lname').val().trim();
@@ -106,15 +116,18 @@ $(async function(){
         const prefGeo  = $('#prefGeo').val().trim();  
         const prefSize = $('#prefSize').val().trim();
 
+        const claimVendorId = $('#vendorListingId').val();
+        const newVendorListingUrl = $('#vendorListingUrl').val();
+
         if (!App.isValidEmail(email)){
             reset();
             App.showToast('Please provide a valid email.', 'error');
             return;
         }
 
-        if (password.length < 8){
+        if (password.length < 12){
             reset();
-            App.showToast('The password needs to be at least 8 characters long.', 'error');
+            App.showToast('The password needs to be at least 12 characters long.', 'error');
             return;
         }
 
@@ -128,6 +141,8 @@ $(async function(){
             pref_categories: prefCats,
             pref_geo: prefGeo,
             pref_org_size: prefSize,
+            claim_vendor_id: claimVendorId,
+            new_listing_url: newVendorListingUrl
         };
 
         const response = await fetch('/api/supabase?action=userSignUp', {
@@ -230,9 +245,13 @@ $(async function(){
         }
 
         const email = $('#otpEmailChip').text();
-        const res = await fetch(App.ZAPIER_SEND_EMAIL, {
+        const res = await fetch('/api/send-email?action=otpVerification', {
             method: "POST",
-            body: JSON.stringify({ to: email, subject: 'Your Verification Code', body: Constant.OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', otp) })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                to: email,
+                otp: result.data.otp
+            })
         });
 
         const filters = await res.json();

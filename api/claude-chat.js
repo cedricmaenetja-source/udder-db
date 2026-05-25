@@ -244,7 +244,7 @@ async function claudeChat(req, res) {
   authorize(req, res);
 
   try {
-    const { messages } = req.body;
+    const { messages, userName } = req.body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'messages array is required' });
@@ -269,8 +269,10 @@ async function claudeChat(req, res) {
         : null,
     }));
 
+    const userGreeting = userName ? `You are speaking with ${userName}. Address them by their first name naturally — use it in your opening response and occasionally throughout the conversation, but not on every message.` : '';
     const systemPrompt = `You are Udder AI, the assistant for the Udder Database — a curated directory of HR technology vendors.
-
+    ${userGreeting}
+    
 ## Relevant vendors retrieved from the database
 ${context}
 

@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UDDER Database</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#f04e23;--o2:#c93d18;--os:rgba(240,78,35,0.08);--om:rgba(240,78,35,0.15);
+  --k:#0f0f0f;--k2:#1c1c1c;--w:#ffffff;--off:#fafaf9;--off2:#f3f2ef;
+  --b1:rgba(15,15,15,0.05);--b2:rgba(15,15,15,0.09);--b3:rgba(15,15,15,0.16);
+  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
+  --sans:'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  --lw:236px;--th:52px;
+}
+html,body{height:100%;overflow:hidden;background:var(--off)}
+body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* TOP BAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--th);z-index:300;background:var(--w);border-bottom:1px solid var(--b1);display:flex;align-items:center}
+.tb-logo{width:var(--lw);flex-shrink:0;height:100%;display:flex;align-items:center;gap:9px;padding:0 18px;border-right:1px solid var(--b1)}
+.tb-wordmark{font-size:24px;font-weight:900;color:var(--k);letter-spacing:-0.01em;line-height:1}
+.tb-wordmark span{color:var(--o)}
+.tb-wordmark small{display:block;font-size:9px;font-weight:400;color:var(--t4);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
+.tb-crumb{display:flex;align-items:center;gap:7px;padding:0 18px;height:100%;border-right:1px solid var(--b1);font-size:12px;color:var(--t3);width:270px;}
+.tb-crumb a{color:var(--t3);text-decoration:none}
+.tb-crumb .sep{color:var(--t4);font-size:10px}
+.tb-crumb .cur{color:var(--t1);font-weight:500}
+.tb-search{flex:1;display:flex;align-items:center;gap:9px;margin:0 14px;padding:0 12px;height:32px;border-radius:7px;border:1px solid var(--b2);background:var(--off);transition:all 0.15s;cursor:pointer}
+.tb-search svg{width:13px;height:13px;color:var(--t3);flex-shrink:0}
+.tb-search input{border:none;outline:none;background:transparent;font-size:13px;color:var(--t1);font-family:var(--sans);flex:1;min-width:0}
+.tb-search input::placeholder{color:var(--t4)}
+.tb-right{display:flex;align-items:center;gap:8px;padding-right:16px;flex-shrink:0}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.15s;white-space:nowrap}
+.tb-btn:hover{border-color:var(--b3);color:var(--t1)}
+.tb-btn svg{width:13px;height:13px;flex-shrink:0}
+.tb-ai{background:var(--o);border-color:var(--o);color:var(--w)!important}
+.tb-ai:hover{background:var(--o2)!important;border-color:var(--o2)!important}
+.chat-fab-dot{width:8px;height:8px;background:#22c55e;border:2px solid var(--o);border-radius:50%;flex-shrink:0}
+.tb-hamburger{display:none;align-items:center;justify-content:center;width:36px;height:36px;margin-left:4px;background:none;border:1px solid var(--b2);border-radius:7px;cursor:pointer;flex-shrink:0;color:var(--t2)}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:var(--th);left:0;bottom:0;width:var(--lw);background:var(--w);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow-y:auto;z-index:200;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:var(--o)}
+
+/* User block */
+.sb-user{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background 0.15s}
+.sb-user:hover{background:var(--off)}
+.sb-avatar{width:32px;height:32px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--w);flex-shrink:0;letter-spacing:0.03em;border-radius:4px}
+.sb-uname{font-size:13px;font-weight:600;color:var(--t1);line-height:1.2}
+.sb-urole{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;font-weight:600}
+.sb-chev{color:var(--t4);font-size:9px;margin-left:auto;transition:transform 0.2s}
+
+/* Nav sections */
+.sb-sec{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;padding:16px 16px 6px}
+.sb-nav{list-style:none;padding:0 6px;margin-bottom:4px}
+.sb-nav li{margin-bottom:1px}
+.sb-nav a,.sb-nav button{
+  display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;
+  font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;
+  background:none;border:none;cursor:pointer;font-family:var(--sans);
+  transition:all 0.13s;border-radius:6px;border-left:3px solid transparent
+}
+.sb-nav a:hover,.sb-nav button:hover{background:var(--off);color:var(--t1)}
+.sb-nav a.on{background:#f3f3f3;color:var(--t1);font-weight:600;border-left:3px solid var(--o);border-radius:0 6px 6px 0}
+.sb-nav svg{width:14px;height:14px;color:var(--t3);flex-shrink:0}
+.sb-nav a.on svg{color:var(--o)}
+.nb{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;background:var(--off2);color:var(--t3);border-radius:10px}
+.sb-nav a.on .nb{background:var(--o);color:white}
+.sb-div{height:1px;background:var(--b1);margin:6px 12px}
+.sb-foot{padding:10px 14px;margin-top:auto;border-top:1px solid var(--b1);font-size:10px;color:var(--t4);line-height:1.65}
+
+/* User dropdown */
+.sb-user-dropdown{display:none;margin:0 8px 8px;border:1px solid var(--b1);border-radius:9px;overflow:hidden;background:var(--off)}
+.sb-user-dropdown.open{display:block}
+.sb-dropdown-item{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;font-size:13px;color:var(--t2);background:none;border:none;cursor:pointer;font-family:var(--sans);transition:all 0.13s;text-decoration:none}
+.sb-dropdown-item:hover{background:var(--b1);color:var(--t1)}
+.sb-dropdown-item svg{width:14px;height:14px;color:var(--t3);flex-shrink:0}
+.sb-dropdown-item.danger{color:#ef4444}
+.sb-dropdown-item.danger svg{color:#ef4444}
+.sb-dropdown-item.danger:hover{background:rgba(239,68,68,0.06)}
+
+/* MAIN WRAP */
+.main-wrap{position:fixed;top:var(--th);left:var(--lw);right:0;bottom:0;overflow:hidden}
+
+/* CONTENT PANELS */
+.content-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:var(--off)}
+.content-panel.active{display:flex}
+
+/* Panel header */
+.panel-header{padding:28px 32px 20px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
+.panel-eyebrow{font-size:11px;font-weight:600;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px}
+.panel-title{font-size:28px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1.1;margin-bottom:4px}
+.panel-sub{font-size:13px;color:var(--t3)}
+
+/* Panel scroll area */
+.panel-scroll{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.panel-scroll::-webkit-scrollbar{width:4px}
+.panel-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+
+/* Placeholder content */
+.placeholder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.placeholder-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.placeholder-card-icon{width:40px;height:40px;border-radius:10px;background:var(--off2);display:flex;align-items:center;justify-content:center}
+.placeholder-card-icon svg{width:18px;height:18px;color:var(--t3)}
+.placeholder-card-title{font-size:15px;font-weight:600;color:var(--t1)}
+.placeholder-card-text{font-size:13px;color:var(--t3);line-height:1.6}
+.placeholder-card-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--off2);color:var(--t3);width:fit-content}
+
+.placeholder-bar{height:48px;background:var(--w);border:1px solid var(--b1);border-radius:10px;display:flex;align-items:center;padding:0 20px;gap:12px;margin-bottom:12px}
+.placeholder-bar-label{font-size:13px;color:var(--t3)}
+.placeholder-bar .tag{padding:3px 10px;border-radius:20px;background:var(--off2);font-size:11px;font-weight:600;color:var(--t3)}
+
+.placeholder-table{background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.placeholder-table-head{display:grid;padding:12px 20px;background:var(--off);border-bottom:1px solid var(--b1);gap:20px}
+.placeholder-table-row{display:grid;padding:14px 20px;border-bottom:1px solid var(--b1);gap:20px;align-items:center;transition:background 0.12s}
+.placeholder-table-row:last-child{border-bottom:none}
+.placeholder-table-row:hover{background:var(--off)}
+.ph-cell{font-size:13px;color:var(--t2)}
+.ph-head{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:0.08em}
+
+/* Metrics row */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.metric-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px 24px}
+.metric-val{font-size:32px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1}
+.metric-lbl{font-size:12px;color:var(--t3);margin-top:4px}
+.metric-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-top:8px;padding:2px 8px;border-radius:20px}
+.metric-delta.up{background:rgba(22,163,74,0.08);color:#16a34a}
+.metric-delta.down{background:rgba(239,68,68,0.08);color:#ef4444}
+.metric-delta.neu{background:var(--off2);color:var(--t3)}
+
+/* Coming soon badge */
+.coming-soon-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;padding:60px 20px;text-align:center}
+.coming-soon-icon{width:64px;height:64px;border-radius:16px;background:var(--off2);display:flex;align-items:center;justify-content:center}
+.coming-soon-icon svg{width:28px;height:28px;color:var(--t3)}
+.coming-soon-title{font-size:18px;font-weight:700;color:var(--t1)}
+.coming-soon-desc{font-size:14px;color:var(--t3);max-width:340px;line-height:1.6}
+.coming-soon-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:var(--os);color:var(--o);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+
+/* ── LEADS ANALYTICS ── */
+#panel-leads-analytics.active{display:flex;flex-direction:column;overflow:hidden}
+.la-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 32px 20px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
+.la-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px}
+.la-title{font-size:32px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:6px}
+.la-sub{font-size:13px;color:var(--t3)}
+.la-period-toggle{display:flex;align-items:center;background:var(--off2);border-radius:20px;padding:4px;flex-shrink:0;align-self:flex-start;margin-top:8px}
+.la-period-btn{height:32px;padding:0 16px;border:none;border-radius:16px;background:transparent;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all 0.15s;white-space:nowrap}
+.la-period-btn:hover{color:var(--t1)}
+.la-period-btn.active{background:var(--o);color:var(--w)}
+.la-scroll{flex:1;overflow-y:auto;padding:24px 32px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:var(--off)}
+.la-scroll::-webkit-scrollbar{width:4px}
+.la-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+.la-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.la-kpi-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:22px 24px}
+.la-kpi-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px}
+.la-kpi-val{font-size:40px;font-weight:900;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:8px}
+.la-kpi-delta{font-size:12px;font-weight:600}
+.la-kpi-delta.up{color:#16a34a}
+.la-kpi-delta.down{color:#ef4444}
+.la-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.la-chart-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:24px}
+.la-chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.la-chart-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.015em}
+.la-chart-delta{font-size:13px;font-weight:700}
+.la-chart-delta.up{color:#16a34a}
+.la-bar-chart{height:130px;display:flex;align-items:flex-end;gap:3px;margin-bottom:20px;padding-bottom:2px;border-bottom:1px solid var(--b1)}
+.la-bar{flex:1;border-radius:3px 3px 0 0;min-width:0;transition:opacity 0.15s;cursor:default}
+.la-bar:hover{opacity:0.7}
+.la-chart-stats{display:flex;align-items:center;gap:28px;padding-top:16px}
+.la-chart-stat-val{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:3px}
+.la-chart-stat-lbl{font-size:11px;color:var(--t3);font-weight:500}
+.la-bottom-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.la-bottom-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:24px}
+.la-bottom-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.015em;margin-bottom:20px}
+.la-source-list{display:flex;flex-direction:column;gap:16px}
+.la-source-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.la-source-name{font-size:13px;color:var(--t1)}
+.la-source-count{font-size:13px;font-weight:700;color:var(--t1)}
+.la-source-bar{height:6px;background:var(--off2);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.la-source-fill{height:100%;background:var(--o);border-radius:3px}
+.la-source-pct{font-size:11px;color:var(--t3)}
+.la-stage-list{display:flex;flex-direction:column;margin-bottom:16px}
+.la-stage-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.la-stage-item:last-child{border-bottom:none}
+.la-stage-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.la-stage-name{font-size:13px;color:var(--t1);flex:1}
+.la-stage-count{font-size:16px;font-weight:900;color:var(--t1)}
+.la-stage-note{font-size:11px;color:var(--t4);line-height:1.5}
+.la-search-list{list-style:none;padding:0;display:flex;flex-direction:column}
+.la-search-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--b1)}
+.la-search-item:last-child{border-bottom:none}
+.la-search-num{font-size:13px;font-weight:800;color:var(--t3);width:16px;flex-shrink:0}
+.la-search-text{font-size:13px;color:var(--t1)}
+
+/* ── LEADS INBOX ── */
+
+/* Header */
+.li-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 32px 18px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
+.li-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px}
+.li-title{font-size:32px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:8px}
+.li-sub{font-size:13px;color:var(--t3);line-height:1.5}
+.li-header-counts{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:6px}
+.li-count-pill{padding:5px 14px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:12px;font-weight:600;color:var(--t2);white-space:nowrap}
+
+/* Split layout */
+.li-layout{display:grid;grid-template-columns:420px 1fr;flex:1;overflow:hidden;min-height:0}
+
+/* Left list */
+.li-list{overflow-y:auto;border-right:1px solid var(--b1);background:var(--w);scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.li-list::-webkit-scrollbar{width:4px}
+.li-list::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+
+.li-item{padding:16px 20px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background 0.13s;border-left:3px solid transparent}
+.li-item:hover{background:var(--off)}
+.li-item.active{background:#fdf3f0;border-left-color:var(--o)}
+.li-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.li-item-name{font-size:14px;font-weight:700;color:var(--t1)}
+.li-item-time{font-size:12px;color:var(--t3);white-space:nowrap;flex-shrink:0}
+.li-item-desc{font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.4}
+.li-item-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.li-tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:11px;font-weight:500;color:var(--t2)}
+.li-tag.new{background:var(--o);border-color:var(--o);color:var(--w);font-weight:700}
+.li-tag.responded{background:var(--off2);border-color:var(--b2);color:var(--t2)}
+.li-tag.cold{background:var(--off2);border-color:var(--b2);color:var(--t3)}
+
+/* Right detail */
+.li-detail{overflow-y:auto;background:var(--off);scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.li-detail::-webkit-scrollbar{width:4px}
+.li-detail::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+
+/* Detail inner */
+.li-detail-inner{padding:28px 32px;display:flex;flex-direction:column;gap:20px}
+.li-detail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.li-detail-name{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;margin-bottom:6px}
+.li-detail-meta{font-size:13px;color:var(--t3)}
+.li-detail-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:6px}
+.li-pass-btn{height:36px;padding:0 18px;border:1px solid var(--b2);border-radius:20px;background:var(--w);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.li-pass-btn:hover{border-color:var(--b3);color:var(--t1)}
+.li-respond-btn{height:36px;padding:0 20px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
+.li-respond-btn:hover{background:var(--o2)}
+
+/* Info cards row */
+.li-info-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.li-info-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:18px 20px}
+.li-info-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px}
+.li-contact-row{display:flex;align-items:center;gap:12px}
+.li-contact-avatar{width:36px;height:36px;border-radius:50%;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--t2);flex-shrink:0}
+.li-contact-name{font-size:14px;font-weight:700;color:var(--t1);line-height:1.2}
+.li-contact-role{font-size:12px;color:var(--t3)}
+.li-stage-val{font-size:26px;font-weight:900;color:var(--t1);letter-spacing:-0.02em;margin-bottom:6px}
+.li-stage-sub{font-size:12px;color:var(--t3)}
+.li-comparing-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.li-comparing-tag{padding:5px 13px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:12px;font-weight:600;color:var(--t2)}
+
+/* Must-haves */
+.li-section-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px 24px}
+.li-section-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px}
+.li-must-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.li-must-row:last-child{border-bottom:none;padding-bottom:0}
+.li-must-left{display:flex;align-items:center;gap:10px}
+.li-must-check{width:16px;height:16px;flex-shrink:0}
+.li-must-text{font-size:14px;color:var(--t1)}
+.li-match-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--off2);color:var(--t2);border:1px solid var(--b1);white-space:nowrap}
+.li-match-badge.match{background:rgba(22,163,74,0.07);color:#16a34a;border-color:rgba(22,163,74,0.2)}
+.li-match-badge.partial{background:rgba(234,179,8,0.07);color:#b45309;border-color:rgba(234,179,8,0.2)}
+
+/* Original message */
+.li-message-text{font-size:14px;color:var(--t2);line-height:1.7}
+
+/* Hero */
+.pl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:28px 32px 24px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
+.pl-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px}
+.pl-name{font-size:36px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1.05;margin-bottom:12px}
+.pl-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pl-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--k);color:var(--w);font-size:10px;font-weight:700;letter-spacing:0.06em}
+.pl-badge-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.pl-complete{font-size:13px;color:var(--t2);font-weight:500}
+.pl-updated{font-size:13px;color:var(--t3)}
+.pl-tier-card{border:1px solid var(--b2);border-radius:12px;padding:18px 22px;min-width:320px;max-width:360px;flex-shrink:0}
+.pl-tier-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
+.pl-tier-desc{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:14px}
+.pl-tier-btn{width:100%;padding:11px 20px;border-radius:8px;border:none;background:var(--k);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s}
+.pl-tier-btn:hover{background:#2a2a2a}
+
+/* Stats row */
+.pl-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px;background:var(--off);border-bottom:1px solid var(--b1);flex-shrink:0}
+.pl-stat-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:0}
+.pl-stat-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px}
+.pl-stat-val{font-size:40px;font-weight:900;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:8px}
+.pl-stat-delta{font-size:13px;font-weight:600}
+.pl-stat-delta.up{color:#16a34a}
+.pl-stat-delta.down{color:#ef4444}
+
+/* Body two-col */
+.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;flex:1;overflow:hidden;min-height:0}
+.pl-main{overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.pl-main::-webkit-scrollbar{width:4px}
+.pl-main::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+.pl-side{overflow-y:auto;border-left:1px solid var(--b1);padding:20px 24px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:var(--off)}
+.pl-side::-webkit-scrollbar{width:4px}
+.pl-side::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+
+/* Cards */
+.pl-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;overflow:hidden}
+.pl-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.pl-card-title{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.015em}
+.pl-card-desc{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:18px}
+.pl-edit-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border:1px solid var(--b2);border-radius:7px;background:transparent;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.pl-edit-btn:hover{border-color:var(--b3);color:var(--t1)}
+.pl-edit-btn svg{width:12px;height:12px}
+.pl-features-count{padding:4px 12px;border-radius:20px;background:var(--off2);font-size:12px;font-weight:600;color:var(--t2)}
+
+/* Form fields */
+.pl-field-group{margin-bottom:16px}
+.pl-field-group:last-child{margin-bottom:0}
+.pl-field-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
+.pl-field-box{padding:10px 14px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t2);line-height:1.6;min-height:40px}
+.pl-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s}
+.pl-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
+.pl-textarea{width:100%;padding:10px 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;resize:vertical;line-height:1.6;transition:border-color 0.15s}
+.pl-textarea:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
+.pl-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pl-edit-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:16px;border-top:1px solid var(--b1);margin-top:16px}
+.pl-cancel-btn{height:36px;padding:0 18px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.pl-cancel-btn:hover{border-color:var(--b3);color:var(--t1)}
+.pl-save-btn{height:36px;padding:0 20px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
+.pl-save-btn:hover{background:var(--o2)}
+
+/* Categories */
+.pl-cats-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pl-cat-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--k);color:var(--w);font-size:12px;font-weight:600}
+.pl-cat-x{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:14px;padding:0;line-height:1;margin-left:2px}
+.pl-cat-x:hover{color:white}
+.pl-add-cat{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:1px dashed var(--b3);border-radius:20px;background:transparent;font-size:12px;font-weight:500;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.pl-add-cat:hover{border-color:var(--o);color:var(--o)}
+
+/* Verified nudge */
+.pl-verified-nudge{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(240,78,35,0.06);border:1px solid rgba(240,78,35,0.15);border-radius:8px;font-size:11px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px}
+.pl-verified-nudge svg{flex-shrink:0}
+
+/* Features grid */
+.pl-features-grid{border:1px solid var(--b1);border-radius:8px;overflow:hidden}
+.pl-feature-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--b1)}
+.pl-feature-row:last-child{border-bottom:none}
+.pl-feat{display:flex;align-items:center;gap:8px;padding:13px 16px;font-size:13px;color:var(--t2);border-right:1px solid var(--b1)}
+.pl-feat:last-child{border-right:none}
+.pl-check{width:14px;height:14px;flex-shrink:0}
+
+/* References table */
+.pl-ref-table{border:1px solid var(--b1);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.pl-ref-head{display:grid;grid-template-columns:1.5fr 1.5fr 1.5fr 80px;padding:10px 16px;background:var(--off);border-bottom:1px solid var(--b1)}
+.pl-ref-th{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:0.08em}
+.pl-ref-row{display:grid;grid-template-columns:1.5fr 1.5fr 1.5fr 80px;padding:13px 16px;border-bottom:1px solid var(--b1);align-items:center;transition:background 0.12s}
+.pl-ref-row:last-child{border-bottom:none}
+.pl-ref-row:hover{background:var(--off)}
+.pl-ref-name{font-size:13px;font-weight:700;color:var(--t1)}
+.pl-ref-cell{font-size:13px;color:var(--t2)}
+.pl-ref-status{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pl-ref-status.published{background:var(--k);color:var(--w)}
+.pl-ref-status.pending{background:var(--off2);color:var(--t3);border:1px solid var(--b2)}
+.pl-add-ref-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--b3);border-radius:7px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.pl-add-ref-btn:hover{border-color:var(--o);color:var(--o)}
+
+/* Side cards */
+.pl-side-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px;width:100%}
+.pl-side-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px}
+.pl-completeness-pct{font-size:52px;font-weight:900;color:var(--o);letter-spacing:-0.04em;line-height:1;margin-bottom:10px}
+.pl-progress-bar{height:6px;background:var(--off2);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.pl-progress-fill{height:100%;background:var(--o);border-radius:3px;transition:width 0.4s ease}
+.pl-checklist{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px}
+.pl-check-item{display:flex;align-items:center;gap:8px;font-size:13px}
+.pl-check-item.done{color:var(--t2)}
+.pl-check-item.todo{color:var(--t4)}
+.pl-activity-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:0}
+.pl-activity-item{padding:10px 0;border-bottom:1px solid var(--b1)}
+.pl-activity-item:last-child{border-bottom:none;padding-bottom:0}
+.pl-activity-text{font-size:12px;color:var(--t2);line-height:1.55}
+.pl-activity-text strong{color:var(--t1);font-weight:600}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:199}
+
+@media(max-width:900px){
+  :root{--lw:0px}
+  .sidebar{transform:translateX(-240px);width:240px;transition:transform 0.25s ease;z-index:500}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:none}
+  .sidebar-overlay.show{display:block}
+  .tb-hamburger{display:flex!important}
+  .tb-crumb{display:none}
+  .main-wrap{left:0!important}
+  .metrics-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .metrics-row{grid-template-columns:1fr}
+  .panel-header{padding:20px 16px 14px}
+  .panel-scroll{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <button class="tb-hamburger" id="sidebarToggle" aria-label="Open menu">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+  </button>
+  <div class="tb-logo">
+    <div><div class="tb-wordmark">UDDER <span>DB</span></div></div>
+  </div>
+  <div class="tb-crumb">
+    <a href="#">Vendor Portal</a>
+    <span class="sep">/</span>
+    <span class="cur" id="topbarCrumb">Overview</span>
+  </div>
+  <div class="tb-search">
+    <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <input type="text" placeholder="Ask AI…">
+  </div>
+  <div class="tb-right">
+    <button class="tb-btn tb-ai">
+      <div class="chat-fab-dot"></div>
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" fill="white"/></svg>
+      AI Assistant
+    </button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- User block -->
+  <div class="sb-user" id="sbUser">
+    <div class="sb-avatar" id="sbInitials">UD</div>
+    <div>
+      <div class="sb-uname" id="sbUname">Vendor Name</div>
+      <div class="sb-urole">Vendor Account</div>
+    </div>
+    <span class="sb-chev" id="sbChev">▾</span>
+  </div>
+
+  <!-- User dropdown -->
+  <div class="sb-user-dropdown" id="sbDropdown">
+    <button class="sb-dropdown-item">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Account settings
+    </button>
+    <div style="height:1px;background:var(--b1);margin:0 10px"></div>
+    <button class="sb-dropdown-item danger">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Log out
+    </button>
+  </div>
+
+  <!-- WORKSPACE section -->
+  <div class="sb-sec">Workspace</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="#" class="nav-link on" data-panel="overview">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Overview
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="product-listing">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M5 5.5h6M5 10.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Product Listing
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="leads-inbox">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Leads Inbox
+        <span class="nb" id="leadsInboxBadge">4</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="leads-analytics">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V7l3-3 3 3 3-4 3 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Leads Analytics
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="references">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2 14c0-2.5 2-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        References
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-div"></div>
+
+  <!-- PLATFORM section -->
+  <div class="sb-sec">Platform</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="../" class="nav-link">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        Back to Landing
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="account-settings">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Account settings
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-foot">Udder Vendor Portal<br>v0.0.1 · MVP</div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+
+  <!-- ── OVERVIEW ── -->
+  <div class="content-panel active" id="panel-overview">
+    <div class="panel-scroll" style="padding:0">
+
+      <!-- Hero header -->
+      <div class="pl-hero">
+        <div class="pl-hero-left">
+          <div class="pl-eyebrow">OVERVIEW</div>
+          <h1 class="pl-name">SmartRecruiters</h1>
+          <div class="pl-meta-row">
+            <span class="pl-badge"><span class="pl-badge-dot"></span>UDDER APPROVED</span>
+            <span class="pl-complete">87% complete</span>
+            <span class="pl-updated">· Last updated 2 days ago</span>
+          </div>
+        </div>
+        <div class="pl-hero-right">
+          <div class="pl-tier-card">
+            <div class="pl-tier-eyebrow">NEXT TIER: UDDER VERIFIED</div>
+            <div class="pl-tier-desc">Upload capability evidence to be reviewed by an Udder consultant.</div>
+            <button class="pl-tier-btn">Submit for Verified →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="pl-stats-row">
+        <div class="pl-stat-card">
+          <div class="pl-stat-lbl">PROFILE VIEWS (30D)</div>
+          <div class="pl-stat-val">2,841</div>
+          <div class="pl-stat-delta up">+18%</div>
+        </div>
+        <div class="pl-stat-card">
+          <div class="pl-stat-lbl">LEADS RECEIVED</div>
+          <div class="pl-stat-val">47</div>
+          <div class="pl-stat-delta up">+12</div>
+        </div>
+        <div class="pl-stat-card">
+          <div class="pl-stat-lbl">COMPARISON APPEARANCES</div>
+          <div class="pl-stat-val">312</div>
+          <div class="pl-stat-delta up">+6%</div>
+        </div>
+        <div class="pl-stat-card">
+          <div class="pl-stat-lbl">AVG. RESPONSE TIME</div>
+          <div class="pl-stat-val">6h</div>
+          <div class="pl-stat-delta down">-2h</div>
+        </div>
+      </div>
+      <!-- spacer so cards sit below hero with padding -->
+      <div style="height:0"></div>
+
+      <!-- Two-column body -->
+      <div class="pl-body">
+
+        <!-- Left main col -->
+        <div class="pl-main">
+
+          <!-- Overview card -->
+          <div class="pl-card" id="pl-overview-card">
+            <div class="pl-card-head">
+              <h2 class="pl-card-title">Overview</h2>
+              <button class="pl-edit-btn" id="plEditOverviewBtn">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                Edit
+              </button>
+            </div>
+
+            <!-- View mode -->
+            <div id="pl-overview-view">
+              <div class="pl-field-group">
+                <div class="pl-field-label">TAGLINE</div>
+                <div class="pl-field-box" id="plTaglineView">Hiring Success platform that puts hiring managers in control.</div>
+              </div>
+              <div class="pl-field-group">
+                <div class="pl-field-label">DESCRIPTION</div>
+                <div class="pl-field-box" id="plDescView" style="min-height:80px">End-to-end talent acquisition suite covering sourcing, CRM, ATS, onboarding and analytics. Favoured by mid-market to enterprise teams with high-volume, multi-country hiring needs.</div>
+              </div>
+              <div class="pl-two-col">
+                <div class="pl-field-group">
+                  <div class="pl-field-label">HQ</div>
+                  <div class="pl-field-box" id="plHqView">San Francisco, US</div>
+                </div>
+                <div class="pl-field-group">
+                  <div class="pl-field-label">FOUNDED</div>
+                  <div class="pl-field-box" id="plFoundedView">2010</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit mode (hidden by default) -->
+            <div id="pl-overview-edit" style="display:none">
+              <div class="pl-field-group">
+                <div class="pl-field-label">TAGLINE</div>
+                <input class="pl-input" id="plTaglineInput" type="text" value="Hiring Success platform that puts hiring managers in control.">
+              </div>
+              <div class="pl-field-group">
+                <div class="pl-field-label">DESCRIPTION</div>
+                <textarea class="pl-textarea" id="plDescInput" rows="4">End-to-end talent acquisition suite covering sourcing, CRM, ATS, onboarding and analytics. Favoured by mid-market to enterprise teams with high-volume, multi-country hiring needs.</textarea>
+              </div>
+              <div class="pl-two-col">
+                <div class="pl-field-group">
+                  <div class="pl-field-label">HQ</div>
+                  <input class="pl-input" id="plHqInput" type="text" value="San Francisco, US">
+                </div>
+                <div class="pl-field-group">
+                  <div class="pl-field-label">FOUNDED</div>
+                  <input class="pl-input" id="plFoundedInput" type="text" value="2010">
+                </div>
+              </div>
+              <div class="pl-edit-actions">
+                <button class="pl-cancel-btn" id="plCancelOverviewBtn">Cancel</button>
+                <button class="pl-save-btn" id="plSaveOverviewBtn">Save changes</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories & capabilities card -->
+          <div class="pl-card">
+            <div class="pl-card-head">
+              <h2 class="pl-card-title">Categories &amp; capabilities</h2>
+              <span class="pl-features-count">12 features claimed</span>
+            </div>
+
+            <!-- Category tags -->
+            <div class="pl-cats-row">
+              <span class="pl-cat-tag">Applicant Tracking (ATS) <button class="pl-cat-x">×</button></span>
+              <span class="pl-cat-tag">Onboarding <button class="pl-cat-x">×</button></span>
+              <button class="pl-add-cat">+ Add category</button>
+            </div>
+
+            <!-- Verified nudge banner -->
+            <div class="pl-verified-nudge">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.8 5H14l-3.3 2.9 1.3 4.3L8 10 4 12.2l1.3-4.3L2 5h4.2z" fill="var(--o)" stroke="var(--o)" stroke-width="0.5"/></svg>
+              TO PROGRESS TO UDDER VERIFIED, ATTACH A 60-MINUTE CAPABILITY WALKTHROUGH OR DEMO VIDEO
+            </div>
+
+            <!-- Features grid -->
+            <div class="pl-features-grid">
+              <div class="pl-feature-row">
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Req management</div>
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Career site builder</div>
+              </div>
+              <div class="pl-feature-row">
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>CRM / talent pools</div>
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-powered matching</div>
+              </div>
+              <div class="pl-feature-row">
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Scheduling automation</div>
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Offer management</div>
+              </div>
+              <div class="pl-feature-row">
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Onboarding workflows</div>
+                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>DEI analytics</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- References card -->
+          <div class="pl-card">
+            <div class="pl-card-head">
+              <h2 class="pl-card-title">References</h2>
+            </div>
+            <p class="pl-card-desc">Add customer references for Udder to validate when you submit for a higher verification tier.</p>
+            <div class="pl-ref-table">
+              <div class="pl-ref-head">
+                <span class="pl-ref-th">CUSTOMER</span>
+                <span class="pl-ref-th">INDUSTRY</span>
+                <span class="pl-ref-th">STATUS</span>
+                <span class="pl-ref-th">VALIDATED</span>
+              </div>
+              <div class="pl-ref-row">
+                <span class="pl-ref-name">Visa</span>
+                <span class="pl-ref-cell">Financial Services</span>
+                <span class="pl-ref-cell"><span class="pl-ref-status published">Published</span></span>
+                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+              <div class="pl-ref-row">
+                <span class="pl-ref-name">Bosch</span>
+                <span class="pl-ref-cell">Manufacturing</span>
+                <span class="pl-ref-cell"><span class="pl-ref-status published">Published</span></span>
+                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </div>
+              <div class="pl-ref-row">
+                <span class="pl-ref-name">McDonald's</span>
+                <span class="pl-ref-cell">Food &amp; Hospitality</span>
+                <span class="pl-ref-cell"><span class="pl-ref-status pending">Pending Udder review</span></span>
+                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t4)" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="var(--t4)" stroke-width="1.3" stroke-linecap="round"/></svg></span>
+              </div>
+            </div>
+            <button class="pl-add-ref-btn">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Add reference
+            </button>
+          </div>
+
+        </div><!-- /pl-main -->
+
+        <!-- Right sidebar -->
+        <aside class="pl-side">
+
+          <!-- Listing completeness -->
+          <div class="pl-side-card">
+            <div class="pl-side-eyebrow">LISTING COMPLETENESS</div>
+            <div class="pl-completeness-pct">87%</div>
+            <div class="pl-progress-bar"><div class="pl-progress-fill" style="width:87%"></div></div>
+            <ul class="pl-checklist">
+              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Basic info</li>
+              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Categories</li>
+              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Integrations</li>
+              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Demo video (optional)</li>
+              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Capability evidence (for Verified)</li>
+            </ul>
+          </div>
+
+          <!-- Recent activity -->
+          <div class="pl-side-card">
+            <div class="pl-side-eyebrow">RECENT ACTIVITY</div>
+            <ul class="pl-activity-list">
+              <li class="pl-activity-item">
+                <span class="pl-activity-text"><strong>Anna Sørensen (Vestas)</strong> requested intro · 14m ago</span>
+              </li>
+              <li class="pl-activity-item">
+                <span class="pl-activity-text"><strong>Marcus</strong> updated the tagline · 2h ago</span>
+              </li>
+              <li class="pl-activity-item">
+                <span class="pl-activity-text"><strong>James Olamide (Pret)</strong> compared you vs Greenhouse · 4h ago</span>
+              </li>
+              <li class="pl-activity-item">
+                <span class="pl-activity-text"><strong>Rachel (Udder)</strong> scheduled your Verified review · Yesterday</span>
+              </li>
+            </ul>
+          </div>
+
+        </aside><!-- /pl-side -->
+
+      </div><!-- /pl-body -->
+    </div><!-- /panel-scroll -->
+  </div><!-- /panel-overview -->
+
+  <!-- ── PRODUCT LISTING ── -->
+  <div class="content-panel" id="panel-product-listing">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Workspace</div>
+      <div class="panel-title">Product Listing</div>
+      <div class="panel-sub">Manage how your product appears in the Udder database</div>
+    </div>
+    <div class="panel-scroll">
+      <div class="coming-soon-wrap">
+        <div class="coming-soon-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="coming-soon-title">Product Listing editor</div>
+        <div class="coming-soon-desc">Content for this tab is coming soon.</div>
+        <div class="coming-soon-tag">Placeholder</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LEADS INBOX ── -->
+  <div class="content-panel" id="panel-leads-inbox">
+
+    <!-- Header -->
+    <div class="li-header">
+      <div>
+        <div class="li-eyebrow">BUYER INTROS</div>
+        <h1 class="li-title">Leads inbox</h1>
+        <p class="li-sub">Every lead comes qualified — with org, industry, stage, and who they're comparing you with.</p>
+      </div>
+      <div class="li-header-counts">
+        <span class="li-count-pill">4 new</span>
+        <span class="li-count-pill">2 responded</span>
+        <span class="li-count-pill">1 cold</span>
+      </div>
+    </div>
+
+    <!-- Split layout -->
+    <div class="li-layout">
+
+      <!-- Left: lead list -->
+      <div class="li-list" id="liList">
+
+        <div class="li-item active" data-lead="vestas">
+          <div class="li-item-top">
+            <span class="li-item-name">Vestas Wind Systems</span>
+            <span class="li-item-time">14m ago</span>
+          </div>
+          <div class="li-item-desc">Looking for ATS for high-volume blade tech hiring</div>
+          <div class="li-item-tags">
+            <span class="li-tag">25,000+</span>
+            <span class="li-tag">EU</span>
+            <span class="li-tag new">NEW</span>
+          </div>
+        </div>
+
+        <div class="li-item" data-lead="pret">
+          <div class="li-item-top">
+            <span class="li-item-name">Pret A Manger</span>
+            <span class="li-item-time">2h ago</span>
+          </div>
+          <div class="li-item-desc">Replacing legacy ATS, high-volume retail hiring</div>
+          <div class="li-item-tags">
+            <span class="li-tag">5,000–25,000</span>
+            <span class="li-tag">UK</span>
+            <span class="li-tag new">NEW</span>
+          </div>
+        </div>
+
+        <div class="li-item" data-lead="ocado">
+          <div class="li-item-top">
+            <span class="li-item-name">Ocado Group</span>
+            <span class="li-item-time">Yesterday</span>
+          </div>
+          <div class="li-item-desc">Global scale-up of talent platform</div>
+          <div class="li-item-tags">
+            <span class="li-tag">25,000+</span>
+            <span class="li-tag">UK</span>
+            <span class="li-tag responded">Responded</span>
+          </div>
+        </div>
+
+        <div class="li-item" data-lead="lloyds">
+          <div class="li-item-top">
+            <span class="li-item-name">Lloyds Banking Group</span>
+            <span class="li-item-time">Yesterday</span>
+          </div>
+          <div class="li-item-desc">Financial services regulatory hiring</div>
+          <div class="li-item-tags">
+            <span class="li-tag">25,000+</span>
+            <span class="li-tag">UK</span>
+            <span class="li-tag new">NEW</span>
+          </div>
+        </div>
+
+        <div class="li-item" data-lead="deliveroo">
+          <div class="li-item-top">
+            <span class="li-item-name">Deliveroo</span>
+            <span class="li-item-time">2 days ago</span>
+          </div>
+          <div class="li-item-desc">Gig / rider ops hiring platform</div>
+          <div class="li-item-tags">
+            <span class="li-tag">5,000–25,000</span>
+            <span class="li-tag">UK</span>
+            <span class="li-tag cold">Cold</span>
+          </div>
+        </div>
+
+        <div class="li-item" data-lead="halfords">
+          <div class="li-item-top">
+            <span class="li-item-name">Halfords Retail</span>
+            <span class="li-item-time">3 days ago</span>
+          </div>
+          <div class="li-item-desc">Technician and colleague hiring</div>
+          <div class="li-item-tags">
+            <span class="li-tag">5,000–25,000</span>
+            <span class="li-tag">UK</span>
+            <span class="li-tag responded">Responded</span>
+          </div>
+        </div>
+
+      </div><!-- /li-list -->
+
+      <!-- Right: lead detail -->
+      <div class="li-detail" id="liDetail">
+
+        <!-- Detail content injected by JS -->
+        <div id="liDetailInner"></div>
+
+      </div><!-- /li-detail -->
+
+    </div><!-- /li-layout -->
+  </div>
+
+  <!-- ── LEADS ANALYTICS ── -->
+  <div class="content-panel" id="panel-leads-analytics">
+
+    <!-- Header -->
+    <div class="la-header">
+      <div class="la-header-left">
+        <div class="la-eyebrow">PERFORMANCE</div>
+        <h1 class="la-title">Leads analytics</h1>
+        <p class="la-sub">SmartRecruiters · Last updated today</p>
+      </div>
+      <div class="la-period-toggle">
+        <button class="la-period-btn">Last week</button>
+        <button class="la-period-btn active">Last month</button>
+        <button class="la-period-btn">YTD</button>
+      </div>
+    </div>
+
+    <div class="la-scroll">
+
+      <!-- KPI cards -->
+      <div class="la-kpi-row">
+        <div class="la-kpi-card">
+          <div class="la-kpi-lbl">LISTING VISITS</div>
+          <div class="la-kpi-val">2,841</div>
+          <div class="la-kpi-delta up">↑ +18% vs prior period</div>
+        </div>
+        <div class="la-kpi-card">
+          <div class="la-kpi-lbl">LEADS GENERATED</div>
+          <div class="la-kpi-val">47</div>
+          <div class="la-kpi-delta up">↑ +12 vs prior period</div>
+        </div>
+        <div class="la-kpi-card">
+          <div class="la-kpi-lbl">VISIT → LEAD RATE</div>
+          <div class="la-kpi-val">1.7%</div>
+          <div class="la-kpi-delta up">↑ +0.2pp vs prior period</div>
+        </div>
+        <div class="la-kpi-card">
+          <div class="la-kpi-lbl">AVG. RESPONSE TIME</div>
+          <div class="la-kpi-val">6h</div>
+          <div class="la-kpi-delta up">↑ -2h</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="la-charts-row">
+
+        <!-- Listing visits chart -->
+        <div class="la-chart-card">
+          <div class="la-chart-head">
+            <span class="la-chart-title">Listing visits</span>
+            <span class="la-chart-delta up">↑ +18%</span>
+          </div>
+          <div class="la-bar-chart" id="laVisitsChart"></div>
+          <div class="la-chart-stats">
+            <div class="la-chart-stat"><div class="la-chart-stat-val">95</div><div class="la-chart-stat-lbl">avg per day</div></div>
+            <div class="la-chart-stat"><div class="la-chart-stat-val">156</div><div class="la-chart-stat-lbl">peak day</div></div>
+            <div class="la-chart-stat"><div class="la-chart-stat-val">2,841</div><div class="la-chart-stat-lbl">total</div></div>
+          </div>
+        </div>
+
+        <!-- Leads received chart -->
+        <div class="la-chart-card">
+          <div class="la-chart-head">
+            <span class="la-chart-title">Leads received</span>
+            <span class="la-chart-delta up">↑ +12</span>
+          </div>
+          <div class="la-bar-chart la-bar-dark" id="laLeadsChart"></div>
+          <div class="la-chart-stats">
+            <div class="la-chart-stat"><div class="la-chart-stat-val">47</div><div class="la-chart-stat-lbl">total leads</div></div>
+            <div class="la-chart-stat"><div class="la-chart-stat-val">3</div><div class="la-chart-stat-lbl">peak day</div></div>
+            <div class="la-chart-stat"><div class="la-chart-stat-val">1.7%</div><div class="la-chart-stat-lbl">conv. rate</div></div>
+          </div>
+        </div>
+
+      </div><!-- /la-charts-row -->
+
+      <!-- Bottom three cards -->
+      <div class="la-bottom-row">
+
+        <!-- Visit sources -->
+        <div class="la-bottom-card">
+          <div class="la-bottom-title">Visit sources</div>
+          <div class="la-source-list">
+            <div class="la-source-item">
+              <div class="la-source-top"><span class="la-source-name">Direct search</span><span class="la-source-count">1,193</span></div>
+              <div class="la-source-bar"><div class="la-source-fill" style="width:42%"></div></div>
+              <div class="la-source-pct">42%</div>
+            </div>
+            <div class="la-source-item">
+              <div class="la-source-top"><span class="la-source-name">Category browse</span><span class="la-source-count">795</span></div>
+              <div class="la-source-bar"><div class="la-source-fill" style="width:28%"></div></div>
+              <div class="la-source-pct">28%</div>
+            </div>
+            <div class="la-source-item">
+              <div class="la-source-top"><span class="la-source-name">Comparison views</span><span class="la-source-count">511</span></div>
+              <div class="la-source-bar"><div class="la-source-fill" style="width:18%"></div></div>
+              <div class="la-source-pct">18%</div>
+            </div>
+            <div class="la-source-item">
+              <div class="la-source-top"><span class="la-source-name">AI recommendations</span><span class="la-source-count">341</span></div>
+              <div class="la-source-bar"><div class="la-source-fill" style="width:12%"></div></div>
+              <div class="la-source-pct">12%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leads by buyer stage -->
+        <div class="la-bottom-card">
+          <div class="la-bottom-title">Leads by buyer stage</div>
+          <div class="la-stage-list">
+            <div class="la-stage-item"><span class="la-stage-dot" style="background:#6b7280"></span><span class="la-stage-name">Research</span><span class="la-stage-count">16</span></div>
+            <div class="la-stage-item"><span class="la-stage-dot" style="background:#9ca3af"></span><span class="la-stage-name">Discovery</span><span class="la-stage-count">13</span></div>
+            <div class="la-stage-item"><span class="la-stage-dot" style="background:var(--o)"></span><span class="la-stage-name">Shortlist</span><span class="la-stage-count">10</span></div>
+            <div class="la-stage-item"><span class="la-stage-dot" style="background:#16a34a"></span><span class="la-stage-name">Demo scheduled</span><span class="la-stage-count">5</span></div>
+            <div class="la-stage-item"><span class="la-stage-dot" style="background:#111"></span><span class="la-stage-name">RFP</span><span class="la-stage-count">2</span></div>
+          </div>
+          <div class="la-stage-note">Buyer stage inferred from platform behaviour signals</div>
+        </div>
+
+        <!-- Searches that found you -->
+        <div class="la-bottom-card">
+          <div class="la-bottom-title">Searches that found you</div>
+          <ol class="la-search-list">
+            <li class="la-search-item"><span class="la-search-num">1</span><span class="la-search-text">Applicant Tracking System UK</span></li>
+            <li class="la-search-item"><span class="la-search-num">2</span><span class="la-search-text">Global payroll platform</span></li>
+            <li class="la-search-item"><span class="la-search-num">3</span><span class="la-search-text">High-volume retail ATS</span></li>
+            <li class="la-search-item"><span class="la-search-num">4</span><span class="la-search-text">Internal mobility tool</span></li>
+            <li class="la-search-item"><span class="la-search-num">5</span><span class="la-search-text">HRIS 5000+ employees</span></li>
+          </ol>
+        </div>
+
+      </div><!-- /la-bottom-row -->
+
+    </div><!-- /la-scroll -->
+  </div>
+
+  <!-- ── REFERENCES ── -->
+  <div class="content-panel" id="panel-references">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Workspace</div>
+      <div class="panel-title">References</div>
+      <div class="panel-sub">Manage publicly named customers on your listing</div>
+    </div>
+    <div class="panel-scroll">
+      <div class="placeholder-bar">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t3)" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="var(--t3)" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span class="placeholder-bar-label">Reference management — content coming soon</span>
+        <span class="tag">Coming soon</span>
+      </div>
+
+      <div class="placeholder-grid">
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="placeholder-card-title">Submit a reference</div>
+          <div class="placeholder-card-text">Add publicly named customers to boost trust with evaluating buyers.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="placeholder-card-title">Udder-validated references</div>
+          <div class="placeholder-card-text">References verified by Udder consultants carry extra weight in evaluations.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="placeholder-card-title">Reference categories</div>
+          <div class="placeholder-card-text">Tag references by industry, org size, and region to match buyer profiles.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACCOUNT SETTINGS ── -->
+  <div class="content-panel" id="panel-account-settings">
+    <div class="panel-header">
+      <div class="panel-eyebrow">Platform</div>
+      <div class="panel-title">Account Settings</div>
+      <div class="panel-sub">Manage your vendor account details and preferences</div>
+    </div>
+    <div class="panel-scroll">
+      <div class="placeholder-grid">
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/></svg>
+          </div>
+          <div class="placeholder-card-title">Profile details</div>
+          <div class="placeholder-card-text">Update your vendor account name, contact email, and company information.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <div class="placeholder-card-title">Password &amp; security</div>
+          <div class="placeholder-card-text">Change your password and manage two-factor authentication.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+        <div class="placeholder-card">
+          <div class="placeholder-card-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zM13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="placeholder-card-title">Notifications</div>
+          <div class="placeholder-card-text">Control which lead and platform notifications are delivered to your email.</div>
+          <div class="placeholder-card-badge">Coming soon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-wrap -->
+
+<script>
+(function(){
+  /* ── Init: hide all non-active panels on load ── */
+  document.querySelectorAll('.content-panel').forEach(function(p){
+    if(!p.classList.contains('active')) p.style.display = 'none';
+  });
+
+  /* ── Navigation ── */
+  var navLinks  = document.querySelectorAll('.nav-link[data-panel]');
+  var crumbEl   = document.getElementById('topbarCrumb');
+
+  navLinks.forEach(function(link){
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      var panelId = 'panel-' + this.dataset.panel;
+
+      // Update active nav link
+      navLinks.forEach(function(l){ l.classList.remove('on'); });
+      this.classList.add('on');
+
+      // Update crumb
+      if(crumbEl) crumbEl.textContent = this.textContent.trim().replace(/\d+$/, '').trim();
+
+      // Hide all panels explicitly (handles both display:none and display:flex variants)
+      document.querySelectorAll('.content-panel').forEach(function(p){
+        p.classList.remove('active');
+        p.style.display = 'none';
+      });
+
+      // Show target panel
+      var panel = document.getElementById(panelId);
+      if(panel){
+        panel.classList.add('active');
+        panel.style.display = '';
+      }
+
+      // Close sidebar on mobile
+      if(window.innerWidth <= 900){
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+      }
+    });
+  });
+
+  /* ── Sidebar hamburger ── */
+  var sidebar  = document.getElementById('sidebar');
+  var overlay  = document.getElementById('sidebarOverlay');
+  var hamburger= document.getElementById('sidebarToggle');
+
+  hamburger.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', function(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  /* ── User dropdown ── */
+  var sbUser    = document.getElementById('sbUser');
+  var sbDropdown= document.getElementById('sbDropdown');
+  var sbChev    = document.getElementById('sbChev');
+
+  sbUser.addEventListener('click', function(){
+    var open = sbDropdown.classList.toggle('open');
+    sbChev.style.transform = open ? 'rotate(180deg)' : '';
+  });
+
+  document.addEventListener('click', function(e){
+    if(!sbUser.contains(e.target) && !sbDropdown.contains(e.target)){
+      sbDropdown.classList.remove('open');
+      sbChev.style.transform = '';
+    }
+  });
+
+  /* ── LEADS ANALYTICS: render bar charts ── */
+  function renderBarChart(containerId, data, colorClass) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    var max = Math.max.apply(null, data);
+    el.innerHTML = data.map(function(v) {
+      var h = Math.max(4, Math.round((v / max) * 100));
+      return '<div class="la-bar" style="height:' + h + '%;background:' + (colorClass === 'la-bar-orange' ? 'var(--o)' : 'var(--k)') + '"></div>';
+    }).join('');
+  }
+
+  var visitsData = [62,78,85,91,88,75,95,82,78,88,92,85,79,83,90,87,93,88,84,91,96,89,85,78,82,88,91,86,79,84];
+  var leadsData  = [1,2,1,3,2,1,2,3,1,2,1,2,3,1,2,2,1,3,2,1,2,1,3,2,1,2,3,2,1,2];
+  renderBarChart('laVisitsChart', visitsData, 'la-bar-orange');
+  renderBarChart('laLeadsChart',  leadsData,  'la-bar-dark');
+
+  document.querySelectorAll('.la-period-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.la-period-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  /* ── LEADS INBOX ── */
+  var LEADS = {
+    vestas: {
+      name: 'Vestas Wind Systems',
+      meta: 'Renewable Energy · 25,000+ employees · EU',
+      contact: { initials: 'AS', name: 'Anna Sørensen', role: 'Head of Talent Acquisition' },
+      stage: 'Shortlist',
+      stageSub: 'Based on platform behaviour',
+      comparing: ['Greenhouse', 'Workday HCM'],
+      musts: [
+        { text: 'Multi-country payroll integration', match: 'match', label: 'Your listing: Matches' },
+        { text: 'SAP SuccessFactors connector',       match: 'match', label: 'Your listing: Matches' },
+        { text: 'German + Danish support',            match: 'partial', label: 'Your listing: Partial' }
+      ],
+      message: 'Hi — we\'re beginning early discovery for a new ATS. Looking for ATS for high-volume blade tech hiring. We have a target implementation of Q3 2026 and are evaluating 3 vendors. Could we book 45 min for a tailored demo focused on our must-haves? Thanks — Anna'
+    },
+    pret: {
+      name: 'Pret A Manger',
+      meta: 'Food & Beverage · 5,000–25,000 employees · UK',
+      contact: { initials: 'JB', name: 'James Barrett', role: 'People Technology Lead' },
+      stage: 'Discovery',
+      stageSub: 'Early evaluation phase',
+      comparing: ['Lever', 'Greenhouse'],
+      musts: [
+        { text: 'High-volume hourly hiring',    match: 'match',   label: 'Your listing: Matches' },
+        { text: 'UK right-to-work checks',      match: 'match',   label: 'Your listing: Matches' },
+        { text: 'Slack integration',            match: 'partial', label: 'Your listing: Partial' }
+      ],
+      message: 'We\'re replacing a legacy ATS across 500+ UK stores. High-volume retail hiring is the core use-case — looking for a solution that handles shift-based onboarding well. Happy to do a short call to share more context.'
+    },
+    ocado: {
+      name: 'Ocado Group',
+      meta: 'Technology / Logistics · 25,000+ employees · UK',
+      contact: { initials: 'RC', name: 'Rachel Clarke', role: 'VP Talent' },
+      stage: 'Decision',
+      stageSub: 'Shortlist finalised',
+      comparing: ['Workday HCM', 'iCIMS'],
+      musts: [
+        { text: 'Global requisition management', match: 'match',   label: 'Your listing: Matches' },
+        { text: 'Advanced analytics & reporting', match: 'match',  label: 'Your listing: Matches' },
+        { text: 'API-first architecture',         match: 'partial', label: 'Your listing: Partial' }
+      ],
+      message: 'Following up after our demo last week. We\'re scaling our talent platform globally and need a robust ATS that can support multi-region hiring at pace. Could you share your enterprise reference list?'
+    },
+    lloyds: {
+      name: 'Lloyds Banking Group',
+      meta: 'Financial Services · 25,000+ employees · UK',
+      contact: { initials: 'MT', name: 'Marcus Thompson', role: 'Head of HR Technology' },
+      stage: 'Shortlist',
+      stageSub: 'Based on platform behaviour',
+      comparing: ['SAP SuccessFactors', 'Oracle HCM'],
+      musts: [
+        { text: 'FCA regulatory compliance',         match: 'match',   label: 'Your listing: Matches' },
+        { text: 'Right-to-work & vetting workflows', match: 'match',   label: 'Your listing: Matches' },
+        { text: 'On-premise deployment option',      match: 'partial', label: 'Your listing: Partial' }
+      ],
+      message: 'We\'re running a formal procurement process for a new ATS across Lloyds, Halifax and Bank of Scotland brands. Looking for a platform that handles regulated financial services hiring. Inviting 3 vendors to tender.'
+    },
+    deliveroo: {
+      name: 'Deliveroo',
+      meta: 'Technology / Gig Economy · 5,000–25,000 employees · UK',
+      contact: { initials: 'SP', name: 'Sophie Park', role: 'Talent Operations Manager' },
+      stage: 'Exploring',
+      stageSub: 'No confirmed timeline',
+      comparing: ['Ashby', 'Teamtailor'],
+      musts: [
+        { text: 'Contractor / gig worker flows',  match: 'partial', label: 'Your listing: Partial' },
+        { text: 'Mobile-first candidate experience', match: 'match', label: 'Your listing: Matches' },
+        { text: 'Zapier / Webhook support',        match: 'match',  label: 'Your listing: Matches' }
+      ],
+      message: 'Exploratory research at this stage — building a picture of the ATS market for our rider ops and corporate hiring. Not a live project yet but keen to understand what\'s possible.'
+    },
+    halfords: {
+      name: 'Halfords Retail',
+      meta: 'Retail · 5,000–25,000 employees · UK',
+      contact: { initials: 'LW', name: 'Laura Walsh', role: 'Resourcing Manager' },
+      stage: 'Shortlist',
+      stageSub: 'Based on platform behaviour',
+      comparing: ['BambooHR', 'Pinpoint'],
+      musts: [
+        { text: 'Store-level hiring manager access', match: 'match',   label: 'Your listing: Matches' },
+        { text: 'Apprenticeship workflow support',   match: 'partial', label: 'Your listing: Partial' },
+        { text: 'Indeed direct apply integration',   match: 'match',   label: 'Your listing: Matches' }
+      ],
+      message: 'We have around 750 stores across the UK and are looking to modernise our frontline hiring process. Current system is very manual. Looking for something our store managers can use without much training.'
+    }
+  };
+
+  function renderDetail(key) {
+    var l = LEADS[key];
+    if (!l) return;
+    var musts = l.musts.map(function(m) {
+      return '<div class="li-must-row">' +
+        '<div class="li-must-left">' +
+          '<svg class="li-must-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="var(--o)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '<span class="li-must-text">' + m.text + '</span>' +
+        '</div>' +
+        '<span class="li-match-badge ' + m.match + '">' + m.label + '</span>' +
+      '</div>';
+    }).join('');
+
+    var comparing = l.comparing.map(function(c) {
+      return '<span class="li-comparing-tag">' + c + '</span>';
+    }).join('');
+
+    document.getElementById('liDetailInner').innerHTML =
+      '<div class="li-detail-inner">' +
+        '<div class="li-detail-top">' +
+          '<div>' +
+            '<div class="li-detail-name">' + l.name + '</div>' +
+            '<div class="li-detail-meta">' + l.meta + '</div>' +
+          '</div>' +
+          '<div class="li-detail-actions">' +
+            '<button class="li-pass-btn">Pass</button>' +
+            '<button class="li-respond-btn">Respond →</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="li-info-row">' +
+          '<div class="li-info-card">' +
+            '<div class="li-info-eyebrow">CONTACT</div>' +
+            '<div class="li-contact-row">' +
+              '<div class="li-contact-avatar">' + l.contact.initials + '</div>' +
+              '<div>' +
+                '<div class="li-contact-name">' + l.contact.name + '</div>' +
+                '<div class="li-contact-role">' + l.contact.role + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="li-info-card">' +
+            '<div class="li-info-eyebrow">BUYER STAGE</div>' +
+            '<div class="li-stage-val">' + l.stage + '</div>' +
+            '<div class="li-stage-sub">' + l.stageSub + '</div>' +
+          '</div>' +
+          '<div class="li-info-card">' +
+            '<div class="li-info-eyebrow">ALSO COMPARING</div>' +
+            '<div class="li-comparing-tags">' + comparing + '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="li-section-card">' +
+          '<div class="li-section-eyebrow">MUST-HAVES</div>' +
+          musts +
+        '</div>' +
+
+        '<div class="li-section-card">' +
+          '<div class="li-section-eyebrow">ORIGINAL MESSAGE</div>' +
+          '<p class="li-message-text">' + l.message + '</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* Wire list clicks */
+  document.querySelectorAll('.li-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.li-item').forEach(function(i) { i.classList.remove('active'); });
+      this.classList.add('active');
+      renderDetail(this.dataset.lead);
+    });
+  });
+
+  /* Render default on load */
+  renderDetail('vestas');
+
+
+  var editBtn    = document.getElementById('plEditOverviewBtn');
+  var cancelBtn  = document.getElementById('plCancelOverviewBtn');
+  var saveBtn    = document.getElementById('plSaveOverviewBtn');
+  var viewEl     = document.getElementById('pl-overview-view');
+  var editEl     = document.getElementById('pl-overview-edit');
+
+  if(editBtn){
+    editBtn.addEventListener('click', function(){
+      viewEl.style.display = 'none';
+      editEl.style.display = 'block';
+      editBtn.style.display = 'none';
+    });
+  }
+  if(cancelBtn){
+    cancelBtn.addEventListener('click', function(){
+      viewEl.style.display = 'block';
+      editEl.style.display = 'none';
+      editBtn.style.display = '';
+    });
+  }
+  if(saveBtn){
+    saveBtn.addEventListener('click', function(){
+      /* Sync inputs back to view fields */
+      document.getElementById('plTaglineView').textContent  = document.getElementById('plTaglineInput').value;
+      document.getElementById('plDescView').textContent     = document.getElementById('plDescInput').value;
+      document.getElementById('plHqView').textContent       = document.getElementById('plHqInput').value;
+      document.getElementById('plFoundedView').textContent  = document.getElementById('plFoundedInput').value;
+      viewEl.style.display = 'block';
+      editEl.style.display = 'none';
+      editBtn.style.display = '';
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

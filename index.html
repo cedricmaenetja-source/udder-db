@@ -850,9 +850,21 @@ a { text-decoration: none; color: inherit; }
 </section>
 <script type="module">
   import { setCookie, showToast } from '/assets/js/app.js';
+  import { isLoggedIn, getCurrentUser } from '/assets/js/core/auth/session.js';
+
+  let role;
+
+  const loggedIn = await isLoggedIn();
+  if (loggedIn){
+    const { user } = await getCurrentUser();
+    role = user.role;
+  }
+
   (function(){
     document.getElementById('searchBtn').addEventListener('click', function(){
       const q = document.getElementById('query').value.trim();
+
+      if (role != 'hr-professional'){ location.href = `${role}/`; return;}
       // console.log('in here', q);
       // if (!q){
       //   showToast('Enter text to begin search', 'error');

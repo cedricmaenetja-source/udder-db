@@ -470,3 +470,17 @@
 @media (max-width: 480px) {
   .chat-panel { width: 100%; }
 }
+.vc-shortlist-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--o, #f04e23);
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.vc-shortlist-btn:hover { opacity: 0.85; }

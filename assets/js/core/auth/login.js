@@ -84,9 +84,11 @@ $(async function(){
             return;
         }
         
+        const role = result.data.role;
         var days = 365; //remember ? 365 : 1;
         // App.setCookie('is_logged_in', true, days);
         // App.setCookie('user_id', result.data.id, days);
-        location.href = PAGES.home;
+        if (role == 'vendor') location.href = PAGES.vendor;
+        if (role == 'hr-professional') location.href = PAGES.home;
     });
 });

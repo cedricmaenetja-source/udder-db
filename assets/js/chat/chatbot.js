@@ -9,11 +9,11 @@ $(function () {
      API
   ═══════════════════════════════════════════════════ */
 
-  async function callChat(messages) {
+  async function callChat(messages, userName) {
     const res = await fetch('/api/claude-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, userName }),
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -86,15 +86,15 @@ $(function () {
         : '';
 
       return `
-        <a href="${PAGES.platform}?vid=${v.id}" class="vendor-card" target="_blank">
           <div class="vc-header">
             ${logoHtml}
             <div class="vc-name">${v.name}</div>
           </div>
           ${desc}
           <div class="vc-tags">${cats}</div>
-          <div class="vc-cta">View profile →</div>
-        </a>`;
+          <div class="vc-cta vc-shortlist-btn" data-id="${v.id}" data-name="${v.name}">
+            ${window.shortlistItems && window.shortlistItems[v.name] ? '✓ Shortlisted' : '+ Add to shortlist'}
+          </div>`;
     }).join('');
 
     const $grid = $(`
@@ -104,6 +104,35 @@ $(function () {
       </div>`);
 
     $body.append($grid).scrollTop($body[0].scrollHeight);
+
+    // Wire shortlist buttons
+    $grid.find('.vc-shortlist-btn').on('click', function(){
+      const $btn   = $(this);
+      const name   = $btn.data('name');
+      const id     = $btn.data('id');
+
+      if(!window.shortlistItems) return;
+
+      if(window.shortlistItems[name]){
+        // Remove from shortlist
+        delete window.shortlistItems[name];
+        $btn.text('+ Add to shortlist').css('opacity', '1');
+      } else {
+        // Find the matching card in the DOM, fall back to a stub
+        let card = document.querySelector(`#vendors .card[data-id="${id}"]`);
+        if(!card){
+          card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.name = name;
+          card.dataset.id   = id;
+          card.dataset.logo = $btn.closest('.vendor-card').find('.vc-logo').attr('src') || '';
+        }
+        window.shortlistItems[name] = { card, rating: 0 };
+        $btn.text('✓ Shortlisted').css('opacity', '0.7');
+      }
+
+      if(typeof window.updateShortlistCount === 'function') window.updateShortlistCount();
+    });
   }
 
   function showTyping() {
@@ -134,7 +163,7 @@ $(function () {
     const $typing = showTyping();
 
     try {
-      const data = await callChat(history);
+      const data = await callChat(history, window._user?.first_name || null);
       $typing.remove();
 
       // Render the text reply
@@ -177,6 +206,13 @@ $(function () {
     $('#gridBtn').css('z-index', 'unset');
     $('#chatOverlay').css('display', 'flex');
     requestAnimationFrame(() => $('#chatOverlay').addClass('open'));
+    const firstName = window._user?.first_name;
+    if(firstName && $('#chatBody .msg.bot').length === 1) {
+      // Update the default greeting bubble to use their name
+      $('#chatBody .msg.bot .msg-bubble').first().html(
+        `👋 Hi ${firstName}! I'm the Udder AI assistant. I can help you find the right HR tech vendors, compare platforms, and answer questions about the database.<br><br>What are you looking for today?`
+      );
+    }
     $('#chatInput').focus();
   }
 

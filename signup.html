@@ -213,7 +213,7 @@ input[type=hidden]{display:none}
       <div class="form-group">
         <label class="form-label" for="pwd">Password <span class="req">*</span></label>
         <div class="form-input-wrap">
-          <input class="form-input" type="password" id="pwd" placeholder="At least 8 characters" autocomplete="new-password">
+          <input class="form-input" type="password" id="pwd" placeholder="At least 12 characters" autocomplete="new-password">
           <button class="input-icon" type="button" id="togglePwd">
             <svg id="eyeIcon" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/></svg>
           </button>
@@ -279,8 +279,8 @@ input[type=hidden]{display:none}
         <div class="pref-section">
           <span class="pref-section-label">Geographic coverage needed</span>
           <div class="pill-group" id="geoGroup">
-            <button class="pill pill-sm selected" data-val="uk" type="button">UK</button>
-            <button class="pill pill-sm selected" data-val="eu" type="button">EU</button>
+            <button class="pill pill-sm" data-val="uk" type="button">UK</button>
+            <button class="pill pill-sm" data-val="eu" type="button">EU</button>
             <button class="pill pill-sm" data-val="us" type="button">US</button>
             <button class="pill pill-sm" data-val="apac" type="button">APAC</button>
             <button class="pill pill-sm" data-val="latam" type="button">LATAM</button>
@@ -293,7 +293,7 @@ input[type=hidden]{display:none}
             <button class="pill pill-sm" data-val="1-50" type="button">1–50</button>
             <button class="pill pill-sm" data-val="50-500" type="button">50–500</button>
             <button class="pill pill-sm" data-val="500-5000" type="button">500–5,000</button>
-            <button class="pill pill-sm selected" data-val="5000-25000" type="button">5,000–25,000</button>
+            <button class="pill pill-sm" data-val="5000-25000" type="button">5,000–25,000</button>
             <button class="pill pill-sm" data-val="25000+" type="button">25,000+</button>
           </div>
         </div>
@@ -429,8 +429,9 @@ input[type=hidden]{display:none}
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script type="module">
-  import { lockBtn } from './assets/js/app.js';
+  import { lockBtn, showToast } from './assets/js/app.js';
   window.lockBtn = lockBtn;
+  window._showToast = showToast;
 </script>
 <script>
 (function(){
@@ -450,8 +451,15 @@ input[type=hidden]{display:none}
   window._goSignupStep = goTo;
 
   /* ── pill toggles ── */
-  document.querySelectorAll('#catGroup .pill, #geoGroup .pill, #sizeGroup .pill').forEach(pill => {
+  document.querySelectorAll('#catGroup .pill, #geoGroup .pill, .pill').forEach(pill => {
     pill.addEventListener('click', () => pill.classList.toggle('selected'));
+  });
+
+  document.querySelectorAll('#sizeGroup .pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+          document.querySelectorAll('#sizeGroup .pill').forEach(p => p.classList.remove('selected'));
+          pill.classList.add('selected');
+      });
   });
 
   /* ── role cards ── */
@@ -571,11 +579,11 @@ input[type=hidden]{display:none}
 
     if(role === 'vendor'){
       if(selectedVendorOption === 'claim' && !selectedVendorId){
-        reset(); alert('Please search for and select your product listing.'); return;
+        reset(); window._showToast('Please search for and select your product listing.', 'error'); return;
       }
       if(selectedVendorOption === 'new'){
         const url = document.getElementById('newListingUrl').value.trim();
-        if(!url){ reset(); alert('Please enter your product website URL.'); return; }
+        if(!url){ reset(); window._showToast('Please enter your product website URL.', 'error'); return; }
         document.getElementById('vendorListingUrl').value = url;
       }
       document.getElementById('vendorOption').value    = selectedVendorOption;

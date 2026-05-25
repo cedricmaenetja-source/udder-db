@@ -57,7 +57,7 @@ $(async function () {
             document.cookie = `guest_session=${sessionId}; path=/; max-age=2592000; SameSite=Lax`;
         }
     }else{
-        loadUserProfile();
+        await loadUserProfile();
         $('#sbSignIn').addClass('hide');
         
         $('#vdShortlistBtn').removeClass('hide');
@@ -138,11 +138,10 @@ $(document).ready(function() {
     });
 
     let query = App.getCookie('query');
-    query = null;
     if (query !== null && (query !== undefined || typeof value !== 'undefined') && query != ''){
         const value = decodeURIComponent(query);
         $("#search").val(value);
-        
+        App.setCookie('query', null);
         document.getElementById("search").focus();
         $('#modalSearch').val(value);
         $("#askAiBtn").trigger('click');
@@ -554,11 +553,10 @@ async function loadUserProfile(){
 
     window._user = result.data;
     console.log('result.data', result.data);
-    // if (user.role != 'hr-professional'){
-    //     App.setCookie('is_logged_in', false);
-    //     location.href = PAGES.login;
-    //     return;
-    // }
+    if (window._user.role != 'hr-professional'){
+        location.href = `../${window._user.role}/`;
+        return;
+    }
     
     const fullName = `${window._user.first_name} ${window._user.last_name}`;
     $('#sb-uname').text(fullName);
@@ -944,9 +942,35 @@ function applyCheckboxFilters() {
   var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
     .map(function(cb){ return cb.value; });
 
+  var checkedModules = Array.from(document.querySelectorAll('#catTree .ct-lbl > input[type="checkbox"]:checked'))
+    .map(function(cb){ return cb.value.toLowerCase(); });
+
+  var checkedSubs = Array.from(document.querySelectorAll('#catTree .ct-sub input[type="checkbox"]:checked'))
+    .map(function(cb){ return cb.value.toLowerCase(); });
+
+  var nothingChecked = !checkedRegions.length && !checkedSizes.length && !checkedModules.length && !checkedSubs.length;
+
+  // If nothing is checked at all, restore all vendors from the full list
+  if(nothingChecked){
+    if(window._allVendors && window._allVendors.length){
+      // Re-render from scratch only if current card count differs from full list
+      if(document.querySelectorAll('#vendors .card').length < window._allVendors.length){
+        loadVendors();
+        return;
+      }
+    }
+    document.querySelectorAll('#vendors .card').forEach(function(card){
+      card.style.display = '';
+    });
+    updateVendorTotalFiltered();
+    return;
+  }
+
   document.querySelectorAll('#vendors .card').forEach(function(card) {
-    var cardRegion = (card.dataset.region || '').toLowerCase();
-    var cardSize   = (card.dataset.companysize || '').trim();
+    var cardRegion  = (card.dataset.region || '').toLowerCase();
+    var cardSize    = (card.dataset.companysize || '').trim();
+    var cardModules = (card.dataset.modules || '').toLowerCase();
+    var cardSubs    = (card.dataset.subcategories || '').toLowerCase();
 
     var regionMatch = !checkedRegions.length || checkedRegions.some(function(r){
       return cardRegion.includes(r);
@@ -956,7 +980,14 @@ function applyCheckboxFilters() {
       return cardSize === s;
     });
 
-    card.style.display = (regionMatch && sizeMatch) ? '' : 'none';
+    var catMatch = true;
+    if(checkedSubs.length){
+      catMatch = checkedSubs.some(function(s){ return cardSubs.includes(s); });
+    } else if(checkedModules.length){
+      catMatch = checkedModules.some(function(m){ return cardModules.includes(m); });
+    }
+
+    card.style.display = (regionMatch && sizeMatch && catMatch) ? '' : 'none';
   });
 
   updateVendorTotalFiltered();
@@ -1091,6 +1122,7 @@ async function loadVendors(filters = null){
         }
 
         vendors = result.data;
+        window._allVendors = result.data;
     } catch (err) {
         console.error('Fetch error:', err);
         App.customError(App.OPERATION_FAILED);
@@ -1102,7 +1134,8 @@ async function loadVendors(filters = null){
 
     if (filters !== null){
         window._filters = filters;
-        vendors = applyFilters(filters, vendors);
+        window._activeFilters = filters;
+        vendors = applyFilters(filters, window._allVendors);
         if (vendors.length > 0){
             $('#search-title').text('YOUR CUSTOMIZED HR TECH STACKS');
 
@@ -1183,6 +1216,8 @@ async function loadVendors(filters = null){
             // add 
             // data-trending="true"
             // data-implementations="3"
+            // data-references (comma separated with an optional | for meta line) e.g. Visa|Enterprise · Multi-region, Bosch|Enterprise · UK, LinkedIn, McDonald's, Ubisoft|SMB · EU
+            // data-ver-history (semicolon separated with | between dates and description) e.g. 14 MAR 2026|Upgraded to Udder Approved by Alice Oduya, Udder;02 JAN 2026|Vendor claimed listing — 42 hours of capability evidence attached;12 NOV 2025|AI-generated from public sources (vendor website, G2, Capterra)
             $('#vendors').append(`
                 <div class="card" 
                     data-modules="${modules.modules.join(',')}"
@@ -1211,7 +1246,7 @@ async function loadVendors(filters = null){
                             data-id="${vendor.id}"
                             data-score="${vendor.match_score}" 
                             data-matcheditems="${vendor.matched_items}"
-                            data-filterscount="${vendor.filters_count}">View</button>
+                            data-filterscount="${vendor.filters_count}">View →</button>
                 </div>`);
         }
     });
@@ -1229,62 +1264,53 @@ async function loadVendors(filters = null){
 }
 
 function updateCategoryCounts() {
-  // Count vendors per module and sub-category
   var moduleCounts = {};
   var subCounts    = {};
 
-  document.querySelectorAll('#vendors .card').forEach(function(card) {
-    var modules = (card.dataset.modules || '').split(',').map(function(m){ return m.trim(); }).filter(Boolean);
-    var subs    = (card.dataset.subcategories || '').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  // Use a Set per category to count unique vendors
+  var moduleVendors = {};
+  var subVendors    = {};
 
-    modules.forEach(function(m) {
-      moduleCounts[m] = (moduleCounts[m] || 0) + 1;
+  var source = window._allVendors || [];
+  source.forEach(function(vendor) {
+    var company = vendor && vendor.data && vendor.data.company;
+    if(!company) return;
+    var parsed = App.getModules(company.modules || {});
+
+    // Deduplicate modules per vendor
+    var uniqueModules = [...new Set(parsed.modules || [])];
+    var uniqueSubs    = [...new Set(parsed.subCategories || [])];
+
+    uniqueModules.forEach(function(m) {
+      if(!moduleVendors[m]) moduleVendors[m] = new Set();
+      moduleVendors[m].add(vendor.id);
     });
-    subs.forEach(function(s) {
-      subCounts[s] = (subCounts[s] || 0) + 1;
+
+    uniqueSubs.forEach(function(s) {
+      if(!subVendors[s]) subVendors[s] = new Set();
+      subVendors[s].add(vendor.id);
     });
   });
 
-  // Update parent module counts
+  // Convert Sets to counts
+  Object.keys(moduleVendors).forEach(function(m){
+    moduleCounts[m] = moduleVendors[m].size;
+  });
+  Object.keys(subVendors).forEach(function(s){
+    subCounts[s] = subVendors[s].size;
+  });
+
   document.querySelectorAll('#catTree > li').forEach(function(li) {
     var cb   = li.querySelector('.ct-lbl > input[type="checkbox"]');
     var name = cb ? cb.value : '';
     var ct_n = li.querySelector(':scope > .ct-row .ct-n');
+    if(ct_n && name) ct_n.textContent = moduleCounts[name] || 0;
 
-    if (!ct_n) {
-      // Add count span if not present
-      var ctName = li.querySelector(':scope > .ct-row .ct-name');
-      if (ctName) {
-        var span = document.createElement('span');
-        span.className = 'ct-n';
-        ctName.parentNode.appendChild(span);
-        ct_n = span;
-      }
-    }
-
-    if (ct_n && name) {
-      ct_n.textContent = moduleCounts[name] || 0;
-    }
-
-    // Update sub-category counts
     li.querySelectorAll('.ct-sub li').forEach(function(subLi) {
       var subCb   = subLi.querySelector('input[type="checkbox"]');
       var subName = subCb ? subCb.value : '';
       var subCt_n = subLi.querySelector('.ct-n');
-
-      if (!subCt_n) {
-        var subCtName = subLi.querySelector('.ct-name');
-        if (subCtName) {
-          var subSpan = document.createElement('span');
-          subSpan.className = 'ct-n';
-          subCtName.parentNode.appendChild(subSpan);
-          subCt_n = subSpan;
-        }
-      }
-
-      if (subCt_n && subName) {
-        subCt_n.textContent = subCounts[subName] || 0;
-      }
+      if(subCt_n && subName) subCt_n.textContent = subCounts[subName] || 0;
     });
   });
 }

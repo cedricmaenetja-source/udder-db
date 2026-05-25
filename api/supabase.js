@@ -47,8 +47,6 @@ export default async function handler(req, res) {
         'updateOtp',
         'updateVerification',
         'login',
-        'addVendorClaim',
-        'addVendorRequest',
         'addToVendorAnalytics',
         'updateUserPassword',
         'addVendorLead',
@@ -262,35 +260,35 @@ export default async function handler(req, res) {
         }
     }
     
-    if (action === 'addVendorClaim'){
-        if (req.method !== "POST") {
-            return res.status(405).json({ error: "Only POST allowed" });
-        }
+    // if (action === 'addVendorClaim'){
+    //     if (req.method !== "POST") {
+    //         return res.status(405).json({ error: "Only POST allowed" });
+    //     }
 
-        try {
-            const { userId, vendorId } = req.body;
+    //     try {
+    //         const { userId, vendorId } = req.body;
             
-            return await addVendorClaim(res, userId, vendorId);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Internal error' });
-        }
-    }
+    //         return await addVendorClaim(res, userId, vendorId);
+    //     } catch (err) {
+    //         console.error(err);
+    //         res.status(500).json({ error: 'Internal error' });
+    //     }
+    // }
 
-    if (action === 'addVendorRequest'){
-        if (req.method !== "POST") {
-            return res.status(405).json({ error: "Only POST allowed" });
-        }
+    // if (action === 'addVendorRequest'){
+    //     if (req.method !== "POST") {
+    //         return res.status(405).json({ error: "Only POST allowed" });
+    //     }
 
-        try {
-            const { userId, websiteUrl } = req.body;
+    //     try {
+    //         const { userId, websiteUrl } = req.body;
             
-            return await addVendorRequest(res, userId, websiteUrl);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Internal error' });
-        }
-    }
+    //         return await addVendorRequest(res, userId, websiteUrl);
+    //     } catch (err) {
+    //         console.error(err);
+    //         res.status(500).json({ error: 'Internal error' });
+    //     }
+    // }
 
     if (action === 'addToVendorAnalytics'){
         if (req.method !== "POST") {
@@ -733,6 +731,17 @@ export async function userSignUp(res, user) {
 
     data['token'] = token;
 
+    if (user['claim_vendor_id'] != ''){
+        const { error: claimError} = await addVendorClaim(data.id, user['claim_vendor_id']);
+        if (claimError) data['claim_error'] = claimError.message;
+    }else{
+        // because it is either or, not both
+        if (user['new_listing_url'] != ''){
+            const { error: newReqClaim} = await addVendorRequest(data.id, user['new_listing_url']);
+            if (newReqClaim) data['request_error'] = newReqClaim.message;
+        }
+    }
+   
     return res.status(200).json({ data });
 }
 
@@ -744,6 +753,12 @@ async function getUserByEmail(res, email) {
     .maybeSingle();
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'private, max-age=60'
+    );
+
     return res.status(200).json({ data });
 }
 
@@ -773,6 +788,12 @@ async function getUserById(res, id) {
     .maybeSingle();
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'private, max-age=60'
+    );
+
     return res.status(200).json({ data });
 }
 
@@ -931,7 +952,7 @@ async function login(req, res, email, password) {
     return res.status(401).json({ data: null, error: 'Invalid login details.' });
 }
 
-export async function addVendorClaim(res, userId, vendorId) {
+export async function addVendorClaim(userId, vendorId) {
     const { data: existing, error: checkError } = await supabase
         .from('tblvendorclaims')
         .select('id')
@@ -939,32 +960,19 @@ export async function addVendorClaim(res, userId, vendorId) {
         .eq('vendor_id', vendorId)
         .maybeSingle();
 
-    if (checkError) {
-        return res.status(500).json({
-            error: checkError.message
-        });
-    }
-
-    if (existing) {
-        return res.status(500).json({
-            error: 'A claim for this vendor already exists.',
-        });
-    }
+    if (checkError) return { data: null, error: checkError };
+    if (existing) return { data: null, error: { message: 'A claim for this vendor already exists.' } };
 
     const { data, error } = await supabase
-    .from('tblvendorclaims')
-    .insert({ 
-        user_id: userId, 
-        vendor_id: vendorId, 
-    })
-    .select('*')
-    .single();
+        .from('tblvendorclaims')
+        .upsert({ user_id: userId, vendor_id: vendorId },{ onConflict: 'user_id' })
+        .select('*')
+        .single();
 
-    if (error) return res.status(500).json({ data: null, error: error.message });
-    return res.status(200).json({ data });
+    return { data, error };
 }
 
-export async function addVendorRequest(res, userId, websiteUrl) {
+export async function addVendorRequest(userId, websiteUrl) {
     const { data: existing, error: checkError } = await supabase
         .from('tblvendorrequests')
         .select('id')
@@ -972,29 +980,16 @@ export async function addVendorRequest(res, userId, websiteUrl) {
         .eq('website_url', websiteUrl)
         .maybeSingle();
 
-    if (checkError) {
-        return res.status(500).json({
-            error: checkError.message
-        });
-    }
-
-    if (existing) {
-        return res.status(500).json({
-            error: 'A request for this vendor already exists.',
-        });
-    }
+    if (checkError) return { data: null, error: checkError };
+    if (existing) return { data: null, error: { message: 'A request for this vendor already exists.' } };
 
     const { data, error } = await supabase
-    .from('tblvendorrequests')
-    .insert({ 
-        user_id: userId, 
-        website_url: websiteUrl, 
-    })
-    .select('*')
-    .single();
+        .from('tblvendorrequests')
+        .upsert({ user_id: userId, website_url: websiteUrl },{ onConflict: 'user_id' })
+        .select('*')
+        .single();
 
-    if (error) return res.status(500).json({ data: null, error: error.message });
-    return res.status(200).json({ data });
+    return { data, error };
 }
 
 export async function addToVendorAnalytics(res, vendorId, ipAddress) {
@@ -1115,6 +1110,13 @@ export async function verifyOtp(res, token, otp){
         return res.status(500).json({ data: null, error: 'Invalid OTP.' });
     }
 
+    const { error: updateError } = await supabase
+    .from('tblusers')
+    .update({ verified: 'Y' })
+    .eq('id', id);
+
+    if (updateError) return res.status(500).json({ data: null, error: updateError.message });
+
     return res.status(200).json({ message: 'success' });
 }
 
@@ -1132,7 +1134,7 @@ async function GetVendorsForClaiming(res){
     
     if (data !== null){
         data.forEach(vendor => {
-            if (vendor.data !== null && vendor.data.company !== null && !ids.includes(vendor.id)) vendors.push({name: vendor.name, url: vendor.data.company.website});
+            if (vendor.data !== null && vendor.data.company !== null && !ids.includes(vendor.id)) vendors.push({id: vendor.id, name: vendor.name, url: vendor.data.company.website});
         });
     }
     
