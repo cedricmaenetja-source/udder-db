@@ -58,7 +58,8 @@ export default async function handler(req, res) {
         'addClientInquiry',
         'uploadVendorScreenshots',
         'deleteAccount',
-        'getAllEvaluations'
+        'getAllEvaluations',
+        'getUserClaim'
     ];
 
     if (!action) {
@@ -86,6 +87,7 @@ export default async function handler(req, res) {
     if (action === 'getEvaluations') return await getEvaluations(res, vendorId, userId);
     if (action === 'getNotificationPrefs') return await getNotificationPrefs(res, userId);
     if (action === 'getAllEvaluations') return await getAllEvaluations(res, userId);
+    if (action === 'getUserClaim') return await getUserClaim(res, userId);
 
     if (action === 'deleteAccount') {
         if (req.method !== "POST") {
@@ -950,6 +952,41 @@ async function login(req, res, email, password) {
     }
 
     return res.status(401).json({ data: null, error: 'Invalid login details.' });
+}
+
+async function getUserClaim(res, userId){
+    let claim;
+
+    const { data, error } = await supabase
+        .from('tblvendorclaims')
+        .select('vendor_id, created_at, verified')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    if (data !== null){
+        const { data: vendorClaimed, error: vendorClaimedError} = await supabase
+            .from('tblvendors')
+            .select('name')
+            .eq('id', data.vendor_id)
+            .maybeSingle();
+        if (vendorClaimedError) return res.status(500).json({ data: null, error: vendorClaimedError.message });
+
+        vendorClaimed.created_at = data.created_at;
+        vendorClaimed.verified = data.verified;
+        claim = vendorClaimed;
+    }else{
+        const { data: newListing, error: newListingError} = await supabase
+            .from('tblvendorrequests')
+            .select('website_url, status, created_at')
+            .eq('user_id', userId)
+            .maybeSingle();
+        
+        if (vendorClaimedError) return res.status(500).json({ data: null, error: newListingError.message });
+        claim = newListing;
+    }
+    
+    return res.status(200).json({ claim });
 }
 
 export async function addVendorClaim(userId, vendorId) {

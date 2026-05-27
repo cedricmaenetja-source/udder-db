@@ -19,6 +19,7 @@
 html,body{height:100%;overflow:hidden;background:var(--off)}
 body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
+.hide{display:none!important}
 /* TOP BAR */
 .topbar{position:fixed;top:0;left:0;right:0;height:var(--th);z-index:300;background:var(--w);border-bottom:1px solid var(--b1);display:flex;align-items:center}
 .tb-logo{width:var(--lw);flex-shrink:0;height:100%;display:flex;align-items:center;gap:9px;padding:0 18px;border-right:1px solid var(--b1)}
@@ -90,7 +91,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .main-wrap{position:fixed;top:var(--th);left:var(--lw);right:0;bottom:0;overflow:hidden}
 
 /* CONTENT PANELS */
-.content-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:var(--off)}
+.content-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:white}
 .content-panel.active{display:flex}
 
 /* Panel header */
@@ -153,7 +154,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .la-period-btn{height:32px;padding:0 16px;border:none;border-radius:16px;background:transparent;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all 0.15s;white-space:nowrap}
 .la-period-btn:hover{color:var(--t1)}
 .la-period-btn.active{background:var(--o);color:var(--w)}
-.la-scroll{flex:1;overflow-y:auto;padding:24px 32px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:var(--off)}
+.la-scroll{flex:1;overflow-y:auto;padding:24px 32px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:white}
 .la-scroll::-webkit-scrollbar{width:4px}
 .la-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
 .la-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
@@ -230,7 +231,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .li-tag.cold{background:var(--off2);border-color:var(--b2);color:var(--t3)}
 
 /* Right detail */
-.li-detail{overflow-y:auto;background:var(--off);scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.li-detail{overflow-y:auto;background:white;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
 .li-detail::-webkit-scrollbar{width:4px}
 .li-detail::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
 
@@ -274,7 +275,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .li-message-text{font-size:14px;color:var(--t2);line-height:1.7}
 
 /* Hero */
-.pl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:28px 32px 24px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
+.pl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:28px 32px 24px;background:var(--w);flex-shrink:0}
 .pl-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px}
 .pl-name{font-size:36px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1.05;margin-bottom:12px}
 .pl-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -282,14 +283,14 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .pl-badge-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
 .pl-complete{font-size:13px;color:var(--t2);font-weight:500}
 .pl-updated{font-size:13px;color:var(--t3)}
-.pl-tier-card{border:1px solid var(--b2);border-radius:12px;padding:18px 22px;min-width:320px;max-width:360px;flex-shrink:0}
+.pl-tier-card{border:1px solid var(--b2);border-radius:12px;padding:18px 22px;min-width:320px;flex-shrink:0}
 .pl-tier-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
 .pl-tier-desc{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:14px}
 .pl-tier-btn{width:100%;padding:11px 20px;border-radius:8px;border:none;background:var(--k);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s}
 .pl-tier-btn:hover{background:#2a2a2a}
 
 /* Stats row */
-.pl-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px;background:var(--off);border-bottom:1px solid var(--b1);flex-shrink:0}
+.pl-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px;background:white;flex-shrink:0}
 .pl-stat-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:0}
 .pl-stat-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px}
 .pl-stat-val{font-size:40px;font-weight:900;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:8px}
@@ -298,11 +299,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .pl-stat-delta.down{color:#ef4444}
 
 /* Body two-col */
-.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;flex:1;overflow:hidden;min-height:0}
+.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;flex:1;overflow:hidden;min-height:0;background: white;}
 .pl-main{overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
 .pl-main::-webkit-scrollbar{width:4px}
 .pl-main::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
-.pl-side{overflow-y:auto;border-left:1px solid var(--b1);padding:20px 24px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:var(--off)}
+.pl-side{overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:white}
 .pl-side::-webkit-scrollbar{width:4px}
 .pl-side::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
 
@@ -402,10 +403,107 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   .panel-header{padding:20px 16px 14px}
   .panel-scroll{padding:16px}
 }
+/* ── PAGE LOADER ── */
+#pageLoader{
+  position:fixed;inset:0;z-index:9999;
+  background:#ffffff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity 0.35s ease, visibility 0.35s ease;
+}
+#pageLoader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-wordmark{font-size:28px;font-weight:900;color:#0f0f0f;letter-spacing:-0.01em}
+.loader-wordmark span{color:#f04e23}
+.loader-spinner{position:relative;width:36px;height:36px}
+.loader-spinner::before,.loader-spinner::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+}
+.loader-spinner::before{border:3px solid #f3f2ef}
+.loader-spinner::after{
+  border:3px solid transparent;
+  border-top-color:#f04e23;
+  animation:loaderSpin 0.75s linear infinite;
+}
+@keyframes loaderSpin{to{transform:rotate(360deg)}}
+.loader-text{font-size:12px;font-weight:500;color:#b8b8b2;letter-spacing:0.04em}
+/* ── NO PRODUCT LINKED STATE ── */
+.no-product-wrap{display:none;align-items:center;justify-content:center;padding:60px 32px;background:white;flex:1;min-height:100%}
+.no-product-wrap.show{display:flex}
+.no-product-inner{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start;max-width:960px;width:100%}
+.no-product-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px}
+.no-product-title{font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1.2;margin-bottom:12px}
+.no-product-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:28px;max-width:480px}
+.no-product-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.no-product-btn-primary{height:42px;padding:0 24px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
+.no-product-btn-primary:hover{background:var(--o2)}
+.no-product-btn-ghost{height:42px;padding:0 22px;background:transparent;border:1.5px solid var(--b2);border-radius:999px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.13s}
+.no-product-btn-ghost:hover{border-color:var(--b3);color:var(--t1)}
+.no-product-status-card{background:var(--w);border:1px solid var(--b1);border-radius:16px;padding:28px 24px}
+.no-product-status-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px}
+.no-product-status-name{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.01em;margin-bottom:3px}
+.no-product-status-sub{font-size:12px;color:var(--t3);margin-bottom:24px}
+.claim-stepper{display:flex;flex-direction:column}
+.claim-step{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:14px}
+.claim-step-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--off2);border:2px solid var(--b2);grid-row:1;grid-column:1;z-index:1}
+.claim-step.done .claim-step-icon{background:var(--o);border-color:var(--o)}
+.claim-step-icon.active{background:var(--w);border-color:var(--o)}
+.claim-step-pulse{width:10px;height:10px;border-radius:50%;background:var(--o);animation:nppulse 1.4s ease-in-out infinite}
+@keyframes nppulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+.claim-step-line{width:2px;background:var(--b2);margin:0 auto;min-height:20px;grid-row:2;grid-column:1}
+.claim-step-line.done{background:var(--o)}
+.claim-step-body{grid-row:1/3;grid-column:2;padding:4px 0 20px}
+.claim-step:last-child .claim-step-body{padding-bottom:0}
+.claim-step-label{font-size:13px;font-weight:600;color:var(--t1)}
+.claim-step.pending .claim-step-label{color:var(--t4)}
+.claim-step-meta{font-size:11px;color:var(--t3);margin-top:3px}
+.claim-step.pending .claim-step-meta{color:var(--t4)}
+.claim-help{font-size:12px;color:var(--t3);padding-top:16px;border-top:1px solid var(--b1);margin-top:8px}
+.claim-help a{color:var(--o);text-decoration:none;font-weight:600}
+.claim-help a:hover{text-decoration:underline}
+/* ── CONTENT SPINNER ── */
+.content-spinner{
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;flex:1;min-height:200px;padding:40px;
+}
+.content-spinner.show{display:flex}
+.cs-ring{position:relative;width:32px;height:32px;flex-shrink:0}
+.cs-ring::before,.cs-ring::after{content:'';position:absolute;inset:0;border-radius:50%}
+.cs-ring::before{border:2.5px solid var(--off2)}
+.cs-ring::after{
+  border:2.5px solid transparent;
+  border-top-color:var(--o);
+  animation:csSpin 0.7s linear infinite;
+}
+@keyframes csSpin{to{transform:rotate(360deg)}}
+.cs-text{font-size:12px;font-weight:500;color:var(--t4);letter-spacing:0.03em}
+/* NOTIFICATIONS */
+.notification {
+  position: fixed;
+  top: 20px; right: 20px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: white;
+  z-index: 9999;
+  animation: slideIn 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.notification.success { background: #16a34a; }
+.notification.error   { background: #ef4444; }
+.notification.warning { background: #f59e0b; }
+.notification.neutral { background: #0f0f0f; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
-
+<div id="pageLoader">
+  <div class="loader-wordmark">UDDER <span>DB</span></div>
+  <div class="loader-spinner"></div>
+  <div class="loader-text">Loading your workspace…</div>
+</div>
 <!-- TOP BAR -->
 <header class="topbar">
   <button class="tb-hamburger" id="sidebarToggle" aria-label="Open menu">
@@ -513,7 +611,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     </li>
   </ul>
 
-  <div class="sb-foot">Udder Vendor Portal<br>v0.0.1 · MVP</div>
+  <div class="sb-foot">Udder<br>v0.0.1 · MVP</div>
 </aside>
 
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -523,8 +621,57 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
   <!-- ── OVERVIEW ── -->
   <div class="content-panel active" id="panel-overview">
-    <div class="panel-scroll" style="padding:0">
-
+    <div class="panel-scroll" style="padding:0;display:flex;flex-direction:column">
+      <div class="content-spinner" id="overviewSpinner">
+        <div class="cs-ring"></div>
+        <div class="cs-text">Loading…</div>
+      </div>
+      <!-- NO PRODUCT LINKED STATE -->
+      <div class="no-product-wrap" id="noProductState">
+        <div class="no-product-inner">
+          <div class="no-product-main">
+            <div class="no-product-eyebrow">CLAIM PENDING</div>
+            <h2 class="no-product-title">Your listing claim is being reviewed</h2>
+            <p class="no-product-desc">We've received your request and our team is verifying ownership. Once confirmed, your listing will be linked and you'll have full access to your Overview, Leads Inbox, and Analytics. This typically takes 1–2 business days.</p>
+ 
+            <div class="no-product-actions">
+              <button class="no-product-btn-ghost">Contact support →</button>
+            </div>
+          </div>
+          <div class="no-product-status-card">
+            <div class="no-product-status-eyebrow">CLAIM STATUS</div>
+            <div class="no-product-status-name" id="claim-product-name">—</div>
+            <div class="no-product-status-sub" id="claim-submitted-days">—</div>
+            <div class="claim-stepper">
+              <div class="claim-step done">
+                <div class="claim-step-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="claim-step-line done"></div>
+                <div class="claim-step-body">
+                  <div class="claim-step-label">Claim submitted</div>
+                  <div class="claim-step-meta" id="claim-step-days">—</div>
+                </div>
+              </div>
+              <div class="claim-step active">
+                <div class="claim-step-icon active" id="udder-review"><div class="claim-step-pulse"></div></div>
+                <div class="claim-step-line"></div>
+                <div class="claim-step-body">
+                  <div class="claim-step-label">Under review by Udder</div>
+                  <div class="claim-step-meta">Typically 1–2 business days</div>
+                </div>
+              </div>
+              <div class="claim-step pending">
+                <div class="claim-step-icon pending" id="udder-verified"></div>
+                <div class="claim-step-line"></div>
+                <div class="claim-step-body">
+                  <div class="claim-step-label">Ownership verified</div>
+                  <div class="claim-step-meta"></div>
+                </div>
+              </div>
+            </div>
+            <div class="claim-help">Questions? <a href="mailto:support@udder.rocks">Contact support →</a></div>
+          </div>
+        </div>
+      </div>
       <!-- Hero header -->
       <div class="pl-hero">
         <div class="pl-hero-left">
@@ -576,7 +723,6 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
         <!-- Left main col -->
         <div class="pl-main">
-
           <!-- Overview card -->
           <div class="pl-card" id="pl-overview-card">
             <div class="pl-card-head">
@@ -1110,6 +1256,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
 </div><!-- /main-wrap -->
 
+<script type="module" src="../assets/js/core/vendor.js"></script>
 <script>
 (function(){
   /* ── Init: hide all non-active panels on load ── */
