@@ -75,7 +75,7 @@
   }
 
   /* ── Add button ── */
-  $(document).on('click', '.card-add-btn', function (e) {
+  $(document).on('click', '.card-add-btn', async function (e) {
     e.stopPropagation();
     if (!compareMode) return;
     var $btn = $(this), card = $btn.closest('.card')[0], added = $btn.hasClass('added');
@@ -88,6 +88,13 @@
       selectedCards.push(card);
       $(card).addClass('compare-selected');
       $btn.addClass('added').html(ICON_TICK + '&nbsp;Added');
+      const response = await fetch('/api/supabase?action=addComparison', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              vendorId: card.dataset.id
+          }),
+      });
     }
     syncActionBtn();
   });

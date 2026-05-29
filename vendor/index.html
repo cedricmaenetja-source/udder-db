@@ -53,7 +53,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 /* User block */
 .sb-user{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background 0.15s}
 .sb-user:hover{background:var(--off)}
-.sb-avatar{width:32px;height:32px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--w);flex-shrink:0;letter-spacing:0.03em;border-radius:4px}
+.sb-avatar{width:32px;height:32px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--w);flex-shrink:0;letter-spacing:0.03em;}
 .sb-uname{font-size:13px;font-weight:600;color:var(--t1);line-height:1.2}
 .sb-urole{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;font-weight:600}
 .sb-chev{color:var(--t4);font-size:9px;margin-left:auto;transition:transform 0.2s}
@@ -299,16 +299,16 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .pl-stat-delta.down{color:#ef4444}
 
 /* Body two-col */
-.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;flex:1;overflow:hidden;min-height:0;background: white;}
-.pl-main{overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
+.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;min-height:0;background:white;}
+.pl-main{padding:24px 28px;display:flex;flex-direction:column;gap:20px;}
 .pl-main::-webkit-scrollbar{width:4px}
 .pl-main::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
-.pl-side{overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:white}
+.pl-side{border-left:1px solid var(--b1);padding:20px 24px;display:flex;flex-direction:column;gap:16px;background:white;}
 .pl-side::-webkit-scrollbar{width:4px}
 .pl-side::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
 
 /* Cards */
-.pl-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;overflow:hidden}
+.pl-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;overflow:visible}
 .pl-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .pl-card-title{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.015em}
 .pl-card-desc{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:18px}
@@ -537,8 +537,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   <div class="sb-user" id="sbUser">
     <div class="sb-avatar" id="sbInitials">UD</div>
     <div>
-      <div class="sb-uname" id="sbUname">Vendor Name</div>
-      <div class="sb-urole">Vendor Account</div>
+      <div class="sb-uname" id="sbUname">--</div>
+      <div class="sb-urole">Vendor</div>
     </div>
     <span class="sb-chev" id="sbChev">▾</span>
   </div>
@@ -550,7 +550,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       Account settings
     </button>
     <div style="height:1px;background:var(--b1);margin:0 10px"></div>
-    <button class="sb-dropdown-item danger">
+    <button class="sb-dropdown-item danger" id="sbLogoutBtn">
       <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Log out
     </button>
@@ -558,7 +558,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
   <!-- WORKSPACE section -->
   <div class="sb-sec">Workspace</div>
-  <ul class="sb-nav">
+  <ul class="sb-nav" id="ul-workspace">
     <li>
       <a href="#" class="nav-link on" data-panel="overview">
         <svg viewBox="0 0 16 16" fill="none"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
@@ -621,7 +621,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
   <!-- ── OVERVIEW ── -->
   <div class="content-panel active" id="panel-overview">
-    <div class="panel-scroll" style="padding:0;display:flex;flex-direction:column">
+    <div class="panel-scroll" style="padding:0;display:flex;flex-direction:column;overflow-y:auto">
       <div class="content-spinner" id="overviewSpinner">
         <div class="cs-ring"></div>
         <div class="cs-text">Loading…</div>
@@ -676,7 +676,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       <div class="pl-hero">
         <div class="pl-hero-left">
           <div class="pl-eyebrow">OVERVIEW</div>
-          <h1 class="pl-name">SmartRecruiters</h1>
+          <h1 class="pl-name" id="pl-name"></h1>
           <div class="pl-meta-row">
             <span class="pl-badge"><span class="pl-badge-dot"></span>UDDER APPROVED</span>
             <span class="pl-complete">87% complete</span>
@@ -696,17 +696,17 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       <div class="pl-stats-row">
         <div class="pl-stat-card">
           <div class="pl-stat-lbl">PROFILE VIEWS (30D)</div>
-          <div class="pl-stat-val">2,841</div>
+          <div class="pl-stat-val" id="totViews">0</div>
           <div class="pl-stat-delta up">+18%</div>
         </div>
         <div class="pl-stat-card">
           <div class="pl-stat-lbl">LEADS RECEIVED</div>
-          <div class="pl-stat-val">47</div>
+          <div class="pl-stat-val" id="totLeads">0</div>
           <div class="pl-stat-delta up">+12</div>
         </div>
         <div class="pl-stat-card">
           <div class="pl-stat-lbl">COMPARISON APPEARANCES</div>
-          <div class="pl-stat-val">312</div>
+          <div class="pl-stat-val" id="totComparisons">0</div>
           <div class="pl-stat-delta up">+6%</div>
         </div>
         <div class="pl-stat-card">
@@ -737,20 +737,20 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
             <div id="pl-overview-view">
               <div class="pl-field-group">
                 <div class="pl-field-label">TAGLINE</div>
-                <div class="pl-field-box" id="plTaglineView">Hiring Success platform that puts hiring managers in control.</div>
+                <div class="pl-field-box" id="plTaglineView"></div>
               </div>
               <div class="pl-field-group">
                 <div class="pl-field-label">DESCRIPTION</div>
-                <div class="pl-field-box" id="plDescView" style="min-height:80px">End-to-end talent acquisition suite covering sourcing, CRM, ATS, onboarding and analytics. Favoured by mid-market to enterprise teams with high-volume, multi-country hiring needs.</div>
+                <div class="pl-field-box" id="plDescView" style="min-height:80px"></div>
               </div>
               <div class="pl-two-col">
                 <div class="pl-field-group">
                   <div class="pl-field-label">HQ</div>
-                  <div class="pl-field-box" id="plHqView">San Francisco, US</div>
+                  <div class="pl-field-box" id="plHqView"></div>
                 </div>
                 <div class="pl-field-group">
                   <div class="pl-field-label">FOUNDED</div>
-                  <div class="pl-field-box" id="plFoundedView">2010</div>
+                  <div class="pl-field-box" id="plFoundedView"></div>
                 </div>
               </div>
             </div>
@@ -803,24 +803,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
             </div>
 
             <!-- Features grid -->
-            <div class="pl-features-grid">
-              <div class="pl-feature-row">
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Req management</div>
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Career site builder</div>
-              </div>
-              <div class="pl-feature-row">
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>CRM / talent pools</div>
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>AI-powered matching</div>
-              </div>
-              <div class="pl-feature-row">
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Scheduling automation</div>
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Offer management</div>
-              </div>
-              <div class="pl-feature-row">
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Onboarding workflows</div>
-                <div class="pl-feat"><svg class="pl-check" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>DEI analytics</div>
-              </div>
-            </div>
+            <div class="pl-features-grid" id="featuresGrid"></div>
           </div>
 
           <!-- References card -->

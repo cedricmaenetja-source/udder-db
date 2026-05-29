@@ -160,30 +160,25 @@ export const LOCATIONS = [
 
 export const HRINTEGRATIONS = [
   // HRIS & Payroll
-  'Workday', 'ADP Workforce Now', 'BambooHR', 'SAP SuccessFactors', 'UKG Pro', 'Ceridian Dayforce', 
-  'Paycom', 'Paylocity', 'Gusto', 'Rippling', 'Zenefits', 'TriNet', 'Kronos', 'Namely',
+  {'name':'Workday', 'logo':'images/workday.png'}, {'name':'ADP', 'logo':'images/adp.png'}, {'name':'Deel', 'logo':'images/deel.png'}, {'name':'ADP Workforce Now', 'logo':'images/adp.png'}, {'name':'BambooHR', 'logo':'images/bamboohr.png'},
+  {'name':'Paycom', 'logo':'images/paycom.png'}, {'name':'Paylocity', 'logo':'images/paylocity.png'}, {'name':'Gusto', 'logo':'images/gusto.png'}, {'name':'Rippling', 'logo':'images/rippling.png'}, {'name':'Papaya Global', 'logo':'images/papayaglobal.png'}, {'name':'Personio', 'logo':'images/personio.png'}, {'name':'Comeet', 'logo':'images/comeet.png'}, {'name':'Taleo', 'logo':'images/taleo.png'}, 'Zenefits', 'TriNet', 'Kronos', {'name':'Namely', 'logo':'images/namely.png'},
+  {'name':'LinkedIn', 'logo':'images/linkedin.png'}, {'name':'DocuSign', 'logo':'images/docusign.png'}, {'name':'Adobe Sign', 'logo':'images/adobesign.jpg'}, {'name':'Salesforce', 'logo':'images/salesforce.png'}, {'name':'Leapsome', 'logo':'images/leapsome.png'},
+  {'name':'Bupa', 'logo':'images/bupa.png'}, {'name':'Chargebee', 'logo':'images/chargebee.png'}, {'name':'Zapier', 'logo':'images/zapier.png'}, {'name':'Merge.dev', 'logo':'images/merge-dev.png'},
 
   // Recruiting & ATS
-  'Greenhouse', 'Lever', 'Jobvite', 'iCIMS', 'SmartRecruiters', 'Workable', 'Breezy HR', 
-  'Bullhorn', 'JazzHR', 'Recruiterbox',
+  {'name':'Greenhouse', 'logo':'images/greenhouse.jpg'}, {'name':'Lever', 'logo':'images/lever.png'}, {'name':'Jobvite', 'logo':'images/jobvite'}, {'name':'iCIMS', 'logo':'images/icims.png'}, {'name':'SmartRecruiters', 'logo':'images/smartrecruiters.png'}, {'name':'Workable', 'logo':'images/workable.png'},
+  'Bullhorn', {'name':'JazzHR', 'logo':'images/jazzhr.png'}, 'Recruiterbox', {'name':'Perkbox', 'logo':'images/perkbox.png'}, {'name':'Gympass', 'logo':'images/wellhub.png'}, {'name':'Wellhub', 'logo':'images/wellhub.png'},
 
   // Productivity & Collaboration
-  'Slack', 'Microsoft Teams', 'Google Workspace', 'Zoom', 'Asana', 'Trello', 'Monday.com', 
-  'ClickUp', 'Jira', 'Confluence', 'Notion',
-
-  // Benefits & Time Tracking
-  'Benefitfocus', 'Zenefits Benefits', 'Gusto Benefits', 'Tanda', 'Deputy', 'TSheets', 'Kronos Workforce Ready', 
-  'WorkForce Software', 'When I Work', 'Paycor',
-
-  // Learning & Development / LMS
-  'Cornerstone OnDemand', 'SAP Litmos', 'Docebo', 'TalentLMS', 'Lessonly', 'EdCast', 'Absorb LMS',
+  {'name':'Slack', 'logo': 'images/slack.png'}, {'name':'Microsoft Teams', 'logo':'images/ms-teams.svg'}, {'name':'Google Workspace', 'logo':'images/google-workspace.svg'}, 
+  {'name':'Jira', 'logo':'images/jira.png'}, {'name':'Microsoft 365', 'logo': 'images/ms-365.svg'},
 
   // Communication / Engagement
-  '15Five', 'Officevibe', 'Culture Amp', 'Peakon', 'Lattice', 'TinyPulse', 'Workhuman',
+  {'name':'Culture Amp', 'logo':'images/cultureamp.png'}, 'Peakon', {'name':'Lattice', 'logo':'images/lattice.png'},
 
   // Finance / Expense integrations
-  'QuickBooks', 'Xero', 'Expensify', 'NetSuite', 'SAP Concur',
+  {'name':'QuickBooks', 'logo':'images/quickbooks.png'}, {'name':'Xero', 'logo':'images/xero.svg'}, {'name':'Expensify', 'logo':'images/expensify.png'}, {'name':'NetSuite', 'logo':'images/netsuite.svg'},
 
   // Identity / SSO / IT
-  'Okta', 'OneLogin', 'Azure Active Directory', 'Google Identity', 'Ping Identity'
+  {'name':'Okta', 'logo':'okta.png'}, {'name':'OneLogin', 'logo':'images/onelogin.png'}, {'name':'Azure Active Directory', 'logo':'images/azure.png'}
 ];

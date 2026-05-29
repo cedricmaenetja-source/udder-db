@@ -580,6 +580,7 @@ async function populateTopVendors() {
             const statusClass = status.toLowerCase();
 
             const item = `
+                <a href="#" onclick="window.open('${vendor.data.company.website || '#'}', '_blank'); return false;" style="text-decoration:none">
                 <div class="vd-also-item">
                     <div class="vd-also-logo">
                         ${App.initials(vendor.name)}
@@ -599,7 +600,7 @@ async function populateTopVendors() {
                         <span class="vd-also-badge-dot"></span>
                         ${status}
                     </div>
-                </div>
+                </div></a>
             `;
 
             container.innerHTML += item;

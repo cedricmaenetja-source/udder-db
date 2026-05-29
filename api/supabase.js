@@ -59,7 +59,9 @@ export default async function handler(req, res) {
         'uploadVendorScreenshots',
         'deleteAccount',
         'getAllEvaluations',
-        'getUserClaim'
+        'getUserClaim',
+        'addComparison',
+        'getComparisons'
     ];
 
     if (!action) {
@@ -88,6 +90,21 @@ export default async function handler(req, res) {
     if (action === 'getNotificationPrefs') return await getNotificationPrefs(res, userId);
     if (action === 'getAllEvaluations') return await getAllEvaluations(res, userId);
     if (action === 'getUserClaim') return await getUserClaim(res, userId);
+    if (action === 'getComparisons') return await getComparisons(res, vendorId);
+
+    if (action === 'addComparison') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId } = req.body;
+            return await addComparison(res, vendorId);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
 
     if (action === 'deleteAccount') {
         if (req.method !== "POST") {
@@ -1187,6 +1204,29 @@ async function addClientInquiry(res, inquiry, client){
     })
     .select('*')
     .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function getComparisons(res, vendorId){
+    const { data, error } = await supabase
+        .from('tblcomparisons')
+        .select('*')
+        .eq('vendor_id', vendorId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function addComparison(res, vendorId){
+    const { data, error } = await supabase
+        .from('tblcomparisons')
+        .insert({ 
+            vendor_id: vendorId
+        })
+        .select('*')
+        .single();
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
