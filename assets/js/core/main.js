@@ -576,8 +576,8 @@ async function populateTopVendors() {
         container.innerHTML = '';
         
         result.data.forEach((vendor) => {
-            const status = vendor.status || 'Listed';
-            const statusClass = status.toLowerCase();
+            const status = vendor.status || 'AI Generated';
+            const statusClass = (status == 'AI Generated') ? 'ai-generated' : status.toLowerCase();
 
             const item = `
                 <a href="#" onclick="window.open('${vendor.data.company.website || '#'}', '_blank'); return false;" style="text-decoration:none">
@@ -596,7 +596,7 @@ async function populateTopVendors() {
                         </div>
                     </div>
 
-                    <div class="vd-also-badge hide ${statusClass}">
+                    <div class="vd-also-badge ${statusClass}">
                         <span class="vd-also-badge-dot"></span>
                         ${status}
                     </div>

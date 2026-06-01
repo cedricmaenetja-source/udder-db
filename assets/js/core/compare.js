@@ -144,7 +144,8 @@
         region: String($c.data('region') || ''),
         badgeText: badgeText,
         isVerified: badgeText.toLowerCase().indexOf('verified') > -1,
-        isApproved: badgeText.toLowerCase().indexOf('approved') > -1
+        isApproved: badgeText.toLowerCase().indexOf('approved') > -1,
+        score: parseInt($c.data('score') || 0),
       };
       /* Build lookup set from all data */
       v.set = {};
@@ -182,6 +183,7 @@
     var vh = '<div class="cp-vendor-row cp-grid" style="grid-template-columns:' + cols + '">' +
       '<div class="cp-label-anchor"></div>';
     vendors.forEach(function (v) {
+      console.log('score', v);
       var logo = (v.logo && v.logo.indexOf('undefined') === -1 && v.logo.indexOf('null') === -1)
         ? '<img src="' + v.logo + '" class="cp-logo-img" alt="">'
         : '<div class="cp-logo-ph">' + v.name.substring(0,2).toUpperCase() + '</div>';
@@ -189,10 +191,16 @@
         ? '<span class="cp-badge cp-badge-' + (v.isVerified ? 'verified' : 'approved') + '">' +
           '<span class="cp-bdot"></span>' + v.badgeText + '</span>'
         : '';
+      var score = v.score;
+      var scoreBg    = score >= 75 ? 'rgba(22,163,74,0.1)' : score >= 50 ? 'rgba(234,179,8,0.1)' : 'rgba(239,68,68,0.1)';
+      var scoreColor = score >= 75 ? '#16a34a' : score >= 50 ? '#b45309' : '#dc2626';
+      var scoreHtml  = score > 0
+        ? '<div class="cp-vc-score" style="background:' + scoreBg + ';color:' + scoreColor + '">' + score + '% match</div>'
+        : '';
       vh +=
         '<div class="cp-vendor-card">' +
           '<div class="cp-vc-top">' + logo + badge + '</div>' +
-          '<div class="cp-vc-name">' + v.name + '</div>' +
+          '<div class="cp-vc-name">' + v.name + scoreHtml + '</div>' +
           '<div class="cp-vc-actions">' +
             '<button class="cp-view-btn" data-name="' + v.name + '">View</button>' +
             '<button class="cp-rm-btn" data-name="' + v.name + '">Remove</button>' +
@@ -460,6 +468,7 @@
       '.cp-badge-verified .cp-bdot{background:rgba(255,255,255,.55)}' +
       '.cp-vc-name{font-size:17px;font-weight:700;color:#111;letter-spacing:-.01em;line-height:1.2;margin-bottom:10px}' +
       '.cp-vc-actions{display:flex;align-items:center;gap:10px}' +
+      '.cp-vc-score{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px;letter-spacing:.02em;margin-left:10px;}' +
       '.cp-view-btn{padding:5px 14px;border-radius:6px;border:1px solid #ddd;background:transparent;font-size:12px;font-weight:500;color:#111;cursor:pointer;font-family:inherit;transition:all .13s}' +
       '.cp-view-btn:hover{background:#f04e23;border-color:#f04e23;color:#fff}' +
       '.cp-rm-btn{background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;font-family:inherit;padding:0;transition:color .13s}' +

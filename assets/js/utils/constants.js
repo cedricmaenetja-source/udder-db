@@ -159,26 +159,19 @@ export const LOCATIONS = [
 ];
 
 export const HRINTEGRATIONS = [
-  // HRIS & Payroll
   {'name':'Workday', 'logo':'images/workday.png'}, {'name':'ADP', 'logo':'images/adp.png'}, {'name':'Deel', 'logo':'images/deel.png'}, {'name':'ADP Workforce Now', 'logo':'images/adp.png'}, {'name':'BambooHR', 'logo':'images/bamboohr.png'},
-  {'name':'Paycom', 'logo':'images/paycom.png'}, {'name':'Paylocity', 'logo':'images/paylocity.png'}, {'name':'Gusto', 'logo':'images/gusto.png'}, {'name':'Rippling', 'logo':'images/rippling.png'}, {'name':'Papaya Global', 'logo':'images/papayaglobal.png'}, {'name':'Personio', 'logo':'images/personio.png'}, {'name':'Comeet', 'logo':'images/comeet.png'}, {'name':'Taleo', 'logo':'images/taleo.png'}, 'Zenefits', 'TriNet', 'Kronos', {'name':'Namely', 'logo':'images/namely.png'},
+  {'name':'Paycom', 'logo':'images/paycom.png'}, {'name':'Paylocity', 'logo':'images/paylocity.png'}, {'name':'Gusto', 'logo':'images/gusto.png'}, {'name':'Rippling', 'logo':'images/rippling.png'}, {'name':'Papaya Global', 'logo':'images/papayaglobal.png'}, {'name':'Personio', 'logo':'images/personio.png'}, {'name':'Comeet', 'logo':'images/comeet.png'}, {'name':'Taleo', 'logo':'images/taleo.png'}, {'name':'Namely', 'logo':'images/namely.png'},
   {'name':'LinkedIn', 'logo':'images/linkedin.png'}, {'name':'DocuSign', 'logo':'images/docusign.png'}, {'name':'Adobe Sign', 'logo':'images/adobesign.jpg'}, {'name':'Salesforce', 'logo':'images/salesforce.png'}, {'name':'Leapsome', 'logo':'images/leapsome.png'},
   {'name':'Bupa', 'logo':'images/bupa.png'}, {'name':'Chargebee', 'logo':'images/chargebee.png'}, {'name':'Zapier', 'logo':'images/zapier.png'}, {'name':'Merge.dev', 'logo':'images/merge-dev.png'},
-
-  // Recruiting & ATS
   {'name':'Greenhouse', 'logo':'images/greenhouse.jpg'}, {'name':'Lever', 'logo':'images/lever.png'}, {'name':'Jobvite', 'logo':'images/jobvite'}, {'name':'iCIMS', 'logo':'images/icims.png'}, {'name':'SmartRecruiters', 'logo':'images/smartrecruiters.png'}, {'name':'Workable', 'logo':'images/workable.png'},
-  'Bullhorn', {'name':'JazzHR', 'logo':'images/jazzhr.png'}, 'Recruiterbox', {'name':'Perkbox', 'logo':'images/perkbox.png'}, {'name':'Gympass', 'logo':'images/wellhub.png'}, {'name':'Wellhub', 'logo':'images/wellhub.png'},
-
-  // Productivity & Collaboration
+  {'name':'JazzHR', 'logo':'images/jazzhr.png'}, {'name':'Perkbox', 'logo':'images/perkbox.png'}, {'name':'Gympass', 'logo':'images/wellhub.png'}, {'name':'Wellhub', 'logo':'images/wellhub.png'},
   {'name':'Slack', 'logo': 'images/slack.png'}, {'name':'Microsoft Teams', 'logo':'images/ms-teams.svg'}, {'name':'Google Workspace', 'logo':'images/google-workspace.svg'}, 
   {'name':'Jira', 'logo':'images/jira.png'}, {'name':'Microsoft 365', 'logo': 'images/ms-365.svg'},
-
-  // Communication / Engagement
-  {'name':'Culture Amp', 'logo':'images/cultureamp.png'}, 'Peakon', {'name':'Lattice', 'logo':'images/lattice.png'},
-
-  // Finance / Expense integrations
+  {'name':'Culture Amp', 'logo':'images/cultureamp.png'}, {'name':'Lattice', 'logo':'images/lattice.png'},
   {'name':'QuickBooks', 'logo':'images/quickbooks.png'}, {'name':'Xero', 'logo':'images/xero.svg'}, {'name':'Expensify', 'logo':'images/expensify.png'}, {'name':'NetSuite', 'logo':'images/netsuite.svg'},
-
-  // Identity / SSO / IT
-  {'name':'Okta', 'logo':'okta.png'}, {'name':'OneLogin', 'logo':'images/onelogin.png'}, {'name':'Azure Active Directory', 'logo':'images/azure.png'}
+  {'name':'Okta', 'logo':'images/okta.png'}, {'name':'OneLogin', 'logo':'images/onelogin.png'}, {'name':'Azure Active Directory', 'logo':'images/azure.png'}, {'name':'Zoom', 'logo':'images/zoom.png'},
+  {'name':'GoToMeeting', 'logo':'images/gotomeeting.png'}, {'name':'Cornerstone OnDemand', 'logo':'images/cornerstone-ondemand.png'}, {'name':'Docebo', 'logo':'images/docebo.png'},
+  {'name':'SAP SuccessFactors', 'logo':'images/sap.png'}, {'name':'Oracle HCM', 'logo':'images/oracle.png'}, {'name':'UKG (Ultimate Kronos Group)', 'logo':'images/ukg.png'},
+  {'name':'Ceridian Dayforce', 'logo':'images/dayforce.png'}, {'name':'Bullhorn', 'logo':'images/bullhorn.png'}, {'name':'JobDiva', 'logo':'images/jobdiva.png'}, {'name':'Hireology', 'logo':'images/hireology.png'},
+  {'name':'HiBob', 'logo':'images/hibob.png'}, {'name':'Microsoft Azure AD', 'logo':'images/ms-azure.png'}
 ];
