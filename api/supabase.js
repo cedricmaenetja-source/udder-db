@@ -20,7 +20,7 @@ export const config = {
 export default async function handler(req, res) {
     authorize(req, res);
 
-    const { action, vendorId, userId } = req.query;
+    const { action, vendorId, userId, referenceId } = req.query;
 
     const VALID_ACTIONS = [
         'getVendors',
@@ -61,7 +61,14 @@ export default async function handler(req, res) {
         'getAllEvaluations',
         'getUserClaim',
         'addComparison',
-        'getComparisons'
+        'getComparisons',
+        'logEvent',
+        'updateVendorCategories',
+        'getReferencesByVendorId',
+        'getReferencesById',
+        'addReference',
+        'getVendorActivities',
+        'addActivity'
     ];
 
     if (!action) {
@@ -91,6 +98,65 @@ export default async function handler(req, res) {
     if (action === 'getAllEvaluations') return await getAllEvaluations(res, userId);
     if (action === 'getUserClaim') return await getUserClaim(res, userId);
     if (action === 'getComparisons') return await getComparisons(res, vendorId);
+    if (action === 'getReferencesByVendorId') return await getReferencesByVendorId(res, vendorId);
+    if (action === 'getReferencesById') return await getReferencesById(res, referenceId);
+    if (action === 'getVendorActivities') return await getVendorActivities(res, vendorId);
+    
+    if (action === 'addActivity') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId, username, message} = req.body;
+            return await addActivity(res, vendorId, username, message);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'addReference') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId, customer, industry, status, validated } = req.body;
+            return await addReference(res, vendorId, customer, industry, status, validated);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'updateVendorCategories') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId, categories } = req.body;
+            return await updateVendorCategories(res, vendorId, categories);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'logEvent') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { userId, route } = req.body;
+            return await logEvent(res, userId, route);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
 
     if (action === 'addComparison') {
         if (req.method !== "POST") {
@@ -512,7 +578,6 @@ async function deleteAccount(res, userId) {
 }
 
 async function uploadVendorScreenshots(res, vendorId, filesToUpload) {
-
     const files = Array.from(filesToUpload);
     const uploadedFiles = [];
 
@@ -579,10 +644,10 @@ async function getVendors(res){
 
     if (error) return res.status(500).json({ data: null, error: error.message });
 
-    // Cache on Vercel Edge for 5 hours
+    // Cache on Vercel Edge for 1 hour
     res.setHeader(
         'Cache-Control', 
-        'public, s-maxage=18000, stale-while-revalidate=86400'
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
     );
 
     return res.status(200).json({ data });
@@ -594,6 +659,18 @@ async function updateVendor(res, id, payload, description) {
     .update({ 
         data: payload,
         short_description: description
+    })
+    .eq('id', id);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function updateVendorCategories(res, id, categories) {
+    const { data, error } = await supabase
+    .from('tblvendors')
+    .update({ 
+        categories: categories
     })
     .eq('id', id);
 
@@ -625,6 +702,70 @@ async function getVendorById(res, id) {
     return res.status(200).json({ data });
 }
 
+async function getReferencesByVendorId(res, vendorId) {
+  const { data, error } = await supabase
+    .from('tblreferences')
+    .select('*')
+    .eq('vendor_id', vendorId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+async function getVendorActivities(res, vendorId) {
+  const { data, error } = await supabase
+    .from('tblactivities')
+    .select('*')
+    .eq('vendor_id', vendorId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+export async function addActivity(res, vendorId, username, message) {
+    const { data, error } = await supabase
+    .from('tblreferences')
+    .insert({ 
+        vendor_id: vendorId, 
+        username: username,
+        message: message
+    })
+    .select()
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function getReferencesById(res, id) {
+  const { data, error } = await supabase
+    .from('tblreferences')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+export async function addReference(res, vendorId, customer, industry, status, validated) {
+    const { data, error } = await supabase
+    .from('tblreferences')
+    .insert({ 
+        vendor_id: vendorId, 
+        customer: customer,
+        industry: industry,
+        status: status,
+        validated: validated
+    })
+    .select()
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
 export async function addVisitor(res, payload) {
     const { data, error } = await supabase
     .from('tbldbvisitors')
@@ -650,7 +791,7 @@ export async function upsertFilter(res, payload) {
     .upsert({ 
         ref: payload['ref'], 
         filters:  payload['filters'], 
-        query: payload['query'], 
+        query: payload['query']
     },
     { onConflict: 'query' })
     .select()
@@ -687,6 +828,12 @@ export async function getFilter(res) {
     .select('*');
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+    
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
+
     return res.status(200).json({ data });
 }
 
@@ -886,6 +1033,19 @@ async function saveNotificationPrefs(res, user_id, prefs){
     const { data, error } = await supabase
     .from('tblnotificationpreferences')
     .upsert({ user_id, ...prefs }, { onConflict: 'user_id' })
+    .select()
+    .single();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function logEvent(res, userId, route){
+    const date = new Date().toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+    .from('tbllogs')
+    .upsert({ user_id: userId, route: route, updated_date: date}, { onConflict: 'user_id' })
     .select()
     .single();
 
@@ -1285,6 +1445,11 @@ async function getTopVendors(res) {
             count: topVendor.count
         };
     });
+
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
 
     return res.status(200).json({
         data: result

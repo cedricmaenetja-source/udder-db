@@ -499,6 +499,50 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </style>
 </head>
 <body>
+  <div id="addRefOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--w);border-radius:16px;padding:32px;width:100%;max-width:480px;margin:0 16px;display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">REFERENCES</div>
+        <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-0.02em">Add a reference</div>
+      </div>
+      <button id="addRefCloseBtn" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;line-height:1">&times;</button>
+    </div>
+
+    <div class="pl-field-group">
+      <div class="pl-field-label">CUSTOMER NAME</div>
+      <input class="pl-input" id="refCustomer" type="text" placeholder="e.g. Acme Corp">
+    </div>
+
+    <div class="pl-field-group">
+      <div class="pl-field-label">INDUSTRY</div>
+      <input class="pl-input" id="refIndustry" type="text" placeholder="e.g. Financial Services">
+    </div>
+
+    <div class="pl-field-group">
+      <div class="pl-field-label">STATUS</div>
+      <select class="pl-input" id="refStatus" style="cursor:pointer">
+        <option value="pending">Pending Udder review</option>
+        <option value="published">Published</option>
+      </select>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--b1);border-radius:8px;cursor:pointer" id="refValidatedRow">
+      <input type="checkbox" id="refValidated" style="width:16px;height:16px;accent-color:var(--o);cursor:pointer;flex-shrink:0">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--t1)">Udder validated</div>
+        <div style="font-size:11px;color:var(--t3)">Mark if this reference has been verified by an Udder consultant</div>
+      </div>
+    </div>
+
+    <div id="addRefError" style="display:none;padding:10px 14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:12px;color:#ef4444"></div>
+
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:4px;border-top:1px solid var(--b1)">
+      <button class="pl-cancel-btn" id="addRefCancelBtn">Cancel</button>
+      <button class="pl-save-btn" id="addRefSaveBtn">Add reference</button>
+    </div>
+  </div>
+</div>
 <div id="pageLoader">
   <div class="loader-wordmark">UDDER <span>DB</span></div>
   <div class="loader-spinner"></div>
@@ -584,12 +628,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         Leads Analytics
       </a>
     </li>
-    <li>
+    <!-- <li>
       <a href="#" class="nav-link" data-panel="references">
         <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2 14c0-2.5 2-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         References
       </a>
-    </li>
+    </li> -->
   </ul>
 
   <div class="sb-div"></div>
@@ -759,20 +803,20 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
             <div id="pl-overview-edit" style="display:none">
               <div class="pl-field-group">
                 <div class="pl-field-label">TAGLINE</div>
-                <input class="pl-input" id="plTaglineInput" type="text" value="Hiring Success platform that puts hiring managers in control.">
+                <input class="pl-input" id="plTaglineInput" type="text" value="">
               </div>
               <div class="pl-field-group">
                 <div class="pl-field-label">DESCRIPTION</div>
-                <textarea class="pl-textarea" id="plDescInput" rows="4">End-to-end talent acquisition suite covering sourcing, CRM, ATS, onboarding and analytics. Favoured by mid-market to enterprise teams with high-volume, multi-country hiring needs.</textarea>
+                <textarea class="pl-textarea" id="plDescInput" rows="4"></textarea>
               </div>
               <div class="pl-two-col">
                 <div class="pl-field-group">
                   <div class="pl-field-label">HQ</div>
-                  <input class="pl-input" id="plHqInput" type="text" value="San Francisco, US">
+                  <input class="pl-input" id="plHqInput" type="text" value="">
                 </div>
                 <div class="pl-field-group">
                   <div class="pl-field-label">FOUNDED</div>
-                  <input class="pl-input" id="plFoundedInput" type="text" value="2010">
+                  <input class="pl-input" id="plFoundedInput" type="text" value="">
                 </div>
               </div>
               <div class="pl-edit-actions">
@@ -786,13 +830,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           <div class="pl-card">
             <div class="pl-card-head">
               <h2 class="pl-card-title">Categories &amp; capabilities</h2>
-              <span class="pl-features-count">12 features claimed</span>
+              <span class="pl-features-count"><span id="totalFeatures">12</span> features claimed</span>
             </div>
 
             <!-- Category tags -->
             <div class="pl-cats-row">
-              <span class="pl-cat-tag">Applicant Tracking (ATS) <button class="pl-cat-x">×</button></span>
-              <span class="pl-cat-tag">Onboarding <button class="pl-cat-x">×</button></span>
               <button class="pl-add-cat">+ Add category</button>
             </div>
 
@@ -819,26 +861,9 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
                 <span class="pl-ref-th">STATUS</span>
                 <span class="pl-ref-th">VALIDATED</span>
               </div>
-              <div class="pl-ref-row">
-                <span class="pl-ref-name">Visa</span>
-                <span class="pl-ref-cell">Financial Services</span>
-                <span class="pl-ref-cell"><span class="pl-ref-status published">Published</span></span>
-                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              </div>
-              <div class="pl-ref-row">
-                <span class="pl-ref-name">Bosch</span>
-                <span class="pl-ref-cell">Manufacturing</span>
-                <span class="pl-ref-cell"><span class="pl-ref-status published">Published</span></span>
-                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              </div>
-              <div class="pl-ref-row">
-                <span class="pl-ref-name">McDonald's</span>
-                <span class="pl-ref-cell">Food &amp; Hospitality</span>
-                <span class="pl-ref-cell"><span class="pl-ref-status pending">Pending Udder review</span></span>
-                <span class="pl-ref-cell"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t4)" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="var(--t4)" stroke-width="1.3" stroke-linecap="round"/></svg></span>
-              </div>
+              <div id="referencesTableBody"></div>
             </div>
-            <button class="pl-add-ref-btn">
+            <button class="pl-add-ref-btn" id="addRefBtn">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               Add reference
             </button>
@@ -1511,6 +1536,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
   if(editBtn){
     editBtn.addEventListener('click', function(){
+    document.getElementById('plTaglineInput').value = document.getElementById('plTaglineView').textContent;
+    document.getElementById('plDescInput').value    = document.getElementById('plDescView').textContent;
+    document.getElementById('plHqInput').value      = document.getElementById('plHqView').textContent;
+    document.getElementById('plFoundedInput').value = document.getElementById('plFoundedView').textContent;
+
       viewEl.style.display = 'none';
       editEl.style.display = 'block';
       editBtn.style.display = 'none';

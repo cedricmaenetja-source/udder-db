@@ -171,7 +171,7 @@ export const HRINTEGRATIONS = [
   {'name':'QuickBooks', 'logo':'images/quickbooks.png'}, {'name':'Xero', 'logo':'images/xero.svg'}, {'name':'Expensify', 'logo':'images/expensify.png'}, {'name':'NetSuite', 'logo':'images/netsuite.svg'},
   {'name':'Okta', 'logo':'images/okta.png'}, {'name':'OneLogin', 'logo':'images/onelogin.png'}, {'name':'Azure Active Directory', 'logo':'images/azure.png'}, {'name':'Zoom', 'logo':'images/zoom.png'},
   {'name':'GoToMeeting', 'logo':'images/gotomeeting.png'}, {'name':'Cornerstone OnDemand', 'logo':'images/cornerstone-ondemand.png'}, {'name':'Docebo', 'logo':'images/docebo.png'},
-  {'name':'SAP SuccessFactors', 'logo':'images/sap.png'}, {'name':'Oracle HCM', 'logo':'images/oracle.png'}, {'name':'UKG (Ultimate Kronos Group)', 'logo':'images/ukg.png'},
+  {'name':'SAP SuccessFactors', 'logo':'images/sap.png'}, {'name':'SAP', 'logo':'images/sap.png'}, {'name':'Oracle HCM', 'logo':'images/oracle.png'}, {'name':'Oracle', 'logo':'images/oracle.png'}, {'name':'UKG (Ultimate Kronos Group)', 'logo':'images/ukg.png'},
   {'name':'Ceridian Dayforce', 'logo':'images/dayforce.png'}, {'name':'Bullhorn', 'logo':'images/bullhorn.png'}, {'name':'JobDiva', 'logo':'images/jobdiva.png'}, {'name':'Hireology', 'logo':'images/hireology.png'},
   {'name':'HiBob', 'logo':'images/hibob.png'}, {'name':'Microsoft Azure AD', 'logo':'images/ms-azure.png'}
 ];

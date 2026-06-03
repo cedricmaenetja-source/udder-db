@@ -1,11 +1,12 @@
 {
   "name": "udder-db",
   "version": "1.0.0",
-  "description": "",
+  "description": "npm install cookie",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "sass src/css/scss/main.scss src/css/common.css --no-source-map --style=compressed"
+    "build:css": "sass src/css/scss/main.scss src/css/common.css --no-source-map --style=compressed",
+    "build": "node build.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.89.0",
@@ -25,5 +26,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.28.0",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.48.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedricmaenetja-source/udder-db.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cedricmaenetja-source/udder-db/issues"
+  },
+  "homepage": "https://github.com/cedricmaenetja-source/udder-db#readme"
 }

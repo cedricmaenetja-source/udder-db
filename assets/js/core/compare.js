@@ -146,6 +146,7 @@
         isVerified: badgeText.toLowerCase().indexOf('verified') > -1,
         isApproved: badgeText.toLowerCase().indexOf('approved') > -1,
         score: parseInt($c.data('score') || 0),
+        description: String($c.data('description') || ''),
       };
       /* Build lookup set from all data */
       v.set = {};
@@ -201,6 +202,7 @@
         '<div class="cp-vendor-card">' +
           '<div class="cp-vc-top">' + logo + badge + '</div>' +
           '<div class="cp-vc-name">' + v.name + scoreHtml + '</div>' +
+          (v.description ? '<div class="cp-vc-desc">' + v.description + '</div>' : '') +
           '<div class="cp-vc-actions">' +
             '<button class="cp-view-btn" data-name="' + v.name + '">View</button>' +
             '<button class="cp-rm-btn" data-name="' + v.name + '">Remove</button>' +
@@ -471,6 +473,7 @@
       '.cp-vc-score{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px;letter-spacing:.02em;margin-left:10px;}' +
       '.cp-view-btn{padding:5px 14px;border-radius:6px;border:1px solid #ddd;background:transparent;font-size:12px;font-weight:500;color:#111;cursor:pointer;font-family:inherit;transition:all .13s}' +
       '.cp-view-btn:hover{background:#f04e23;border-color:#f04e23;color:#fff}' +
+      '.cp-vc-desc{font-size:12px;color:#888;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}' +
       '.cp-rm-btn{background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;font-family:inherit;padding:0;transition:color .13s}' +
       '.cp-rm-btn:hover{color:#f04e23}' +
 

@@ -41,7 +41,6 @@ let loggedIn;
 
 $(async function () {
     loggedIn = await isLoggedIn();
-    console.log('loggedIn', loggedIn);
     if (!loggedIn) {
         $('#sbSignIn').removeClass('hide');
         $('#sb-user-profile').addClass('hide');
@@ -552,7 +551,6 @@ async function loadUserProfile(){
     }
 
     window._user = result.data;
-    console.log('result.data', result.data);
     if (window._user.role != 'hr-professional'){
         location.href = `../${window._user.role}/`;
         return;
@@ -563,6 +561,12 @@ async function loadUserProfile(){
     $('#sb-initials').text(App.initials(fullName));
     $('.link-secured').removeClass('hide');
     //$('#sbUser').removeClass('hide');
+
+    await fetch("/api/supabase?action=logEvent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: window._user.id, route: 'home' })
+    });
 }
 
 async function populateTopVendors() {
@@ -1152,18 +1156,22 @@ async function loadVendors(filters = null){
             $('#search-info').text(`Based on your needs: ${text.join(', ')}`);
         }else{
             $('#vendors').append(`<div class="no-results">
-                <h2>No results found.</h2>
-                <p class="description">
-                    Please update your search criteria with more detailed information.<br/>
-                    Refer to examples <a href="#faqs-section">here</a>.
-                </p>
-            </div>`);
+                <div class="nr-icon-wrap">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="8" stroke="var(--o)" stroke-width="1.6"/>
+                    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="var(--o)" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M8 11h6M11 8v6" stroke="var(--o)" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="nr-body">
+                    <h2 class="nr-heading">No matches found</h2>
+                    <p class="nr-sub">We couldn't find any HR tech products that match your current filters.</p>
+                </div>
+                </div>`);
         }
     }
 
     vendorList = vendors;
-    console.log('vendorList', vendorList);
-
     vendors.forEach(async vendor => {
         vendorData[vendor.id] = vendor;
         const verifiedBadge = (vendor.verified) ? `<span class="verification-badge" title="Verified vendor">
@@ -1177,7 +1185,6 @@ async function loadVendors(filters = null){
             const integrations = vendor.data.company.integrations;
             let supportedIntegrations = [];
             let region = vendor.data.company.meta.region ?? [];
-            console.info(vendor.data.company.meta.target_market);
             let companySize = vendor.data.company.meta.target_market ?? '';
 
             for (let i = 0; i < 3; i++){
@@ -1230,6 +1237,7 @@ async function loadVendors(filters = null){
                     data-id="${vendor.id}"
                     data-headcount="${vendor.employee_count}"
                     data-region="${region.join(', ')}"
+                    data-verification="${vendor.verification}"
                     data-integrations="${supportedIntegrations.join(', ')}"
                     data-description="${(vendor.description || vendor.categories || '').replace(/"/g, '&quot;')}"
                     data-logo="${vendor.logo || ''}"
@@ -1596,6 +1604,17 @@ function applyFilters(filters, vendors) {
                 if (subCategoriesLower.includes(feature.toLowerCase())) {
                     score++;
                     matched.push(feature);
+                }
+            });
+
+            // ── Required Integrations ───────────────────────────
+            (filters.required_integrations || []).forEach(integration => {
+                filtersCount++;
+                
+                const integrations = company.integrations.map(i => i.name.toLowerCase());
+                if (integrations.includes(integration.toLowerCase())) {
+                    score++;
+                    matched.push(`${integration} integration`);
                 }
             });
 

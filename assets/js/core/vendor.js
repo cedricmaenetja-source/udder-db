@@ -2,6 +2,8 @@ import * as App from '../app.js';
 import { PAGES } from '../utils/constants.js';
 import { isLoggedIn, getCurrentUser } from './auth/session.js';
 
+window._categories = [];
+
 window._showSpinner = function showSpinner(id, message) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -67,6 +69,104 @@ $(async function(){
         window.location.href = PAGES.login;
         return;
     });
+
+    /* ── ADD REFERENCE MODAL ── */
+    var addRefOverlay  = document.getElementById('addRefOverlay');
+    var addRefBtn      = document.getElementById('addRefBtn');
+    var addRefCloseBtn = document.getElementById('addRefCloseBtn');
+    var addRefCancelBtn= document.getElementById('addRefCancelBtn');
+    var addRefSaveBtn  = document.getElementById('addRefSaveBtn');
+    var addRefError    = document.getElementById('addRefError');
+
+    function openAddRefModal() {
+        document.getElementById('refCustomer').value  = '';
+        document.getElementById('refIndustry').value  = '';
+        document.getElementById('refStatus').value    = 'pending';
+        document.getElementById('refValidated').checked = false;
+        addRefError.style.display = 'none';
+        addRefOverlay.style.display = 'flex';
+    }
+
+    function closeAddRefModal() {
+        addRefOverlay.style.display = 'none';
+    }
+
+    addRefBtn.addEventListener('click', openAddRefModal);
+    addRefCloseBtn.addEventListener('click', closeAddRefModal);
+    addRefCancelBtn.addEventListener('click', closeAddRefModal);
+
+    // Close on backdrop click
+    addRefOverlay.addEventListener('click', function(e) {
+        if (e.target === addRefOverlay) closeAddRefModal();
+    });
+
+    // Clicking the validated row toggles the checkbox
+    document.getElementById('refValidatedRow').addEventListener('click', function(e) {
+        if (e.target.id !== 'refValidated') {
+            var cb = document.getElementById('refValidated');
+            cb.checked = !cb.checked;
+        }
+    });
+
+    addRefSaveBtn.addEventListener('click', async function() {
+        var customer  = document.getElementById('refCustomer').value.trim();
+        var industry  = document.getElementById('refIndustry').value.trim();
+        var status    = document.getElementById('refStatus').value;
+        var validated = document.getElementById('refValidated').checked;
+
+        // Validate
+        if (!customer) {
+            addRefError.textContent = 'Customer name is required.';
+            addRefError.style.display = 'block';
+            return;
+        }
+        if (!industry) {
+            addRefError.textContent = 'Industry is required.';
+            addRefError.style.display = 'block';
+            return;
+        }
+
+        addRefError.style.display = 'none';
+        addRefSaveBtn.textContent = 'Saving…';
+        addRefSaveBtn.disabled = true;
+
+        const response = await fetch('/api/supabase?action=addReference', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vendorId:  user.vendor_id,
+                customer:  customer,
+                industry:  industry,
+                status:    status,
+                validated: validated
+            })
+        });
+
+        const result = await response.json();
+        if (result.error) {
+            App.showToast(result.error, 'error');
+            return;
+        }
+
+        closeAddRefModal();
+
+        var tbody = document.getElementById('referencesTableBody');
+        var isPublished = status === 'published' || status === 'Published';
+        var statusBadge = isPublished
+        ? '<span class="pl-ref-status published">Published</span>'
+        : '<span class="pl-ref-status pending">Pending Udder review</span>';
+
+        var validatedIcon = validated
+        ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t4)" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="var(--t4)" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
+        tbody.innerHTML = '<div class="pl-ref-row">' +
+            '<span class="pl-ref-name">' + customer + '</span>' +
+            '<span class="pl-ref-cell">' + industry + '</span>' +
+            '<span class="pl-ref-cell">' + statusBadge + '</span>' +
+            '<span class="pl-ref-cell">' + validatedIcon + '</span>' +
+        '</div>';
+    });
 });
 
 /* ── Page loader dismiss ── */
@@ -109,6 +209,7 @@ function renderFeaturesGrid(modules, containerId) {
         });
     });
 
+    $('#totalFeatures').text(features.length);
     if (!features.length) {
         $('#' + containerId).html('<p style="color:var(--t3);font-size:13px">No features listed.</p>');
         return;
@@ -164,16 +265,88 @@ async function getLeads(vendorId){
 }
 
 async function renderVendor(vendor){
+    console.log(vendor);
     $('#pl-name').text(vendor.name);
     $("#plDescView").text(vendor.short_description);
     $("#plFoundedView").text(vendor.founding_year);
+    $("#plTaglineView").val(vendor.description);
 
     await getViews(vendor.id);
     await getLeads(vendor.id);
     await getComparisons(vendor.id);
-    
+    await loadReferences(vendor.id);
+
     const modules = vendor.data.company.modules ?? [];
     renderFeaturesGrid(modules, 'featuresGrid');
+
+    window._vendorId = vendor.id;
+    if (vendor.categories) {
+        vendor.categories = vendor.categories.replace('•', ',');
+
+        const cats = vendor.categories.split(',').map(c => c.trim()).filter(Boolean);
+        const $row = $('.pl-cats-row');
+        $row.find('.pl-cat-tag').remove();
+        cats.forEach(function(cat) {
+            $row.prepend(makeCatTag(cat));
+        });
+    }
+
+    bindCategoryControls();
+}
+
+function makeCatTag(label) {
+    window._categories.push(label.trim());
+    const $tag = $('<span class="pl-cat-tag"></span>').text(label);
+    const $x   = $('<button class="pl-cat-x" aria-label="Remove category">×</button>');
+    $x.on('click', function() { window._categories = window._categories.filter(val => val !== label.trim()); $tag.remove(); updateCategories()});
+    $tag.append(' ').append($x);
+    return $tag;
+}
+
+async function updateCategories(){
+    await fetch('/api/supabase?action=updateVendorCategories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendorId: window._vendorId, categories: window._categories.join(',') }),
+    });
+}
+
+function bindCategoryControls() {
+    const $row    = $('.pl-cats-row');
+    const $addBtn = $row.find('.pl-add-cat');
+
+    // Prevent duplicate bindings
+    $addBtn.off('click.addcat').on('click.addcat', function() {
+        // Don't open a second input if one is already open
+        if ($row.find('.pl-cat-input-wrap').length) return;
+
+        const $wrap = $('<span class="pl-cat-input-wrap" style="display:inline-flex;align-items:center;gap:4px;"></span>');
+        const $input = $('<input type="text" class="pl-input" placeholder="Category name" style="height:28px;padding:0 10px;font-size:12px;width:160px;border-radius:20px;">');
+        const $confirm = $('<button class="pl-save-btn" style="height:28px;padding:0 12px;font-size:12px;border-radius:20px;">Add</button>');
+        const $cancel  = $('<button class="pl-cancel-btn" style="height:28px;padding:0 10px;font-size:12px;border-radius:20px;">✕</button>');
+
+        $wrap.append($input).append($confirm).append($cancel);
+        $addBtn.before($wrap);
+        $input.trigger('focus');
+
+        function commit() {
+            const val = $input.val().trim();
+            if (val) {
+                $addBtn.before(makeCatTag(val));
+                updateCategories();
+            }
+            $wrap.remove();
+        }
+
+        function cancel() { $wrap.remove(); }
+
+        $confirm.on('click', commit);
+        $cancel.on('click', cancel);
+        $input.on('keydown', function(e) {
+            if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+            if (e.key === 'Escape') { cancel(); }
+        });
+    });
 }
 
 async function loadClaim(userId){
@@ -207,6 +380,38 @@ function daysAgo(isoDate) {
     if (days === 0) return 'today';
     if (days === 1) return '1 day ago';
     return days + ' days ago';
+}
+
+async function loadReferences(vendorId) {
+    var tbody = document.getElementById('referencesTableBody');
+    if (!tbody) return;
+
+    const response = await fetch(`/api/supabase?action=getReferencesByVendorId&vendorId=${vendorId}`);
+    const result = await response.json();
+    const refs = result.data ?? result ?? [];
+
+    if (!refs.length) {
+        tbody.innerHTML = '<div style="padding:16px 20px;font-size:13px;color:var(--t3)">No references yet.</div>';
+        return;
+    }
+
+    tbody.innerHTML = refs.map(function(r) {
+        var isPublished = r.status === 'published' || r.status === 'Published';
+        var statusBadge = isPublished
+        ? '<span class="pl-ref-status published">Published</span>'
+        : '<span class="pl-ref-status pending">Pending Udder review</span>';
+
+        var validatedIcon = r.validated
+        ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t4)" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="var(--t4)" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
+        return '<div class="pl-ref-row">' +
+        '<span class="pl-ref-name">' + (r.customer ?? '—') + '</span>' +
+        '<span class="pl-ref-cell">' + (r.industry ?? '—') + '</span>' +
+        '<span class="pl-ref-cell">' + statusBadge + '</span>' +
+        '<span class="pl-ref-cell">' + validatedIcon + '</span>' +
+        '</div>';
+    }).join('');
 }
 
 async function loadUser(userId){
