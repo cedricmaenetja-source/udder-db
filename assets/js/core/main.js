@@ -68,6 +68,48 @@ $(async function () {
         window._ipAddress = data.ip;
     });
 
+    var inp = document.getElementById('vendorSearch');
+  if(!inp) return;
+
+  function applySearch(){
+    var q = (inp.value || '').toLowerCase().trim();
+    var cards = document.querySelectorAll('#vendors .card');
+    var visible = 0;
+
+    cards.forEach(function(card){
+      var name        = (card.dataset.name         || '').toLowerCase();
+      var modules     = (card.dataset.modules      || '').toLowerCase();
+      var subcats     = (card.dataset.subcategories|| '').toLowerCase();
+      var features    = (card.dataset.features     || '').toLowerCase();
+      var description = (card.dataset.description  || '').toLowerCase();
+
+      var match = !q
+        || name.includes(q)
+        || modules.includes(q)
+        || subcats.includes(q)
+        || features.includes(q)
+        || description.includes(q);
+
+      card.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+
+    if(q){
+      var totalEl = document.getElementById('totalVendors');
+      if(totalEl) totalEl.textContent = visible;
+    }
+  }
+
+  // Re-apply search whenever cards are added/removed from the grid
+  var vendorsEl = document.getElementById('vendors');
+  if(vendorsEl){
+    new MutationObserver(function(){
+      if(inp.value.trim()) applySearch();
+    }).observe(vendorsEl, { childList: true, subtree: true });
+  }
+
+  inp.addEventListener('input', applySearch);
+
     populateTopVendors();
 });
 
@@ -1167,7 +1209,7 @@ async function loadVendors(filters = null){
                     <h2 class="nr-heading">No matches found</h2>
                     <p class="nr-sub">We couldn't find any HR tech products that match your current filters.</p>
                 </div>
-                </div>`);
+            </div>`);
         }
     }
 

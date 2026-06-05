@@ -92,8 +92,19 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-              vendorId: card.dataset.id
+              vendorId: card.dataset.id,
+              userId: window._user.id
           }),
+      });
+
+      fetch('/api/supabase?action=addActivity', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          vendorId: card.dataset.id,
+          username: `${window._user.first_name} ${window._user.last_name}`,
+          message: 'added you to comparison'
+        })
       });
     }
     syncActionBtn();

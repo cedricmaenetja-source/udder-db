@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>UDDER Database</title>
+<link rel="stylesheet" href="assets/css/common.css" />
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
@@ -619,7 +620,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       <a href="#" class="nav-link" data-panel="leads-inbox">
         <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Leads Inbox
-        <span class="nb" id="leadsInboxBadge">4</span>
+        <span class="nb" id="leadsInboxBadge">0</span>
       </a>
     </li>
     <li>
@@ -722,9 +723,9 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           <div class="pl-eyebrow">OVERVIEW</div>
           <h1 class="pl-name" id="pl-name"></h1>
           <div class="pl-meta-row">
-            <span class="pl-badge"><span class="pl-badge-dot"></span>UDDER APPROVED</span>
-            <span class="pl-complete">87% complete</span>
-            <span class="pl-updated">· Last updated 2 days ago</span>
+            <span class="pl-badge"><span class="pl-badge-dot"></span><span id="vVerification"></span></span>
+            <span class="pl-complete"><span id="topPlCompleteness"></span>% complete</span>
+            <span class="pl-updated">· Last updated <span id="plUpdated">--</span></span>
           </div>
         </div>
         <div class="pl-hero-right">
@@ -877,22 +878,22 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           <!-- Listing completeness -->
           <div class="pl-side-card">
             <div class="pl-side-eyebrow">LISTING COMPLETENESS</div>
-            <div class="pl-completeness-pct">87%</div>
+            <div class="pl-completeness-pct"><span id="completenessPerc"></span>%</div>
             <div class="pl-progress-bar"><div class="pl-progress-fill" style="width:87%"></div></div>
-            <ul class="pl-checklist">
-              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Basic info</li>
+            <ul class="pl-checklist" id="plChecklist">
+              <!-- <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Basic info</li>
               <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Categories</li>
               <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Integrations</li>
               <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Demo video (optional)</li>
-              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Capability evidence (for Verified)</li>
+              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Capability evidence (for Verified)</li> -->
             </ul>
           </div>
 
           <!-- Recent activity -->
           <div class="pl-side-card">
             <div class="pl-side-eyebrow">RECENT ACTIVITY</div>
-            <ul class="pl-activity-list">
-              <li class="pl-activity-item">
+            <ul class="pl-activity-list" id="recentActivities">
+              <!-- <li class="pl-activity-item">
                 <span class="pl-activity-text"><strong>Anna Sørensen (Vestas)</strong> requested intro · 14m ago</span>
               </li>
               <li class="pl-activity-item">
@@ -903,7 +904,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
               </li>
               <li class="pl-activity-item">
                 <span class="pl-activity-text"><strong>Rachel (Udder)</strong> scheduled your Verified review · Yesterday</span>
-              </li>
+              </li> -->
             </ul>
           </div>
 
@@ -943,9 +944,9 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         <p class="li-sub">Every lead comes qualified — with org, industry, stage, and who they're comparing you with.</p>
       </div>
       <div class="li-header-counts">
-        <span class="li-count-pill">4 new</span>
-        <span class="li-count-pill">2 responded</span>
-        <span class="li-count-pill">1 cold</span>
+        <span class="li-count-pill"><span id="liNewCountPill">0</span> new</span>
+        <span class="li-count-pill"><span id="liRespondedCountPill">0</span> responded</span>
+        <span class="li-count-pill"><span id="liColdCountPill">0</span> cold</span>
       </div>
     </div>
 
@@ -954,84 +955,6 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
       <!-- Left: lead list -->
       <div class="li-list" id="liList">
-
-        <div class="li-item active" data-lead="vestas">
-          <div class="li-item-top">
-            <span class="li-item-name">Vestas Wind Systems</span>
-            <span class="li-item-time">14m ago</span>
-          </div>
-          <div class="li-item-desc">Looking for ATS for high-volume blade tech hiring</div>
-          <div class="li-item-tags">
-            <span class="li-tag">25,000+</span>
-            <span class="li-tag">EU</span>
-            <span class="li-tag new">NEW</span>
-          </div>
-        </div>
-
-        <div class="li-item" data-lead="pret">
-          <div class="li-item-top">
-            <span class="li-item-name">Pret A Manger</span>
-            <span class="li-item-time">2h ago</span>
-          </div>
-          <div class="li-item-desc">Replacing legacy ATS, high-volume retail hiring</div>
-          <div class="li-item-tags">
-            <span class="li-tag">5,000–25,000</span>
-            <span class="li-tag">UK</span>
-            <span class="li-tag new">NEW</span>
-          </div>
-        </div>
-
-        <div class="li-item" data-lead="ocado">
-          <div class="li-item-top">
-            <span class="li-item-name">Ocado Group</span>
-            <span class="li-item-time">Yesterday</span>
-          </div>
-          <div class="li-item-desc">Global scale-up of talent platform</div>
-          <div class="li-item-tags">
-            <span class="li-tag">25,000+</span>
-            <span class="li-tag">UK</span>
-            <span class="li-tag responded">Responded</span>
-          </div>
-        </div>
-
-        <div class="li-item" data-lead="lloyds">
-          <div class="li-item-top">
-            <span class="li-item-name">Lloyds Banking Group</span>
-            <span class="li-item-time">Yesterday</span>
-          </div>
-          <div class="li-item-desc">Financial services regulatory hiring</div>
-          <div class="li-item-tags">
-            <span class="li-tag">25,000+</span>
-            <span class="li-tag">UK</span>
-            <span class="li-tag new">NEW</span>
-          </div>
-        </div>
-
-        <div class="li-item" data-lead="deliveroo">
-          <div class="li-item-top">
-            <span class="li-item-name">Deliveroo</span>
-            <span class="li-item-time">2 days ago</span>
-          </div>
-          <div class="li-item-desc">Gig / rider ops hiring platform</div>
-          <div class="li-item-tags">
-            <span class="li-tag">5,000–25,000</span>
-            <span class="li-tag">UK</span>
-            <span class="li-tag cold">Cold</span>
-          </div>
-        </div>
-
-        <div class="li-item" data-lead="halfords">
-          <div class="li-item-top">
-            <span class="li-item-name">Halfords Retail</span>
-            <span class="li-item-time">3 days ago</span>
-          </div>
-          <div class="li-item-desc">Technician and colleague hiring</div>
-          <div class="li-item-tags">
-            <span class="li-tag">5,000–25,000</span>
-            <span class="li-tag">UK</span>
-            <span class="li-tag responded">Responded</span>
-          </div>
-        </div>
 
       </div><!-- /li-list -->
 
@@ -1265,7 +1188,9 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </div><!-- /main-wrap -->
 
 <script type="module" src="../assets/js/core/vendor.js"></script>
-<script>
+<script type="module">
+  import { showToast, lockBtn } from '../assets/js/app.js';
+
 (function(){
   /* ── Init: hide all non-active panels on load ── */
   document.querySelectorAll('.content-panel').forEach(function(p){
@@ -1525,7 +1450,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   });
 
   /* Render default on load */
-  renderDetail('vestas');
+  //renderDetail('vestas');
 
 
   var editBtn    = document.getElementById('plEditOverviewBtn');
@@ -1554,15 +1479,39 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     });
   }
   if(saveBtn){
-    saveBtn.addEventListener('click', function(){
+    saveBtn.addEventListener('click', async function(){
       /* Sync inputs back to view fields */
       document.getElementById('plTaglineView').textContent  = document.getElementById('plTaglineInput').value;
       document.getElementById('plDescView').textContent     = document.getElementById('plDescInput').value;
       document.getElementById('plHqView').textContent       = document.getElementById('plHqInput').value;
       document.getElementById('plFoundedView').textContent  = document.getElementById('plFoundedInput').value;
+      
+      const reset = lockBtn($(saveBtn));
+      if (!reset) return;
+      
+      const t = new Date().toISOString();
+      const response = await fetch('/api/supabase?action=updateVendorProfile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId: window._user.vendor_id,
+          payload: { 
+            hq_location: document.getElementById('plHqInput').value,
+            description: document.getElementById('plTaglineInput').value,
+            founding_year: parseInt(document.getElementById('plFoundedInput').value),
+            short_description: document.getElementById('plDescInput').value,
+            updated_at: t
+         }}),
+      });
+
+      const result = response.json();
+      if (result.error){showToast(result.error, 'error'); reset(); return;}
+      document.getElementById('plUpdated').textContent  = window._daysAgo(t);
+
       viewEl.style.display = 'block';
       editEl.style.display = 'none';
       editBtn.style.display = '';
+      reset();
     });
   }
 

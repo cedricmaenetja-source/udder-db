@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { IncomingForm } from 'formidable';
 import fs from "fs";
 import { serialize } from "cookie";
+import { title } from 'process';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -68,7 +69,11 @@ export default async function handler(req, res) {
         'getReferencesById',
         'addReference',
         'getVendorActivities',
-        'addActivity'
+        'addActivity',
+        'addIntroRequest',
+        'updateVendorProfile',
+        'updateIntroRequest',
+        'getUserComparisons'
     ];
 
     if (!action) {
@@ -101,7 +106,50 @@ export default async function handler(req, res) {
     if (action === 'getReferencesByVendorId') return await getReferencesByVendorId(res, vendorId);
     if (action === 'getReferencesById') return await getReferencesById(res, referenceId);
     if (action === 'getVendorActivities') return await getVendorActivities(res, vendorId);
+    if (action === 'getUserComparisons') return await getUserComparisons(res, userId, vendorId);
     
+    if (action === 'updateIntroRequest') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { requestId} = req.body;
+            return updateIntroRequest(res, requestId);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'updateVendorProfile') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId, payload} = req.body;
+            return updateVendorProfile(res, vendorId, payload);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'addIntroRequest') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendorId, userId, message, mustHaves, targetImplementation, budgetIndication, title} = req.body;
+            return addIntroRequest(res, vendorId, userId, message, mustHaves, targetImplementation, budgetIndication, title);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
     if (action === 'addActivity') {
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
@@ -164,8 +212,8 @@ export default async function handler(req, res) {
         }
 
         try {
-            const { vendorId } = req.body;
-            return await addComparison(res, vendorId);
+            const { vendorId, userId } = req.body;
+            return await addComparison(res, vendorId, userId);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -658,7 +706,8 @@ async function updateVendor(res, id, payload, description) {
     .from('tblvendors')
     .update({ 
         data: payload,
-        short_description: description
+        short_description: description,
+        updated_at: new Date().toISOString()
     })
     .eq('id', id);
 
@@ -670,10 +719,21 @@ async function updateVendorCategories(res, id, categories) {
     const { data, error } = await supabase
     .from('tblvendors')
     .update({ 
-        categories: categories
+        categories: categories,
+        updated_at: new Date().toISOString()
     })
     .eq('id', id);
 
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function updateVendorProfile(res, id, payload) {
+    const { data, error } = await supabase
+    .from('tblvendors')
+    .update(payload)
+    .eq('id', id);
+    
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
 }
@@ -683,6 +743,7 @@ async function updateVendorAutoRefresh(res, id, autoRefresh) {
     .from('tblvendors')
     .update({ 
         auto_refresh: autoRefresh, 
+        updated_at: new Date().toISOString()
     })
     .eq('id', id)
     .select();
@@ -717,7 +778,9 @@ async function getVendorActivities(res, vendorId) {
   const { data, error } = await supabase
     .from('tblactivities')
     .select('*')
-    .eq('vendor_id', vendorId);
+    .eq('vendor_id', vendorId)
+    .order('id', { ascending: false })
+    .limit(5);
 
     if (error) return res.status(500).json({ data: null, error: error.message });
 
@@ -726,11 +789,28 @@ async function getVendorActivities(res, vendorId) {
 
 export async function addActivity(res, vendorId, username, message) {
     const { data, error } = await supabase
-    .from('tblreferences')
+    .from('tblactivities')
     .insert({ 
         vendor_id: vendorId, 
         username: username,
         message: message
+    })
+    .select()
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+export async function addIntroRequest(res, vendorId, userId, message, mustHaves, targetImplementation, budgetIndication, title) {
+    const { data, error } = await supabase
+    .from('tblintrorequests')
+    .insert({ 
+        vendor_id: vendorId, 
+        user_id: userId,
+        message: message,
+        must_haves: mustHaves,
+        target_implementation: targetImplementation,
+        budget_indication: budgetIndication
     })
     .select()
 
@@ -1259,9 +1339,21 @@ export async function getEvaluations(res, vendorId, userId) {
 
 export async function getVendorLeads(res, vendorId) {
     const { data, error } = await supabase
-    .from('tbldbleads')
+    .from('tblintrorequests')
     .select('*')
     .eq('vendor_id', vendorId)
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+export async function updateIntroRequest(res, id) {
+    const { data, error } = await supabase
+    .from('tblintrorequests')
+    .update({ 
+        viewed: true, 
+    })
+    .eq('id', id);
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
@@ -1379,11 +1471,25 @@ async function getComparisons(res, vendorId){
     return res.status(200).json({ data });
 }
 
-async function addComparison(res, vendorId){
+async function getUserComparisons(res, userId, vendorId){
+    const { data, error } = await supabase
+        .from('tblcomparisons')
+        .select('*')
+        .eq('user_id', userId)
+        .neq('vendor_id', vendorId)
+        .order('id', { ascending: false })
+        .limit(2);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function addComparison(res, vendorId, userId){
     const { data, error } = await supabase
         .from('tblcomparisons')
         .insert({ 
-            vendor_id: vendorId
+            vendor_id: vendorId,
+            user_id: userId
         })
         .select('*')
         .single();

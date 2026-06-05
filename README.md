@@ -2,6 +2,11 @@
 
 npm install cookie
 
+# Build SCSS
+```bash
+npm run build:css
+```
+
 # Deploy locally
 ```bash
 vercel dev
