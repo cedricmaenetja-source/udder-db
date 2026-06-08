@@ -103,7 +103,8 @@
         body:    JSON.stringify({
           vendorId: card.dataset.id,
           username: `${window._user.first_name} ${window._user.last_name}`,
-          message: 'added you to comparison'
+          message: 'added you to comparison',
+          source: 'Comparison views'
         })
       });
     }

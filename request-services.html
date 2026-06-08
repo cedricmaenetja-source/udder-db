@@ -546,12 +546,12 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
         <div class="step-num-badge active" id="badge1">1</div>
         <span class="step-nav-label">Services</span>
       </div>
-      <div class="step-nav-item pending" id="stepNav2">
+      <!-- <div class="step-nav-item pending" id="stepNav2">
         <div class="step-num-badge pending" id="badge2">2</div>
         <span class="step-nav-label">Your situation</span>
-      </div>
-      <div class="step-nav-item pending" id="stepNav3">
-        <div class="step-num-badge pending" id="badge3">3</div>
+      </div> -->
+      <div class="step-nav-item pending" id="stepNav2">
+        <div class="step-num-badge pending" id="badge2">2</div>
         <span class="step-nav-label">Contact</span>
       </div>
     </div>
@@ -610,7 +610,7 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       </div>
 
       <!-- PANEL 2: Your situation -->
-      <div class="panel" id="panel2">
+      <!-- <div class="panel" id="panel2">
         <h2 class="panel-title">Tell us about your situation</h2>
         <p class="panel-sub">This helps us send the right consultant for your first conversation.</p>
 
@@ -647,7 +647,7 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
             <button class="sit-pill" data-group="budget" data-val="undetermined" type="button">Not yet determined</button>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- PANEL 3: Contact -->
       <div class="panel" id="panel3">
@@ -742,9 +742,8 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
 (function(){
 
   let currentStep = 1;
-  const totalSteps = 3;
+  const totalSteps = 2;
   const selectedServices = new Set();
-  const step2Selections = { orgSize: null, timeline: null, budget: null };
 
   /* ── service card toggles ── */
   document.querySelectorAll('.service-card').forEach(card => {
@@ -753,18 +752,6 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       const svc = card.dataset.service;
       if(card.classList.contains('selected')) selectedServices.add(svc);
       else selectedServices.delete(svc);
-      updateContinueBtn();
-    });
-  });
-
-  /* ── situation pill toggles (single-select per group) ── */
-  document.querySelectorAll('.sit-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const group = pill.dataset.group;
-      // deselect others in same group
-      document.querySelectorAll(`.sit-pill[data-group="${group}"]`).forEach(p => p.classList.remove('selected'));
-      pill.classList.add('selected');
-      step2Selections[group] = pill.dataset.val;
       updateContinueBtn();
     });
   });
@@ -778,11 +765,6 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       msg.textContent = ok ? '' : 'Please select at least one service to continue.';
       msg.classList.remove('error');
     } else if(currentStep === 2){
-      const ok = step2Selections.orgSize && step2Selections.timeline && step2Selections.budget;
-      btn.disabled = !ok;
-      msg.textContent = ok ? '' : 'Please answer all three questions to continue.';
-      msg.classList.remove('error');
-    } else if(currentStep === 3){
       const fname   = document.getElementById('c_fname').value.trim();
       const lname   = document.getElementById('c_lname').value.trim();
       const email   = document.getElementById('c_email').value.trim();
@@ -792,19 +774,16 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       const ok = fname && lname && email && company && role && consent;
       btn.disabled = !ok;
       msg.textContent = '';
-    } else {
-      btn.disabled = false;
-      msg.textContent = '';
     }
   }
 
   /* ── step navigation ── */
   function goTo(step){
-    // hide all panels
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel'+step).classList.add('active');
+    // panel IDs are still 1 and 3 in the HTML, map step 2 → panel3
+    const panelId = step === 1 ? 'panel1' : 'panel3';
+    document.getElementById(panelId).classList.add('active');
 
-    // update step badges
     for(let i=1; i<=totalSteps; i++){
       const nav   = document.getElementById('stepNav'+i);
       const badge = document.getElementById('badge'+i);
@@ -826,10 +805,10 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       }
     }
 
-    // back button visibility
-    const backBtn = document.getElementById('backBtn');
-    const msg     = document.getElementById('validationMsg');
+    const backBtn     = document.getElementById('backBtn');
+    const msg         = document.getElementById('validationMsg');
     const continueBtn = document.getElementById('continueBtn');
+
     if(step > 1){
       backBtn.classList.add('visible');
       msg.style.display = 'none';
@@ -837,8 +816,7 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       backBtn.classList.remove('visible');
       msg.style.display = 'block';
     }
-    // rename button on last step
-    const btnLabel = continueBtn.querySelector('span') || continueBtn;
+
     if(step === totalSteps){
       continueBtn.innerHTML = 'Send request <svg viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>';
     } else {
@@ -850,7 +828,7 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
     window.scrollTo(0,0);
   }
 
-  /* ── step 3 field listeners ── */
+  /* ── step 2 (contact) field listeners ── */
   ['c_fname','c_lname','c_email','c_company','c_role'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateContinueBtn);
   });
@@ -866,44 +844,26 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
 
   /* ── success modal ── */
   async function showSuccessModal(){
-    const fname    = document.getElementById('c_fname').value.trim();
-    const lname    = document.getElementById('c_lname').value.trim();
-    const company  = document.getElementById('c_company').value.trim();
-    const email  = document.getElementById('c_email').value.trim();
-    const role  = document.getElementById('c_role').value.trim();
-    const message  = document.getElementById('c_message').value.trim();
-    
-    const client = {
-      fname: fname,
-      lname: lname,
-      company: company,
-      email: email,
-      role: role,
-      message: message
-    };
+    const fname   = document.getElementById('c_fname').value.trim();
+    const lname   = document.getElementById('c_lname').value.trim();
+    const company = document.getElementById('c_company').value.trim();
+    const email   = document.getElementById('c_email').value.trim();
+    const role    = document.getElementById('c_role').value.trim();
+    const message = document.getElementById('c_message').value.trim();
 
-    // populate name
+    const client = { fname, lname, company, email, role, message };
+
     document.getElementById('modalName').textContent = fname || 'there';
 
-    // build summary rows
     const serviceLabels = {
-      'vendor-selection':    'Vendor selection',
-      'rfi-rfp':             'RFI / RFP management',
-      'hr-tech-strategy':    'HR tech strategy',
-      'implementation':      'Implementation support',
-      'digital-maturity':    'Digital maturity assessment',
-      'market-landscape':    'Market landscape review',
+      'vendor-selection':     'Vendor selection',
+      'rfi-rfp':              'RFI / RFP management',
+      'hr-tech-strategy':     'HR tech strategy',
+      'implementation':       'Implementation support',
+      'digital-maturity':     'Digital maturity assessment',
+      'market-landscape':     'Market landscape review',
       'platform-optimisation':'Platform optimisation',
-      'change-management':   'Change management',
-    };
-    const timelineLabels = {
-      'immediate':'Immediate (< 1 month)',
-      'q3-2026':'Q3 2026','q4-2026':'Q4 2026','h1-2027':'H1 2027',
-      'exploratory':'Exploratory — no date yet',
-    };
-    const budgetLabels = {
-      '<50k':'< £50k','50k-100k':'£50k – £100k','100k-250k':'£100k – £250k',
-      '250k-500k':'£250k – £500k','500k+':'£500k+','undetermined':'Not yet determined',
+      'change-management':    'Change management',
     };
 
     const svcsText = [...selectedServices].map(s => serviceLabels[s] || s).join(', ');
@@ -911,8 +871,6 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
     const rows = [
       { key:'Services',     val: svcsText || '—' },
       { key:'Organisation', val: company  || '—' },
-      { key:'Timeline',     val: timelineLabels[step2Selections.timeline] || '—' },
-      { key:'Budget',       val: budgetLabels[step2Selections.budget]     || '—' },
     ];
 
     document.getElementById('modalSummaryRows').innerHTML = rows.map(r => `
@@ -922,11 +880,13 @@ body{height:100%;font-family:var(--body);-webkit-font-smoothing:antialiased;disp
       </div>`).join('');
 
     document.getElementById('successModal').classList.add('visible');
-    const response=await fetch('/api/supabase?action=addClientInquiry',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ inquiry: rows, client: client})
+
+    const response = await fetch('/api/supabase?action=addClientInquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inquiry: rows, client })
     });
-    const result=await response.json();
+    await response.json();
   }
 
   document.getElementById('backBtn').addEventListener('click', () => {

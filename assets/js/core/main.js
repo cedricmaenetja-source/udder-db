@@ -802,7 +802,7 @@ async function runSearch(){
     saveQuery(filters, value);
     filters['query'] = value;
     
-    await loadVendors(filters);
+    await loadVendors(filters, value);
     
     $('.layout').show();
     $('#xloader').empty();
@@ -1154,7 +1154,7 @@ function setData(){
     }, 60000);
 }
 
-async function loadVendors(filters = null){
+async function loadVendors(filters = null, query = null){
     let vendors;
     regionServed = [];
 
@@ -1177,14 +1177,16 @@ async function loadVendors(filters = null){
     }
 
     $('#vendors').empty();
+    removeScoreFilter();
     //filters = App.mockUpFilter;
 
     if (filters !== null){
         window._filters = filters;
         window._activeFilters = filters;
         vendors = applyFilters(filters, window._allVendors);
+
         if (vendors.length > 0){
-            $('#search-title').text('YOUR CUSTOMIZED HR TECH STACKS');
+            //$('#search-title').text('YOUR CUSTOMIZED HR TECH STACKS');
 
             let text = [];
             let employeeCount = (filters.employee_count !== null) ? `(${filters.employee_count})` : '';
@@ -1195,7 +1197,17 @@ async function loadVendors(filters = null){
                 text.push(`Requirements: [${filters.required_features.join(',')}]`);
             }
 
-            $('#search-info').text(`Based on your needs: ${text.join(', ')}`);
+            //$('#search-info').text(`Based on your needs: ${text.join(', ')}`);
+            let vIds = [];
+            vendors.forEach(v => {
+                vIds.push({vendor_id: v.id, query: query});
+            });
+
+            fetch('/api/supabase?action=addSearchMatches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({payload:vIds}),
+            });
         }else{
             $('#vendors').append(`<div class="no-results">
                 <div class="nr-icon-wrap">
@@ -1312,6 +1324,116 @@ async function loadVendors(filters = null){
     $('.layout').removeClass('hide');
     $('.sort-dropdown').removeClass('hide');
     $('.faqs-section').removeClass('hide');
+
+    if (filters !== null) {
+        applyScoreFilter();
+        $('#rpSub').text('Showing platforms with 50% and higher match score');
+    }
+}
+
+function applyScoreFilter() {
+    var threshold = 50;
+    var cards = Array.from(document.querySelectorAll('#vendors .card'));
+    if (!cards.length) return;
+
+    var scoredCards = cards.filter(function(c) {
+        return parseFloat(c.dataset.score) > 0;
+    });
+    if (!scoredCards.length) return;
+
+    var hidden = 0;
+    cards.forEach(function(card) {
+        var score = parseFloat(card.dataset.score) || 0;
+        if (score > 0 && score < threshold) {
+            card.dataset.belowThreshold = '1';
+            card.style.display = 'none';
+            hidden++;
+        }
+    });
+
+    if (!hidden) return;
+
+    var banner = ensureScoreFilterBanner();
+    var total  = cards.length;
+
+    document.getElementById('scoreFilterLabel').textContent =
+        hidden + ' vendor' + (hidden === 1 ? '' : 's') + ' below ' + threshold + '% match hidden';
+
+    document.getElementById('scoreFilterBtn').textContent =
+        'Show all ' + total + ' vendor' + (total === 1 ? '' : 's');
+
+    banner.style.display = 'flex';
+    updateVendorTotalFiltered();
+}
+
+function removeScoreFilter() {
+    document.querySelectorAll('#vendors .card[data-below-threshold]').forEach(function(card) {
+        card.style.display = '';
+        delete card.dataset.belowThreshold;
+    });
+    var banner = document.getElementById('scoreFilterBanner');
+    if (banner) banner.style.display = 'none';
+}
+
+function ensureScoreFilterBanner() {
+    var existing = document.getElementById('scoreFilterBanner');
+    if (existing) return existing;
+
+    var banner = document.createElement('div');
+    banner.id = 'scoreFilterBanner';
+    banner.style.cssText = [
+        'display:none',
+        'align-items:center',
+        'justify-content:space-between',
+        'gap:12px',
+        'padding:12px 20px',
+        'background:var(--w)',
+        'border-top:1px solid var(--b1)',
+        'font-size:12px',
+        'color:var(--t3)',
+        'flex-shrink:0'
+    ].join(';');
+
+    var label = document.createElement('span');
+    label.id = 'scoreFilterLabel';
+    banner.appendChild(label);
+
+    var btn = document.createElement('button');
+    btn.id = 'scoreFilterBtn';
+    btn.style.cssText = [
+        'display:inline-flex',
+        'align-items:center',
+        'height:30px',
+        'padding:0 14px',
+        'border:1px solid var(--b2)',
+        'border-radius:20px',
+        'background:transparent',
+        'font-size:12px',
+        'font-weight:500',
+        'color:var(--t2)',
+        'cursor:pointer',
+        'font-family:var(--sans)',
+        'transition:all 0.13s',
+        'white-space:nowrap'
+    ].join(';');
+    btn.onmouseover = function() { btn.style.borderColor = 'var(--b3)'; btn.style.color = 'var(--t1)'; };
+    btn.onmouseout  = function() { btn.style.borderColor = 'var(--b2)'; btn.style.color = 'var(--t2)'; };
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('#vendors .card[data-below-threshold]').forEach(function(card) {
+            card.style.display = '';
+            delete card.dataset.belowThreshold;
+        });
+        banner.style.display = 'none';
+        updateVendorTotalFiltered();
+    });
+    banner.appendChild(btn);
+
+    var pagination = document.getElementById('pagination');
+    if (pagination && pagination.parentNode) {
+        pagination.parentNode.insertBefore(banner, pagination);
+    }
+
+    return banner;
 }
 
 function updateCategoryCounts() {

@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
   const { data: user } = await supabase
       .from('tblusers')
-      .select('id, email, role, vendor_id')
+      .select('id, email, role, vendor_ids')
       .eq('id', session.user_id)
       .single();
 

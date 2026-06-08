@@ -108,7 +108,7 @@ async function build() {
   console.log("\n✅ Build complete → /dist");
 }
 
-// skip build if not production
+// comment out for production
 if (process.env.VERCEL_ENV !== "production") {
     fs.writeFileSync("vercel.json", JSON.stringify({
         buildCommand: "npm run build",

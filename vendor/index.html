@@ -1,1195 +1,3881 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>UDDER Database</title>
-<link rel="stylesheet" href="assets/css/common.css" />
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --o:#f04e23;--o2:#c93d18;--os:rgba(240,78,35,0.08);--om:rgba(240,78,35,0.15);
-  --k:#0f0f0f;--k2:#1c1c1c;--w:#ffffff;--off:#fafaf9;--off2:#f3f2ef;
-  --b1:rgba(15,15,15,0.05);--b2:rgba(15,15,15,0.09);--b3:rgba(15,15,15,0.16);
-  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
-  --sans:'Poppins', 'Helvetica Neue', Arial, sans-serif;
-  --lw:236px;--th:52px;
-}
-html,body{height:100%;overflow:hidden;background:var(--off)}
-body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UDDER Database</title>
+  <link rel="stylesheet" href="assets/css/common.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
-.hide{display:none!important}
-/* TOP BAR */
-.topbar{position:fixed;top:0;left:0;right:0;height:var(--th);z-index:300;background:var(--w);border-bottom:1px solid var(--b1);display:flex;align-items:center}
-.tb-logo{width:var(--lw);flex-shrink:0;height:100%;display:flex;align-items:center;gap:9px;padding:0 18px;border-right:1px solid var(--b1)}
-.tb-wordmark{font-size:24px;font-weight:900;color:var(--k);letter-spacing:-0.01em;line-height:1}
-.tb-wordmark span{color:var(--o)}
-.tb-wordmark small{display:block;font-size:9px;font-weight:400;color:var(--t4);letter-spacing:0.09em;text-transform:uppercase;margin-top:1px}
-.tb-crumb{display:flex;align-items:center;gap:7px;padding:0 18px;height:100%;border-right:1px solid var(--b1);font-size:12px;color:var(--t3);width:270px;}
-.tb-crumb a{color:var(--t3);text-decoration:none}
-.tb-crumb .sep{color:var(--t4);font-size:10px}
-.tb-crumb .cur{color:var(--t1);font-weight:500}
-.tb-search{flex:1;display:flex;align-items:center;gap:9px;margin:0 14px;padding:0 12px;height:32px;border-radius:7px;border:1px solid var(--b2);background:var(--off);transition:all 0.15s;cursor:pointer}
-.tb-search svg{width:13px;height:13px;color:var(--t3);flex-shrink:0}
-.tb-search input{border:none;outline:none;background:transparent;font-size:13px;color:var(--t1);font-family:var(--sans);flex:1;min-width:0}
-.tb-search input::placeholder{color:var(--t4)}
-.tb-right{display:flex;align-items:center;gap:8px;padding-right:16px;flex-shrink:0}
-.tb-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.15s;white-space:nowrap}
-.tb-btn:hover{border-color:var(--b3);color:var(--t1)}
-.tb-btn svg{width:13px;height:13px;flex-shrink:0}
-.tb-ai{background:var(--o);border-color:var(--o);color:var(--w)!important}
-.tb-ai:hover{background:var(--o2)!important;border-color:var(--o2)!important}
-.chat-fab-dot{width:8px;height:8px;background:#22c55e;border:2px solid var(--o);border-radius:50%;flex-shrink:0}
-.tb-hamburger{display:none;align-items:center;justify-content:center;width:36px;height:36px;margin-left:4px;background:none;border:1px solid var(--b2);border-radius:7px;cursor:pointer;flex-shrink:0;color:var(--t2)}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* SIDEBAR */
-.sidebar{position:fixed;top:var(--th);left:0;bottom:0;width:var(--lw);background:var(--w);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow-y:auto;z-index:200;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
-.sidebar::-webkit-scrollbar{width:4px}
-.sidebar::-webkit-scrollbar-track{background:transparent}
-.sidebar::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
-.sidebar::-webkit-scrollbar-thumb:hover{background:var(--o)}
+    :root {
+      --o: #f04e23;
+      --o2: #c93d18;
+      --os: rgba(240, 78, 35, 0.08);
+      --om: rgba(240, 78, 35, 0.15);
+      --k: #0f0f0f;
+      --k2: #1c1c1c;
+      --w: #ffffff;
+      --off: #fafaf9;
+      --off2: #f3f2ef;
+      --b1: rgba(15, 15, 15, 0.05);
+      --b2: rgba(15, 15, 15, 0.09);
+      --b3: rgba(15, 15, 15, 0.16);
+      --t1: #111110;
+      --t2: #4a4a46;
+      --t3: #8a8a85;
+      --t4: #b8b8b2;
+      --sans: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+      --lw: 236px;
+      --th: 52px;
+    }
 
-/* User block */
-.sb-user{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background 0.15s}
-.sb-user:hover{background:var(--off)}
-.sb-avatar{width:32px;height:32px;background:var(--k);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--w);flex-shrink:0;letter-spacing:0.03em;}
-.sb-uname{font-size:13px;font-weight:600;color:var(--t1);line-height:1.2}
-.sb-urole{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;font-weight:600}
-.sb-chev{color:var(--t4);font-size:9px;margin-left:auto;transition:transform 0.2s}
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--off)
+    }
 
-/* Nav sections */
-.sb-sec{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;padding:16px 16px 6px}
-.sb-nav{list-style:none;padding:0 6px;margin-bottom:4px}
-.sb-nav li{margin-bottom:1px}
-.sb-nav a,.sb-nav button{
-  display:flex;align-items:center;gap:9px;width:100%;padding:7px 10px;
-  font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;
-  background:none;border:none;cursor:pointer;font-family:var(--sans);
-  transition:all 0.13s;border-radius:6px;border-left:3px solid transparent
-}
-.sb-nav a:hover,.sb-nav button:hover{background:var(--off);color:var(--t1)}
-.sb-nav a.on{background:#f3f3f3;color:var(--t1);font-weight:600;border-left:3px solid var(--o);border-radius:0 6px 6px 0}
-.sb-nav svg{width:14px;height:14px;color:var(--t3);flex-shrink:0}
-.sb-nav a.on svg{color:var(--o)}
-.nb{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;background:var(--off2);color:var(--t3);border-radius:10px}
-.sb-nav a.on .nb{background:var(--o);color:white}
-.sb-div{height:1px;background:var(--b1);margin:6px 12px}
-.sb-foot{padding:10px 14px;margin-top:auto;border-top:1px solid var(--b1);font-size:10px;color:var(--t4);line-height:1.65}
+    body {
+      font-family: var(--sans);
+      color: var(--t1);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased
+    }
 
-/* User dropdown */
-.sb-user-dropdown{display:none;margin:0 8px 8px;border:1px solid var(--b1);border-radius:9px;overflow:hidden;background:var(--off)}
-.sb-user-dropdown.open{display:block}
-.sb-dropdown-item{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;font-size:13px;color:var(--t2);background:none;border:none;cursor:pointer;font-family:var(--sans);transition:all 0.13s;text-decoration:none}
-.sb-dropdown-item:hover{background:var(--b1);color:var(--t1)}
-.sb-dropdown-item svg{width:14px;height:14px;color:var(--t3);flex-shrink:0}
-.sb-dropdown-item.danger{color:#ef4444}
-.sb-dropdown-item.danger svg{color:#ef4444}
-.sb-dropdown-item.danger:hover{background:rgba(239,68,68,0.06)}
+    .hide {
+      display: none !important
+    }
 
-/* MAIN WRAP */
-.main-wrap{position:fixed;top:var(--th);left:var(--lw);right:0;bottom:0;overflow:hidden}
+    /* TOP BAR */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--th);
+      z-index: 300;
+      background: var(--w);
+      border-bottom: 1px solid var(--b1);
+      display: flex;
+      align-items: center
+    }
 
-/* CONTENT PANELS */
-.content-panel{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;background:white}
-.content-panel.active{display:flex}
+    .tb-logo {
+      width: var(--lw);
+      flex-shrink: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 18px;
+      border-right: 1px solid var(--b1)
+    }
 
-/* Panel header */
-.panel-header{padding:28px 32px 20px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
-.panel-eyebrow{font-size:11px;font-weight:600;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px}
-.panel-title{font-size:28px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1.1;margin-bottom:4px}
-.panel-sub{font-size:13px;color:var(--t3)}
+    .tb-wordmark {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--k);
+      letter-spacing: -0.01em;
+      line-height: 1
+    }
 
-/* Panel scroll area */
-.panel-scroll{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
-.panel-scroll::-webkit-scrollbar{width:4px}
-.panel-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+    .tb-wordmark span {
+      color: var(--o)
+    }
 
-/* Placeholder content */
-.placeholder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px}
-.placeholder-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px}
-.placeholder-card-icon{width:40px;height:40px;border-radius:10px;background:var(--off2);display:flex;align-items:center;justify-content:center}
-.placeholder-card-icon svg{width:18px;height:18px;color:var(--t3)}
-.placeholder-card-title{font-size:15px;font-weight:600;color:var(--t1)}
-.placeholder-card-text{font-size:13px;color:var(--t3);line-height:1.6}
-.placeholder-card-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--off2);color:var(--t3);width:fit-content}
+    .tb-wordmark small {
+      display: block;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--t4);
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      margin-top: 1px
+    }
 
-.placeholder-bar{height:48px;background:var(--w);border:1px solid var(--b1);border-radius:10px;display:flex;align-items:center;padding:0 20px;gap:12px;margin-bottom:12px}
-.placeholder-bar-label{font-size:13px;color:var(--t3)}
-.placeholder-bar .tag{padding:3px 10px;border-radius:20px;background:var(--off2);font-size:11px;font-weight:600;color:var(--t3)}
+    .tb-crumb {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 18px;
+      height: 100%;
+      border-right: 1px solid var(--b1);
+      font-size: 12px;
+      color: var(--t3);
+      width: 270px;
+    }
 
-.placeholder-table{background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
-.placeholder-table-head{display:grid;padding:12px 20px;background:var(--off);border-bottom:1px solid var(--b1);gap:20px}
-.placeholder-table-row{display:grid;padding:14px 20px;border-bottom:1px solid var(--b1);gap:20px;align-items:center;transition:background 0.12s}
-.placeholder-table-row:last-child{border-bottom:none}
-.placeholder-table-row:hover{background:var(--off)}
-.ph-cell{font-size:13px;color:var(--t2)}
-.ph-head{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:0.08em}
+    .tb-crumb a {
+      color: var(--t3);
+      text-decoration: none
+    }
 
-/* Metrics row */
-.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.metric-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px 24px}
-.metric-val{font-size:32px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1}
-.metric-lbl{font-size:12px;color:var(--t3);margin-top:4px}
-.metric-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;margin-top:8px;padding:2px 8px;border-radius:20px}
-.metric-delta.up{background:rgba(22,163,74,0.08);color:#16a34a}
-.metric-delta.down{background:rgba(239,68,68,0.08);color:#ef4444}
-.metric-delta.neu{background:var(--off2);color:var(--t3)}
+    .tb-crumb .sep {
+      color: var(--t4);
+      font-size: 10px
+    }
 
-/* Coming soon badge */
-.coming-soon-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;padding:60px 20px;text-align:center}
-.coming-soon-icon{width:64px;height:64px;border-radius:16px;background:var(--off2);display:flex;align-items:center;justify-content:center}
-.coming-soon-icon svg{width:28px;height:28px;color:var(--t3)}
-.coming-soon-title{font-size:18px;font-weight:700;color:var(--t1)}
-.coming-soon-desc{font-size:14px;color:var(--t3);max-width:340px;line-height:1.6}
-.coming-soon-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;background:var(--os);color:var(--o);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+    .tb-crumb .cur {
+      color: var(--t1);
+      font-weight: 500
+    }
 
-/* ── LEADS ANALYTICS ── */
-#panel-leads-analytics.active{display:flex;flex-direction:column;overflow:hidden}
-.la-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 32px 20px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
-.la-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px}
-.la-title{font-size:32px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:6px}
-.la-sub{font-size:13px;color:var(--t3)}
-.la-period-toggle{display:flex;align-items:center;background:var(--off2);border-radius:20px;padding:4px;flex-shrink:0;align-self:flex-start;margin-top:8px}
-.la-period-btn{height:32px;padding:0 16px;border:none;border-radius:16px;background:transparent;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all 0.15s;white-space:nowrap}
-.la-period-btn:hover{color:var(--t1)}
-.la-period-btn.active{background:var(--o);color:var(--w)}
-.la-scroll{flex:1;overflow-y:auto;padding:24px 32px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent;background:white}
-.la-scroll::-webkit-scrollbar{width:4px}
-.la-scroll::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
-.la-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.la-kpi-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:22px 24px}
-.la-kpi-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px}
-.la-kpi-val{font-size:40px;font-weight:900;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:8px}
-.la-kpi-delta{font-size:12px;font-weight:600}
-.la-kpi-delta.up{color:#16a34a}
-.la-kpi-delta.down{color:#ef4444}
-.la-charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.la-chart-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:24px}
-.la-chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.la-chart-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.015em}
-.la-chart-delta{font-size:13px;font-weight:700}
-.la-chart-delta.up{color:#16a34a}
-.la-bar-chart{height:130px;display:flex;align-items:flex-end;gap:3px;margin-bottom:20px;padding-bottom:2px;border-bottom:1px solid var(--b1)}
-.la-bar{flex:1;border-radius:3px 3px 0 0;min-width:0;transition:opacity 0.15s;cursor:default}
-.la-bar:hover{opacity:0.7}
-.la-chart-stats{display:flex;align-items:center;gap:28px;padding-top:16px}
-.la-chart-stat-val{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:3px}
-.la-chart-stat-lbl{font-size:11px;color:var(--t3);font-weight:500}
-.la-bottom-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.la-bottom-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:24px}
-.la-bottom-title{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.015em;margin-bottom:20px}
-.la-source-list{display:flex;flex-direction:column;gap:16px}
-.la-source-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.la-source-name{font-size:13px;color:var(--t1)}
-.la-source-count{font-size:13px;font-weight:700;color:var(--t1)}
-.la-source-bar{height:6px;background:var(--off2);border-radius:3px;overflow:hidden;margin-bottom:4px}
-.la-source-fill{height:100%;background:var(--o);border-radius:3px}
-.la-source-pct{font-size:11px;color:var(--t3)}
-.la-stage-list{display:flex;flex-direction:column;margin-bottom:16px}
-.la-stage-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--b1)}
-.la-stage-item:last-child{border-bottom:none}
-.la-stage-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.la-stage-name{font-size:13px;color:var(--t1);flex:1}
-.la-stage-count{font-size:16px;font-weight:900;color:var(--t1)}
-.la-stage-note{font-size:11px;color:var(--t4);line-height:1.5}
-.la-search-list{list-style:none;padding:0;display:flex;flex-direction:column}
-.la-search-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--b1)}
-.la-search-item:last-child{border-bottom:none}
-.la-search-num{font-size:13px;font-weight:800;color:var(--t3);width:16px;flex-shrink:0}
-.la-search-text{font-size:13px;color:var(--t1)}
+    .tb-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 14px;
+      padding: 0 12px;
+      height: 32px;
+      border-radius: 7px;
+      border: 1px solid var(--b2);
+      background: var(--off);
+      transition: all 0.15s;
+      cursor: pointer
+    }
 
-/* ── LEADS INBOX ── */
+    .tb-search svg {
+      width: 13px;
+      height: 13px;
+      color: var(--t3);
+      flex-shrink: 0
+    }
 
-/* Header */
-.li-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:24px 32px 18px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0}
-.li-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px}
-.li-title{font-size:32px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:8px}
-.li-sub{font-size:13px;color:var(--t3);line-height:1.5}
-.li-header-counts{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:6px}
-.li-count-pill{padding:5px 14px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:12px;font-weight:600;color:var(--t2);white-space:nowrap}
+    .tb-search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: var(--t1);
+      font-family: var(--sans);
+      flex: 1;
+      min-width: 0
+    }
 
-/* Split layout */
-.li-layout{display:grid;grid-template-columns:420px 1fr;flex:1;overflow:hidden;min-height:0}
+    .tb-search input::placeholder {
+      color: var(--t4)
+    }
 
-/* Left list */
-.li-list{overflow-y:auto;border-right:1px solid var(--b1);background:var(--w);scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
-.li-list::-webkit-scrollbar{width:4px}
-.li-list::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 16px;
+      flex-shrink: 0
+    }
 
-.li-item{padding:16px 20px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background 0.13s;border-left:3px solid transparent}
-.li-item:hover{background:var(--off)}
-.li-item.active{background:#fdf3f0;border-left-color:var(--o)}
-.li-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
-.li-item-name{font-size:14px;font-weight:700;color:var(--t1)}
-.li-item-time{font-size:12px;color:var(--t3);white-space:nowrap;flex-shrink:0}
-.li-item-desc{font-size:12px;color:var(--t3);margin-bottom:10px;line-height:1.4}
-.li-item-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.li-tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:11px;font-weight:500;color:var(--t2)}
-.li-tag.new{background:var(--o);border-color:var(--o);color:var(--w);font-weight:700}
-.li-tag.responded{background:var(--off2);border-color:var(--b2);color:var(--t2)}
-.li-tag.cold{background:var(--off2);border-color:var(--b2);color:var(--t3)}
+    .tb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--b2);
+      border-radius: 20px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t2);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.15s;
+      white-space: nowrap
+    }
 
-/* Right detail */
-.li-detail{overflow-y:auto;background:white;scrollbar-width:thin;scrollbar-color:rgba(15,15,15,0.15) transparent}
-.li-detail::-webkit-scrollbar{width:4px}
-.li-detail::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+    .tb-btn:hover {
+      border-color: var(--b3);
+      color: var(--t1)
+    }
 
-/* Detail inner */
-.li-detail-inner{padding:28px 32px;display:flex;flex-direction:column;gap:20px}
-.li-detail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
-.li-detail-name{font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;margin-bottom:6px}
-.li-detail-meta{font-size:13px;color:var(--t3)}
-.li-detail-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:6px}
-.li-pass-btn{height:36px;padding:0 18px;border:1px solid var(--b2);border-radius:20px;background:var(--w);font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.li-pass-btn:hover{border-color:var(--b3);color:var(--t1)}
-.li-respond-btn{height:36px;padding:0 20px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
-.li-respond-btn:hover{background:var(--o2)}
+    .tb-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0
+    }
 
-/* Info cards row */
-.li-info-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.li-info-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:18px 20px}
-.li-info-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px}
-.li-contact-row{display:flex;align-items:center;gap:12px}
-.li-contact-avatar{width:36px;height:36px;border-radius:50%;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--t2);flex-shrink:0}
-.li-contact-name{font-size:14px;font-weight:700;color:var(--t1);line-height:1.2}
-.li-contact-role{font-size:12px;color:var(--t3)}
-.li-stage-val{font-size:26px;font-weight:900;color:var(--t1);letter-spacing:-0.02em;margin-bottom:6px}
-.li-stage-sub{font-size:12px;color:var(--t3)}
-.li-comparing-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.li-comparing-tag{padding:5px 13px;border-radius:20px;background:var(--off2);border:1px solid var(--b1);font-size:12px;font-weight:600;color:var(--t2)}
+    .tb-ai {
+      background: var(--o);
+      border-color: var(--o);
+      color: var(--w) !important
+    }
 
-/* Must-haves */
-.li-section-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px 24px}
-.li-section-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px}
-.li-must-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--b1)}
-.li-must-row:last-child{border-bottom:none;padding-bottom:0}
-.li-must-left{display:flex;align-items:center;gap:10px}
-.li-must-check{width:16px;height:16px;flex-shrink:0}
-.li-must-text{font-size:14px;color:var(--t1)}
-.li-match-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--off2);color:var(--t2);border:1px solid var(--b1);white-space:nowrap}
-.li-match-badge.match{background:rgba(22,163,74,0.07);color:#16a34a;border-color:rgba(22,163,74,0.2)}
-.li-match-badge.partial{background:rgba(234,179,8,0.07);color:#b45309;border-color:rgba(234,179,8,0.2)}
+    .tb-ai:hover {
+      background: var(--o2) !important;
+      border-color: var(--o2) !important
+    }
 
-/* Original message */
-.li-message-text{font-size:14px;color:var(--t2);line-height:1.7}
+    .chat-fab-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border: 2px solid var(--o);
+      border-radius: 50%;
+      flex-shrink: 0
+    }
 
-/* Hero */
-.pl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:28px 32px 24px;background:var(--w);flex-shrink:0}
-.pl-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:10px}
-.pl-name{font-size:36px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1.05;margin-bottom:12px}
-.pl-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.pl-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--k);color:var(--w);font-size:10px;font-weight:700;letter-spacing:0.06em}
-.pl-badge-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
-.pl-complete{font-size:13px;color:var(--t2);font-weight:500}
-.pl-updated{font-size:13px;color:var(--t3)}
-.pl-tier-card{border:1px solid var(--b2);border-radius:12px;padding:18px 22px;min-width:320px;flex-shrink:0}
-.pl-tier-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
-.pl-tier-desc{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:14px}
-.pl-tier-btn{width:100%;padding:11px 20px;border-radius:8px;border:none;background:var(--k);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s}
-.pl-tier-btn:hover{background:#2a2a2a}
+    .tb-hamburger {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      margin-left: 4px;
+      background: none;
+      border: 1px solid var(--b2);
+      border-radius: 7px;
+      cursor: pointer;
+      flex-shrink: 0;
+      color: var(--t2)
+    }
 
-/* Stats row */
-.pl-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 32px;background:white;flex-shrink:0}
-.pl-stat-card{background:var(--w);border:1px solid var(--b1);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:0}
-.pl-stat-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px}
-.pl-stat-val{font-size:40px;font-weight:900;color:var(--t1);letter-spacing:-0.04em;line-height:1;margin-bottom:8px}
-.pl-stat-delta{font-size:13px;font-weight:600}
-.pl-stat-delta.up{color:#16a34a}
-.pl-stat-delta.down{color:#ef4444}
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: var(--th);
+      left: 0;
+      bottom: 0;
+      width: var(--lw);
+      background: var(--w);
+      border-right: 1px solid var(--b1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 200;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15, 15, 15, 0.15) transparent
+    }
 
-/* Body two-col */
-.pl-body{display:grid;grid-template-columns:1fr 360px;gap:0;min-height:0;background:white;}
-.pl-main{padding:24px 28px;display:flex;flex-direction:column;gap:20px;}
-.pl-main::-webkit-scrollbar{width:4px}
-.pl-main::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
-.pl-side{border-left:1px solid var(--b1);padding:20px 24px;display:flex;flex-direction:column;gap:16px;background:white;}
-.pl-side::-webkit-scrollbar{width:4px}
-.pl-side::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.15);border-radius:10px}
+    .sidebar::-webkit-scrollbar {
+      width: 4px
+    }
 
-/* Cards */
-.pl-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:24px;overflow:visible}
-.pl-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.pl-card-title{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.015em}
-.pl-card-desc{font-size:13px;color:var(--t3);line-height:1.6;margin-bottom:18px}
-.pl-edit-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border:1px solid var(--b2);border-radius:7px;background:transparent;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.pl-edit-btn:hover{border-color:var(--b3);color:var(--t1)}
-.pl-edit-btn svg{width:12px;height:12px}
-.pl-features-count{padding:4px 12px;border-radius:20px;background:var(--off2);font-size:12px;font-weight:600;color:var(--t2)}
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent
+    }
 
-/* Form fields */
-.pl-field-group{margin-bottom:16px}
-.pl-field-group:last-child{margin-bottom:0}
-.pl-field-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
-.pl-field-box{padding:10px 14px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t2);line-height:1.6;min-height:40px}
-.pl-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s}
-.pl-input:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
-.pl-textarea{width:100%;padding:10px 12px;border:1px solid var(--b2);border-radius:7px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;resize:vertical;line-height:1.6;transition:border-color 0.15s}
-.pl-textarea:focus{border-color:var(--o);box-shadow:0 0 0 3px rgba(240,78,35,0.07)}
-.pl-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.pl-edit-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:16px;border-top:1px solid var(--b1);margin-top:16px}
-.pl-cancel-btn{height:36px;padding:0 18px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.pl-cancel-btn:hover{border-color:var(--b3);color:var(--t1)}
-.pl-save-btn{height:36px;padding:0 20px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
-.pl-save-btn:hover{background:var(--o2)}
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
 
-/* Categories */
-.pl-cats-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-.pl-cat-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--k);color:var(--w);font-size:12px;font-weight:600}
-.pl-cat-x{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7);font-size:14px;padding:0;line-height:1;margin-left:2px}
-.pl-cat-x:hover{color:white}
-.pl-add-cat{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border:1px dashed var(--b3);border-radius:20px;background:transparent;font-size:12px;font-weight:500;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.pl-add-cat:hover{border-color:var(--o);color:var(--o)}
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: var(--o)
+    }
 
-/* Verified nudge */
-.pl-verified-nudge{display:flex;align-items:center;gap:8px;padding:12px 16px;background:rgba(240,78,35,0.06);border:1px solid rgba(240,78,35,0.15);border-radius:8px;font-size:11px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px}
-.pl-verified-nudge svg{flex-shrink:0}
+    /* User block */
+    .sb-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--b1);
+      cursor: pointer;
+      transition: background 0.15s
+    }
 
-/* Features grid */
-.pl-features-grid{border:1px solid var(--b1);border-radius:8px;overflow:hidden}
-.pl-feature-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--b1)}
-.pl-feature-row:last-child{border-bottom:none}
-.pl-feat{display:flex;align-items:center;gap:8px;padding:13px 16px;font-size:13px;color:var(--t2);border-right:1px solid var(--b1)}
-.pl-feat:last-child{border-right:none}
-.pl-check{width:14px;height:14px;flex-shrink:0}
+    .sb-user:hover {
+      background: var(--off)
+    }
 
-/* References table */
-.pl-ref-table{border:1px solid var(--b1);border-radius:8px;overflow:hidden;margin-bottom:14px}
-.pl-ref-head{display:grid;grid-template-columns:1.5fr 1.5fr 1.5fr 80px;padding:10px 16px;background:var(--off);border-bottom:1px solid var(--b1)}
-.pl-ref-th{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:0.08em}
-.pl-ref-row{display:grid;grid-template-columns:1.5fr 1.5fr 1.5fr 80px;padding:13px 16px;border-bottom:1px solid var(--b1);align-items:center;transition:background 0.12s}
-.pl-ref-row:last-child{border-bottom:none}
-.pl-ref-row:hover{background:var(--off)}
-.pl-ref-name{font-size:13px;font-weight:700;color:var(--t1)}
-.pl-ref-cell{font-size:13px;color:var(--t2)}
-.pl-ref-status{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.pl-ref-status.published{background:var(--k);color:var(--w)}
-.pl-ref-status.pending{background:var(--off2);color:var(--t3);border:1px solid var(--b2)}
-.pl-add-ref-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--b3);border-radius:7px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.pl-add-ref-btn:hover{border-color:var(--o);color:var(--o)}
+    .sb-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--k);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--w);
+      flex-shrink: 0;
+      letter-spacing: 0.03em;
+    }
 
-/* Side cards */
-.pl-side-card{background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:20px;width:100%}
-.pl-side-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px}
-.pl-completeness-pct{font-size:52px;font-weight:900;color:var(--o);letter-spacing:-0.04em;line-height:1;margin-bottom:10px}
-.pl-progress-bar{height:6px;background:var(--off2);border-radius:3px;overflow:hidden;margin-bottom:16px}
-.pl-progress-fill{height:100%;background:var(--o);border-radius:3px;transition:width 0.4s ease}
-.pl-checklist{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px}
-.pl-check-item{display:flex;align-items:center;gap:8px;font-size:13px}
-.pl-check-item.done{color:var(--t2)}
-.pl-check-item.todo{color:var(--t4)}
-.pl-activity-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:0}
-.pl-activity-item{padding:10px 0;border-bottom:1px solid var(--b1)}
-.pl-activity-item:last-child{border-bottom:none;padding-bottom:0}
-.pl-activity-text{font-size:12px;color:var(--t2);line-height:1.55}
-.pl-activity-text strong{color:var(--t1);font-weight:600}
+    .sb-uname {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1);
+      line-height: 1.2
+    }
 
-/* Sidebar overlay for mobile */
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:199}
+    .sb-urole {
+      font-size: 10px;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 600
+    }
 
-@media(max-width:900px){
-  :root{--lw:0px}
-  .sidebar{transform:translateX(-240px);width:240px;transition:transform 0.25s ease;z-index:500}
-  .sidebar.open{transform:translateX(0)}
-  .sidebar-overlay{display:none}
-  .sidebar-overlay.show{display:block}
-  .tb-hamburger{display:flex!important}
-  .tb-crumb{display:none}
-  .main-wrap{left:0!important}
-  .metrics-row{grid-template-columns:1fr 1fr}
-}
-@media(max-width:600px){
-  .metrics-row{grid-template-columns:1fr}
-  .panel-header{padding:20px 16px 14px}
-  .panel-scroll{padding:16px}
-}
-/* ── PAGE LOADER ── */
-#pageLoader{
-  position:fixed;inset:0;z-index:9999;
-  background:#ffffff;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  transition:opacity 0.35s ease, visibility 0.35s ease;
-}
-#pageLoader.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.loader-wordmark{font-size:28px;font-weight:900;color:#0f0f0f;letter-spacing:-0.01em}
-.loader-wordmark span{color:#f04e23}
-.loader-spinner{position:relative;width:36px;height:36px}
-.loader-spinner::before,.loader-spinner::after{
-  content:'';position:absolute;inset:0;border-radius:50%;
-}
-.loader-spinner::before{border:3px solid #f3f2ef}
-.loader-spinner::after{
-  border:3px solid transparent;
-  border-top-color:#f04e23;
-  animation:loaderSpin 0.75s linear infinite;
-}
-@keyframes loaderSpin{to{transform:rotate(360deg)}}
-.loader-text{font-size:12px;font-weight:500;color:#b8b8b2;letter-spacing:0.04em}
-/* ── NO PRODUCT LINKED STATE ── */
-.no-product-wrap{display:none;align-items:center;justify-content:center;padding:60px 32px;background:white;flex:1;min-height:100%}
-.no-product-wrap.show{display:flex}
-.no-product-inner{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start;max-width:960px;width:100%}
-.no-product-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px}
-.no-product-title{font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1.2;margin-bottom:12px}
-.no-product-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:28px;max-width:480px}
-.no-product-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.no-product-btn-primary{height:42px;padding:0 24px;background:var(--o);border:none;border-radius:999px;color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.13s}
-.no-product-btn-primary:hover{background:var(--o2)}
-.no-product-btn-ghost{height:42px;padding:0 22px;background:transparent;border:1.5px solid var(--b2);border-radius:999px;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.13s}
-.no-product-btn-ghost:hover{border-color:var(--b3);color:var(--t1)}
-.no-product-status-card{background:var(--w);border:1px solid var(--b1);border-radius:16px;padding:28px 24px}
-.no-product-status-eyebrow{font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px}
-.no-product-status-name{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-0.01em;margin-bottom:3px}
-.no-product-status-sub{font-size:12px;color:var(--t3);margin-bottom:24px}
-.claim-stepper{display:flex;flex-direction:column}
-.claim-step{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:14px}
-.claim-step-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--off2);border:2px solid var(--b2);grid-row:1;grid-column:1;z-index:1}
-.claim-step.done .claim-step-icon{background:var(--o);border-color:var(--o)}
-.claim-step-icon.active{background:var(--w);border-color:var(--o)}
-.claim-step-pulse{width:10px;height:10px;border-radius:50%;background:var(--o);animation:nppulse 1.4s ease-in-out infinite}
-@keyframes nppulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
-.claim-step-line{width:2px;background:var(--b2);margin:0 auto;min-height:20px;grid-row:2;grid-column:1}
-.claim-step-line.done{background:var(--o)}
-.claim-step-body{grid-row:1/3;grid-column:2;padding:4px 0 20px}
-.claim-step:last-child .claim-step-body{padding-bottom:0}
-.claim-step-label{font-size:13px;font-weight:600;color:var(--t1)}
-.claim-step.pending .claim-step-label{color:var(--t4)}
-.claim-step-meta{font-size:11px;color:var(--t3);margin-top:3px}
-.claim-step.pending .claim-step-meta{color:var(--t4)}
-.claim-help{font-size:12px;color:var(--t3);padding-top:16px;border-top:1px solid var(--b1);margin-top:8px}
-.claim-help a{color:var(--o);text-decoration:none;font-weight:600}
-.claim-help a:hover{text-decoration:underline}
-/* ── CONTENT SPINNER ── */
-.content-spinner{
-  display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;flex:1;min-height:200px;padding:40px;
-}
-.content-spinner.show{display:flex}
-.cs-ring{position:relative;width:32px;height:32px;flex-shrink:0}
-.cs-ring::before,.cs-ring::after{content:'';position:absolute;inset:0;border-radius:50%}
-.cs-ring::before{border:2.5px solid var(--off2)}
-.cs-ring::after{
-  border:2.5px solid transparent;
-  border-top-color:var(--o);
-  animation:csSpin 0.7s linear infinite;
-}
-@keyframes csSpin{to{transform:rotate(360deg)}}
-.cs-text{font-size:12px;font-weight:500;color:var(--t4);letter-spacing:0.03em}
-/* NOTIFICATIONS */
-.notification {
-  position: fixed;
-  top: 20px; right: 20px;
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 13px; font-weight: 500; color: white;
-  z-index: 9999;
-  animation: slideIn 0.25s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-.notification.success { background: #16a34a; }
-.notification.error   { background: #ef4444; }
-.notification.warning { background: #f59e0b; }
-.notification.neutral { background: #0f0f0f; }
+    .sb-chev {
+      color: var(--t4);
+      font-size: 9px;
+      margin-left: auto;
+      transition: transform 0.2s
+    }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-</style>
+    /* Nav sections */
+    .sb-sec {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 16px 16px 6px
+    }
+
+    .sb-nav {
+      list-style: none;
+      padding: 0 6px;
+      margin-bottom: 4px
+    }
+
+    .sb-nav li {
+      margin-bottom: 1px
+    }
+
+    .sb-nav a,
+    .sb-nav button {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s;
+      border-radius: 6px;
+      border-left: 3px solid transparent
+    }
+
+    .sb-nav a:hover,
+    .sb-nav button:hover {
+      background: var(--off);
+      color: var(--t1)
+    }
+
+    .sb-nav a.on {
+      background: #f3f3f3;
+      color: var(--t1);
+      font-weight: 600;
+      border-left: 3px solid var(--o);
+      border-radius: 0 6px 6px 0
+    }
+
+    .sb-nav svg {
+      width: 14px;
+      height: 14px;
+      color: var(--t3);
+      flex-shrink: 0
+    }
+
+    .sb-nav a.on svg {
+      color: var(--o)
+    }
+
+    .nb {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      background: var(--off2);
+      color: var(--t3);
+      border-radius: 10px
+    }
+
+    .sb-nav a.on .nb {
+      background: var(--o);
+      color: white
+    }
+
+    .sb-div {
+      height: 1px;
+      background: var(--b1);
+      margin: 6px 12px
+    }
+
+    .sb-foot {
+      padding: 10px 14px;
+      margin-top: auto;
+      border-top: 1px solid var(--b1);
+      font-size: 10px;
+      color: var(--t4);
+      line-height: 1.65
+    }
+
+    /* User dropdown */
+    .sb-user-dropdown {
+      display: none;
+      margin: 0 8px 8px;
+      border: 1px solid var(--b1);
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--off)
+    }
+
+    .sb-user-dropdown.open {
+      display: block
+    }
+
+    .sb-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--t2);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s;
+      text-decoration: none
+    }
+
+    .sb-dropdown-item:hover {
+      background: var(--b1);
+      color: var(--t1)
+    }
+
+    .sb-dropdown-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--t3);
+      flex-shrink: 0
+    }
+
+    .sb-dropdown-item.danger {
+      color: #ef4444
+    }
+
+    .sb-dropdown-item.danger svg {
+      color: #ef4444
+    }
+
+    .sb-dropdown-item.danger:hover {
+      background: rgba(239, 68, 68, 0.06)
+    }
+
+    /* MAIN WRAP */
+    .main-wrap {
+      position: fixed;
+      top: var(--th);
+      left: var(--lw);
+      right: 0;
+      bottom: 0;
+      overflow: hidden
+    }
+
+    /* CONTENT PANELS */
+    .content-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      background: white
+    }
+
+    .content-panel.active {
+      display: flex
+    }
+
+    /* Panel header */
+    .panel-header {
+      padding: 28px 32px 20px;
+      background: var(--w);
+      border-bottom: 1px solid var(--b1);
+      flex-shrink: 0
+    }
+
+    .panel-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 6px
+    }
+
+    .panel-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 4px
+    }
+
+    .panel-sub {
+      font-size: 13px;
+      color: var(--t3)
+    }
+
+    /* Panel scroll area */
+    .panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15, 15, 15, 0.15) transparent
+    }
+
+    .panel-scroll::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .panel-scroll::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    /* Placeholder content */
+    .placeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px
+    }
+
+    .placeholder-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .placeholder-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--off2);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .placeholder-card-icon svg {
+      width: 18px;
+      height: 18px;
+      color: var(--t3)
+    }
+
+    .placeholder-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--t1)
+    }
+
+    .placeholder-card-text {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.6
+    }
+
+    .placeholder-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--off2);
+      color: var(--t3);
+      width: fit-content
+    }
+
+    .placeholder-bar {
+      height: 48px;
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      margin-bottom: 12px
+    }
+
+    .placeholder-bar-label {
+      font-size: 13px;
+      color: var(--t3)
+    }
+
+    .placeholder-bar .tag {
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--off2);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t3)
+    }
+
+    .placeholder-table {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      overflow: hidden
+    }
+
+    .placeholder-table-head {
+      display: grid;
+      padding: 12px 20px;
+      background: var(--off);
+      border-bottom: 1px solid var(--b1);
+      gap: 20px
+    }
+
+    .placeholder-table-row {
+      display: grid;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--b1);
+      gap: 20px;
+      align-items: center;
+      transition: background 0.12s
+    }
+
+    .placeholder-table-row:last-child {
+      border-bottom: none
+    }
+
+    .placeholder-table-row:hover {
+      background: var(--off)
+    }
+
+    .ph-cell {
+      font-size: 13px;
+      color: var(--t2)
+    }
+
+    .ph-head {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t4);
+      text-transform: uppercase;
+      letter-spacing: 0.08em
+    }
+
+    /* Metrics row */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px
+    }
+
+    .metric-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 20px 24px
+    }
+
+    .metric-val {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+      line-height: 1
+    }
+
+    .metric-lbl {
+      font-size: 12px;
+      color: var(--t3);
+      margin-top: 4px
+    }
+
+    .metric-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 2px 8px;
+      border-radius: 20px
+    }
+
+    .metric-delta.up {
+      background: rgba(22, 163, 74, 0.08);
+      color: #16a34a
+    }
+
+    .metric-delta.down {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444
+    }
+
+    .metric-delta.neu {
+      background: var(--off2);
+      color: var(--t3)
+    }
+
+    /* Coming soon badge */
+    .coming-soon-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 16px;
+      padding: 60px 20px;
+      text-align: center
+    }
+
+    .coming-soon-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--off2);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .coming-soon-icon svg {
+      width: 28px;
+      height: 28px;
+      color: var(--t3)
+    }
+
+    .coming-soon-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .coming-soon-desc {
+      font-size: 14px;
+      color: var(--t3);
+      max-width: 340px;
+      line-height: 1.6
+    }
+
+    .coming-soon-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      background: var(--os);
+      color: var(--o);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase
+    }
+
+    /* ── LEADS ANALYTICS ── */
+    #panel-leads-analytics.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .la-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px 32px 20px;
+      background: var(--w);
+      border-bottom: 1px solid var(--b1);
+      flex-shrink: 0
+    }
+
+    .la-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 8px
+    }
+
+    .la-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin-bottom: 6px
+    }
+
+    .la-sub {
+      font-size: 13px;
+      color: var(--t3)
+    }
+
+    .la-period-toggle {
+      display: flex;
+      align-items: center;
+      background: var(--off2);
+      border-radius: 20px;
+      padding: 4px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 8px
+    }
+
+    .la-period-btn {
+      height: 32px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 16px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.15s;
+      white-space: nowrap
+    }
+
+    .la-period-btn:hover {
+      color: var(--t1)
+    }
+
+    .la-period-btn.active {
+      background: var(--o);
+      color: var(--w)
+    }
+
+    .la-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15, 15, 15, 0.15) transparent;
+      background: white
+    }
+
+    .la-scroll::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .la-scroll::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    .la-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px
+    }
+
+    .la-kpi-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 22px 24px
+    }
+
+    .la-kpi-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px
+    }
+
+    .la-kpi-val {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 8px
+    }
+
+    .la-kpi-delta {
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .la-kpi-delta.up {
+      color: #16a34a
+    }
+
+    .la-kpi-delta.down {
+      color: #ef4444
+    }
+
+    .la-charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px
+    }
+
+    .la-chart-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 24px
+    }
+
+    .la-chart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px
+    }
+
+    .la-chart-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.015em
+    }
+
+    .la-chart-delta {
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .la-chart-delta.up {
+      color: #16a34a
+    }
+
+    .la-bar-chart {
+      height: 130px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      margin-bottom: 20px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .la-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      min-width: 0;
+      transition: opacity 0.15s;
+      cursor: default
+    }
+
+    .la-bar:hover {
+      opacity: 0.7
+    }
+
+    .la-chart-stats {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding-top: 16px
+    }
+
+    .la-chart-stat-val {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin-bottom: 3px
+    }
+
+    .la-chart-stat-lbl {
+      font-size: 11px;
+      color: var(--t3);
+      font-weight: 500
+    }
+
+    .la-bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px
+    }
+
+    .la-bottom-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 24px
+    }
+
+    .la-bottom-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.015em;
+      margin-bottom: 20px
+    }
+
+    .la-source-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .la-source-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px
+    }
+
+    .la-source-name {
+      font-size: 13px;
+      color: var(--t1)
+    }
+
+    .la-source-count {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .la-source-bar {
+      height: 6px;
+      background: var(--off2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 4px
+    }
+
+    .la-source-fill {
+      height: 100%;
+      background: var(--o);
+      border-radius: 3px
+    }
+
+    .la-source-pct {
+      font-size: 11px;
+      color: var(--t3)
+    }
+
+    .la-stage-list {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px
+    }
+
+    .la-stage-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .la-stage-item:last-child {
+      border-bottom: none
+    }
+
+    .la-stage-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .la-stage-name {
+      font-size: 13px;
+      color: var(--t1);
+      flex: 1
+    }
+
+    .la-stage-count {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--t1)
+    }
+
+    .la-stage-note {
+      font-size: 11px;
+      color: var(--t4);
+      line-height: 1.5
+    }
+
+    .la-search-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column
+    }
+
+    .la-search-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .la-search-item:last-child {
+      border-bottom: none
+    }
+
+    .la-search-num {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--t3);
+      width: 16px;
+      flex-shrink: 0
+    }
+
+    .la-search-text {
+      font-size: 13px;
+      color: var(--t1)
+    }
+
+    /* ── LEADS INBOX ── */
+
+    /* Header */
+    .li-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px 32px 18px;
+      background: var(--w);
+      border-bottom: 1px solid var(--b1);
+      flex-shrink: 0
+    }
+
+    .li-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 8px
+    }
+
+    .li-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin-bottom: 8px
+    }
+
+    .li-sub {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.5
+    }
+
+    .li-header-counts {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      padding-top: 6px
+    }
+
+    .li-count-pill {
+      padding: 5px 14px;
+      border-radius: 20px;
+      background: var(--off2);
+      border: 1px solid var(--b1);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t2);
+      white-space: nowrap
+    }
+
+    /* Split layout */
+    .li-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0
+    }
+
+    /* Left list */
+    .li-list {
+      overflow-y: auto;
+      border-right: 1px solid var(--b1);
+      background: var(--w);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15, 15, 15, 0.15) transparent
+    }
+
+    .li-list::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .li-list::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    .li-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--b1);
+      cursor: pointer;
+      transition: background 0.13s;
+      border-left: 3px solid transparent
+    }
+
+    .li-item:hover {
+      background: var(--off)
+    }
+
+    .li-item.active {
+      background: #fdf3f0;
+      border-left-color: var(--o)
+    }
+
+    .li-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px
+    }
+
+    .li-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .li-item-time {
+      font-size: 12px;
+      color: var(--t3);
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .li-item-desc {
+      font-size: 12px;
+      color: var(--t3);
+      margin-bottom: 10px;
+      line-height: 1.4
+    }
+
+    .li-item-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .li-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--off2);
+      border: 1px solid var(--b1);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--t2)
+    }
+
+    .li-tag.new {
+      background: var(--o);
+      border-color: var(--o);
+      color: var(--w);
+      font-weight: 700
+    }
+
+    .li-tag.responded {
+      background: var(--off2);
+      border-color: var(--b2);
+      color: var(--t2)
+    }
+
+    .li-tag.cold {
+      background: var(--off2);
+      border-color: var(--b2);
+      color: var(--t3)
+    }
+
+    /* Right detail */
+    .li-detail {
+      overflow-y: auto;
+      background: white;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15, 15, 15, 0.15) transparent
+    }
+
+    .li-detail::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .li-detail::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    /* Detail inner */
+    .li-detail-inner {
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px
+    }
+
+    .li-detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px
+    }
+
+    .li-detail-name {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.025em;
+      margin-bottom: 6px
+    }
+
+    .li-detail-meta {
+      font-size: 13px;
+      color: var(--t3)
+    }
+
+    .li-detail-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-top: 6px
+    }
+
+    .li-pass-btn {
+      height: 36px;
+      padding: 0 18px;
+      border: 1px solid var(--b2);
+      border-radius: 20px;
+      background: var(--w);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t2);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .li-pass-btn:hover {
+      border-color: var(--b3);
+      color: var(--t1)
+    }
+
+    .li-respond-btn {
+      height: 36px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 20px;
+      background: var(--o);
+      color: var(--w);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background 0.13s
+    }
+
+    .li-respond-btn:hover {
+      background: var(--o2)
+    }
+
+    /* Info cards row */
+    .li-info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px
+    }
+
+    .li-info-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 18px 20px
+    }
+
+    .li-info-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px
+    }
+
+    .li-contact-row {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .li-contact-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--off2);
+      border: 1px solid var(--b1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--t2);
+      flex-shrink: 0
+    }
+
+    .li-contact-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t1);
+      line-height: 1.2
+    }
+
+    .li-contact-role {
+      font-size: 12px;
+      color: var(--t3)
+    }
+
+    .li-stage-val {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px
+    }
+
+    .li-stage-sub {
+      font-size: 12px;
+      color: var(--t3)
+    }
+
+    .li-comparing-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px
+    }
+
+    .li-comparing-tag {
+      padding: 5px 13px;
+      border-radius: 20px;
+      background: var(--off2);
+      border: 1px solid var(--b1);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t2)
+    }
+
+    /* Must-haves */
+    .li-section-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 20px 24px
+    }
+
+    .li-section-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 16px
+    }
+
+    .li-must-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .li-must-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0
+    }
+
+    .li-must-left {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .li-must-check {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
+
+    .li-must-text {
+      font-size: 14px;
+      color: var(--t1)
+    }
+
+    .li-match-badge {
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--off2);
+      color: var(--t2);
+      border: 1px solid var(--b1);
+      white-space: nowrap
+    }
+
+    .li-match-badge.match {
+      background: rgba(22, 163, 74, 0.07);
+      color: #16a34a;
+      border-color: rgba(22, 163, 74, 0.2)
+    }
+
+    .li-match-badge.partial {
+      background: rgba(234, 179, 8, 0.07);
+      color: #b45309;
+      border-color: rgba(234, 179, 8, 0.2)
+    }
+
+    /* Original message */
+    .li-message-text {
+      font-size: 14px;
+      color: var(--t2);
+      line-height: 1.7
+    }
+
+    /* Hero */
+    .pl-hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px 32px 24px;
+      background: var(--w);
+      flex-shrink: 0
+    }
+
+    .pl-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px
+    }
+
+    .pl-name {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.025em;
+      line-height: 1.05;
+      margin-bottom: 12px
+    }
+
+    .pl-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .pl-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--k);
+      color: var(--w);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em
+    }
+
+    .pl-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0
+    }
+
+    .pl-complete {
+      font-size: 13px;
+      color: var(--t2);
+      font-weight: 500
+    }
+
+    .pl-updated {
+      font-size: 13px;
+      color: var(--t3)
+    }
+
+    .pl-tier-card {
+      border: 1px solid var(--b2);
+      border-radius: 12px;
+      padding: 18px 22px;
+      min-width: 320px;
+      flex-shrink: 0
+    }
+
+    .pl-tier-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px
+    }
+
+    .pl-tier-desc {
+      font-size: 13px;
+      color: var(--t2);
+      line-height: 1.55;
+      margin-bottom: 14px
+    }
+
+    .pl-tier-btn {
+      width: 100%;
+      padding: 11px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--k);
+      color: var(--w);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background 0.15s
+    }
+
+    .pl-tier-btn:hover {
+      background: #2a2a2a
+    }
+
+    /* Stats row */
+    .pl-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 20px 32px;
+      background: white;
+      flex-shrink: 0
+    }
+
+    .pl-stat-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0
+    }
+
+    .pl-stat-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px
+    }
+
+    .pl-stat-val {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--t1);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 8px
+    }
+
+    .pl-stat-delta {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .pl-stat-delta.up {
+      color: #16a34a
+    }
+
+    .pl-stat-delta.down {
+      color: #ef4444
+    }
+
+    /* Body two-col */
+    .pl-body {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 0;
+      min-height: 0;
+      background: white;
+    }
+
+    .pl-main {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .pl-main::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .pl-main::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    .pl-side {
+      border-left: 1px solid var(--b1);
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: white;
+    }
+
+    .pl-side::-webkit-scrollbar {
+      width: 4px
+    }
+
+    .pl-side::-webkit-scrollbar-thumb {
+      background: rgba(15, 15, 15, 0.15);
+      border-radius: 10px
+    }
+
+    /* Cards */
+    .pl-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 24px;
+      overflow: visible
+    }
+
+    .pl-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px
+    }
+
+    .pl-card-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.015em
+    }
+
+    .pl-card-desc {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.6;
+      margin-bottom: 18px
+    }
+
+    .pl-edit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border: 1px solid var(--b2);
+      border-radius: 7px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t2);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .pl-edit-btn:hover {
+      border-color: var(--b3);
+      color: var(--t1)
+    }
+
+    .pl-edit-btn svg {
+      width: 12px;
+      height: 12px
+    }
+
+    .pl-features-count {
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--off2);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t2)
+    }
+
+    /* Form fields */
+    .pl-field-group {
+      margin-bottom: 16px
+    }
+
+    .pl-field-group:last-child {
+      margin-bottom: 0
+    }
+
+    .pl-field-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 7px
+    }
+
+    .pl-field-box {
+      padding: 10px 14px;
+      border: 1px solid var(--b2);
+      border-radius: 7px;
+      background: var(--w);
+      font-size: 13px;
+      color: var(--t2);
+      line-height: 1.6;
+      min-height: 40px
+    }
+
+    .pl-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--b2);
+      border-radius: 7px;
+      background: var(--w);
+      font-size: 13px;
+      color: var(--t1);
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color 0.15s
+    }
+
+    .pl-input:focus {
+      border-color: var(--o);
+      box-shadow: 0 0 0 3px rgba(240, 78, 35, 0.07)
+    }
+
+    .pl-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--b2);
+      border-radius: 7px;
+      background: var(--w);
+      font-size: 13px;
+      color: var(--t1);
+      font-family: var(--sans);
+      outline: none;
+      resize: vertical;
+      line-height: 1.6;
+      transition: border-color 0.15s
+    }
+
+    .pl-textarea:focus {
+      border-color: var(--o);
+      box-shadow: 0 0 0 3px rgba(240, 78, 35, 0.07)
+    }
+
+    .pl-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .pl-edit-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--b1);
+      margin-top: 16px
+    }
+
+    .pl-cancel-btn {
+      height: 36px;
+      padding: 0 18px;
+      border: 1px solid var(--b2);
+      border-radius: 20px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .pl-cancel-btn:hover {
+      border-color: var(--b3);
+      color: var(--t1)
+    }
+
+    .pl-save-btn {
+      height: 36px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 20px;
+      background: var(--o);
+      color: var(--w);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background 0.13s
+    }
+
+    .pl-save-btn:hover {
+      background: var(--o2)
+    }
+
+    /* Categories */
+    .pl-cats-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    .pl-cat-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--k);
+      color: var(--w);
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .pl-cat-x {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      padding: 0;
+      line-height: 1;
+      margin-left: 2px
+    }
+
+    .pl-cat-x:hover {
+      color: white
+    }
+
+    .pl-add-cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border: 1px dashed var(--b3);
+      border-radius: 20px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t3);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .pl-add-cat:hover {
+      border-color: var(--o);
+      color: var(--o)
+    }
+
+    /* Verified nudge */
+    .pl-verified-nudge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(240, 78, 35, 0.06);
+      border: 1px solid rgba(240, 78, 35, 0.15);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px
+    }
+
+    .pl-verified-nudge svg {
+      flex-shrink: 0
+    }
+
+    /* Features grid */
+    .pl-features-grid {
+      border: 1px solid var(--b1);
+      border-radius: 8px;
+      overflow: hidden
+    }
+
+    .pl-feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .pl-feature-row:last-child {
+      border-bottom: none
+    }
+
+    .pl-feat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 16px;
+      font-size: 13px;
+      color: var(--t2);
+      border-right: 1px solid var(--b1)
+    }
+
+    .pl-feat:last-child {
+      border-right: none
+    }
+
+    .pl-check {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0
+    }
+
+    /* References table */
+    .pl-ref-table {
+      border: 1px solid var(--b1);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px
+    }
+
+    .pl-ref-head {
+      display: grid;
+      grid-template-columns: 1.5fr 1.5fr 1.5fr 80px;
+      padding: 10px 16px;
+      background: var(--off);
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .pl-ref-th {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t4);
+      text-transform: uppercase;
+      letter-spacing: 0.08em
+    }
+
+    .pl-ref-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1.5fr 1.5fr 80px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--b1);
+      align-items: center;
+      transition: background 0.12s
+    }
+
+    .pl-ref-row:last-child {
+      border-bottom: none
+    }
+
+    .pl-ref-row:hover {
+      background: var(--off)
+    }
+
+    .pl-ref-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t1)
+    }
+
+    .pl-ref-cell {
+      font-size: 13px;
+      color: var(--t2)
+    }
+
+    .pl-ref-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .pl-ref-status.published {
+      background: var(--k);
+      color: var(--w)
+    }
+
+    .pl-ref-status.pending {
+      background: var(--off2);
+      color: var(--t3);
+      border: 1px solid var(--b2)
+    }
+
+    .pl-add-ref-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px dashed var(--b3);
+      border-radius: 7px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--t2);
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .pl-add-ref-btn:hover {
+      border-color: var(--o);
+      color: var(--o)
+    }
+
+    /* Side cards */
+    .pl-side-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%
+    }
+
+    .pl-side-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 14px
+    }
+
+    .pl-completeness-pct {
+      font-size: 52px;
+      font-weight: 900;
+      color: var(--o);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 10px
+    }
+
+    .pl-progress-bar {
+      height: 6px;
+      background: var(--off2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 16px
+    }
+
+    .pl-progress-fill {
+      height: 100%;
+      background: var(--o);
+      border-radius: 3px;
+      transition: width 0.4s ease
+    }
+
+    .pl-checklist {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .pl-check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px
+    }
+
+    .pl-check-item.done {
+      color: var(--t2)
+    }
+
+    .pl-check-item.todo {
+      color: var(--t4)
+    }
+
+    .pl-activity-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0
+    }
+
+    .pl-activity-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--b1)
+    }
+
+    .pl-activity-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0
+    }
+
+    .pl-activity-text {
+      font-size: 12px;
+      color: var(--t2);
+      line-height: 1.55
+    }
+
+    .pl-activity-text strong {
+      color: var(--t1);
+      font-weight: 600
+    }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 199
+    }
+
+    @media(max-width:900px) {
+      :root {
+        --lw: 0px
+      }
+
+      .sidebar {
+        transform: translateX(-240px);
+        width: 240px;
+        transition: transform 0.25s ease;
+        z-index: 500
+      }
+
+      .sidebar.open {
+        transform: translateX(0)
+      }
+
+      .sidebar-overlay {
+        display: none
+      }
+
+      .sidebar-overlay.show {
+        display: block
+      }
+
+      .tb-hamburger {
+        display: flex !important
+      }
+
+      .tb-crumb {
+        display: none
+      }
+
+      .main-wrap {
+        left: 0 !important
+      }
+
+      .metrics-row {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:600px) {
+      .metrics-row {
+        grid-template-columns: 1fr
+      }
+
+      .panel-header {
+        padding: 20px 16px 14px
+      }
+
+      .panel-scroll {
+        padding: 16px
+      }
+    }
+
+    /* ── PAGE LOADER ── */
+    #pageLoader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    #pageLoader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none
+    }
+
+    .loader-wordmark {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0f0f0f;
+      letter-spacing: -0.01em
+    }
+
+    .loader-wordmark span {
+      color: #f04e23
+    }
+
+    .loader-spinner {
+      position: relative;
+      width: 36px;
+      height: 36px
+    }
+
+    .loader-spinner::before,
+    .loader-spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+    }
+
+    .loader-spinner::before {
+      border: 3px solid #f3f2ef
+    }
+
+    .loader-spinner::after {
+      border: 3px solid transparent;
+      border-top-color: #f04e23;
+      animation: loaderSpin 0.75s linear infinite;
+    }
+
+    @keyframes loaderSpin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .loader-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: #b8b8b2;
+      letter-spacing: 0.04em
+    }
+
+    /* ── NO PRODUCT LINKED STATE ── */
+    .no-product-wrap {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 32px;
+      background: white;
+      flex: 1;
+      min-height: 100%
+    }
+
+    .no-product-wrap.show {
+      display: flex
+    }
+
+    .no-product-inner {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 40px;
+      align-items: start;
+      max-width: 960px;
+      width: 100%
+    }
+
+    .no-product-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 12px
+    }
+
+    .no-product-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 12px
+    }
+
+    .no-product-desc {
+      font-size: 14px;
+      color: var(--t2);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 480px
+    }
+
+    .no-product-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .no-product-btn-primary {
+      height: 42px;
+      padding: 0 24px;
+      background: var(--o);
+      border: none;
+      border-radius: 999px;
+      color: var(--w);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: background 0.13s
+    }
+
+    .no-product-btn-primary:hover {
+      background: var(--o2)
+    }
+
+    .no-product-btn-ghost {
+      height: 42px;
+      padding: 0 22px;
+      background: transparent;
+      border: 1.5px solid var(--b2);
+      border-radius: 999px;
+      color: var(--t2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: all 0.13s
+    }
+
+    .no-product-btn-ghost:hover {
+      border-color: var(--b3);
+      color: var(--t1)
+    }
+
+    .no-product-status-card {
+      background: var(--w);
+      border: 1px solid var(--b1);
+      border-radius: 16px;
+      padding: 28px 24px
+    }
+
+    .no-product-status-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--o);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 14px
+    }
+
+    .no-product-status-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--t1);
+      letter-spacing: -0.01em;
+      margin-bottom: 3px
+    }
+
+    .no-product-status-sub {
+      font-size: 12px;
+      color: var(--t3);
+      margin-bottom: 24px
+    }
+
+    .claim-stepper {
+      display: flex;
+      flex-direction: column
+    }
+
+    .claim-step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 14px
+    }
+
+    .claim-step-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--off2);
+      border: 2px solid var(--b2);
+      grid-row: 1;
+      grid-column: 1;
+      z-index: 1
+    }
+
+    .claim-step.done .claim-step-icon {
+      background: var(--o);
+      border-color: var(--o)
+    }
+
+    .claim-step-icon.active {
+      background: var(--w);
+      border-color: var(--o)
+    }
+
+    .claim-step-pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--o);
+      animation: nppulse 1.4s ease-in-out infinite
+    }
+
+    @keyframes nppulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.85)
+      }
+    }
+
+    .claim-step-line {
+      width: 2px;
+      background: var(--b2);
+      margin: 0 auto;
+      min-height: 20px;
+      grid-row: 2;
+      grid-column: 1
+    }
+
+    .claim-step-line.done {
+      background: var(--o)
+    }
+
+    .claim-step-body {
+      grid-row: 1/3;
+      grid-column: 2;
+      padding: 4px 0 20px
+    }
+
+    .claim-step:last-child .claim-step-body {
+      padding-bottom: 0
+    }
+
+    .claim-step-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1)
+    }
+
+    .claim-step.pending .claim-step-label {
+      color: var(--t4)
+    }
+
+    .claim-step-meta {
+      font-size: 11px;
+      color: var(--t3);
+      margin-top: 3px
+    }
+
+    .claim-step.pending .claim-step-meta {
+      color: var(--t4)
+    }
+
+    .claim-help {
+      font-size: 12px;
+      color: var(--t3);
+      padding-top: 16px;
+      border-top: 1px solid var(--b1);
+      margin-top: 8px
+    }
+
+    .claim-help a {
+      color: var(--o);
+      text-decoration: none;
+      font-weight: 600
+    }
+
+    .claim-help a:hover {
+      text-decoration: underline
+    }
+
+    /* ── CONTENT SPINNER ── */
+    .content-spinner {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex: 1;
+      min-height: 200px;
+      padding: 40px;
+    }
+
+    .content-spinner.show {
+      display: flex
+    }
+
+    .cs-ring {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0
+    }
+
+    .cs-ring::before,
+    .cs-ring::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%
+    }
+
+    .cs-ring::before {
+      border: 2.5px solid var(--off2)
+    }
+
+    .cs-ring::after {
+      border: 2.5px solid transparent;
+      border-top-color: var(--o);
+      animation: csSpin 0.7s linear infinite;
+    }
+
+    @keyframes csSpin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .cs-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--t4);
+      letter-spacing: 0.03em
+    }
+
+    /* NOTIFICATIONS */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: white;
+      z-index: 9999;
+      animation: slideIn 0.25s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .notification.success {
+      background: #16a34a;
+    }
+
+    .notification.error {
+      background: #ef4444;
+    }
+
+    .notification.warning {
+      background: #f59e0b;
+    }
+
+    .notification.neutral {
+      background: #0f0f0f;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <div id="addRefOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
-  <div style="background:var(--w);border-radius:16px;padding:32px;width:100%;max-width:480px;margin:0 16px;display:flex;flex-direction:column;gap:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">REFERENCES</div>
-        <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-0.02em">Add a reference</div>
+  <div id="addRefOverlay"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
+    <div
+      style="background:var(--w);border-radius:16px;padding:32px;width:100%;max-width:480px;margin:0 16px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div
+            style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">
+            REFERENCES</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-0.02em">Add a reference</div>
+        </div>
+        <button id="addRefCloseBtn"
+          style="width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;line-height:1">&times;</button>
       </div>
-      <button id="addRefCloseBtn" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;line-height:1">&times;</button>
-    </div>
 
-    <div class="pl-field-group">
-      <div class="pl-field-label">CUSTOMER NAME</div>
-      <input class="pl-input" id="refCustomer" type="text" placeholder="e.g. Acme Corp">
-    </div>
+      <div class="pl-field-group">
+        <div class="pl-field-label">CUSTOMER NAME</div>
+        <input class="pl-input" id="refCustomer" type="text" placeholder="e.g. Acme Corp">
+      </div>
 
-    <div class="pl-field-group">
-      <div class="pl-field-label">INDUSTRY</div>
-      <input class="pl-input" id="refIndustry" type="text" placeholder="e.g. Financial Services">
-    </div>
+      <div class="pl-field-group">
+        <div class="pl-field-label">INDUSTRY</div>
+        <input class="pl-input" id="refIndustry" type="text" placeholder="e.g. Financial Services">
+      </div>
 
-    <div class="pl-field-group">
-      <div class="pl-field-label">STATUS</div>
-      <select class="pl-input" id="refStatus" style="cursor:pointer">
-        <option value="pending">Pending Udder review</option>
-        <option value="published">Published</option>
-      </select>
-    </div>
+      <div class="pl-field-group">
+        <div class="pl-field-label">STATUS</div>
+        <select class="pl-input" id="refStatus" style="cursor:pointer">
+          <option value="pending">Pending Udder review</option>
+          <option value="published">Published</option>
+        </select>
+      </div>
 
-    <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--b1);border-radius:8px;cursor:pointer" id="refValidatedRow">
-      <input type="checkbox" id="refValidated" style="width:16px;height:16px;accent-color:var(--o);cursor:pointer;flex-shrink:0">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--t1)">Udder validated</div>
-        <div style="font-size:11px;color:var(--t3)">Mark if this reference has been verified by an Udder consultant</div>
+      <div
+        style="display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--b1);border-radius:8px;cursor:pointer"
+        id="refValidatedRow">
+        <input type="checkbox" id="refValidated"
+          style="width:16px;height:16px;accent-color:var(--o);cursor:pointer;flex-shrink:0">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--t1)">Udder validated</div>
+          <div style="font-size:11px;color:var(--t3)">Mark if this reference has been verified by an Udder consultant
+          </div>
+        </div>
+      </div>
+
+      <div id="addRefError"
+        style="display:none;padding:10px 14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:12px;color:#ef4444">
+      </div>
+
+      <div
+        style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:4px;border-top:1px solid var(--b1)">
+        <button class="pl-cancel-btn" id="addRefCancelBtn">Cancel</button>
+        <button class="pl-save-btn" id="addRefSaveBtn">Add reference</button>
       </div>
     </div>
-
-    <div id="addRefError" style="display:none;padding:10px 14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:12px;color:#ef4444"></div>
-
-    <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:4px;border-top:1px solid var(--b1)">
-      <button class="pl-cancel-btn" id="addRefCancelBtn">Cancel</button>
-      <button class="pl-save-btn" id="addRefSaveBtn">Add reference</button>
+  </div>
+  <div id="pageLoader">
+    <div class="loader-wordmark">UDDER <span>DB</span></div>
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Loading your workspace…</div>
+  </div>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="tb-hamburger" id="sidebarToggle" aria-label="Open menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        <line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+    </button>
+    <div class="tb-logo">
+      <div>
+        <div class="tb-wordmark">UDDER <span>DB</span></div>
+      </div>
     </div>
-  </div>
-</div>
-<div id="pageLoader">
-  <div class="loader-wordmark">UDDER <span>DB</span></div>
-  <div class="loader-spinner"></div>
-  <div class="loader-text">Loading your workspace…</div>
-</div>
-<!-- TOP BAR -->
-<header class="topbar">
-  <button class="tb-hamburger" id="sidebarToggle" aria-label="Open menu">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-  </button>
-  <div class="tb-logo">
-    <div><div class="tb-wordmark">UDDER <span>DB</span></div></div>
-  </div>
-  <div class="tb-crumb">
-    <a href="#">Vendor Portal</a>
-    <span class="sep">/</span>
-    <span class="cur" id="topbarCrumb">Overview</span>
-  </div>
-  <div class="tb-search">
-    <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <input type="text" placeholder="Ask AI…">
-  </div>
-  <div class="tb-right">
-    <button class="tb-btn tb-ai">
-      <div class="chat-fab-dot"></div>
-      <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" fill="white"/></svg>
-      AI Assistant
-    </button>
-  </div>
-</header>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-
-  <!-- User block -->
-  <div class="sb-user" id="sbUser">
-    <div class="sb-avatar" id="sbInitials">UD</div>
-    <div>
-      <div class="sb-uname" id="sbUname">--</div>
-      <div class="sb-urole">Vendor</div>
+    <div class="tb-crumb">
+      <a href="#">Vendor Portal</a>
+      <span class="sep">/</span>
+      <span class="cur" id="topbarCrumb">Overview</span>
     </div>
-    <span class="sb-chev" id="sbChev">▾</span>
-  </div>
+    <div class="tb-search">
+      <svg viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4" />
+        <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      <input type="text" placeholder="Ask AI…">
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn tb-ai">
+        <div class="chat-fab-dot"></div>
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" fill="white" /></svg>
+        AI Assistant
+      </button>
+    </div>
+  </header>
 
-  <!-- User dropdown -->
-  <div class="sb-user-dropdown" id="sbDropdown">
-    <button class="sb-dropdown-item">
-      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      Account settings
-    </button>
-    <div style="height:1px;background:var(--b1);margin:0 10px"></div>
-    <button class="sb-dropdown-item danger" id="sbLogoutBtn">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Log out
-    </button>
-  </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
 
-  <!-- WORKSPACE section -->
-  <div class="sb-sec">Workspace</div>
-  <ul class="sb-nav" id="ul-workspace">
-    <li>
-      <a href="#" class="nav-link on" data-panel="overview">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-        Overview
-      </a>
-    </li>
-    <li>
-      <a href="#" class="nav-link" data-panel="product-listing">
-        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M5 5.5h6M5 10.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        Product Listing
-      </a>
-    </li>
-    <li>
-      <a href="#" class="nav-link" data-panel="leads-inbox">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Leads Inbox
-        <span class="nb" id="leadsInboxBadge">0</span>
-      </a>
-    </li>
-    <li>
-      <a href="#" class="nav-link" data-panel="leads-analytics">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V7l3-3 3 3 3-4 3 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Leads Analytics
-      </a>
-    </li>
-    <!-- <li>
+    <!-- User block -->
+    <div class="sb-user" id="sbUser">
+      <div class="sb-avatar" id="sbInitials">UD</div>
+      <div>
+        <div class="sb-uname" id="sbUname">--</div>
+        <div class="sb-urole">Vendor</div>
+      </div>
+      <span class="sb-chev" id="sbChev">▾</span>
+    </div>
+
+    <!-- User dropdown -->
+    <div class="sb-user-dropdown" id="sbDropdown">
+      <button class="sb-dropdown-item">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" />
+          <path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor"
+            stroke-width="1.4" stroke-linecap="round" /></svg>
+        Account settings
+      </button>
+      <div style="height:1px;background:var(--b1);margin:0 10px"></div>
+      <button class="sb-dropdown-item danger" id="sbLogoutBtn">
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor"
+            stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Log out
+      </button>
+    </div>
+
+    <!-- WORKSPACE section -->
+    <div class="sb-sec">Workspace</div>
+    <ul class="sb-nav" id="ul-workspace">
+      <li>
+        <a href="#" class="nav-link on" data-panel="overview">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z" stroke="currentColor" stroke-width="1.3"
+              stroke-linejoin="round" /></svg>
+          My Platforms
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-panel="leads-inbox">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3" />
+            <path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+          Leads Inbox
+          <span class="nb" id="leadsInboxBadge">0</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-panel="leads-analytics">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M2 13V7l3-3 3 3 3-4 3 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+              stroke-linejoin="round" /></svg>
+          Leads Analytics
+        </a>
+      </li>
+      <!-- <li>
       <a href="#" class="nav-link" data-panel="references">
         <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM2 14c0-2.5 2-4 6-4s6 1.5 6 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         References
       </a>
     </li> -->
-  </ul>
+    </ul>
 
-  <div class="sb-div"></div>
+    <div class="sb-div"></div>
 
-  <!-- PLATFORM section -->
-  <div class="sb-sec">Platform</div>
-  <ul class="sb-nav">
-    <li>
-      <a href="../" class="nav-link">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/></svg>
-        Back to Landing
-      </a>
-    </li>
-    <li>
-      <a href="#" class="nav-link" data-panel="account-settings">
-        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Account settings
-      </a>
-    </li>
-  </ul>
+    <!-- PLATFORM section -->
+    <div class="sb-sec">Platform</div>
+    <ul class="sb-nav">
+      <li>
+        <a href="../" class="nav-link">
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+            <rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3" /></svg>
+          Back to Landing
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-panel="account-settings">
+          <svg viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" />
+            <path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor"
+              stroke-width="1.4" stroke-linecap="round" /></svg>
+          Account settings
+        </a>
+      </li>
+    </ul>
 
-  <div class="sb-foot">Udder<br>v0.0.1 · MVP</div>
-</aside>
+    <div class="sb-foot">Udder<br>v0.0.1 · MVP</div>
+  </aside>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- MAIN CONTENT -->
-<div class="main-wrap">
+  <!-- MAIN CONTENT -->
+  <div class="main-wrap">
 
-  <!-- ── OVERVIEW ── -->
-  <div class="content-panel active" id="panel-overview">
-    <div class="panel-scroll" style="padding:0;display:flex;flex-direction:column;overflow-y:auto">
-      <div class="content-spinner" id="overviewSpinner">
-        <div class="cs-ring"></div>
-        <div class="cs-text">Loading…</div>
-      </div>
-      <!-- NO PRODUCT LINKED STATE -->
-      <div class="no-product-wrap" id="noProductState">
-        <div class="no-product-inner">
-          <div class="no-product-main">
-            <div class="no-product-eyebrow">CLAIM PENDING</div>
-            <h2 class="no-product-title">Your listing claim is being reviewed</h2>
-            <p class="no-product-desc">We've received your request and our team is verifying ownership. Once confirmed, your listing will be linked and you'll have full access to your Overview, Leads Inbox, and Analytics. This typically takes 1–2 business days.</p>
- 
-            <div class="no-product-actions">
-              <button class="no-product-btn-ghost">Contact support →</button>
+    <!-- ── OVERVIEW ── -->
+    <div class="content-panel active" id="panel-overview">
+      <div class="panel-scroll" style="padding:0;display:flex;flex-direction:column;overflow-y:auto">
+        <!-- Back bar -->
+        <div id="mpBackBar" style="display:none;align-items:center;gap:12px;padding:12px 28px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0">
+          <button onclick="window.mpGoBack()" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);font-family:var(--sans);padding:6px 12px;border-radius:20px;transition:all 0.13s" onmouseover="this.style.background='var(--off2)'" onmouseout="this.style.background='none'">
+            ← My Platforms
+          </button>
+        </div>
+        <div class="content-spinner" id="overviewSpinner">
+          <div class="cs-ring"></div>
+          <div class="cs-text">Loading…</div>
+        </div>
+        <!-- NO PRODUCT LINKED STATE -->
+        <div class="no-product-wrap" id="noProductState">
+          <div class="no-product-inner">
+            <div class="no-product-main">
+              <div class="no-product-eyebrow">CLAIM PENDING</div>
+              <h2 class="no-product-title">Your listing claim is being reviewed</h2>
+              <p class="no-product-desc">We've received your request and our team is verifying ownership. Once
+                confirmed, your listing will be linked and you'll have full access to your Overview, Leads Inbox, and
+                Analytics. This typically takes 1–2 business days.</p>
+
+              <div class="no-product-actions">
+                <button class="no-product-btn-ghost">Contact support →</button>
+              </div>
             </div>
-          </div>
-          <div class="no-product-status-card">
-            <div class="no-product-status-eyebrow">CLAIM STATUS</div>
-            <div class="no-product-status-name" id="claim-product-name">—</div>
-            <div class="no-product-status-sub" id="claim-submitted-days">—</div>
-            <div class="claim-stepper">
-              <div class="claim-step done">
-                <div class="claim-step-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-                <div class="claim-step-line done"></div>
-                <div class="claim-step-body">
-                  <div class="claim-step-label">Claim submitted</div>
-                  <div class="claim-step-meta" id="claim-step-days">—</div>
+            <div class="no-product-status-card">
+              <div class="no-product-status-eyebrow">CLAIM STATUS</div>
+              <div class="no-product-status-name" id="claim-product-name">—</div>
+              <div class="no-product-status-sub" id="claim-submitted-days">—</div>
+              <div class="claim-stepper">
+                <div class="claim-step done">
+                  <div class="claim-step-icon"><svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" /></svg></div>
+                  <div class="claim-step-line done"></div>
+                  <div class="claim-step-body">
+                    <div class="claim-step-label">Claim submitted</div>
+                    <div class="claim-step-meta" id="claim-step-days">—</div>
+                  </div>
+                </div>
+                <div class="claim-step active">
+                  <div class="claim-step-icon active" id="udder-review">
+                    <div class="claim-step-pulse"></div>
+                  </div>
+                  <div class="claim-step-line"></div>
+                  <div class="claim-step-body">
+                    <div class="claim-step-label">Under review by Udder</div>
+                    <div class="claim-step-meta">Typically 1–2 business days</div>
+                  </div>
+                </div>
+                <div class="claim-step pending">
+                  <div class="claim-step-icon pending" id="udder-verified"></div>
+                  <div class="claim-step-line"></div>
+                  <div class="claim-step-body">
+                    <div class="claim-step-label">Ownership verified</div>
+                    <div class="claim-step-meta"></div>
+                  </div>
                 </div>
               </div>
-              <div class="claim-step active">
-                <div class="claim-step-icon active" id="udder-review"><div class="claim-step-pulse"></div></div>
-                <div class="claim-step-line"></div>
-                <div class="claim-step-body">
-                  <div class="claim-step-label">Under review by Udder</div>
-                  <div class="claim-step-meta">Typically 1–2 business days</div>
+              <div class="claim-help">Questions? <a href="mailto:support@udder.rocks">Contact support →</a></div>
+            </div>
+          </div>
+        </div>
+        <!-- Hero header -->
+        <!-- Header -->
+        <div id="mpHubState" style="display:none;flex-direction:column;flex:1">
+          <div style="padding:20px 28px 16px;background:var(--w);border-bottom:1px solid var(--b1);flex-shrink:0">
+            <div
+              style="font-size:11px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px">
+              PLATFORM MANAGEMENT</div>
+            <h1
+              style="font-size:32px;font-weight:900;color:var(--t1);letter-spacing:-0.025em;line-height:1;margin-bottom:4px">
+              My platforms</h1>
+            <p style="font-size:12px;color:var(--t3)">Click a tile to manage its listing.</p>
+          </div>
+
+          <!-- Scrollable body -->
+          <div
+            style="flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:16px;scrollbar-width:thin">
+
+            <!-- Aggregate metrics -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex-shrink:0">
+              <div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:16px 20px">
+                <div
+                  style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">
+                  PLATFORMS</div>
+                <div id="mpMetricPlatforms"
+                  style="font-size:38px;font-weight:900;color:var(--t1);letter-spacing:-0.03em;line-height:1">—</div>
+              </div>
+              <div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:16px 20px">
+                <div
+                  style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">
+                  TOTAL VIEWS (30D)</div>
+                <div id="mpMetricViews"
+                  style="font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.03em;line-height:1">—</div>
+              </div>
+              <div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:16px 20px">
+                <div
+                  style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">
+                  TOTAL LEADS (30D)</div>
+                <div id="mpMetricLeads"
+                  style="font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.03em;line-height:1">—</div>
+              </div>
+              <div style="background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:16px 20px">
+                <div
+                  style="font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px">
+                  AVG. COMPLETENESS</div>
+                <div id="mpMetricCompleteness"
+                  style="font-size:28px;font-weight:900;color:var(--t1);letter-spacing:-0.03em;line-height:1">—</div>
+              </div>
+            </div>
+
+            <!-- Platform cards — 4 col -->
+            <div id="mpCardsGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px"></div>
+
+            <!-- Stats row -->
+          </div><!-- /panel-scroll -->
+        </div>
+
+        <!-- Vendor detail state -->
+        <div id="mpVendorState" style="display:none;flex-direction:column;flex:1;overflow-y:auto;min-height:0">
+          <div class="content-spinner" id="overviewSpinner" style="display:none">
+            <div class="cs-ring"></div>
+            <div class="cs-text">Loading…</div>
+          </div>
+
+          <!-- Hero -->
+          <div class="pl-hero" style="display:none">
+            <div class="pl-hero-left">
+              <div class="pl-eyebrow">OVERVIEW</div>
+              <h1 class="pl-name" id="pl-name"></h1>
+              <div class="pl-meta-row">
+                <span class="pl-badge"><span class="pl-badge-dot"></span><span id="vVerification"></span></span>
+                <span class="pl-complete"><span id="topPlCompleteness"></span>% complete</span>
+                <span class="pl-updated">· Last updated <span id="plUpdated">--</span></span>
+              </div>
+            </div>
+            <div class="pl-hero-right">
+              <div class="pl-tier-card">
+                <div class="pl-tier-eyebrow">NEXT TIER: UDDER VERIFIED</div>
+                <div class="pl-tier-desc">Upload capability evidence to be reviewed by an Udder consultant.</div>
+                <button class="pl-tier-btn">Submit for Verified →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="pl-stats-row" style="display:none">
+            <div class="pl-stat-card">
+              <div class="pl-stat-lbl">PROFILE VIEWS (30D)</div>
+              <div class="pl-stat-val" id="totViews">0</div>
+              <div class="pl-stat-delta up">+18%</div>
+            </div>
+            <div class="pl-stat-card">
+              <div class="pl-stat-lbl">LEADS RECEIVED</div>
+              <div class="pl-stat-val" id="totLeads">0</div>
+              <div class="pl-stat-delta up">+12</div>
+            </div>
+            <div class="pl-stat-card">
+              <div class="pl-stat-lbl">COMPARISON APPEARANCES</div>
+              <div class="pl-stat-val" id="totComparisons">0</div>
+              <div class="pl-stat-delta up">+6%</div>
+            </div>
+            <div class="pl-stat-card">
+              <div class="pl-stat-lbl">AVG. RESPONSE TIME</div>
+              <div class="pl-stat-val">6h</div>
+              <div class="pl-stat-delta down">-2h</div>
+            </div>
+          </div>
+
+          <!-- Two-column body -->
+          <div class="pl-body" style="display:none">
+            <div class="pl-main">
+
+              <!-- Overview card -->
+              <div class="pl-card" id="pl-overview-card">
+                <div class="pl-card-head">
+                  <h2 class="pl-card-title">Overview</h2>
+                  <button class="pl-edit-btn" id="plEditOverviewBtn">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                    Edit
+                  </button>
+                </div>
+                <div id="pl-overview-view">
+                  <div class="pl-field-group">
+                    <div class="pl-field-label">TAGLINE</div>
+                    <div class="pl-field-box" id="plTaglineView"></div>
+                  </div>
+                  <div class="pl-field-group">
+                    <div class="pl-field-label">DESCRIPTION</div>
+                    <div class="pl-field-box" id="plDescView" style="min-height:80px"></div>
+                  </div>
+                  <div class="pl-two-col">
+                    <div class="pl-field-group">
+                      <div class="pl-field-label">HQ</div>
+                      <div class="pl-field-box" id="plHqView"></div>
+                    </div>
+                    <div class="pl-field-group">
+                      <div class="pl-field-label">FOUNDED</div>
+                      <div class="pl-field-box" id="plFoundedView"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="pl-overview-edit" style="display:none">
+                  <div class="pl-field-group">
+                    <div class="pl-field-label">TAGLINE</div>
+                    <input class="pl-input" id="plTaglineInput" type="text">
+                  </div>
+                  <div class="pl-field-group">
+                    <div class="pl-field-label">DESCRIPTION</div>
+                    <textarea class="pl-textarea" id="plDescInput" rows="4"></textarea>
+                  </div>
+                  <div class="pl-two-col">
+                    <div class="pl-field-group">
+                      <div class="pl-field-label">HQ</div>
+                      <input class="pl-input" id="plHqInput" type="text">
+                    </div>
+                    <div class="pl-field-group">
+                      <div class="pl-field-label">FOUNDED</div>
+                      <input class="pl-input" id="plFoundedInput" type="text">
+                    </div>
+                  </div>
+                  <div class="pl-edit-actions">
+                    <button class="pl-cancel-btn" id="plCancelOverviewBtn">Cancel</button>
+                    <button class="pl-save-btn" id="plSaveOverviewBtn">Save changes</button>
+                  </div>
                 </div>
               </div>
-              <div class="claim-step pending">
-                <div class="claim-step-icon pending" id="udder-verified"></div>
-                <div class="claim-step-line"></div>
-                <div class="claim-step-body">
-                  <div class="claim-step-label">Ownership verified</div>
-                  <div class="claim-step-meta"></div>
+
+              <!-- Categories card -->
+              <div class="pl-card">
+                <div class="pl-card-head">
+                  <h2 class="pl-card-title">Categories &amp; capabilities</h2>
+                  <span class="pl-features-count"><span id="totalFeatures">0</span> features claimed</span>
+                </div>
+                <div class="pl-cats-row">
+                  <button class="pl-add-cat">+ Add category</button>
+                </div>
+                <div class="pl-verified-nudge">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.8 5H14l-3.3 2.9 1.3 4.3L8 10 4 12.2l1.3-4.3L2 5h4.2z" fill="var(--o)" stroke="var(--o)" stroke-width="0.5"/></svg>
+                  TO PROGRESS TO UDDER VERIFIED, ATTACH A 60-MINUTE CAPABILITY WALKTHROUGH OR DEMO VIDEO
+                </div>
+                <div class="pl-features-grid" id="featuresGrid"></div>
+              </div>
+
+              <!-- References card -->
+              <div class="pl-card">
+                <div class="pl-card-head">
+                  <h2 class="pl-card-title">References</h2>
+                </div>
+                <p class="pl-card-desc">Add customer references for Udder to validate.</p>
+                <div class="pl-ref-table">
+                  <div class="pl-ref-head">
+                    <span class="pl-ref-th">CUSTOMER</span>
+                    <span class="pl-ref-th">INDUSTRY</span>
+                    <span class="pl-ref-th">STATUS</span>
+                    <span class="pl-ref-th">VALIDATED</span>
+                  </div>
+                  <div id="referencesTableBody"></div>
+                </div>
+                <button class="pl-add-ref-btn" id="addRefBtn">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  Add reference
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Right sidebar -->
+            <div class="pl-side">
+              <div class="pl-side-card">
+                <div class="pl-side-eyebrow">Listing completeness</div>
+                <div class="pl-completeness-pct" id="completenessPerc">0%</div>
+                <div class="pl-progress-bar"><div class="pl-progress-fill" style="width:0%"></div></div>
+                <ul class="pl-checklist" id="plChecklist"></ul>
+              </div>
+              <div class="pl-side-card">
+                <div class="pl-side-eyebrow">Recent activity</div>
+                <ul class="pl-activity-list" id="recentActivities"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /panel-overview -->
+      </div>
+
+      <!-- ── PRODUCT LISTING ── -->
+      <div class="content-panel" id="panel-product-listing">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Workspace</div>
+          <div class="panel-title">My platforms</div>
+          <div class="panel-sub">Platforms linked to your vendor account.</div>
+        </div>
+        <div class="panel-scroll">
+
+          <!-- Linked vendor card -->
+          <div id="plVendorCard"
+            style="display:flex;align-items:center;gap:16px;padding:20px 24px;background:var(--off);border:1px solid var(--b1);border-radius:14px;margin-bottom:12px">
+            <div
+              style="width:44px;height:44px;border-radius:10px;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--t2);flex-shrink:0;letter-spacing:0.02em"
+              id="plVendorInitials">—</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-0.01em;margin-bottom:4px"
+                id="plVendorName">—</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3)">
+                <span id="plVendorSubName">—</span>
+                <span style="width:5px;height:5px;border-radius:50%;background:var(--t4);flex-shrink:0"></span>
+                <span
+                  style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--t2)"
+                  id="plVendorBadge">—</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+              <button onclick="document.querySelector('.nav-link[data-panel=overview]').click()"
+                style="height:36px;padding:0 18px;border:1.5px solid var(--b2);border-radius:20px;background:var(--w);font-size:13px;font-weight:600;color:var(--t1);cursor:pointer;font-family:var(--sans);transition:all 0.13s"
+                onmouseover="this.style.borderColor='var(--b3)'" onmouseout="this.style.borderColor='var(--b2)'">Manage
+                listing</button>
+              <button onclick="document.querySelector('.nav-link[data-panel=leads-inbox]').click()"
+                style="height:36px;padding:0 18px;border:none;border-radius:20px;background:var(--o);font-size:13px;font-weight:600;color:var(--w);cursor:pointer;font-family:var(--sans);transition:background 0.13s"
+                onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">View
+                leads</button>
+            </div>
+          </div>
+
+          <!-- Claim another — collapsed trigger -->
+          <div id="claimTrigger"
+            style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 24px;border:1.5px dashed var(--b2);border-radius:14px;text-align:center;cursor:pointer;transition:border-color 0.15s"
+            onmouseover="this.style.borderColor='var(--o)'" onmouseout="this.style.borderColor='var(--b2)'"
+            onclick="openClaimPanel()">
+            <span style="font-size:26px;line-height:1;color:var(--t3)">+</span>
+            <div style="font-size:14px;font-weight:600;color:var(--t1)">Claim another product listing</div>
+            <div style="font-size:13px;color:var(--t3)">Search for your product or add a new listing</div>
+          </div>
+
+          <!-- Claim expanded panel -->
+          <div id="claimPanel"
+            style="display:none;border:1.5px solid var(--b2);border-radius:14px;overflow:hidden;margin-top:4px">
+
+            <!-- Panel header -->
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--b1);background:var(--off)">
+              <div>
+                <div
+                  style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:4px">
+                  ADD LISTING</div>
+                <div style="font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-0.01em">Claim or add a
+                  product</div>
+              </div>
+              <button onclick="closeClaimPanel()"
+                style="width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;line-height:1;flex-shrink:0">&times;</button>
+            </div>
+
+            <div style="padding:24px">
+
+              <!-- Option cards -->
+              <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px" id="claimOptionCards">
+                <button class="claim-option-card selected" data-opt="claim" type="button"
+                  onclick="selectClaimOption('claim')"
+                  style="border:1.5px solid var(--o);border-radius:10px;padding:16px 18px;cursor:pointer;background:rgba(240,78,35,0.04);display:flex;align-items:center;gap:14px;text-align:left;width:100%;transition:all 0.15s">
+                  <div
+                    style="width:36px;height:36px;border-radius:8px;background:rgba(240,78,35,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--o)" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5V2z" />
+                      <circle cx="5" cy="5" r="1" fill="var(--o)" stroke="none" /></svg>
+                  </div>
+                  <div>
+                    <div
+                      style="font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:3px">
+                      Claim an existing listing</div>
+                    <div style="font-size:12px;color:var(--t3);line-height:1.4">Your product is already in our database
+                      — take ownership of it.</div>
+                  </div>
+                </button>
+                <button class="claim-option-card" data-opt="new" type="button" onclick="selectClaimOption('new')"
+                  style="border:1.5px solid var(--b2);border-radius:10px;padding:16px 18px;cursor:pointer;background:var(--w);display:flex;align-items:center;gap:14px;text-align:left;width:100%;transition:all 0.15s">
+                  <div
+                    style="width:36px;height:36px;border-radius:8px;background:var(--off2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--t3)" stroke-width="2"
+                      stroke-linecap="round">
+                      <path d="M8 3v10M3 8h10" /></svg>
+                  </div>
+                  <div>
+                    <div
+                      style="font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-0.01em;margin-bottom:3px">
+                      Add a new listing</div>
+                    <div style="font-size:12px;color:var(--t3);line-height:1.4">Your product isn't listed yet — submit
+                      it with a website URL.</div>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Claim detail -->
+              <div id="claimSearchDetail" style="display:block">
+                <div
+                  style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px">
+                  Search for your product <span style="color:var(--o)">*</span></div>
+                <div style="position:relative">
+                  <input id="claimSearchInput" type="text" placeholder="e.g. Workday, BambooHR…" autocomplete="off"
+                    style="width:100%;height:46px;padding:0 14px;border:1.5px solid var(--b2);border-radius:8px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s"
+                    onfocus="this.style.borderColor='var(--o)'" onblur="this.style.borderColor='var(--b2)'">
+                  <div id="claimSearchDropdown"
+                    style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--w);border:1.5px solid var(--b2);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.08);z-index:50;max-height:220px;overflow-y:auto">
+                  </div>
+                </div>
+                <!-- Selected chip -->
+                <div id="claimSelectedChip"
+                  style="display:none;align-items:center;gap:8px;margin-top:8px;padding:8px 12px;background:rgba(240,78,35,0.05);border:1.5px solid rgba(240,78,35,0.2);border-radius:8px">
+                  <span id="claimSelectedName" style="font-size:13px;font-weight:500;color:var(--t1);flex:1"></span>
+                  <button onclick="clearClaimSelection()"
+                    style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--t3);line-height:1;padding:0 2px"
+                    title="Clear">&times;</button>
+                </div>
+              </div>
+
+              <!-- New URL detail -->
+              <div id="claimUrlDetail" style="display:none">
+                <div
+                  style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px">
+                  Product website URL <span style="color:var(--o)">*</span></div>
+                <input id="claimUrlInput" type="url" placeholder="https://yourproduct.com" autocomplete="off"
+                  style="width:100%;height:46px;padding:0 14px;border:1.5px solid var(--b2);border-radius:8px;background:var(--w);font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s"
+                  onfocus="this.style.borderColor='var(--o)'" onblur="this.style.borderColor='var(--b2)'">
+              </div>
+
+              <!-- Error -->
+              <div id="claimError"
+                style="display:none;margin-top:12px;padding:10px 14px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:12px;color:#ef4444">
+              </div>
+
+              <!-- Actions -->
+              <div
+                style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--b1)">
+                <button onclick="closeClaimPanel()"
+                  style="height:40px;padding:0 20px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s"
+                  onmouseover="this.style.borderColor='var(--b3)'"
+                  onmouseout="this.style.borderColor='var(--b2)'">Cancel</button>
+                <button id="claimSubmitBtn" onclick="submitClaim()"
+                  style="height:40px;padding:0 24px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.13s"
+                  onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">Submit
+                  claim →</button>
+              </div>
+
+            </div>
+          </div>
+          <script>
+            var _claimOption = 'claim';
+            var _claimVendorId = null;
+            var _claimVendorName = null;
+
+            function openClaimPanel() {
+              document.getElementById('claimTrigger').style.display = 'none';
+              document.getElementById('claimPanel').style.display = 'block';
+            }
+
+            function closeClaimPanel() {
+              document.getElementById('claimPanel').style.display = 'none';
+              document.getElementById('claimTrigger').style.display = 'flex';
+              resetClaimPanel();
+            }
+
+            function resetClaimPanel() {
+              selectClaimOption('claim');
+              clearClaimSelection();
+              document.getElementById('claimUrlInput').value = '';
+              document.getElementById('claimError').style.display = 'none';
+            }
+
+            function selectClaimOption(opt) {
+              _claimOption = opt;
+              document.querySelectorAll('.claim-option-card').forEach(function (c) {
+                var isSelected = c.dataset.opt === opt;
+                c.style.border = isSelected ? '1.5px solid var(--o)' : '1.5px solid var(--b2)';
+                c.style.background = isSelected ? 'rgba(240,78,35,0.04)' : 'var(--w)';
+                var icon = c.querySelector('div');
+                if (icon) icon.style.background = isSelected ? 'rgba(240,78,35,0.1)' : 'var(--off2)';
+                var svg = c.querySelector('svg');
+                if (svg) svg.setAttribute('stroke', isSelected ? 'var(--o)' : 'var(--t3)');
+              });
+              document.getElementById('claimSearchDetail').style.display = opt === 'claim' ? 'block' : 'none';
+              document.getElementById('claimUrlDetail').style.display = opt === 'new' ? 'block' : 'none';
+              document.getElementById('claimError').style.display = 'none';
+            }
+
+            function clearClaimSelection() {
+              _claimVendorId = null;
+              _claimVendorName = null;
+              document.getElementById('claimSelectedChip').style.display = 'none';
+              document.getElementById('claimSearchInput').value = '';
+            }
+
+            /* Search input wired to window._claimableVendors (same as signup) */
+            document.getElementById('claimSearchInput').addEventListener('input', function () {
+              var q = this.value.trim().toLowerCase();
+              var dropdown = document.getElementById('claimSearchDropdown');
+              if (!q) {
+                dropdown.style.display = 'none';
+                return;
+              }
+
+              var vendors = (window._claimableVendors || []).filter(function (v) {
+                return v.name.toLowerCase().includes(q);
+              });
+
+              if (!vendors.length) {
+                dropdown.innerHTML =
+                  '<div style="padding:14px;text-align:center;font-size:13px;color:var(--t4)">No products found</div>';
+              } else {
+                dropdown.innerHTML = vendors.map(function (v) {
+                  return '<div data-id="' + v.id + '" data-name="' + v.name +
+                    '" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background 0.12s" onmouseover="this.style.background=\'var(--off)\'" onmouseout="this.style.background=\'\'">' +
+                    '<div style="width:28px;height:28px;border-radius:6px;background:var(--off2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0">' +
+                    v.name.slice(0, 2).toUpperCase() + '</div>' +
+                    '<div><div style="font-size:13px;font-weight:600;color:var(--t1)">' + v.name +
+                    '</div><div style="font-size:11px;color:var(--t4)">' + (v.url || '') + '</div></div>' +
+                    '</div>';
+                }).join('');
+              }
+
+              dropdown.style.display = 'block';
+
+              dropdown.querySelectorAll('[data-id]').forEach(function (item) {
+                item.addEventListener('click', function () {
+                  _claimVendorId = this.dataset.id;
+                  _claimVendorName = this.dataset.name;
+                  document.getElementById('claimSearchInput').value = '';
+                  dropdown.style.display = 'none';
+                  document.getElementById('claimSelectedName').textContent = _claimVendorName;
+                  document.getElementById('claimSelectedChip').style.display = 'flex';
+                });
+              });
+            });
+
+            document.addEventListener('click', function (e) {
+              if (!e.target.closest('#claimSearchDetail')) {
+                document.getElementById('claimSearchDropdown').style.display = 'none';
+              }
+            });
+
+            async function submitClaim() {
+              var errEl = document.getElementById('claimError');
+              errEl.style.display = 'none';
+
+              if (_claimOption === 'claim' && !_claimVendorId) {
+                errEl.textContent = 'Please search for and select your product listing.';
+                errEl.style.display = 'block';
+                return;
+              }
+              if (_claimOption === 'new') {
+                var url = document.getElementById('claimUrlInput').value.trim();
+                if (!url) {
+                  errEl.textContent = 'Please enter your product website URL.';
+                  errEl.style.display = 'block';
+                  return;
+                }
+              }
+
+              var btn = document.getElementById('claimSubmitBtn');
+              var orig = btn.textContent;
+              btn.textContent = 'Submitting…';
+              btn.style.opacity = '0.7';
+              btn.style.pointerEvents = 'none';
+
+              try {
+                var payload = {
+                  userId: window._user.id,
+                  option: _claimOption,
+                  vendorId: _claimVendorId || null,
+                  url: _claimOption === 'new' ? document.getElementById('claimUrlInput').value.trim() : null
+                };
+
+                var response = await fetch('/api/supabase?action=submitVendorClaim', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    payload: payload
+                  })
+                });
+                var result = await response.json();
+
+                if (result.error) {
+                  errEl.textContent = result.error;
+                  errEl.style.display = 'block';
+                } else {
+                  closeClaimPanel();
+                  if (window._showToast) window._showToast(
+                    'Claim submitted — we\'ll review it within 1–2 business days.', 'success');
+                }
+              } catch (e) {
+                errEl.textContent = 'Something went wrong. Please try again.';
+                errEl.style.display = 'block';
+              }
+
+              btn.textContent = orig;
+              btn.style.opacity = '';
+              btn.style.pointerEvents = '';
+            }
+          </script>
+          <!-- Pending claims section -->
+          <div id="claimsSection" style="margin-top:28px">
+            <div
+              style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px">
+              Pending claims</div>
+            <div id="claimsList">
+              <div
+                style="display:flex;align-items:center;justify-content:center;padding:32px;border:1px solid var(--b1);border-radius:14px;background:var(--w)">
+                <div class="cs-ring"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LEADS INBOX ── -->
+      <div class="content-panel" id="panel-leads-inbox">
+
+        <!-- Header -->
+        <div class="li-header">
+          <div>
+            <div class="li-eyebrow">BUYER INTROS</div>
+            <h1 class="li-title">Leads inbox</h1>
+            <p class="li-sub">Every lead comes qualified — with org, industry, stage, and who they're comparing you
+              with.</p>
+          </div>
+          <div class="li-header-counts">
+            <span class="li-count-pill"><span id="liNewCountPill">0</span> new</span>
+            <span class="li-count-pill"><span id="liRespondedCountPill">0</span> responded</span>
+            <span class="li-count-pill"><span id="liColdCountPill">0</span> cold</span>
+          </div>
+        </div>
+
+        <!-- Split layout -->
+        <div class="li-layout">
+
+          <!-- Left: lead list -->
+          <div class="li-list" id="liList">
+
+          </div><!-- /li-list -->
+
+          <!-- Right: lead detail -->
+          <div class="li-detail" id="liDetail">
+
+            <!-- Detail content injected by JS -->
+            <div id="liDetailInner"></div>
+
+          </div><!-- /li-detail -->
+
+        </div><!-- /li-layout -->
+      </div>
+
+      <!-- ── LEADS ANALYTICS ── -->
+      <div class="content-panel" id="panel-leads-analytics">
+
+        <!-- Header -->
+        <div class="la-header">
+          <div class="la-header-left">
+            <div class="la-eyebrow">PERFORMANCE</div>
+            <h1 class="la-title">Leads analytics</h1>
+            <p class="la-sub"></p>
+          </div>
+          <div class="la-period-toggle">
+            <button class="la-period-btn">Last week</button>
+            <button class="la-period-btn active">Last month</button>
+            <button class="la-period-btn">YTD</button>
+          </div>
+        </div>
+
+        <div class="la-scroll">
+
+          <!-- KPI cards -->
+          <div class="la-kpi-row">
+            <div class="la-kpi-card">
+              <div class="la-kpi-lbl">LISTING VISITS</div>
+              <div class="la-kpi-val">2,841</div>
+              <div class="la-kpi-delta up">↑ +18% vs prior period</div>
+            </div>
+            <div class="la-kpi-card">
+              <div class="la-kpi-lbl">LEADS GENERATED</div>
+              <div class="la-kpi-val">47</div>
+              <div class="la-kpi-delta up">↑ +12 vs prior period</div>
+            </div>
+            <div class="la-kpi-card">
+              <div class="la-kpi-lbl">VISIT → LEAD RATE</div>
+              <div class="la-kpi-val">1.7%</div>
+              <div class="la-kpi-delta up">↑ +0.2pp vs prior period</div>
+            </div>
+            <div class="la-kpi-card">
+              <div class="la-kpi-lbl">AVG. RESPONSE TIME</div>
+              <div class="la-kpi-val">6h</div>
+              <div class="la-kpi-delta up">↑ -2h</div>
+            </div>
+          </div>
+
+          <!-- Charts row -->
+          <div class="la-charts-row">
+
+            <!-- Listing visits chart -->
+            <div class="la-chart-card">
+              <div class="la-chart-head">
+                <span class="la-chart-title">Listing visits</span>
+                <span class="la-chart-delta up">↑ +18%</span>
+              </div>
+              <div class="la-bar-chart" id="laVisitsChart"></div>
+              <div class="la-chart-stats">
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">95</div>
+                  <div class="la-chart-stat-lbl">avg per day</div>
+                </div>
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">156</div>
+                  <div class="la-chart-stat-lbl">peak day</div>
+                </div>
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">2,841</div>
+                  <div class="la-chart-stat-lbl">total</div>
                 </div>
               </div>
             </div>
-            <div class="claim-help">Questions? <a href="mailto:support@udder.rocks">Contact support →</a></div>
-          </div>
-        </div>
-      </div>
-      <!-- Hero header -->
-      <div class="pl-hero">
-        <div class="pl-hero-left">
-          <div class="pl-eyebrow">OVERVIEW</div>
-          <h1 class="pl-name" id="pl-name"></h1>
-          <div class="pl-meta-row">
-            <span class="pl-badge"><span class="pl-badge-dot"></span><span id="vVerification"></span></span>
-            <span class="pl-complete"><span id="topPlCompleteness"></span>% complete</span>
-            <span class="pl-updated">· Last updated <span id="plUpdated">--</span></span>
-          </div>
-        </div>
-        <div class="pl-hero-right">
-          <div class="pl-tier-card">
-            <div class="pl-tier-eyebrow">NEXT TIER: UDDER VERIFIED</div>
-            <div class="pl-tier-desc">Upload capability evidence to be reviewed by an Udder consultant.</div>
-            <button class="pl-tier-btn">Submit for Verified →</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- Stats row -->
-      <div class="pl-stats-row">
-        <div class="pl-stat-card">
-          <div class="pl-stat-lbl">PROFILE VIEWS (30D)</div>
-          <div class="pl-stat-val" id="totViews">0</div>
-          <div class="pl-stat-delta up">+18%</div>
-        </div>
-        <div class="pl-stat-card">
-          <div class="pl-stat-lbl">LEADS RECEIVED</div>
-          <div class="pl-stat-val" id="totLeads">0</div>
-          <div class="pl-stat-delta up">+12</div>
-        </div>
-        <div class="pl-stat-card">
-          <div class="pl-stat-lbl">COMPARISON APPEARANCES</div>
-          <div class="pl-stat-val" id="totComparisons">0</div>
-          <div class="pl-stat-delta up">+6%</div>
-        </div>
-        <div class="pl-stat-card">
-          <div class="pl-stat-lbl">AVG. RESPONSE TIME</div>
-          <div class="pl-stat-val">6h</div>
-          <div class="pl-stat-delta down">-2h</div>
-        </div>
-      </div>
-      <!-- spacer so cards sit below hero with padding -->
-      <div style="height:0"></div>
-
-      <!-- Two-column body -->
-      <div class="pl-body">
-
-        <!-- Left main col -->
-        <div class="pl-main">
-          <!-- Overview card -->
-          <div class="pl-card" id="pl-overview-card">
-            <div class="pl-card-head">
-              <h2 class="pl-card-title">Overview</h2>
-              <button class="pl-edit-btn" id="plEditOverviewBtn">
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3L5 14H2v-3L11 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-                Edit
-              </button>
-            </div>
-
-            <!-- View mode -->
-            <div id="pl-overview-view">
-              <div class="pl-field-group">
-                <div class="pl-field-label">TAGLINE</div>
-                <div class="pl-field-box" id="plTaglineView"></div>
+            <!-- Leads received chart -->
+            <div class="la-chart-card">
+              <div class="la-chart-head">
+                <span class="la-chart-title">Leads received</span>
+                <span class="la-chart-delta up">↑ +12</span>
               </div>
-              <div class="pl-field-group">
-                <div class="pl-field-label">DESCRIPTION</div>
-                <div class="pl-field-box" id="plDescView" style="min-height:80px"></div>
-              </div>
-              <div class="pl-two-col">
-                <div class="pl-field-group">
-                  <div class="pl-field-label">HQ</div>
-                  <div class="pl-field-box" id="plHqView"></div>
+              <div class="la-bar-chart la-bar-dark" id="laLeadsChart"></div>
+              <div class="la-chart-stats">
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">47</div>
+                  <div class="la-chart-stat-lbl">total leads</div>
                 </div>
-                <div class="pl-field-group">
-                  <div class="pl-field-label">FOUNDED</div>
-                  <div class="pl-field-box" id="plFoundedView"></div>
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">3</div>
+                  <div class="la-chart-stat-lbl">peak day</div>
+                </div>
+                <div class="la-chart-stat">
+                  <div class="la-chart-stat-val">1.7%</div>
+                  <div class="la-chart-stat-lbl">conv. rate</div>
                 </div>
               </div>
             </div>
 
-            <!-- Edit mode (hidden by default) -->
-            <div id="pl-overview-edit" style="display:none">
-              <div class="pl-field-group">
-                <div class="pl-field-label">TAGLINE</div>
-                <input class="pl-input" id="plTaglineInput" type="text" value="">
-              </div>
-              <div class="pl-field-group">
-                <div class="pl-field-label">DESCRIPTION</div>
-                <textarea class="pl-textarea" id="plDescInput" rows="4"></textarea>
-              </div>
-              <div class="pl-two-col">
-                <div class="pl-field-group">
-                  <div class="pl-field-label">HQ</div>
-                  <input class="pl-input" id="plHqInput" type="text" value="">
+          </div><!-- /la-charts-row -->
+
+          <!-- Bottom three cards -->
+          <div class="la-bottom-row">
+
+            <!-- Visit sources -->
+            <div class="la-bottom-card">
+              <div class="la-bottom-title">Visit sources</div>
+              <div class="la-source-list">
+                <div class="la-source-item">
+                  <div class="la-source-top"><span class="la-source-name">Direct search</span><span
+                      class="la-source-count">1,193</span></div>
+                  <div class="la-source-bar">
+                    <div class="la-source-fill" style="width:42%"></div>
+                  </div>
+                  <div class="la-source-pct">42%</div>
                 </div>
-                <div class="pl-field-group">
-                  <div class="pl-field-label">FOUNDED</div>
-                  <input class="pl-input" id="plFoundedInput" type="text" value="">
+                <div class="la-source-item">
+                  <div class="la-source-top"><span class="la-source-name">Category browse</span><span
+                      class="la-source-count">795</span></div>
+                  <div class="la-source-bar">
+                    <div class="la-source-fill" style="width:28%"></div>
+                  </div>
+                  <div class="la-source-pct">28%</div>
+                </div>
+                <div class="la-source-item">
+                  <div class="la-source-top"><span class="la-source-name">Comparison views</span><span
+                      class="la-source-count">511</span></div>
+                  <div class="la-source-bar">
+                    <div class="la-source-fill" style="width:18%"></div>
+                  </div>
+                  <div class="la-source-pct">18%</div>
+                </div>
+                <div class="la-source-item">
+                  <div class="la-source-top"><span class="la-source-name">AI recommendations</span><span
+                      class="la-source-count">341</span></div>
+                  <div class="la-source-bar">
+                    <div class="la-source-fill" style="width:12%"></div>
+                  </div>
+                  <div class="la-source-pct">12%</div>
                 </div>
               </div>
-              <div class="pl-edit-actions">
-                <button class="pl-cancel-btn" id="plCancelOverviewBtn">Cancel</button>
-                <button class="pl-save-btn" id="plSaveOverviewBtn">Save changes</button>
+            </div>
+
+            <!-- Leads by buyer stage -->
+            <div class="la-bottom-card">
+              <div class="la-bottom-title">Leads by buyer stage</div>
+              <div class="la-stage-list">
+                <div class="la-stage-item"><span class="la-stage-dot" style="background:#6b7280"></span><span
+                    class="la-stage-name">Research</span><span class="la-stage-count">16</span></div>
+                <div class="la-stage-item"><span class="la-stage-dot" style="background:#9ca3af"></span><span
+                    class="la-stage-name">Discovery</span><span class="la-stage-count">13</span></div>
+                <div class="la-stage-item"><span class="la-stage-dot" style="background:var(--o)"></span><span
+                    class="la-stage-name">Shortlist</span><span class="la-stage-count">10</span></div>
+                <div class="la-stage-item"><span class="la-stage-dot" style="background:#16a34a"></span><span
+                    class="la-stage-name">Demo scheduled</span><span class="la-stage-count">5</span></div>
+                <div class="la-stage-item"><span class="la-stage-dot" style="background:#111"></span><span
+                    class="la-stage-name">RFP</span><span class="la-stage-count">2</span></div>
               </div>
+              <div class="la-stage-note">Buyer stage inferred from platform behaviour signals</div>
             </div>
+
+            <!-- Searches that found you -->
+            <div class="la-bottom-card">
+              <div class="la-bottom-title">Searches that found you</div>
+              <ol class="la-search-list">
+                <li class="la-search-item"><span class="la-search-num">1</span><span class="la-search-text">Applicant
+                    Tracking System UK</span></li>
+                <li class="la-search-item"><span class="la-search-num">2</span><span class="la-search-text">Global
+                    payroll platform</span></li>
+                <li class="la-search-item"><span class="la-search-num">3</span><span class="la-search-text">High-volume
+                    retail ATS</span></li>
+                <li class="la-search-item"><span class="la-search-num">4</span><span class="la-search-text">Internal
+                    mobility tool</span></li>
+                <li class="la-search-item"><span class="la-search-num">5</span><span class="la-search-text">HRIS 5000+
+                    employees</span></li>
+              </ol>
+            </div>
+
+          </div><!-- /la-bottom-row -->
+
+        </div><!-- /la-scroll -->
+      </div>
+
+      <!-- ── REFERENCES ── -->
+      <div class="content-panel" id="panel-references">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Workspace</div>
+          <div class="panel-title">References</div>
+          <div class="panel-sub">Manage publicly named customers on your listing</div>
+        </div>
+        <div class="panel-scroll">
+          <div class="placeholder-bar">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="var(--t3)" stroke-width="1.3" />
+              <path d="M8 7v4M8 5.5v.5" stroke="var(--t3)" stroke-width="1.3" stroke-linecap="round" /></svg>
+            <span class="placeholder-bar-label">Reference management — content coming soon</span>
+            <span class="tag">Coming soon</span>
           </div>
 
-          <!-- Categories & capabilities card -->
-          <div class="pl-card">
-            <div class="pl-card-head">
-              <h2 class="pl-card-title">Categories &amp; capabilities</h2>
-              <span class="pl-features-count"><span id="totalFeatures">12</span> features claimed</span>
-            </div>
-
-            <!-- Category tags -->
-            <div class="pl-cats-row">
-              <button class="pl-add-cat">+ Add category</button>
-            </div>
-
-            <!-- Verified nudge banner -->
-            <div class="pl-verified-nudge">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.8 5H14l-3.3 2.9 1.3 4.3L8 10 4 12.2l1.3-4.3L2 5h4.2z" fill="var(--o)" stroke="var(--o)" stroke-width="0.5"/></svg>
-              TO PROGRESS TO UDDER VERIFIED, ATTACH A 60-MINUTE CAPABILITY WALKTHROUGH OR DEMO VIDEO
-            </div>
-
-            <!-- Features grid -->
-            <div class="pl-features-grid" id="featuresGrid"></div>
-          </div>
-
-          <!-- References card -->
-          <div class="pl-card">
-            <div class="pl-card-head">
-              <h2 class="pl-card-title">References</h2>
-            </div>
-            <p class="pl-card-desc">Add customer references for Udder to validate when you submit for a higher verification tier.</p>
-            <div class="pl-ref-table">
-              <div class="pl-ref-head">
-                <span class="pl-ref-th">CUSTOMER</span>
-                <span class="pl-ref-th">INDUSTRY</span>
-                <span class="pl-ref-th">STATUS</span>
-                <span class="pl-ref-th">VALIDATED</span>
+          <div class="placeholder-grid">
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.6" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round" /></svg>
               </div>
-              <div id="referencesTableBody"></div>
+              <div class="placeholder-card-title">Submit a reference</div>
+              <div class="placeholder-card-text">Add publicly named customers to boost trust with evaluating buyers.
+              </div>
+              <div class="placeholder-card-badge">Coming soon</div>
             </div>
-            <button class="pl-add-ref-btn" id="addRefBtn">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              Add reference
-            </button>
-          </div>
-
-        </div><!-- /pl-main -->
-
-        <!-- Right sidebar -->
-        <aside class="pl-side">
-
-          <!-- Listing completeness -->
-          <div class="pl-side-card">
-            <div class="pl-side-eyebrow">LISTING COMPLETENESS</div>
-            <div class="pl-completeness-pct"><span id="completenessPerc"></span>%</div>
-            <div class="pl-progress-bar"><div class="pl-progress-fill" style="width:87%"></div></div>
-            <ul class="pl-checklist" id="plChecklist">
-              <!-- <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Basic info</li>
-              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Categories</li>
-              <li class="pl-check-item done"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Integrations</li>
-              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Demo video (optional)</li>
-              <li class="pl-check-item todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><line x1="3" y1="8" x2="13" y2="8" stroke="var(--t4)" stroke-width="1.6" stroke-linecap="round"/></svg>Capability evidence (for Verified)</li> -->
-            </ul>
-          </div>
-
-          <!-- Recent activity -->
-          <div class="pl-side-card">
-            <div class="pl-side-eyebrow">RECENT ACTIVITY</div>
-            <ul class="pl-activity-list" id="recentActivities">
-              <!-- <li class="pl-activity-item">
-                <span class="pl-activity-text"><strong>Anna Sørensen (Vestas)</strong> requested intro · 14m ago</span>
-              </li>
-              <li class="pl-activity-item">
-                <span class="pl-activity-text"><strong>Marcus</strong> updated the tagline · 2h ago</span>
-              </li>
-              <li class="pl-activity-item">
-                <span class="pl-activity-text"><strong>James Olamide (Pret)</strong> compared you vs Greenhouse · 4h ago</span>
-              </li>
-              <li class="pl-activity-item">
-                <span class="pl-activity-text"><strong>Rachel (Udder)</strong> scheduled your Verified review · Yesterday</span>
-              </li> -->
-            </ul>
-          </div>
-
-        </aside><!-- /pl-side -->
-
-      </div><!-- /pl-body -->
-    </div><!-- /panel-scroll -->
-  </div><!-- /panel-overview -->
-
-  <!-- ── PRODUCT LISTING ── -->
-  <div class="content-panel" id="panel-product-listing">
-    <div class="panel-header">
-      <div class="panel-eyebrow">Workspace</div>
-      <div class="panel-title">Product Listing</div>
-      <div class="panel-sub">Manage how your product appears in the Udder database</div>
-    </div>
-    <div class="panel-scroll">
-      <div class="coming-soon-wrap">
-        <div class="coming-soon-icon">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="coming-soon-title">Product Listing editor</div>
-        <div class="coming-soon-desc">Content for this tab is coming soon.</div>
-        <div class="coming-soon-tag">Placeholder</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── LEADS INBOX ── -->
-  <div class="content-panel" id="panel-leads-inbox">
-
-    <!-- Header -->
-    <div class="li-header">
-      <div>
-        <div class="li-eyebrow">BUYER INTROS</div>
-        <h1 class="li-title">Leads inbox</h1>
-        <p class="li-sub">Every lead comes qualified — with org, industry, stage, and who they're comparing you with.</p>
-      </div>
-      <div class="li-header-counts">
-        <span class="li-count-pill"><span id="liNewCountPill">0</span> new</span>
-        <span class="li-count-pill"><span id="liRespondedCountPill">0</span> responded</span>
-        <span class="li-count-pill"><span id="liColdCountPill">0</span> cold</span>
-      </div>
-    </div>
-
-    <!-- Split layout -->
-    <div class="li-layout">
-
-      <!-- Left: lead list -->
-      <div class="li-list" id="liList">
-
-      </div><!-- /li-list -->
-
-      <!-- Right: lead detail -->
-      <div class="li-detail" id="liDetail">
-
-        <!-- Detail content injected by JS -->
-        <div id="liDetailInner"></div>
-
-      </div><!-- /li-detail -->
-
-    </div><!-- /li-layout -->
-  </div>
-
-  <!-- ── LEADS ANALYTICS ── -->
-  <div class="content-panel" id="panel-leads-analytics">
-
-    <!-- Header -->
-    <div class="la-header">
-      <div class="la-header-left">
-        <div class="la-eyebrow">PERFORMANCE</div>
-        <h1 class="la-title">Leads analytics</h1>
-        <p class="la-sub">SmartRecruiters · Last updated today</p>
-      </div>
-      <div class="la-period-toggle">
-        <button class="la-period-btn">Last week</button>
-        <button class="la-period-btn active">Last month</button>
-        <button class="la-period-btn">YTD</button>
-      </div>
-    </div>
-
-    <div class="la-scroll">
-
-      <!-- KPI cards -->
-      <div class="la-kpi-row">
-        <div class="la-kpi-card">
-          <div class="la-kpi-lbl">LISTING VISITS</div>
-          <div class="la-kpi-val">2,841</div>
-          <div class="la-kpi-delta up">↑ +18% vs prior period</div>
-        </div>
-        <div class="la-kpi-card">
-          <div class="la-kpi-lbl">LEADS GENERATED</div>
-          <div class="la-kpi-val">47</div>
-          <div class="la-kpi-delta up">↑ +12 vs prior period</div>
-        </div>
-        <div class="la-kpi-card">
-          <div class="la-kpi-lbl">VISIT → LEAD RATE</div>
-          <div class="la-kpi-val">1.7%</div>
-          <div class="la-kpi-delta up">↑ +0.2pp vs prior period</div>
-        </div>
-        <div class="la-kpi-card">
-          <div class="la-kpi-lbl">AVG. RESPONSE TIME</div>
-          <div class="la-kpi-val">6h</div>
-          <div class="la-kpi-delta up">↑ -2h</div>
-        </div>
-      </div>
-
-      <!-- Charts row -->
-      <div class="la-charts-row">
-
-        <!-- Listing visits chart -->
-        <div class="la-chart-card">
-          <div class="la-chart-head">
-            <span class="la-chart-title">Listing visits</span>
-            <span class="la-chart-delta up">↑ +18%</span>
-          </div>
-          <div class="la-bar-chart" id="laVisitsChart"></div>
-          <div class="la-chart-stats">
-            <div class="la-chart-stat"><div class="la-chart-stat-val">95</div><div class="la-chart-stat-lbl">avg per day</div></div>
-            <div class="la-chart-stat"><div class="la-chart-stat-val">156</div><div class="la-chart-stat-lbl">peak day</div></div>
-            <div class="la-chart-stat"><div class="la-chart-stat-val">2,841</div><div class="la-chart-stat-lbl">total</div></div>
-          </div>
-        </div>
-
-        <!-- Leads received chart -->
-        <div class="la-chart-card">
-          <div class="la-chart-head">
-            <span class="la-chart-title">Leads received</span>
-            <span class="la-chart-delta up">↑ +12</span>
-          </div>
-          <div class="la-bar-chart la-bar-dark" id="laLeadsChart"></div>
-          <div class="la-chart-stats">
-            <div class="la-chart-stat"><div class="la-chart-stat-val">47</div><div class="la-chart-stat-lbl">total leads</div></div>
-            <div class="la-chart-stat"><div class="la-chart-stat-val">3</div><div class="la-chart-stat-lbl">peak day</div></div>
-            <div class="la-chart-stat"><div class="la-chart-stat-val">1.7%</div><div class="la-chart-stat-lbl">conv. rate</div></div>
-          </div>
-        </div>
-
-      </div><!-- /la-charts-row -->
-
-      <!-- Bottom three cards -->
-      <div class="la-bottom-row">
-
-        <!-- Visit sources -->
-        <div class="la-bottom-card">
-          <div class="la-bottom-title">Visit sources</div>
-          <div class="la-source-list">
-            <div class="la-source-item">
-              <div class="la-source-top"><span class="la-source-name">Direct search</span><span class="la-source-count">1,193</span></div>
-              <div class="la-source-bar"><div class="la-source-fill" style="width:42%"></div></div>
-              <div class="la-source-pct">42%</div>
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="placeholder-card-title">Udder-validated references</div>
+              <div class="placeholder-card-text">References verified by Udder consultants carry extra weight in
+                evaluations.</div>
+              <div class="placeholder-card-badge">Coming soon</div>
             </div>
-            <div class="la-source-item">
-              <div class="la-source-top"><span class="la-source-name">Category browse</span><span class="la-source-count">795</span></div>
-              <div class="la-source-bar"><div class="la-source-fill" style="width:28%"></div></div>
-              <div class="la-source-pct">28%</div>
-            </div>
-            <div class="la-source-item">
-              <div class="la-source-top"><span class="la-source-name">Comparison views</span><span class="la-source-count">511</span></div>
-              <div class="la-source-bar"><div class="la-source-fill" style="width:18%"></div></div>
-              <div class="la-source-pct">18%</div>
-            </div>
-            <div class="la-source-item">
-              <div class="la-source-top"><span class="la-source-name">AI recommendations</span><span class="la-source-count">341</span></div>
-              <div class="la-source-bar"><div class="la-source-fill" style="width:12%"></div></div>
-              <div class="la-source-pct">12%</div>
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6"
+                    stroke-linejoin="round" />
+                  <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.6"
+                    stroke-linejoin="round" /></svg>
+              </div>
+              <div class="placeholder-card-title">Reference categories</div>
+              <div class="placeholder-card-text">Tag references by industry, org size, and region to match buyer
+                profiles.</div>
+              <div class="placeholder-card-badge">Coming soon</div>
             </div>
           </div>
         </div>
-
-        <!-- Leads by buyer stage -->
-        <div class="la-bottom-card">
-          <div class="la-bottom-title">Leads by buyer stage</div>
-          <div class="la-stage-list">
-            <div class="la-stage-item"><span class="la-stage-dot" style="background:#6b7280"></span><span class="la-stage-name">Research</span><span class="la-stage-count">16</span></div>
-            <div class="la-stage-item"><span class="la-stage-dot" style="background:#9ca3af"></span><span class="la-stage-name">Discovery</span><span class="la-stage-count">13</span></div>
-            <div class="la-stage-item"><span class="la-stage-dot" style="background:var(--o)"></span><span class="la-stage-name">Shortlist</span><span class="la-stage-count">10</span></div>
-            <div class="la-stage-item"><span class="la-stage-dot" style="background:#16a34a"></span><span class="la-stage-name">Demo scheduled</span><span class="la-stage-count">5</span></div>
-            <div class="la-stage-item"><span class="la-stage-dot" style="background:#111"></span><span class="la-stage-name">RFP</span><span class="la-stage-count">2</span></div>
-          </div>
-          <div class="la-stage-note">Buyer stage inferred from platform behaviour signals</div>
-        </div>
-
-        <!-- Searches that found you -->
-        <div class="la-bottom-card">
-          <div class="la-bottom-title">Searches that found you</div>
-          <ol class="la-search-list">
-            <li class="la-search-item"><span class="la-search-num">1</span><span class="la-search-text">Applicant Tracking System UK</span></li>
-            <li class="la-search-item"><span class="la-search-num">2</span><span class="la-search-text">Global payroll platform</span></li>
-            <li class="la-search-item"><span class="la-search-num">3</span><span class="la-search-text">High-volume retail ATS</span></li>
-            <li class="la-search-item"><span class="la-search-num">4</span><span class="la-search-text">Internal mobility tool</span></li>
-            <li class="la-search-item"><span class="la-search-num">5</span><span class="la-search-text">HRIS 5000+ employees</span></li>
-          </ol>
-        </div>
-
-      </div><!-- /la-bottom-row -->
-
-    </div><!-- /la-scroll -->
-  </div>
-
-  <!-- ── REFERENCES ── -->
-  <div class="content-panel" id="panel-references">
-    <div class="panel-header">
-      <div class="panel-eyebrow">Workspace</div>
-      <div class="panel-title">References</div>
-      <div class="panel-sub">Manage publicly named customers on your listing</div>
-    </div>
-    <div class="panel-scroll">
-      <div class="placeholder-bar">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="var(--t3)" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="var(--t3)" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <span class="placeholder-bar-label">Reference management — content coming soon</span>
-        <span class="tag">Coming soon</span>
       </div>
 
-      <div class="placeholder-grid">
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="placeholder-card-title">Submit a reference</div>
-          <div class="placeholder-card-text">Add publicly named customers to boost trust with evaluating buyers.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
+      <!-- ── ACCOUNT SETTINGS ── -->
+      <div class="content-panel" id="panel-account-settings">
+        <div class="panel-header">
+          <div class="panel-eyebrow">Platform</div>
+          <div class="panel-title">Account Settings</div>
+          <div class="panel-sub">Manage your vendor account details and preferences</div>
         </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="panel-scroll">
+          <div class="placeholder-grid">
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.6" /></svg>
+              </div>
+              <div class="placeholder-card-title">Profile details</div>
+              <div class="placeholder-card-text">Update your vendor account name, contact email, and company
+                information.</div>
+              <div class="placeholder-card-badge">Coming soon</div>
+            </div>
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.6" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                  </svg>
+              </div>
+              <div class="placeholder-card-title">Password &amp; security</div>
+              <div class="placeholder-card-text">Change your password and manage two-factor authentication.</div>
+              <div class="placeholder-card-badge">Coming soon</div>
+            </div>
+            <div class="placeholder-card">
+              <div class="placeholder-card-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zM13.73 21a2 2 0 0 1-3.46 0"
+                    stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </div>
+              <div class="placeholder-card-title">Notifications</div>
+              <div class="placeholder-card-text">Control which lead and platform notifications are delivered to your
+                email.</div>
+              <div class="placeholder-card-badge">Coming soon</div>
+            </div>
           </div>
-          <div class="placeholder-card-title">Udder-validated references</div>
-          <div class="placeholder-card-text">References verified by Udder consultants carry extra weight in evaluations.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
-        </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="placeholder-card-title">Reference categories</div>
-          <div class="placeholder-card-text">Tag references by industry, org size, and region to match buyer profiles.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── ACCOUNT SETTINGS ── -->
-  <div class="content-panel" id="panel-account-settings">
-    <div class="panel-header">
-      <div class="panel-eyebrow">Platform</div>
-      <div class="panel-title">Account Settings</div>
-      <div class="panel-sub">Manage your vendor account details and preferences</div>
-    </div>
-    <div class="panel-scroll">
-      <div class="placeholder-grid">
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.6"/></svg>
-          </div>
-          <div class="placeholder-card-title">Profile details</div>
-          <div class="placeholder-card-text">Update your vendor account name, contact email, and company information.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
-        </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </div>
-          <div class="placeholder-card-title">Password &amp; security</div>
-          <div class="placeholder-card-text">Change your password and manage two-factor authentication.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
-        </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card-icon">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zM13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="placeholder-card-title">Notifications</div>
-          <div class="placeholder-card-text">Control which lead and platform notifications are delivered to your email.</div>
-          <div class="placeholder-card-badge">Coming soon</div>
         </div>
       </div>
-    </div>
-  </div>
 
-</div><!-- /main-wrap -->
+    </div><!-- /main-wrap -->
 
-<script type="module" src="../assets/js/core/vendor.js"></script>
-<script type="module">
-  import { showToast, lockBtn } from '../assets/js/app.js';
+    <script type="module" src="../assets/js/core/vendor.js"></script>
+    <script type="module">
+      import { showToast, lockBtn } from '../assets/js/app.js';
 
 (function(){
   /* ── Init: hide all non-active panels on load ── */
@@ -1206,6 +3892,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       e.preventDefault();
       var panelId = 'panel-' + this.dataset.panel;
 
+      if (panelId === 'panel-leads-analytics' && window._loadLeadsAnalytics) window._loadLeadsAnalytics();
+      //if (panelId === 'panel-leads-inbox' && window._loadLeadsInbox) window._loadLeadsInbox();
       // Update active nav link
       navLinks.forEach(function(l){ l.classList.remove('on'); });
       this.classList.add('on');
@@ -1519,4 +4207,5 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </script>
 
 </body>
+
 </html>
