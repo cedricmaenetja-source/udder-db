@@ -13,6 +13,7 @@ var _analyticsData = { visits: [], leads: [] };
 var _analyticsPeriod = 'month';
 
 window._showToast = App.showToast;
+window._lockBtn = App.lockBtn;
 
 window._showSpinner = function showSpinner(id, message) {
     var el = document.getElementById(id);
@@ -60,7 +61,7 @@ $(async function(){
     } else {
         await loadMyPlatforms(user.vendor_ids);
         document.getElementById('mpHubState').style.display = 'flex';
-
+       await getLeads();
         // if (heroEl)  heroEl.style.display  = '';
         // if (statsEl) statsEl.style.display = '';
         // if (bodyEl)  bodyEl.style.display  = '';
@@ -149,7 +150,7 @@ $(async function(){
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                vendorId:  user.vendor_id,
+                vendorId:  window._vendorId,
                 customer:  customer,
                 industry:  industry,
                 status:    status,
@@ -185,7 +186,7 @@ $(async function(){
 });
 
 window._loadLeadsAnalytics = async function loadLeadsAnalytics() {
-  if (!window._user || !window._user.vendor_id) return;
+  if (!window._user || !window._user.vendor_ids) return;
 
   var laScroll = document.querySelector('#panel-leads-analytics .la-scroll');
   if (laScroll) {
@@ -207,17 +208,24 @@ window._loadLeadsAnalytics = async function loadLeadsAnalytics() {
   });
 
   try {
-    const [visitsRes, leadsRes, searchesRes] = await Promise.all([
-      fetch('/api/supabase?action=getAllVendorActivities&vendorId=' + window._user.vendor_id),
-      fetch('/api/supabase?action=getVendorLeads&vendorId='         + window._user.vendor_id),
-      fetch('/api/supabase?action=getSearchMatches&vendorId='         + window._user.vendor_id)
+    const [visitsRes, searchesRes] = await Promise.all([
+        fetch('/api/supabase?action=getAllVendorActivities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vendor_ids: window._user.vendor_ids }),
+        }),
+            fetch('/api/supabase?action=getSearchMatches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vendor_ids: window._user.vendor_ids }),
+        })
     ]);
-    const [visitsJson, leadsJson, searchesJson] = await Promise.all([visitsRes.json(), leadsRes.json(), searchesRes.json()]);
+    const [visitsJson, searchesJson] = await Promise.all([visitsRes.json(), searchesRes.json()]);
 
     _analyticsData.visits = (visitsJson.data || []).filter(function(a) {
       return (a.message || '').toLowerCase().includes('viewed your profile');
     });
-    _analyticsData.leads = leadsJson.data || [];
+    _analyticsData.leads = window._leads || [];
     _analyticsData.searches = searchesJson.data || [];
 
   } catch(e) {
@@ -315,13 +323,14 @@ function renderAnalytics() {
   var convDeltaStr = (convDiff >= 0 ? '+' : '') + convDiff.toFixed(1) + 'pp';
 
   /* ── KPI cards ── */
+  var avgResponseTime = computeAvgResponseTime(leads);
   var kpiEl = document.querySelector('.la-kpi-row');
   if (kpiEl) {
     kpiEl.innerHTML =
-      kpiCard('LISTING VISITS',    totalVisits,    visitDeltaStr, visitDiff >= 0) +
-      kpiCard('LEADS GENERATED',   totalLeads,     leadDeltaStr,  leadDiff  >= 0) +
-      kpiCard('VISIT → LEAD RATE', convRate + '%', convDeltaStr,  convDiff  >= 0) +
-      kpiCard('AVG VISITS / DAY',  avgPerDay,      null,          true);
+      kpiCard('LISTING VISITS',      totalVisits,              visitDeltaStr,            visitDiff >= 0) +
+      kpiCard('LEADS GENERATED',     totalLeads,               leadDeltaStr,             leadDiff  >= 0) +
+      kpiCard('VISIT → LEAD RATE',   convRate + '%',           convDeltaStr,             convDiff  >= 0) +
+      kpiCard('AVG. RESPONSE TIME',  avgResponseTime.display,  avgResponseTime.deltaStr, avgResponseTime.deltaUp);
   }
 
   /* ── Bar charts ── */
@@ -346,9 +355,15 @@ function renderAnalytics() {
 
   /* ── Chart delta labels ── */
   var vDelta = document.querySelector('#laVisitsChart')?.closest('.la-chart-card')?.querySelector('.la-chart-delta');
-  if (vDelta) { vDelta.textContent = totalVisits + ' visits'; vDelta.className = 'la-chart-delta up'; }
+  if (vDelta) {
+    vDelta.textContent = visitDeltaStr;
+    vDelta.className = 'la-chart-delta ' + (visitDiff >= 0 ? 'up' : 'down');
+  }
   var lDelta = document.querySelector('#laLeadsChart')?.closest('.la-chart-card')?.querySelector('.la-chart-delta');
-  if (lDelta) { lDelta.textContent = totalLeads + ' leads'; lDelta.className = 'la-chart-delta up'; }
+  if (lDelta) {
+    lDelta.textContent = leadDeltaStr;
+    lDelta.className = 'la-chart-delta ' + (leadDiff >= 0 ? 'up' : 'down');
+  }
 
   /* ── Bottom cards ── */
   renderVisitSources(visits);
@@ -358,6 +373,27 @@ function renderAnalytics() {
   /* ── Sub-header ── */
   var sub = document.querySelector('.la-sub');
   if (sub) sub.textContent = (document.getElementById('pl-name')?.textContent || '') + ' · Last updated just now';
+}
+
+function computeAvgResponseTime(leads) {
+  var responded = leads.filter(function(l) {
+    return l.responded_at && l.created_at;
+  });
+
+  var display = '—';
+  var deltaStr = null;
+  var deltaUp = true;
+
+  if (responded.length) {
+    var totalHours = responded.reduce(function(sum, l) {
+      var diff = new Date(l.responded_at) - new Date(l.created_at);
+      return sum + diff / (1000 * 60 * 60);
+    }, 0);
+    var avgHours = Math.round(totalHours / responded.length);
+    display = avgHours < 24 ? avgHours + 'h' : Math.round(avgHours / 24) + 'd';
+  }
+
+  return { display: display, deltaStr: deltaStr, deltaUp: deltaUp };
 }
 
 function kpiCard(label, value, delta, deltaUp) {
@@ -410,17 +446,22 @@ function renderVisitSources(visits) {
   var sourceEl = document.querySelector('.la-source-list');
   if (!sourceEl) return;
 
-  // Derive sources from activity data if available, else show totals
-  var sources = {
-    'Direct search':    Math.round(visits.length * 0.42),
-    'Category browse':  Math.round(visits.length * 0.28),
-    'Comparison views': Math.round(visits.length * 0.18),
-    'AI recommendations': Math.round(visits.length * 0.12),
+  var counts = {
+    'Direct search':      0,
+    'Category browse':    0,
+    'Comparison views':   0,
+    'AI recommendations': 0,
   };
+
+  visits.forEach(function(v) {
+    var raw = (v.source || '').trim();
+    if (counts.hasOwnProperty(raw)) counts[raw]++;
+  });
+
   var total = visits.length || 1;
 
-  sourceEl.innerHTML = Object.keys(sources).map(function(name) {
-    var count = sources[name];
+  sourceEl.innerHTML = Object.keys(counts).map(function(name) {
+    var count = counts[name];
     var pct   = total > 0 ? Math.round((count / total) * 100) : 0;
     return '<div class="la-source-item">' +
       '<div class="la-source-top"><span class="la-source-name">' + name + '</span><span class="la-source-count">' + count + '</span></div>' +
@@ -553,18 +594,26 @@ async function loadMyPlatforms(vendorIds) {
             fetch(`/api/supabase?action=getVendorViews&vendorId=${v.id}`).then(r => r.json())
         )),
         Promise.all(vendors.map(v =>
-            fetch(`/api/supabase?action=getVendorLeads&vendorId=${v.id}`).then(r => r.json())
+            fetch('/api/supabase?action=getVendorLeads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vendor_ids: [v.id] })
+            }).then(r => r.json())
         ))
     ]);
 
     const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
     let totalViews = 0, totalLeads = 0, totalCompleteness = 0;
-
+   
     vendors.forEach(function(v, i) {
         const views = (viewsResults[i].data || []).filter(function(x) {
             return new Date(x.created_at).getTime() >= thirtyDaysAgo;
         });
-        const leads = leadsResults[i].data || [];
+
+        const leads = (leadsResults[i].data || []).filter(function(x) {
+            return new Date(x.created_at).getTime() >= thirtyDaysAgo;
+        });
+
         v._views30d = views.length;
         v._leads30d = leads.length;
         totalViews += views.length;
@@ -600,23 +649,31 @@ async function loadMyPlatforms(vendorIds) {
         const pct = v._completeness;
         const barColor = pct >= 70 ? '#22c55e' : pct >= 50 ? 'var(--o)' : '#ef4444';
         const updatedText = v.updated_at ? window._daysAgo(v.updated_at) : '—';
-        const accentColor = isApproved ? 'var(--o)' : 'var(--k)';
+        const colors = ['#f04e23', '#7c3aed', '#16a34a', '#2563eb', '#dc2626', '#0891b2', '#d97706', '#db2777', '#059669', '#475569'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        const accentColor = randomColor;
 
-        return '<div data-vendor-id="' + v.id + '" style="background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s" ' +
+        return '<div data-vendor-id="' + v.id + '" style="background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden;cursor:pointer;height:280px;display:flex;flex-direction:column;transition:border-color 0.15s,box-shadow 0.15s" ' +
             'onmouseover="this.style.borderColor=\'var(--o)\';this.style.boxShadow=\'0 2px 14px rgba(240,78,35,0.1)\'" ' +
             'onmouseout="this.style.borderColor=\'var(--b1)\';this.style.boxShadow=\'none\'" ' +
             'onclick="window.mpOpenVendorById(\'' + v.id + '\')">' +
-            '<div style="height:5px;background:' + accentColor + '"></div>' +
-            '<div style="padding:14px 16px">' +
-                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">' +
-                    '<div style="width:40px;height:40px;border-radius:8px;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--t2);flex-shrink:0">' + initials + '</div>' +
-                    '<div>' +
-                        '<div style="font-size:19px;font-weight:800;color:var(--t1);line-height:1.2;margin-bottom:3px">' + v.name + '</div>' +
-                        '<span style="font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 8px;border-radius:20px;background:var(--off2);color:var(--t3)">' + (v.categories || '—').split(',')[0].trim().toUpperCase() + '</span>' +
+            '<div style="height:5px;background:' + accentColor + ';flex-shrink:0"></div>' +
+            '<div style="padding:14px 16px;display:flex;flex-direction:column;flex:1;overflow:hidden">' +
+
+                // Header row — fixed height
+                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-shrink:0">' +
+                    '<div style="width:40px;height:40px;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--t2);flex-shrink:0">' + initials + '</div>' +
+                    '<div style="min-width:0">' +
+                        '<div style="font-size:14px;font-weight:800;color:var(--t1);line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + v.name + '</div>' +
+                        '<span style="font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 8px;border-radius:20px;background:var(--off2);color:var(--t3)">' + (v.data.company.website || '—').split(',')[0].trim().toUpperCase() + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div style="font-size:11px;color:var(--t3);margin-bottom:10px">' + (v.categories || '—') + '</div>' +
-                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+
+                // Description — fixed height, clipped
+                '<div style="font-size:11px;color:var(--t3);height:32px;overflow:hidden;margin-top:10px;margin-bottom:10px;flex-shrink:0;line-height:1.45">' + (v.categories || '—') + '</div>' +
+
+                // Badge row — fixed height
+                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-shrink:0">' +
                     '<span style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;' + badgeStyle + '">' +
                         '<span style="width:6px;height:6px;border-radius:50%;background:' + dotColor + ';flex-shrink:0;display:inline-block"></span>' + verification +
                     '</span>' +
@@ -624,20 +681,25 @@ async function loadMyPlatforms(vendorIds) {
                         '<span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block"></span>Live' +
                     '</span>' +
                 '</div>' +
-                '<div style="margin-bottom:10px">' +
+
+                // Completeness — fixed height
+                '<div style="margin-bottom:10px;flex-shrink:0">' +
                     '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:4px"><span>Listing completeness</span><strong style="color:var(--t1)">' + pct + '%</strong></div>' +
                     '<div style="height:5px;background:var(--off2);border-radius:3px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:3px"></div></div>' +
                 '</div>' +
-                '<div style="display:grid;grid-template-columns:1fr 1fr auto;border-top:1px solid var(--b1);padding-top:10px">' +
+
+                // Stats — pinned to bottom
+                '<div style="display:grid;grid-template-columns:1fr 1fr auto;border-top:1px solid var(--b1);padding-top:10px;margin-top:auto;flex-shrink:0">' +
                     '<div><div style="font-size:18px;font-weight:900;color:var(--t1);line-height:1">' + (v._views30d || 0).toLocaleString() + '</div><div style="font-size:10px;color:var(--t4)">views (30d)</div></div>' +
                     '<div style="border-left:1px solid var(--b1);padding-left:12px"><div style="font-size:18px;font-weight:900;color:var(--t1);line-height:1">' + (v._leads30d || 0) + '</div><div style="font-size:10px;color:var(--t4)">leads (30d)</div></div>' +
                     '<div style="font-size:11px;color:var(--t3);text-align:right;line-height:1.4">Updated<br>' + updatedText + '</div>' +
                 '</div>' +
+
             '</div>' +
-        '</div>';
+            '</div>';
     }).join('') +
     // Add a platform card
-    '<div id="claimTrigger" onclick="window.openClaimPanel()" style="background:transparent;border:2px dashed var(--b2);border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:180px;transition:border-color 0.15s" ' +
+    '<div id="claimTrigger" onclick="window.openClaimPanel()" style="background:transparent;border:2px dashed var(--b2);border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;height:280px;transition:border-color 0.15s" ' +
     'onmouseover="this.style.borderColor=\'var(--t3)\'" onmouseout="this.style.borderColor=\'var(--b2)\'">' +
         '<div style="text-align:center;padding:20px">' +
             '<div style="font-size:28px;font-weight:300;color:var(--t3);line-height:1;margin-bottom:8px">+</div>' +
@@ -1268,9 +1330,12 @@ function parseTitle(raw) {
     catch { return raw; }
 }
 
-async function getLeads(vendorId){
-    console.log('getLeadsByUserId called, user id:', vendorId);
-    const response = await fetch(`/api/supabase?action=getVendorLeads&vendorId=${vendorId}`);
+async function getLeads(){
+    const response = await fetch('/api/supabase?action=getVendorLeads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendor_ids: window._user.vendor_ids }),
+    });
     const result = await response.json();
 
     if (result.error) {
@@ -1364,10 +1429,10 @@ async function renderVendor(vendor){
     if (vendor.updated_at !== null){$('#plUpdated').text(window._daysAgo(vendor.updated_at));}
 
     getViews(vendor.id);
-    await getLeads(vendor.id);
+    //await getLeads();
     getComparisons(vendor.id);
     loadReferences(vendor.id);
-    getRecentActivities(vendor.id);
+    getRecentActivities();
     loadVendorsForClaiming();
     //loadUserClaims();
 
@@ -1375,6 +1440,7 @@ async function renderVendor(vendor){
     renderFeaturesGrid(modules, 'featuresGrid');
 
     window._vendorId = vendor.id;
+    window._categories = [];
     if (vendor.categories) {
         vendor.categories = vendor.categories.replace('•', ',');
 
@@ -1424,8 +1490,12 @@ function makeCatTag(label) {
     return $tag;
 }
 
-function getRecentActivities(vendorId){
-    fetch(`/api/supabase?action=getVendorActivities&vendorId=${vendorId}`)
+function getRecentActivities(){
+    fetch('/api/supabase?action=getVendorActivities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vendor_ids: window._user.vendor_ids }),
+    })
         .then(r => r.json())
         .then(result => {
             if (result.error) { App.showToast(result.error, 'error'); return; }
@@ -1556,4 +1626,11 @@ async function loadUser(userId){
     const fullName = `${window._user.first_name} ${window._user.last_name}`;
     $('#sbUname').text(fullName);
     $('#sbInitials').text(App.initials(fullName));
+
+    document.getElementById('asFirstName').value = window._user.first_name;
+    document.getElementById('asLastName').value = window._user.last_name;
+    document.getElementById('asEmail').value = window._user.email;
+    document.getElementById('asJobTitle').value = window._user.job_title;
+    document.getElementById('asOrg').value = window._user.organization;
+    document.getElementById('asPhone').value = window._user.phone;
 }

@@ -38,3 +38,130 @@
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+.da-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.da-overlay.visible {
+  display: flex;
+}
+
+.da-box {
+  background: var(--w);
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.da-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.da-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--t1);
+  letter-spacing: -0.015em;
+}
+
+.da-desc {
+  font-size: 13px;
+  color: var(--t3);
+  line-height: 1.6;
+}
+
+.da-confirm-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.da-confirm-label {
+  font-size: 12px;
+  color: var(--t2);
+}
+
+.da-confirm-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid var(--b2);
+  border-radius: 7px;
+  background: var(--w);
+  font-size: 13px;
+  color: var(--t1);
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.da-confirm-input:focus {
+  border-color: #ef4444;
+}
+
+.da-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--b1);
+}
+
+.da-cancel {
+  height: 36px;
+  padding: 0 18px;
+  border: 1px solid var(--b2);
+  border-radius: 20px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--t2);
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.13s;
+}
+
+.da-cancel:hover {
+  border-color: var(--b3);
+  color: var(--t1);
+}
+
+.da-submit {
+  height: 36px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 20px;
+  background: #ef4444;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.da-submit.enabled {
+  opacity: 1;
+  pointer-events: auto;
+}

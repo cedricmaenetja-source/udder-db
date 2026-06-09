@@ -2642,6 +2642,7 @@ async function openVendorDetail(card){
   var op=document.getElementById('vd-overview');if(op)op.classList.add('active');
   vdPanel.classList.add('open');if(vdScroll)vdScroll.scrollTop=0;
   _currentDetailCard = card; window._currentDetailCard = card; if(typeof updateShortlistBtn==='function') updateShortlistBtn(card);
+  let source = 'Category browse'; if (card.dataset.score > 0) source = 'AI recommendations';
   const res = await fetch('/api/supabase?action=addToVendorAnalytics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2653,7 +2654,8 @@ async function openVendorDetail(card){
     body:    JSON.stringify({
       vendorId: card.dataset.id,
       username: `${window._user.first_name} ${window._user.last_name}`,
-      message: 'viewed your profile'
+      message: 'viewed your profile',
+      source: source
     })
   });
 }
@@ -3324,7 +3326,8 @@ if(vdShortlistBtn){
         body:    JSON.stringify({
           vendorId: _currentDetailCard.dataset.id,
           username: `${window._user.first_name} ${window._user.last_name}`,
-          message: 'added you to shortlist'
+          message: 'added you to shortlist',
+          source: 'Category browse'
         })
       });
     }
@@ -3682,7 +3685,8 @@ document.getElementById('evSaveBtn').addEventListener('click', async function(){
     body:    JSON.stringify({
       vendorId: _currentEvCard.dataset.id,
       username: `${window._user.first_name} ${window._user.last_name}`,
-      message: 'evaluated you'
+      message: 'evaluated you',
+      source: 'Category browse'
     })
   });
 
@@ -4165,7 +4169,6 @@ document.getElementById('stUpdatePwdBtn').addEventListener('click', async functi
   if(!/[0-9!@#$%^&*]/.test(newPwd)){ stPwdFlash('Password must contain a number or symbol', true); return; }
   if(newPwd !== confirmPwd){ stPwdFlash('Passwords do not match', true); return; }
 
-  console.log('Updating password');
   const reset = lockBtn($(this));
   if (!reset) return;
   const response = await fetch('/api/supabase?action=updateUserPassword', {
@@ -4445,7 +4448,8 @@ document.querySelectorAll('.sb-nav a').forEach(function(a){a.addEventListener('c
         body:    JSON.stringify({
           vendorId: window._currentDetailCard.dataset.id,
           username: `${window._user.first_name} ${window._user.last_name}`,
-          message: 'requested intro'
+          message: 'requested intro',
+          source: 'Category browse'
         })
       });
 

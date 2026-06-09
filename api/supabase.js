@@ -100,7 +100,7 @@ export default async function handler(req, res) {
     if (action === 'getUserById') return await getUserById(res, userId); 
     if (action === 'getVendorViewCount') return await getVendorViewCount(res, vendorId); 
     if (action === 'getVendorViewCountLast7Days') return await getVendorViewCountLast7Days(res, vendorId);
-    if (action === 'getVendorLeads') return await getVendorLeads(res, vendorId);
+    //if (action === 'getVendorLeads') return await getVendorLeads(res, vendorId);
     if (action === 'getVendorViews') return await getVendorViews(res, vendorId);
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
@@ -112,13 +112,67 @@ export default async function handler(req, res) {
     if (action === 'getComparisons') return await getComparisons(res, vendorId);
     if (action === 'getReferencesByVendorId') return await getReferencesByVendorId(res, vendorId);
     if (action === 'getReferencesById') return await getReferencesById(res, referenceId);
-    if (action === 'getVendorActivities') return await getVendorActivities(res, vendorId);
+    //if (action === 'getVendorActivities') return await getVendorActivities(res, vendorId);
     if (action === 'getUserComparisons') return await getUserComparisons(res, userId, vendorId);
     if (action === 'getUserRequests') return await getUserRequests(res, userId);
     if (action === 'getUserClaims') return await getUserClaims(res, userId);
-    if (action === 'getSearchMatches') return await getSearchMatches(res, vendorId);
-    if (action === 'getAllVendorActivities') return await getAllVendorActivities(res, vendorId);
     
+    if (action === 'getVendorActivities') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendor_ids } = req.body;
+            return await getVendorActivities(res, vendor_ids);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'getSearchMatches') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendor_ids } = req.body;
+            return await getSearchMatches(res, vendor_ids);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'getAllVendorActivities') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendor_ids } = req.body;
+            return await getAllVendorActivities(res, vendor_ids);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'getVendorLeads') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { vendor_ids } = req.body;
+            return await getVendorLeads(res, vendor_ids);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
     if (action === 'getAssignedVendors') {
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
@@ -637,6 +691,8 @@ async function deleteAccount(res, userId) {
         'tblevaluations',
         'tblvendorclaims',
         'tblvendorrequests',
+        'tbllogs',
+        'tblintrorequests'
     ];
 
     for (const table of tables) {
@@ -832,26 +888,36 @@ async function getReferencesByVendorId(res, vendorId) {
     return res.status(200).json({ data });
 }
 
-async function getVendorActivities(res, vendorId) {
+async function getVendorActivities(res, vendorIds) {
   const { data, error } = await supabase
     .from('tblactivities')
     .select('*')
-    .eq('vendor_id', vendorId)
+    .in('vendor_id', vendorIds)
     .order('id', { ascending: false })
     .limit(5);
 
     if (error) return res.status(500).json({ data: null, error: error.message });
 
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
+
     return res.status(200).json({ data });
 }
 
-async function getAllVendorActivities(res, vendorId) {
+async function getAllVendorActivities(res, vendorIds) {
   const { data, error } = await supabase
     .from('tblactivities')
     .select('*')
-    .eq('vendor_id', vendorId);
+    .in('vendor_id', vendorIds);
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+    
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
 
     return res.status(200).json({ data });
 }
@@ -1456,13 +1522,19 @@ export async function getEvaluations(res, vendorId, userId) {
     return res.status(200).json({ data });
 }
 
-export async function getVendorLeads(res, vendorId) {
+export async function getVendorLeads(res, vendorIds) {
     const { data, error } = await supabase
     .from('tblintrorequests')
     .select('*')
-    .eq('vendor_id', vendorId)
+    .in('vendor_id', vendorIds)
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
+    
     return res.status(200).json({ data });
 }
 
@@ -1603,15 +1675,21 @@ async function getUserComparisons(res, userId, vendorId){
     return res.status(200).json({ data });
 }
 
-async function getSearchMatches(res, vendorId){
+async function getSearchMatches(res, vendorIds){
     const { data, error } = await supabase
         .from('tblsearchmatches')
         .select('*')
-        .eq('vendor_id', vendorId)
+        .in('vendor_id', vendorIds)
         .order('id', { ascending: false })
         .limit(5);
 
     if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
+
     return res.status(200).json({ data });
 }
 

@@ -91,7 +91,19 @@ $(async function () {
         || description.includes(q);
 
       card.style.display = match ? '' : 'none';
-      if(match) visible++;
+      if(match) {
+            visible++; 
+            fetch('/api/supabase?action=addActivity', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({
+                    vendorId: card.dataset.id,
+                    username: `${window._user.first_name} ${window._user.last_name}`,
+                    message: 'searched your profile',
+                    source: 'Direct search'
+                })
+            });
+        }
     });
 
     if(q){
