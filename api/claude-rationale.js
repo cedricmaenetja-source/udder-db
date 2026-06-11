@@ -1,10 +1,11 @@
-import { authorize } from "./header";
+import { requireAuth } from './_auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export default async function handler(req, res) {
-    authorize(req, res);
+    const sessionId = await requireAuth(req, res);
+    if (!sessionId) return;
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });

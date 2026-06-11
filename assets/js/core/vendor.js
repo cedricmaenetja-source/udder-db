@@ -8,6 +8,9 @@ window._user = {};
 window._comparison = [];
 window._vendor = [];
 window._claimableVendors = [];
+window._salutationName = '';
+window._leadRespondEmail = '';
+window._leadRespondId = 0;
 
 var _analyticsData = { visits: [], leads: [] };
 var _analyticsPeriod = 'month';
@@ -57,10 +60,12 @@ $(async function(){
     await loadUser(user.id);
     if (user.vendor_ids === null){
         if (noProductEl) noProductEl.classList.add('show');
+        $('.no-product').addClass('hide');
         await loadClaim(user.id);
     } else {
         await loadMyPlatforms(user.vendor_ids);
         document.getElementById('mpHubState').style.display = 'flex';
+        $('.no-product').removeClass('hide');
        await getLeads();
         // if (heroEl)  heroEl.style.display  = '';
         // if (statsEl) statsEl.style.display = '';
@@ -71,7 +76,7 @@ $(async function(){
     window._hideSpinner('overviewSpinner');
 
     document.getElementById('sbLogoutBtn').addEventListener('click', async function(){
-        const reset = App.lockBtn($(this));
+        const reset = App.lockBtn($(this), {spinnerColor: 'var(--t2)' });
         if (!reset) return;
 
         App.showToast('Logging out...', 'neutral');
@@ -84,6 +89,55 @@ $(async function(){
         if (result.error){App.showToast(result.error, 'error');return;}
         window.location.href = PAGES.login;
         return;
+    });
+
+    document.getElementById('liDetail').addEventListener('click', function(e) {
+        var btn = e.target.closest('.li-respond-btn');
+        if (!btn && !e.target.classList.contains('li-respond-btn')) return;
+
+        var inner = document.querySelector('.li-detail-name');
+        var meta  = document.querySelector('.li-detail-meta');
+        window._salutationName = btn.dataset.name;
+        window._leadRespondEmail = btn.dataset.email;
+        window._leadRespondId =  btn.dataset.id;
+
+        if (inner && window._openRespondPanel) {
+            window._openRespondPanel(inner.textContent, meta ? meta.textContent : '');
+        }
+    });
+
+    $(document).on('click', '.li-pass-btn', async function(){
+        const reset = App.lockBtn($(this), {spinnerColor: 'var(--t2)' });
+        if (!reset) return;
+        
+        const id = $(this).data('id');
+        var response = await fetch('/api/supabase?action=passIntroRequest', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ id: id })
+        });
+        var result = await response.json();
+        if (result.error){App.showToast(result.error, 'error'); reset(); return;}
+
+         window._leads = window._leads.filter(function(l) { return l.id !== id; });
+
+        var $item = $('#liList .li-item[data-lead-id="' + id + '"]');
+        $item.fadeOut(200, function() { $(this).remove(); });
+
+        var remaining = $('#liList .li-item').not($item);
+        if (remaining.length) {
+            remaining.first().trigger('click');
+        } else {
+            document.getElementById('liDetailInner').innerHTML =
+                '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:60px 40px;text-align:center">' +
+                    '<div style="font-size:14px;font-weight:600;color:var(--t1)">No leads yet</div>' +
+                    '<div style="font-size:13px;color:var(--t3)">New leads will appear here when buyers request an intro.</div>' +
+                '</div>';
+        }
+
+        $('#leadsInboxBadge').text(window._leads.length);
+        updateCountPills();
+        reset();
     });
 
     /* ── ADD REFERENCE MODAL ── */
@@ -185,6 +239,28 @@ $(async function(){
     });
 });
 
+window._removeLead = function removeLead(id){
+    var $item = $('#liList .li-item[data-lead-id="' + id + '"]');
+    $item.fadeOut(200, function() { $(this).remove(); });
+
+    var remaining = $('#liList .li-item').not($item);
+    if (remaining.length) {
+        remaining.first().trigger('click');
+    } else {
+        document.getElementById('liDetailInner').innerHTML =
+            '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:60px 40px;text-align:center">' +
+                '<div style="font-size:14px;font-weight:600;color:var(--t1)">No leads yet</div>' +
+                '<div style="font-size:13px;color:var(--t3)">New leads will appear here when buyers request an intro.</div>' +
+            '</div>';
+    }
+
+    var pill = document.getElementById('leadsInboxBadge');
+    if (pill) {
+        var current = parseInt(pill.textContent || '0', 10);
+        if (current > 0) pill.textContent = current - 1;
+    }
+}
+
 window._loadLeadsAnalytics = async function loadLeadsAnalytics() {
   if (!window._user || !window._user.vendor_ids) return;
 
@@ -256,7 +332,7 @@ window._loadLeadsAnalytics = async function loadLeadsAnalytics() {
       '</div>' +
       '<div class="la-bottom-row">' +
         '<div class="la-bottom-card"><div class="la-bottom-title">Visit sources</div><div class="la-source-list"></div></div>' +
-        '<div class="la-bottom-card"><div class="la-bottom-title">Leads by buyer stage</div><div class="la-stage-list"></div><div class="la-stage-note">Buyer stage inferred from platform behaviour signals</div></div>' +
+        '<div class="la-bottom-card"><div class="la-bottom-title">Leads by engagement</div><div class="la-stage-list"></div><div class="la-stage-note">How buyers have engaged with your listing</div></div>' +
         '<div class="la-bottom-card"><div class="la-bottom-title">Searches that found you</div><ol class="la-search-list"></ol></div>' +
       '</div>';
   }
@@ -367,7 +443,7 @@ function renderAnalytics() {
 
   /* ── Bottom cards ── */
   renderVisitSources(visits);
-  renderLeadsByStage(leads);
+  renderLeadsByEngagement(visits);
   renderTopSearches();
 
   /* ── Sub-header ── */
@@ -471,34 +547,29 @@ function renderVisitSources(visits) {
   }).join('');
 }
 
-function renderLeadsByStage(leads) {
+function renderLeadsByEngagement(visits) {
   var stageEl = document.querySelector('.la-stage-list');
   if (!stageEl) return;
+    console.log(visits);
+  var engagements = {
+    'Added to shortlist':  { count: 0, color: 'var(--o)' },
+    'Added to comparison': { count: 0, color: '#9ca3af' },
+    'Demo requested':      { count: 0, color: '#16a34a' },
+  };
 
-  var stages = { Research: 0, Discovery: 0, Shortlist: 0, 'Demo scheduled': 0, RFP: 0 };
-  var colors = { Research: '#6b7280', Discovery: '#9ca3af', Shortlist: 'var(--o)', 'Demo scheduled': '#16a34a', RFP: '#111' };
-
-  leads.forEach(function(lead) {
-    var s = lead.stage || lead.buyer_stage || '';
-    if (stages.hasOwnProperty(s)) stages[s]++;
-    // If no stage field, distribute proportionally as fallback
+  visits.forEach(function(v) {
+    var msg = (v.message || '').toLowerCase();
+    if (msg.includes('intro'))       engagements['Demo requested'].count++;
+    else if (msg.includes('shortlist'))   engagements['Added to shortlist'].count++;
+    else if (msg.includes('comparison'))  engagements['Added to comparison'].count++;
   });
 
-  // If no stage data at all, show total across generic stages
-  var hasAny = Object.values(stages).some(function(v) { return v > 0; });
-  if (!hasAny && leads.length) {
-    stages.Research = Math.round(leads.length * 0.34);
-    stages.Discovery = Math.round(leads.length * 0.28);
-    stages.Shortlist = Math.round(leads.length * 0.21);
-    stages['Demo scheduled'] = Math.round(leads.length * 0.11);
-    stages.RFP = leads.length - stages.Research - stages.Discovery - stages.Shortlist - stages['Demo scheduled'];
-  }
-
-  stageEl.innerHTML = Object.keys(stages).map(function(name) {
+  stageEl.innerHTML = Object.keys(engagements).map(function(name) {
+    var e = engagements[name];
     return '<div class="la-stage-item">' +
-      '<span class="la-stage-dot" style="background:' + colors[name] + '"></span>' +
+      '<span class="la-stage-dot" style="background:' + e.color + '"></span>' +
       '<span class="la-stage-name">' + name + '</span>' +
-      '<span class="la-stage-count">' + stages[name] + '</span>' +
+      '<span class="la-stage-count">' + e.count + '</span>' +
     '</div>';
   }).join('');
 }
@@ -652,7 +723,7 @@ async function loadMyPlatforms(vendorIds) {
         const colors = ['#f04e23', '#7c3aed', '#16a34a', '#2563eb', '#dc2626', '#0891b2', '#d97706', '#db2777', '#059669', '#475569'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const accentColor = randomColor;
-
+        
         return '<div data-vendor-id="' + v.id + '" style="background:var(--w);border:1px solid var(--b1);border-radius:12px;overflow:hidden;cursor:pointer;height:280px;display:flex;flex-direction:column;transition:border-color 0.15s,box-shadow 0.15s" ' +
             'onmouseover="this.style.borderColor=\'var(--o)\';this.style.boxShadow=\'0 2px 14px rgba(240,78,35,0.1)\'" ' +
             'onmouseout="this.style.borderColor=\'var(--b1)\';this.style.boxShadow=\'none\'" ' +
@@ -662,7 +733,7 @@ async function loadMyPlatforms(vendorIds) {
 
                 // Header row — fixed height
                 '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-shrink:0">' +
-                    '<div style="width:40px;height:40px;background:var(--off2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--t2);flex-shrink:0">' + initials + '</div>' +
+                    '<img src="../assets/images/logos/'+v.name.replaceAll(' ', '')+'.webp" alt="'+v.name+' logo" loading="lazy" class="card-logo">' +
                     '<div style="min-width:0">' +
                         '<div style="font-size:14px;font-weight:800;color:var(--t1);line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + v.name + '</div>' +
                         '<span style="font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 8px;border-radius:20px;background:var(--off2);color:var(--t3)">' + (v.data.company.website || '—').split(',')[0].trim().toUpperCase() + '</span>' +
@@ -1175,7 +1246,8 @@ async function getVendorsInComparisons(comparisons){
 }
 
 function renderLeadsInbox(){
-    renderLeadList(window._leads, window._leads[0].id);
+    if (window._leads[0] !== undefined) renderLeadList(window._leads, window._leads[0].id);
+    
     if (window._leads.length) renderLeadDetail(window._leads[0]);
     $('#leadsInboxBadge').text(window._leads.length);
     updateCountPills();
@@ -1270,8 +1342,8 @@ async function renderLeadDetail(lead) {
                     '<div class="li-detail-meta">Submitted ' + window._daysAgo(lead.created_at) + '</div>' +
                 '</div>' +
                 '<div class="li-detail-actions">' +
-                    '<button class="li-pass-btn">Pass</button>' +
-                    '<button class="li-respond-btn">Respond →</button>' +
+                    '<button class="li-pass-btn" data-id="' + lead.id + '">Pass</button>' +
+                    '<button class="li-respond-btn" data-id="' + lead.id + '" data-name="' + window._user[lead.id].first_name + '" data-email="' + window._user[lead.id].email + '">Respond →</button>' +
                 '</div>' +
             '</div>' +
 
@@ -1285,11 +1357,6 @@ async function renderLeadDetail(lead) {
                             '<div class="li-contact-role">' + (window._user[lead.id].job_title || '') + '</div>' +
                         '</div>' +
                     '</div>' +
-                '</div>' +
-                '<div class="li-info-card">' +
-                    '<div class="li-info-eyebrow">BUYER STAGE</div>' +
-                    '<div class="li-stage-val">' + 'Shortlist' + '</div>' +
-                    '<div class="li-stage-sub">based on platform behavior</div>' +
                 '</div>' +
                 '<div class="li-info-card">' +
                     '<div class="li-info-eyebrow">ALSO COMPARING</div>' +

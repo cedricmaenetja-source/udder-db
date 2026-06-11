@@ -1,6 +1,6 @@
 import * as App from '../app.js';
 import { PAGES } from  '../utils/constants.js';
-import { isLoggedIn, getCurrentUser } from '../core/auth/session.js';
+import { isLoggedIn, getCurrentUser, initSession } from '../core/auth/session.js';
 import { requireLogin } from '../core/auth/loginRequired.js';
 
 let vendorData = {};
@@ -8,12 +8,15 @@ let vendorList = [];
 let employeeCountSupported = [];
 let user;
 
+var activityTimer = null;
+var lastLoggedQuery = '';
+
 var ORG_SIZES = [
   { value: '1-50',         label: '1–50' },
   { value: '50-500',       label: '50–500' },
-  { value: '500-5,000',    label: '500–5,000' },
-  { value: '5,000-25,000', label: '5,000–25,000' },
-  { value: '25,000+',      label: '25,000+' }
+  { value: '500-5000',    label: '500–5,000' },
+  { value: '5000-25000', label: '5,000–25,000' },
+  { value: '25000+',      label: '25,000+' }
 ];
 
 var REGIONS = ['UK', 'EU', 'US', 'APAC', 'LATAM', 'MEA'];
@@ -39,7 +42,14 @@ let searchFilters = App.searchQueries;
 let sessionId;
 let loggedIn;
 
+window._capitalize = function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 $(async function () {
+    await initSession();
+
     loggedIn = await isLoggedIn();
     if (!loggedIn) {
         $('#sbSignIn').removeClass('hide');
@@ -68,49 +78,25 @@ $(async function () {
         window._ipAddress = data.ip;
     });
 
+    document.querySelectorAll('.ct-name').forEach(el => {
+        el.addEventListener('mouseenter', function() {
+            if (el.scrollWidth > el.clientWidth) {
+                el.title = el.textContent.trim();
+            } else {
+                el.removeAttribute('title');
+            }
+        });
+    });
+
     var inp = document.getElementById('vendorSearch');
   if(!inp) return;
 
   function applySearch(){
-    var q = (inp.value || '').toLowerCase().trim();
-    var cards = document.querySelectorAll('#vendors .card');
-    var visible = 0;
-
-    cards.forEach(function(card){
-      var name        = (card.dataset.name         || '').toLowerCase();
-      var modules     = (card.dataset.modules      || '').toLowerCase();
-      var subcats     = (card.dataset.subcategories|| '').toLowerCase();
-      var features    = (card.dataset.features     || '').toLowerCase();
-      var description = (card.dataset.description  || '').toLowerCase();
-
-      var match = !q
-        || name.includes(q)
-        || modules.includes(q)
-        || subcats.includes(q)
-        || features.includes(q)
-        || description.includes(q);
-
-      card.style.display = match ? '' : 'none';
-      if(match) {
-            visible++; 
-            fetch('/api/supabase?action=addActivity', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({
-                    vendorId: card.dataset.id,
-                    username: `${window._user.first_name} ${window._user.last_name}`,
-                    message: 'searched your profile',
-                    source: 'Direct search'
-                })
-            });
-        }
-    });
-
-    if(q){
-      var totalEl = document.getElementById('totalVendors');
-      if(totalEl) totalEl.textContent = visible;
+        applyCheckboxFilters();   
+        var q = (inp.value || '').toLowerCase().trim();
+        clearTimeout(activityTimer);
+        activityTimer = setTimeout(function(){ logSearchActivity(q); }, 1000);
     }
-  }
 
   // Re-apply search whenever cards are added/removed from the grid
   var vendorsEl = document.getElementById('vendors');
@@ -124,6 +110,27 @@ $(async function () {
 
     populateTopVendors();
 });
+
+function logSearchActivity(q){
+  if(!q) return;                       
+  if(q === lastLoggedQuery) return;    
+  if(!window._user) return;            
+  lastLoggedQuery = q;
+
+  document.querySelectorAll('#vendors .card').forEach(function(card){
+    if(card.style.display === 'none') return;   
+    fetch('/api/supabase?action=addActivity', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        vendorId: card.dataset.id,
+        username: `${window._user.first_name} ${window._user.last_name}`,
+        message:  'searched your profile',
+        source:   'Direct search'
+      })
+    });
+  });
+}
 
 $(document).ready(function() {
     let compareMode = false;
@@ -324,16 +331,14 @@ $(document).ready(function() {
 
     // ── Multi-select category + sub-category filtering ──
 
-// Helper: get all checked parent module values
 function getCheckedModules(){
-    return $('.ct-lbl > input[type="checkbox"]:checked').map(function(){
+    return $('#catTree > li > .ct-row .ct-lbl > input[type="checkbox"]:checked').map(function(){
         return $(this).val();
     }).get();
 }
 
-// Helper: get all checked sub-category values
 function getCheckedSubs(){
-    return $('.ct-sub input[type="checkbox"]:checked').map(function(){
+    return $('#catTree .ct-sub input[type="checkbox"]:checked').map(function(){
         return $(this).val();
     }).get();
 }
@@ -382,7 +387,7 @@ function applyModuleFilter(){
 }
 
 // Parent module checkbox changed
-$(document).on('change', '.ct-lbl > input[type="checkbox"]', function(){
+$(document).on('change', '#catTree > li > .ct-row .ct-lbl > input[type="checkbox"]', function(){
     const module = $(this).val();
     const isChecked = $(this).is(':checked');
 
@@ -396,37 +401,37 @@ $(document).on('change', '.ct-lbl > input[type="checkbox"]', function(){
 });
 
 // ── Results panel search — filter cards by name, category, features ──
-$(document).on('input', '.rp-search input', function(){
-    var q = $(this).val().toLowerCase().trim();
+// $(document).on('input', '.rp-search input', function(){
+//     var q = $(this).val().toLowerCase().trim();
 
-    if(!q){
-        $('.card').show();
-        updateVendorTotalFiltered();
-        return;
-    }
+//     if(!q){
+//         $('.card').show();
+//         updateVendorTotalFiltered();
+//         return;
+//     }
 
-    $('.card').each(function(){
-        var name         = String($(this).data('name')         || '').toLowerCase();
-        var modules      = String($(this).data('modules')      || '').toLowerCase();
-        var features     = String($(this).data('features')     || '').toLowerCase();
-        var subcategories = String($(this).data('subcategories')|| '').toLowerCase();
-        var integrations = String($(this).data('integrations') || '').toLowerCase();
+//     $('.card').each(function(){
+//         var name         = String($(this).data('name')         || '').toLowerCase();
+//         var modules      = String($(this).data('modules')      || '').toLowerCase();
+//         var features     = String($(this).data('features')     || '').toLowerCase();
+//         var subcategories = String($(this).data('subcategories')|| '').toLowerCase();
+//         var integrations = String($(this).data('integrations') || '').toLowerCase();
 
-        var match = name.includes(q)
-                 || modules.includes(q)
-                 || features.includes(q)
-                 || subcategories.includes(q)
-                 || integrations.includes(q);
+//         var match = name.includes(q)
+//                  || modules.includes(q)
+//                  || features.includes(q)
+//                  || subcategories.includes(q)
+//                  || integrations.includes(q);
 
-        $(this).toggle(match);
-    });
+//         $(this).toggle(match);
+//     });
 
-    updateVendorTotalFiltered();
-    applyCheckboxFilters();
-});
+//     updateVendorTotalFiltered();
+//     applyCheckboxFilters();
+// });
 
 // Sub-category checkbox changed
-$(document).on('change', '.ct-sub input[type="checkbox"]', function(){
+$(document).on('change', '#catTree .ct-sub input[type="checkbox"]', function(){
     const module = $(this).data('module');
 
     // Auto-check the parent if a child is checked
@@ -629,39 +634,41 @@ async function populateTopVendors() {
         const result = await response.json();
 
         if (!result.data) return;
-
+        
         const container = document.getElementById('vdAlsoEvaluating');
         container.innerHTML = '';
         
         result.data.forEach((vendor) => {
-            const status = vendor.status || 'AI Generated';
-            const statusClass = (status == 'AI Generated') ? 'ai-generated' : status.toLowerCase();
+            if (vendor.name !== undefined){
+                const status = vendor.status || 'AI Generated';
+                const statusClass = (status == 'AI Generated') ? 'ai-generated' : status.toLowerCase();
 
-            const item = `
-                <a href="#" onclick="window.open('${vendor.data.company.website || '#'}', '_blank'); return false;" style="text-decoration:none">
-                <div class="vd-also-item">
-                    <div class="vd-also-logo">
-                        ${App.initials(vendor.name)}
-                    </div>
-
-                    <div>
-                        <div class="vd-also-name">
-                            ${vendor.name}
+                const item = `
+                    <a id="eval${vendor.id}" href="#" onclick="window.open('${vendor.website || '#'}', '_blank'); return false;" style="text-decoration:none">
+                    <div class="vd-also-item">
+                        <div class="vd-also-logo">
+                            ${App.initials(vendor.name)}
                         </div>
 
-                        <div class="vd-also-sub">
-                            ${vendor.data.company.website || ''}
+                        <div>
+                            <div class="vd-also-name">
+                                ${vendor.name}
+                            </div>
+
+                            <div class="vd-also-sub">
+                                ${vendor.website || ''}
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="vd-also-badge ${statusClass}">
-                        <span class="vd-also-badge-dot"></span>
-                        ${status}
-                    </div>
-                </div></a>
-            `;
+                        <div class="vd-also-badge ${statusClass}">
+                            <span class="vd-also-badge-dot"></span>
+                            ${status}
+                        </div>
+                    </div></a>
+                `;
 
-            container.innerHTML += item;
+                container.innerHTML += item;
+            }
         });
 
     } catch (err) {
@@ -994,9 +1001,17 @@ function renderOrgSizeFilter() {
   });
 }
 
+function cardMatchesSearch(card, q){
+  if(!q) return true;
+  return ['name','modules','subcategories','features','integrations','description']
+    .some(function(k){ return (card.dataset[k] || '').toLowerCase().includes(q); });
+}
+
 function applyCheckboxFilters() {
+    var searchQ = ((document.getElementById('vendorSearch') || {}).value || '').toLowerCase().trim();
+
   var checkedRegions = Array.from(document.querySelectorAll('.region-cb:checked'))
-    .map(function(cb){ return cb.value.toLowerCase(); });
+  .map(function(cb){ return cb.value; });
 
   var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
     .map(function(cb){ return cb.value; });
@@ -1007,7 +1022,7 @@ function applyCheckboxFilters() {
   var checkedSubs = Array.from(document.querySelectorAll('#catTree .ct-sub input[type="checkbox"]:checked'))
     .map(function(cb){ return cb.value.toLowerCase(); });
 
-  var nothingChecked = !checkedRegions.length && !checkedSizes.length && !checkedModules.length && !checkedSubs.length;
+  var nothingChecked = !checkedRegions.length && !checkedSizes.length && !checkedModules.length && !checkedSubs.length && !searchQ;;
 
   // If nothing is checked at all, restore all vendors from the full list
   if(nothingChecked){
@@ -1031,8 +1046,10 @@ function applyCheckboxFilters() {
     var cardModules = (card.dataset.modules || '').toLowerCase();
     var cardSubs    = (card.dataset.subcategories || '').toLowerCase();
 
+    var searchMatch = cardMatchesSearch(card, searchQ);
+
     var regionMatch = !checkedRegions.length || checkedRegions.some(function(r){
-      return cardRegion.includes(r);
+        return cardMatchesRegion(card, r);
     });
 
     var sizeMatch = !checkedSizes.length || checkedSizes.some(function(s){
@@ -1046,10 +1063,19 @@ function applyCheckboxFilters() {
       catMatch = checkedModules.some(function(m){ return cardModules.includes(m); });
     }
 
-    card.style.display = (regionMatch && sizeMatch && catMatch) ? '' : 'none';
+    card.style.display = (searchMatch && regionMatch && sizeMatch && catMatch) ? '' : 'none';
   });
 
   updateVendorTotalFiltered();
+}
+
+function cardMatchesRegion(card, region) {
+  var tokens = (card.dataset.location || '')
+    .split(',')
+    .map(function(t){ return t.trim().toUpperCase(); })
+    .filter(Boolean);
+
+  return tokens.indexOf(String(region).toUpperCase()) !== -1;
 }
 
 function renderRegionFilter() {
@@ -1057,17 +1083,12 @@ function renderRegionFilter() {
   if (!list) return;
   list.innerHTML = '';
 
-  // Count per region from loaded cards
   var counts = {};
   document.querySelectorAll('#vendors .card').forEach(function(card) {
-    var cardRegions = (card.dataset.region || '').split(',').map(function(r){ return r.trim(); }).filter(Boolean);
-    cardRegions.forEach(function(r) {
-      // Match against our fixed list (case-insensitive)
-      REGIONS.forEach(function(fixed) {
-        if (r.toLowerCase().includes(fixed.toLowerCase())) {
-          counts[fixed] = (counts[fixed] || 0) + 1;
-        }
-      });
+    REGIONS.forEach(function(region) {
+      if (cardMatchesRegion(card, region)) {
+        counts[region] = (counts[region] || 0) + 1;
+      }
     });
   });
 
@@ -1267,9 +1288,9 @@ async function loadVendors(filters = null, query = null){
                 employeeCountSupported.push(companySize);
                 $('#companySizeFilter').append(`<option>${companySize}</option>`);
             }
-
+            
             //vendor.logo = App.getLogo(vendor.logo);
-            if (vendor.logo === null) vendor.logo = '../assets/images/no-logo.png';
+            if (vendor.logo === null) vendor.logo = `../assets/images/logos/${vendor.name.replaceAll(' ', '')}.webp`;
             if (vendor.score === undefined) vendor.score = 0;
 
             vendor.categories = vendor.categories.replaceAll(' • ', ', ');
@@ -1286,6 +1307,8 @@ async function loadVendors(filters = null, query = null){
             });
             
             if (vendor.match_score === undefined) vendor.match_score = 0;
+            if (vendor.founding_year === null) vendor.founding_year = '';
+            const location = (vendor.data.company.meta.region_served ?? []).join(',');
 
             // add 
             // data-trending="true"
@@ -1294,15 +1317,20 @@ async function loadVendors(filters = null, query = null){
             // data-ver-history (semicolon separated with | between dates and description) e.g. 14 MAR 2026|Upgraded to Udder Approved by Alice Oduya, Udder;02 JAN 2026|Vendor claimed listing — 42 hours of capability evidence attached;12 NOV 2025|AI-generated from public sources (vendor website, G2, Capterra)
             $('#vendors').append(`
                 <div class="card" 
+                    data-categories="${vendor.categories}"
                     data-modules="${modules.modules.join(',')}"
                     data-subcategories="${modules.subCategories.join(',')}"
                     data-name="${vendor.name}"
                     data-score="${vendor.match_score}"
-                    data-companysize="${companySize}"
+                    data-companysize="${vendor.data.company.meta.target_market}"
                     data-features="${allFeatures.join(',')}"
                     data-id="${vendor.id}"
+                    data-intro="${vendor.data.company.company_intro}"
+                    data-hq="${vendor.hq_location}"
+                    data-location="${location}"
+                    data-founded="${vendor.founding_year}"
                     data-headcount="${vendor.employee_count}"
-                    data-region="${region.join(', ')}"
+                    data-region="${vendor.region}"
                     data-verification="${vendor.verification}"
                     data-integrations="${supportedIntegrations.join(', ')}"
                     data-description="${(vendor.description || vendor.categories || '').replace(/"/g, '&quot;')}"
@@ -1310,7 +1338,7 @@ async function loadVendors(filters = null, query = null){
                     data-verified="${vendor.verified ? '1' : '0'}">
                         ${verifiedBadge}
                         <div class="card-header">
-                            <img src="${vendor.logo}" alt="${vendor.name} logo" class="card-logo" />
+                            <img src="${vendor.logo}" alt="${vendor.name} logo" loading="lazy" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'" />
                             <h4>${vendor.name}</h4>
                         </div>
                         <p>${vendor.categories}</p>

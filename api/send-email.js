@@ -1,13 +1,15 @@
-import { authorize } from "./header";
+import { requireAuth } from './_auth';
 
 export default async function handler(req, res) {
-    authorize(req, res);
+    const session = await requireAuth(req, res);
+    if (!session) return;
 
     const { action } = req.query;
 
     const VALID_ACTIONS = [
         'resetPassword',
-        'otpVerification'
+        'otpVerification',
+        'leadRespond'
     ];
 
     if (action && !VALID_ACTIONS.includes(action)) return res.status(400).json({ error: `Unknown action: "${action}". Did you forget to register it in VALID_ACTIONS?` });
@@ -16,7 +18,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { to, token, host, otp } = req.body;
+    const { to, token, host, otp, body, subject, from, fromName, replyTo } = req.body;
 
     let payload;
     if (action === 'resetPassword'){
@@ -32,6 +34,16 @@ export default async function handler(req, res) {
             to: to,
             subject: 'Your Verification Code',
             body: OTP_VERIFICATION_EMAIL.replace('{{OTP_CODE}}', otp) 
+        };
+    }
+
+    if (action === 'leadRespond'){
+        payload = {
+            to: to,
+            subject: subject,
+            body: `<p>${body.replace(/\n/g, '<br>')}</p>`,
+            fromName: fromName,
+            replyTo: replyTo 
         };
     }
     

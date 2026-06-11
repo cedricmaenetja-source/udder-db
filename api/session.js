@@ -15,6 +15,7 @@ export default async function handler(req, res) {
       .from('tblsessions')
       .select('user_id')
       .eq('session_id', token)
+      .neq('user_id', null)
       .maybeSingle();
 
   if (!session) {

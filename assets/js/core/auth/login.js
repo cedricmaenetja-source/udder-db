@@ -1,10 +1,12 @@
 import * as App from '../../app.js';
 import { PAGES, RESET_PASSWORD_EMAIL, HOSTNAME } from '../../utils/constants.js';
-import { isLoggedIn, getCurrentUser } from '../auth/session.js';
+import { isLoggedIn, getCurrentUser, initSession } from '../../core/auth/session.js';
 
 let loggedIn;
 
 $(async function(){
+    await initSession();
+
     loggedIn = await isLoggedIn();
     if (loggedIn) {location.href = PAGES.home; return;}
 

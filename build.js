@@ -5,7 +5,7 @@ const path = require("path");
 const srcDir = "./";
 const outDir = "./dist";
 
-const excludeDirs = ["node_modules", "dist", ".vercel", ".git", "v2", "api"];
+const excludeDirs = ["node_modules", "dist", ".vercel", ".git", "v2", "api", "services"];
 const excludeFiles = ["login_copy.html", "signup_copy.html", "otp_copy.html"];
 
 const minifyOptions = {

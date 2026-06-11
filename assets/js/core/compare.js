@@ -158,7 +158,7 @@
         isVerified: badgeText.toLowerCase().indexOf('verified') > -1,
         isApproved: badgeText.toLowerCase().indexOf('approved') > -1,
         score: parseInt($c.data('score') || 0),
-        description: String($c.data('description') || ''),
+        description: String($c.data('intro') || ''),
       };
       /* Build lookup set from all data */
       v.set = {};

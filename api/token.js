@@ -1,8 +1,9 @@
-import { authorize } from './header';
+import { requireAuth } from './_auth';
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
-    authorize(req, res);
+    const session = await requireAuth(req, res);
+    if (!session) return;
 
     if (req.method !== 'POST') {
         return res.status(405).json({

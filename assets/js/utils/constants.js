@@ -91,11 +91,10 @@ export const NEW_VENDOR_REQUEST_EMAIL = `
 
 export const COMPANY_SIZE = [
     '1-50',
-    '51-100',
-    '101-200',
-    '201-500',
-    '501-1000',
-    '1001+'
+    '50-500',
+    '500-5000',
+    '5000-25000',
+    '25000+'
 ];
 
 export const LOCATIONS = [

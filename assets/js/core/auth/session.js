@@ -44,3 +44,10 @@ export async function getCurrentUser(){
         return null;
     }
 }
+
+export async function initSession() {
+    const res = await fetch('/api/init-session', { 
+        method: 'POST',
+        credentials: 'include' 
+    });
+}

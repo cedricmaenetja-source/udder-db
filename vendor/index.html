@@ -805,7 +805,7 @@
     }
 
     .la-eyebrow {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--o);
       text-transform: uppercase;
@@ -1161,7 +1161,7 @@
     }
 
     .li-eyebrow {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--o);
       text-transform: uppercase;
@@ -1406,7 +1406,7 @@
     /* Info cards row */
     .li-info-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 14px
     }
 
@@ -2733,6 +2733,7 @@
         transform: translateY(0);
       }
     }
+    .card-logo{width:44px;height:44px;min-width:44px;border-radius:8px;object-fit:contain;background:var(--off);border:1px solid var(--b1);padding:5px;display:block;flex-shrink:0;margin:0}
   </style>
 </head>
 
@@ -2886,7 +2887,7 @@
           My Platforms
         </a>
       </li>
-      <li>
+      <li class="no-product hide">
         <a href="#" class="nav-link" data-panel="leads-inbox">
           <svg viewBox="0 0 16 16" fill="none">
             <path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3" />
@@ -2895,7 +2896,7 @@
           <span class="nb" id="leadsInboxBadge">0</span>
         </a>
       </li>
-      <li>
+      <li class="no-product hide">
         <a href="#" class="nav-link" data-panel="leads-analytics">
           <svg viewBox="0 0 16 16" fill="none">
             <path d="M2 13V7l3-3 3 3 3-4 3 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
@@ -3594,6 +3595,54 @@
           </div><!-- /li-detail -->
 
         </div><!-- /li-layout -->
+
+        <!-- Respond panel -->
+<div id="respondPanel" style="position:absolute;top:0;right:-480px;width:480px;bottom:0;background:var(--w);border-left:1px solid var(--b1);display:flex;flex-direction:column;z-index:999;transition:right 0.25s cubic-bezier(0.4,0,0.2,1);box-shadow:-4px 0 24px rgba(0,0,0,0.06)">
+  <div style="padding:20px 24px 16px;border-bottom:1px solid var(--b1);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--o);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px">RESPOND</div>
+      <div style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;line-height:1.1" id="respondPanelName">—</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:4px" id="respondPanelMeta">—</div>
+    </div>
+    <button id="respondPanelClose" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--b2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:18px;line-height:1;flex-shrink:0;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="this.style.borderColor='var(--b2)'">&times;</button>
+  </div>
+
+  <div style="padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
+
+    <!-- Template message -->
+    <div style="background:var(--off);border:1px solid var(--b1);border-radius:10px;padding:14px 16px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Quick templates</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">
+        <button class="respond-template-btn" data-tpl="intro" style="padding:5px 12px;border:1px solid var(--b2);border-radius:20px;background:var(--w);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--o)';this.style.color='var(--o)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">👋 Intro &amp; availability</button>
+        <button class="respond-template-btn" data-tpl="demo" style="padding:5px 12px;border:1px solid var(--b2);border-radius:20px;background:var(--w);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--o)';this.style.color='var(--o)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">📅 Book a demo</button>
+        <button class="respond-template-btn" data-tpl="more-info" style="padding:5px 12px;border:1px solid var(--b2);border-radius:20px;background:var(--w);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--o)';this.style.color='var(--o)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">📄 Send resources</button>
+      </div>
+    </div>
+
+    <!-- Subject line -->
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em">Subject</div>
+      <input id="respondSubjectInput" type="text" placeholder="e.g. Re: ATS evaluation — intro call" style="width:100%;height:40px;padding:0 12px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.15s;box-sizing:border-box" onfocus="this.style.borderColor='var(--o)';this.style.boxShadow='0 0 0 3px rgba(240,78,35,0.07)'" onblur="this.style.borderColor='var(--b2)';this.style.boxShadow='none'">
+    </div>
+
+    <!-- Message area -->
+    <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em">Your message</div>
+      <textarea id="respondMessageInput" rows="10" placeholder="Write your message to the buyer…" style="width:100%;flex:1;min-height:200px;padding:12px 14px;border:1px solid var(--b2);border-radius:8px;background:var(--w);font-size:13px;color:var(--t1);font-family:var(--sans);resize:vertical;line-height:1.65;outline:none;transition:border-color 0.15s;box-sizing:border-box" onfocus="this.style.borderColor='var(--o)';this.style.boxShadow='0 0 0 3px rgba(240,78,35,0.07)'" onblur="this.style.borderColor='var(--b2)';this.style.boxShadow='none'"></textarea>
+      <div style="font-size:11px;color:var(--t4)">The buyer will receive this via Udder — your contact details stay private until you choose to share them.</div>
+    </div>
+
+  </div>
+
+  <!-- Footer actions -->
+  <div style="padding:16px 24px;border-top:1px solid var(--b1);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--w)">
+    <button id="respondPanelCancel" style="height:36px;padding:0 18px;border:1px solid var(--b2);border-radius:20px;background:transparent;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all 0.13s" onmouseover="this.style.borderColor='var(--b3)';this.style.color='var(--t1)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t2)'">Cancel</button>
+    <button id="respondPanelSend" style="height:36px;padding:0 22px;border:none;border-radius:20px;background:var(--o);color:var(--w);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.13s;display:flex;align-items:center;gap:7px" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M14 2L2 7l5 2 2 5 5-12z" fill="white"/></svg>
+      Send message
+    </button>
+  </div>
+</div>
       </div>
 
       <!-- ── LEADS ANALYTICS ── -->
@@ -3616,7 +3665,7 @@
         <div class="la-scroll">
 
           <!-- KPI cards -->
-          <div class="la-kpi-row">
+          <!-- <div class="la-kpi-row">
             <div class="la-kpi-card">
               <div class="la-kpi-lbl">LISTING VISITS</div>
               <div class="la-kpi-val">2,841</div>
@@ -3637,13 +3686,13 @@
               <div class="la-kpi-val">6h</div>
               <div class="la-kpi-delta up">↑ -2h</div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Charts row -->
           <div class="la-charts-row">
 
             <!-- Listing visits chart -->
-            <div class="la-chart-card">
+            <!-- <div class="la-chart-card">
               <div class="la-chart-head">
                 <span class="la-chart-title">Listing visits</span>
                 <span class="la-chart-delta up">↑ +18%</span>
@@ -3663,10 +3712,10 @@
                   <div class="la-chart-stat-lbl">total</div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Leads received chart -->
-            <div class="la-chart-card">
+            <!-- <div class="la-chart-card">
               <div class="la-chart-head">
                 <span class="la-chart-title">Leads received</span>
                 <span class="la-chart-delta up">↑ +12</span>
@@ -3686,7 +3735,7 @@
                   <div class="la-chart-stat-lbl">conv. rate</div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
           </div><!-- /la-charts-row -->
 
@@ -3694,7 +3743,7 @@
           <div class="la-bottom-row">
 
             <!-- Visit sources -->
-            <div class="la-bottom-card">
+            <!-- <div class="la-bottom-card">
               <div class="la-bottom-title">Visit sources</div>
               <div class="la-source-list">
                 <div class="la-source-item">
@@ -3730,28 +3779,24 @@
                   <div class="la-source-pct">12%</div>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Leads by buyer stage -->
-            <div class="la-bottom-card">
-              <div class="la-bottom-title">Leads by buyer stage</div>
+            <!-- <div class="la-bottom-card">
+              <div class="la-bottom-title">Leads by engagement</div>
               <div class="la-stage-list">
                 <div class="la-stage-item"><span class="la-stage-dot" style="background:#6b7280"></span><span
-                    class="la-stage-name">Research</span><span class="la-stage-count">16</span></div>
+                    class="la-stage-name">Added to shortlist</span><span class="la-stage-count">0</span></div>
                 <div class="la-stage-item"><span class="la-stage-dot" style="background:#9ca3af"></span><span
-                    class="la-stage-name">Discovery</span><span class="la-stage-count">13</span></div>
+                    class="la-stage-name">Added to comparison</span><span class="la-stage-count">0</span></div>
                 <div class="la-stage-item"><span class="la-stage-dot" style="background:var(--o)"></span><span
-                    class="la-stage-name">Shortlist</span><span class="la-stage-count">10</span></div>
-                <div class="la-stage-item"><span class="la-stage-dot" style="background:#16a34a"></span><span
-                    class="la-stage-name">Demo scheduled</span><span class="la-stage-count">5</span></div>
-                <div class="la-stage-item"><span class="la-stage-dot" style="background:#111"></span><span
-                    class="la-stage-name">RFP</span><span class="la-stage-count">2</span></div>
+                    class="la-stage-name">Demo requested</span><span class="la-stage-count">0</span></div>
               </div>
-              <div class="la-stage-note">Buyer stage inferred from platform behaviour signals</div>
-            </div>
+              <div class="la-stage-note">How buyers have engaged with your listing</div>
+            </div> -->
 
             <!-- Searches that found you -->
-            <div class="la-bottom-card">
+            <!-- <div class="la-bottom-card">
               <div class="la-bottom-title">Searches that found you</div>
               <ol class="la-search-list">
                 <li class="la-search-item"><span class="la-search-num">1</span><span class="la-search-text">Applicant
@@ -3765,7 +3810,7 @@
                 <li class="la-search-item"><span class="la-search-num">5</span><span class="la-search-text">HRIS 5000+
                     employees</span></li>
               </ol>
-            </div>
+            </div> -->
 
           </div><!-- /la-bottom-row -->
 
@@ -4231,7 +4276,7 @@
             });
 
             document.getElementById('stResetEmailBtn').addEventListener('click', async function(){
-              const reset = window._lockBtn($(this));
+              const reset = window._lockBtn($(this), {spinnerColor: 'var(--t2)' });
               if (!reset) return;
 
               $('.spinner-btn-clicked').addClass('tc-spinner');
@@ -4403,6 +4448,96 @@
 
     </div><!-- /main-wrap -->
 
+<script>
+(function(){
+  var panel = document.getElementById('respondPanel');
+  var nameEl = document.getElementById('respondPanelName');
+  var metaEl = document.getElementById('respondPanelMeta');
+  var textarea = document.getElementById('respondMessageInput');
+  var sendBtn = document.getElementById('respondPanelSend');
+  var subjectInput = document.getElementById('respondSubjectInput');
+
+  var TEMPLATES = {
+    intro: "Hi {name},\n\nThanks for reaching out via Udder — great to connect.\n\nI'd love to learn more about your requirements and share how we've helped similar organisations. I have availability this week and next — happy to work around your schedule.\n\nWould a 30-minute intro call work for you?\n\nBest,",
+    demo: "Hi {name},\n\nThank you for your interest — happy to walk you through the platform in detail.\n\nI've put together a few demo slots below. Please let me know what works best:\n\n• [Date/time option 1]\n• [Date/time option 2]\n• [Date/time option 3]\n\nThe session will be tailored to your specific must-haves, so please feel free to send any prep questions in advance.\n\nLooking forward to it,",
+    'more-info': "Hi {name},\n\nThank you for your message — happy to share more detail.\n\nI'm attaching a few resources that should be directly relevant to your evaluation:\n\n• Product overview deck\n• Customer case study (similar industry/scale)\n• Feature comparison sheet\n\nI'll follow these up with a short note on how we address your specific requirements. Let me know if there's anything else you'd find useful at this stage.\n\nBest,"
+  };
+
+  window._openRespondPanel = function(leadName, leadMeta) {
+    nameEl.textContent = leadName || '—';
+    metaEl.textContent = leadMeta || '';
+    textarea.value = '';
+
+    if (subjectInput) subjectInput.value = 'Re: ' + (leadName || 'your enquiry') + ' — intro';
+
+    panel.style.right = '0';
+    setTimeout(function(){ textarea.focus(); }, 280);
+  };
+
+  function closePanel() {
+    panel.style.right = '-480px';
+  }
+
+  document.getElementById('respondPanelClose').addEventListener('click', closePanel);
+  document.getElementById('respondPanelCancel').addEventListener('click', closePanel);
+
+  document.querySelectorAll('.respond-template-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tpl = TEMPLATES[this.dataset.tpl] || '';
+      var name = (nameEl.textContent || '').split(' ')[0];
+      textarea.value = tpl.replace('{name}', window._salutationName);
+      textarea.focus();
+    });
+  });
+
+  sendBtn.addEventListener('click', async function() {
+    var msg = textarea.value.trim();
+    if (!msg) {
+      textarea.style.borderColor = '#ef4444';
+      textarea.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.08)';
+      setTimeout(function(){ textarea.style.borderColor = 'var(--b2)'; textarea.style.boxShadow = 'none'; }, 1500);
+      return;
+    }
+
+    var orig = sendBtn.innerHTML;
+    sendBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="animation:spin 0.7s linear infinite"><path d="M8 2a6 6 0 1 0 6 6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg> Sending…';
+    sendBtn.style.opacity = '0.7';
+    sendBtn.style.pointerEvents = 'none';
+   
+    const res = await fetch('/api/send-email?action=leadRespond', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            to: window._leadRespondEmail, 
+            subject: subjectInput.value.trim(),
+            body: msg,
+            fromName: `${window._user.first_name} ${window._user.last_name}`,
+            replyTo: window._user.email
+        })
+    });
+
+    const result = await res.json();
+    if (result.error){window._showToast(result.error, 'error'); return;}
+    fetch('/api/supabase?action=updateLead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: window._leadRespondId, payload: {responded: true}}),
+    });
+    sendBtn.innerHTML = orig;
+    sendBtn.style.opacity = '';
+    sendBtn.style.pointerEvents = '';
+    closePanel();
+    window._removeLead(window._leadRespondId);
+    var pill = document.getElementById('liRespondedCountPill');
+    if (pill) pill.textContent = parseInt(pill.textContent || '0', 10) + 1;
+    window._showToast('Message sent to ' + window._salutationName + '.', 'success');
+  });
+})();
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+#panel-leads-inbox { position: relative; overflow: hidden; height: 100%;}
+</style>
     <script type="module" src="../assets/js/core/vendor.js"></script>
     <script type="module">
       import { showToast, lockBtn } from '../assets/js/app.js';

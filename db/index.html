@@ -193,15 +193,15 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
 /* VENDOR CARDS */
 #vendors{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:16px 20px;align-items:stretch}
-#vendors .card{display:flex;flex-direction:column;background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:0;margin:0;height:100%;position:relative;overflow:hidden;cursor:default;transition:border-color 0.13s,box-shadow 0.13s}
+#vendors .card{display:flex;flex-direction:column;background:var(--w);border:1px solid var(--b1);border-radius:12px;padding:0;margin:0;height:100%;position:relative;overflow:hidden;cursor:default;transition:border-color 0.13s,box-shadow 0.13s;contain-intrinsic-size: auto 320px;content-visibility: auto;}
 #vendors .card:hover{border-color:var(--b);box-shadow:0 4px 20px rgba(0,0,0,0.07)}
 #vendors .card .card-header{display:flex;flex-direction:row;align-items:flex-start;gap:12px;padding:16px 16px 12px;border-bottom:1px solid var(--b1);flex-shrink:0}
 #vendors .card .card-logo{width:44px;height:44px;min-width:44px;border-radius:8px;object-fit:contain;background:var(--off);border:1px solid var(--b1);padding:5px;display:block;flex-shrink:0;margin:0}
 #vendors .card h4{font-size:16px;font-weight:700;color:var(--t1);line-height:1.25;margin:0 0 2px;letter-spacing:-0.01em;word-break:break-word}
 #vendors .card .card-header p,#vendors .card .card-header span{font-size:11px;color:var(--t3);display:block;line-height:1.35}
 #vendors .card>p{font-size:13px;color:var(--t2);padding:14px 16px 10px;margin:0;line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;flex-shrink:0}
-#vendors .card ul{list-style:none;padding:0 16px 14px;margin:0;display:flex;flex-wrap:wrap;gap:6px;flex:1}
-#vendors .card ul li{font-size:11px;font-weight:500;color:var(--t2);background:var(--off2);border:none;border-radius:20px;padding:4px 11px;display:inline-block;white-space:nowrap;margin:0;height:fit-content;}
+#vendors .card ul{list-style:none;padding:0 16px 14px;margin:0;display:flex;flex-wrap:wrap;gap:6px;flex:1;overflow:hidden;align-content:flex-start;}
+#vendors .card ul li{font-size:11px;font-weight:500;color:var(--t2);background:var(--off2);border:none;border-radius:20px;padding:4px 11px;display:inline-block;white-space:nowrap;margin:0;height:fit-content;max-width:100%; overflow:hidden; text-overflow:ellipsis;}
 #vendors .card ul li::before,#vendors .card ul li::after{display:none;content:none}
 #vendors .card .card-meta-row{display:flex;align-items:center;gap:14px;padding:9px 16px;border-top:1px solid var(--b1);flex-shrink:0}
 #vendors .card .card-meta-row .mi{display:flex;align-items:baseline;gap:3px}
@@ -1402,13 +1402,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   <div class="vd-scroll" id="vendorDetailScroll">
     <div class="vd-hero">
       <div class="vd-hero-inner">
-        <div class="vd-logo-wrap"><img class="vd-logo" id="vdLogo" src="" alt=""><div class="vd-logo-placeholder" id="vdLogoPlaceholder"></div></div>
+        <div class="vd-logo-wrap"><img class="vd-logo" id="vdLogo" src="" alt="" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'"><div class="vd-logo-placeholder" id="vdLogoPlaceholder"></div></div>
         <div class="vd-hero-text">
           <div class="vd-badges" id="vdBadges"></div>
           <h1 class="vd-name" id="vdName"></h1>
           <!-- <div class="vd-byline" id="vdByline"></div> -->
           <p class="vd-desc" id="vdDesc"></p>
-          <div class="vd-meta-row" id="vdStats"></div>
           <div class="vd-meta-row" id="vdStats"></div>
 
           <div id="vdRationale" style="display:none;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;background:rgba(15,15,15,0.04);border-radius:8px;border-left:3px solid var(--o)">
@@ -2355,7 +2354,7 @@ if(cs)cs.addEventListener('input',function(){var q=this.value.toLowerCase();docu
 /* Vendor detail panel */
 var vdPanel=document.getElementById('vendorDetail'),vdScroll=document.getElementById('vendorDetailScroll');
 async function openVendorDetail(card){
-  var name=card.dataset.name||'',modules=card.dataset.modules||'',subcats=card.dataset.subcategories||'',features=card.dataset.features||'',integrations=card.dataset.integrations||'',headcount=card.dataset.headcount||'',region=card.dataset.region||'',description=card.dataset.description||'',logoSrc=card.dataset.logo||'';
+  var name=card.dataset.name||'',categories=card.dataset.categories||'',modules=card.dataset.modules||'',subcats=card.dataset.subcategories||'',features=card.dataset.features||'',integrations=card.dataset.integrations||'',headcount=card.dataset.headcount||'',region=card.dataset.location||'',description=card.dataset.description||'',logoSrc=card.dataset.logo||'',intro=card.dataset.intro||'';
   if(!logoSrc){var li=card.querySelector('.card-logo');logoSrc=li?li.src:''}
   if(!description){var dp=card.querySelector('p');description=dp?dp.textContent.trim():''}
   var logoImg=document.getElementById('vdLogo'),logoPh=document.getElementById('vdLogoPlaceholder');
@@ -2363,7 +2362,8 @@ async function openVendorDetail(card){
   else{logoImg.style.display='none';logoPh.style.display='flex';logoPh.textContent=name.substring(0,2).toUpperCase()}
   var be=card.querySelector('.verification-badge'),bh='';
   if(be){var bt=be.textContent.trim();bh='<span class="vd-badge '+(bt.toLowerCase().indexOf('verified')!==-1?'verified':'approved')+'"><span class="vd-badge-dot"></span>'+bt+'</span>'}
-
+  if (region !== '') region = region.replaceAll(',', ' · ');
+  console.log('reg', region);
   // trending badge
   if(card.dataset.trending==='true'){
     bh+='<span class="vd-badge-pill vd-badge-trending">'+
@@ -2386,7 +2386,7 @@ async function openVendorDetail(card){
   // document.getElementById('vdByline').textContent='';
   document.getElementById('vdDesc').textContent=description;
   document.getElementById('vdTagline').textContent='\u201c'+description.split('.')[0].trim()+'.\u201d';
-  document.getElementById('vdWhatItDoes').textContent=description;
+  document.getElementById('vdWhatItDoes').textContent=intro;
   document.getElementById('vdUtTitle').textContent='Evaluating '+name+'?';
   document.getElementById('vdUtBody').textContent='Udder\u2019s independent assessment will appear here once this vendor has been reviewed by our team.';
   document.getElementById('vdUtBtn').textContent='Request intro to '+name;
@@ -2446,16 +2446,17 @@ async function openVendorDetail(card){
       });
     });
   }, 0);
-  var cats=(modules+','+subcats).split(',').map(function(c){return c.trim();}).filter(function(c,i,a){return c && a.indexOf(c)===i;});
+  var cats=(categories).split(',').map(function(c){return c.trim();}).filter(function(c,i,a){return c && a.indexOf(c)===i;});
   document.getElementById('vdCategories').innerHTML=cats.map(function(c){return'<span class="vd-chip">'+c+'</span>'}).join('');
   document.getElementById('vdCategories').innerHTML=cats.map(function(c){return'<span class="vd-chip">'+c.trim()+'</span>'}).join('');
-  var hq           = card.dataset.hq           || '';
+  var hq           = window._capitalize(card.dataset.hq)           || '';
   var founded      = card.dataset.founded      || '';
   var employees    = card.dataset.employees    || headcount || '';
   var pricing      = card.dataset.pricing      || '';
   var deployment   = card.dataset.deployment   || '';
   var languages    = card.dataset.languages    || '';
   var certifications = card.dataset.certifications || '';
+  var regions = card.dataset.location || '';
 
   var factRows = [
     { k: 'HQ',             v: hq },
@@ -2464,7 +2465,7 @@ async function openVendorDetail(card){
     { k: 'Pricing',        v: pricing },
     { k: 'Deployment',     v: deployment },
     { k: 'Languages',      v: languages },
-    { k: 'Regions',        v: region },
+    { k: 'Regions',        v: regions },
     { k: 'Certifications', v: certifications },
   ];
 
@@ -2648,6 +2649,9 @@ async function openVendorDetail(card){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ vendorId: card.dataset.id, ipAddress:  window._ipAddress}),
   });
+
+  if (!window._user || !window._user.first_name) return;
+  
   fetch('/api/supabase?action=addActivity', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -2718,7 +2722,7 @@ async function deriveMatchScore(card, filters = window._filters || []) {
 /* Card enhancer */
 function enhanceCard(card){
   if(card.dataset.enhanced)return;if(!card.querySelector('.cta.view-platform'))return;card.dataset.enhanced='1';
-  var hc=card.dataset.headcount||'—',reg=card.dataset.region||'',rc=reg?reg.split(',').filter(function(r){return r.trim()}).length:'—';
+  var hc=card.dataset.headcount||'—',reg=card.dataset.location||'',rc=reg?reg.split(',').filter(function(r){return r.trim()}).length:'—';
   var score=card.dataset.score||'';
   var meta=document.createElement('div');meta.className='card-meta-row';
   var scorePct=parseFloat(score)||0;
@@ -4683,7 +4687,7 @@ document.querySelectorAll('.st-sidenav-list a[data-stab]').forEach(function(link
 
   /* Logout */
   document.getElementById('sbLogoutBtn').addEventListener('click', async function(){
-    const reset = lockBtn($(this));
+    const reset = lockBtn($(this), {spinnerColor: 'var(--t2)' });
     if (!reset) return;
 
     showToast('Logging out...', 'neutral');
