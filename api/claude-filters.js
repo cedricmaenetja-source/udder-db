@@ -66,7 +66,7 @@ export default async function handler(req, res) {
   if (!query || typeof query !== "string" || !query.trim()) {
     return res.status(400).json({ error: "query is required" });
   }
-
+  console.log('p:', PROMPT(query.trim()));
   try {
     const response = await client.messages.create({
       model:      "claude-haiku-4-5-20251001", // fast + cheap — no need for Sonnet here

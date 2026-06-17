@@ -42,6 +42,8 @@ let searchFilters = App.searchQueries;
 let sessionId;
 let loggedIn;
 
+window.searchFilters = [];
+
 window._capitalize = function capitalize(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -132,6 +134,12 @@ function logSearchActivity(q){
   });
 }
 
+window.triggerUdderSearch = function(prompt) {
+    console.log('prompt', prompt);
+  document.getElementById('modalSearch').value = prompt;
+  document.getElementById('askAiBtn').click();
+};
+
 $(document).ready(function() {
     let compareMode = false;
     let selectedCards = new Set();
@@ -139,7 +147,7 @@ $(document).ready(function() {
     const searchInput = document.getElementById('search');
     const modal = document.getElementById('searchModal');
     const modalSearch = document.getElementById('modalSearch');
-    const results = document.getElementById('results');
+    //const results = document.getElementById('results');
     const body = document.body;
 
     // Open modal on search click
@@ -161,7 +169,7 @@ $(document).ready(function() {
     // Autocomplete filtering
     modalSearch.addEventListener('input', () => {
         const query = modalSearch.value.toLowerCase();
-        results.innerHTML = '';
+        //results.innerHTML = '';
         
         if (query.length === 0) return;
         
@@ -177,7 +185,7 @@ $(document).ready(function() {
 
             div.addEventListener('click', () => {
                 modalSearch.value = item;
-                results.innerHTML = '';
+                //results.innerHTML = '';
                 runSearch();
             });
 
@@ -698,6 +706,9 @@ async function getHistoricalSearchFilters(){
     result.data.forEach(filter => {
         searchFilters.push(filter.query);
     });
+
+    window.searchFilters = searchFilters;
+    console.log(window.searchFilters);
 }
 
 function addCategories(){
@@ -777,7 +788,7 @@ async function runSearch(){
     $('#askAiBtn').addClass('hide');
   
     //$('#search').val(value);
-    results.innerHTML = '';
+    //results.innerHTML = '';
 
     if (!loggedIn){
         const r = await checkGuestAILimit();

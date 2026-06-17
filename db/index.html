@@ -1241,29 +1241,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <div class="modal" id="searchModal">
   <div class="sm-box">
  
-   <!--
-  UDDER DB — Conversational Search Modal
-  =======================================
-  DROP-IN REPLACEMENT for the contents of .sm-box inside #searchModal.
-
-  USAGE:
-    Replace everything inside <div class="sm-box"> with this file's contents.
-    Keep the outer #searchModal + .sm-box wrappers intact so your existing
-    modal open/close JS (searchModal.classList.add('open') etc.) still works.
-
-  INTEGRATION HOOK:
-    At the end of the flow, the "Find matching HR systems" button calls
-    window.triggerUdderSearch(prompt).  Wire that up in main.js:
-
-      window.triggerUdderSearch = function(prompt) {
-        document.getElementById('modalSearch').value = prompt;
-        document.getElementById('askAiBtn').click();
-      };
-
-    Or point it at whatever AI search handler you already have.
--->
-
-<!-- ── Header ── -->
+   <!-- ── Header ── -->
 <!-- ── Header ── -->
 <div class="sm-header">
   <div class="sm-brand">
@@ -1276,13 +1254,19 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     <span class="sm-brand-sep">—</span>
     <span class="sm-brand-sub">ask anything about HR tech</span>
   </div>
-  <div class="sm-online">
-    <span class="sm-online-dot"></span>
-    <span>Online</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="udderRestartBtn" title="Start over" style="display:none;background:none;border:1px solid var(--b2);border-radius:20px;cursor:pointer;font-size:11px;font-weight:500;color:var(--t3);font-family:var(--sans);padding:4px 10px;display:none;align-items:center;gap:5px;transition:all 0.13s;" onmouseover="this.style.borderColor='var(--o)';this.style.color='var(--o)'" onmouseout="this.style.borderColor='var(--b2)';this.style.color='var(--t3)'">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 1v2.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Start over
+    </button>
+    <div class="sm-online">
+      <span class="sm-online-dot"></span>
+      <span>Online</span>
+    </div>
   </div>
 </div>
 
-<!-- ── Chat body (messages + chips all live here) ── -->
+<!-- ── Chat body ── -->
 <div class="autocomplete-results" id="udderChatBody" style="
   display: flex;
   flex-direction: column;
@@ -1293,7 +1277,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   overflow-y: auto;
 "></div>
 
-<!-- ── Chip area (outside body so it doesn't scroll away) ── -->
+<!-- ── Chip area ── -->
 <div id="udderQRArea" style="
   display: flex;
   flex-wrap: wrap;
@@ -1302,7 +1286,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   align-content: flex-start;
 "></div>
 
-<!-- ── Loader bar (kept for JS compatibility) ── -->
+<!-- ── Loader bar ── -->
 <div class="sm-loader-wrap spinner-container hide">
   <div class="sm-loader-bar"><div class="sm-loader-fill"></div></div>
   <div class="sm-loader-label">
@@ -1322,33 +1306,37 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <button id="modalClear"  type="button" style="display:none" aria-hidden="true"></button>
 
 <!-- ── Manual mode input bar ── -->
-<div id="udderManualBar" style="display:none;align-items:center;gap:8px;padding:11px 16px;border-top:1px solid var(--b1);">
-  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--t3);flex-shrink:0">
-    <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
-    <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-  </svg>
-  <input
-    id="udderManualInp"
-    type="text"
-    autocomplete="off"
-    placeholder="e.g. ATS for 2,000 headcount with UK right-to-work…"
-    style="flex:1;border:1px solid var(--b2);outline:none;border-radius:20px;padding:8px 14px;font-size:13px;font-family:var(--sans);color:var(--t1);background:var(--off);transition:border-color 0.15s;"
-    onfocus="this.style.borderColor='var(--o)';this.style.background='var(--w)'"
-    onblur="this.style.borderColor='var(--b2)';this.style.background='var(--off)'"
-  >
-  <button id="udderManualSend" style="width:34px;height:34px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.13s;" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <line x1="12" y1="19" x2="12" y2="5" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <polyline points="5,12 12,5 19,12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<div id="udderManualBar" style="display:none;flex-direction:column;border-top:1px solid var(--b1);">
+  <!-- Autocomplete suggestions -->
+  <div id="udderSuggestions" style="display:none;flex-direction:column;border-bottom:1px solid var(--b1);max-height:180px;overflow-y:auto;"></div>
+  <!-- Input row -->
+  <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--t3);flex-shrink:0">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
     </svg>
-  </button>
+    <input
+      id="udderManualInp"
+      type="text"
+      autocomplete="off"
+      placeholder="e.g. ATS for 2,000 headcount with UK right-to-work…"
+      style="flex:1;border:1px solid var(--b2);outline:none;border-radius:20px;padding:8px 14px;font-size:13px;font-family:var(--sans);color:var(--t1);background:var(--off);transition:border-color 0.15s;"
+      onfocus="this.style.borderColor='var(--o)';this.style.background='var(--w)'"
+      onblur="this.style.borderColor='var(--b2)';this.style.background='var(--off)'"
+    >
+    <button id="udderManualSend" style="width:34px;height:34px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.13s;" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <line x1="12" y1="19" x2="12" y2="5" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <polyline points="5,12 12,5 19,12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <!-- ── Footer ── -->
 <div class="sm-footer">
   <span class="sm-footer-brand">Powered by Udder AI</span>
   <div class="sm-footer-keys">
-    <kbd class="sm-kbd">↵</kbd><span>send</span>
     <span class="sm-footer-divider">·</span>
     <kbd class="sm-kbd">Esc</kbd><span>close</span>
   </div>
@@ -1466,8 +1454,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   background: var(--o); border-color: var(--o);
 }
 .uchat-picker-group-label {
-  padding: 6px 12px 3px;
-  font-size: 10px; font-weight: 700; color: var(--t3);
+  padding: 6px 12px 4px; font-size: 10px; font-weight: 700; color: var(--t3);
   text-transform: uppercase; letter-spacing: 0.08em;
   background: var(--off); border-bottom: 1px solid var(--b1);
   position: sticky; top: 0;
@@ -1489,11 +1476,22 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 }
 .uchat-picker-skip:hover { color: var(--t1); }
 .uchat-picker-none { padding: 16px 12px; font-size: 13px; color: var(--t4); text-align: center; }
-.uchat-picker-group-label {
-  padding: 6px 12px 4px; font-size: 10px; font-weight: 700; color: var(--t3);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  background: var(--off); border-bottom: 1px solid var(--b1);
+
+/* ── Autocomplete suggestions ── */
+#udderSuggestions::-webkit-scrollbar { width: 3px; }
+#udderSuggestions::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 6px; }
+.uchat-suggestion {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; cursor: pointer;
+  font-size: 13px; color: var(--t2); font-family: var(--sans);
+  transition: background 0.1s; border-bottom: 1px solid var(--b1);
 }
+.uchat-suggestion:last-child { border-bottom: none; }
+.uchat-suggestion:hover { background: var(--off); color: var(--t1); }
+.uchat-suggestion:hover .uchat-suggestion-icon { color: var(--o); }
+.uchat-suggestion-icon { color: var(--t4); flex-shrink: 0; }
+.uchat-suggestion-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uchat-suggestion-match { color: var(--o); font-weight: 600; }
 </style>
 
 <!-- ── Logic ── -->
@@ -1503,6 +1501,20 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   var state = { size:'', current:'', features:[], subcategories:[], integrations:[], geo:[], budget:'', notes:'' };
   var step = 0;
   var multiSel = [];
+
+  /* 25002500 Search filters for autocomplete (manual mode) 25002500 */
+  /* Read live from window, strip nulls and case-insensitive duplicates */
+  function getSearchFilters() {
+    var seen = {};
+    return (window.searchFilters || []).filter(function(item) {
+      var text = typeof item === 'string' ? item.trim() : (item && (item.label || item.name || item.value) || '');
+      if (!text) return false;
+      var key = text.toLowerCase();
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+  }
 
   var SUB_CATEGORIES = {
     "Attraction & Sourcing": ["Employer Branding & Career Sites","Candidate Relationship Management (CRM)","Sourcing & Recruitment Marketing","Programmatic Job Advertising"],
@@ -1518,33 +1530,44 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     "Analytics, Integration & Intelligent Layers": ["People Analytics","HR Chatbots & Virtual Assistants"]
   };
 
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
   var flow = [
     {
-      q: "How many people are in your company?",
+      qs: ["How many people are in your company?","First up — what's the headcount?","How big is the team we're finding a system for?","What's your organisation size?"],
       key: 'size', multi: false,
       opts: ['1–50','50–500','500–5,000','5,000–25,000','25,000+'],
-      follow: function(v){ return v==='500+' ? "Big org — enterprise-grade features will matter a lot." : "Perfect, that helps narrow things down."; }
+      follow: function(v){
+        if (v === '25,000+') return "That's a large enterprise — we'll focus on platforms built for scale.";
+        if (v === '5,000–25,000') return "Good size — plenty of strong mid-market and enterprise options to explore.";
+        if (v === '50–500') return pick(["Got it, that opens up a lot of solid mid-market options.","Nice — plenty of great tools in that range."]);
+        return pick(["Perfect, that helps narrow things down.","Good to know — let's keep going."]);
+      }
     },
     {
-      q: "How are you currently managing HR?",
+      qs: ["How are you currently managing HR?","What does your HR setup look like right now?","What are you working with today — any existing tools?","Before we look forward, what's the current state of play?"],
       key: 'current', multi: false,
       opts: ['Nothing / spreadsheets','Basic HRIS only','Multiple disconnected tools','Legacy on-premise system','Switching from another system'],
-      follow: function(v){ return v==='Nothing / spreadsheets' ? "Spreadsheets — classic. Lots of room to upgrade!" : "Makes sense. Let's figure out what you need next."; }
+      follow: function(v){
+        if (v === 'Nothing / spreadsheets') return pick(["Spreadsheets — classic. Plenty of room to upgrade!","Starting from scratch — that's actually a good position to be in."]);
+        if (v === 'Switching from another system') return "Switching can be tricky — we'll factor that in.";
+        if (v === 'Legacy on-premise system') return "Moving off legacy is a big step — we'll find options that make that transition smoother.";
+        return pick(["Makes sense. Let's figure out what you actually need.","Good context — now let's dig into what you're looking for."]);
+      }
     },
     {
-      q: "What does the new system need to handle? Select everything that matters.",
+      qs: ["What does the new system need to handle? Select everything that matters.","Which HR areas are you trying to cover? Pick all that apply.","What should this platform actually do for you?","What are the must-have functional areas for the new system?"],
       key: 'features', multi: true,
       opts: ['Attraction & Sourcing','Selection & Hiring','Onboarding','Core HR & Operations','Time, Pay & Benefits','Employee Engagement & Support','Expenses','Talent, Performance & Development','Engagement, Culture & Wellbeing','Mobility, Compliance & Workforce Risk','Analytics, Integration & Intelligent Layers'],
-      follow: function(){ return "Got it. Now let\u2019s get more specific."; }
+      follow: function(){ return pick(["Got it. Now let\u2019s get more specific.","Solid list. Let\u2019s drill down a bit.","Nice — now let me ask something more specific."]); }
     },
     {
-      q: "Which specific capabilities matter most to you?",
+      qs: ["Which specific capabilities matter most to you?","Let's get granular — which of these are priorities?","Within those areas, what are the critical capabilities?","Any particular features within those that are non-negotiable?"],
       key: 'subcategories', multi: true, dynamic: true,
-      getDynamicOpts: function(){ 
+      getDynamicOpts: function(){
         var opts = [];
         (state.features || []).forEach(function(f){
-          var subs = SUB_CATEGORIES[f] || [];
-          subs.forEach(function(s){ if(opts.indexOf(s) === -1) opts.push(s); });
+          (SUB_CATEGORIES[f] || []).forEach(function(s){ if(opts.indexOf(s)===-1) opts.push(s); });
         });
         return opts;
       },
@@ -1556,49 +1579,160 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         });
         return groups;
       },
-      follow: function(){ return "Perfect — that level of detail will really sharpen the recommendations."; }
+      follow: function(){ return pick(["Perfect — that level of detail will really sharpen the results.","Great — that's exactly what we need to get precise matches.","Noted. That'll make the recommendations much more targeted."]); }
     },
     {
-      q: "Any tools it absolutely needs to connect with?",
+      qs: ["Any tools it absolutely needs to connect with?","What's already in your tech stack that this needs to play nicely with?","Any must-have integrations — tools this needs to talk to?","Are there any existing platforms it has to integrate with?"],
       key: 'integrations', multi: true, searchable: true,
-      tools: [
-        'Workday','ADP','Deel','ADP Workforce Now','BambooHR','Paycom','Paylocity','Gusto','Rippling',
-        'Papaya Global','Personio','Comeet','Taleo','Namely','LinkedIn','DocuSign','Adobe Sign',
-        'Salesforce','Leapsome','Bupa','Chargebee','Zapier','Merge.dev','Greenhouse','Lever',
-        'Jobvite','iCIMS','SmartRecruiters','Workable','JazzHR','Perkbox','Gympass','Wellhub',
-        'Slack','Microsoft Teams','Google Workspace','Jira','Microsoft 365','Culture Amp','Lattice',
-        'QuickBooks','Xero','Expensify','NetSuite','Okta','OneLogin','Azure Active Directory','Zoom',
-        'GoToMeeting','Cornerstone OnDemand','Docebo','SAP SuccessFactors','SAP','Oracle HCM',
-        'Oracle','UKG (Ultimate Kronos Group)','Ceridian Dayforce','Bullhorn','JobDiva','Hireology',
-        'HiBob','Microsoft Azure AD'
-      ],
-      follow: function(){ return "Good to know — integrations can make or break a decision."; }
+      tools: ['Workday','ADP','Deel','ADP Workforce Now','BambooHR','Paycom','Paylocity','Gusto','Rippling','Papaya Global','Personio','Comeet','Taleo','Namely','LinkedIn','DocuSign','Adobe Sign','Salesforce','Leapsome','Bupa','Chargebee','Zapier','Merge.dev','Greenhouse','Lever','Jobvite','iCIMS','SmartRecruiters','Workable','JazzHR','Perkbox','Gympass','Wellhub','Slack','Microsoft Teams','Google Workspace','Jira','Microsoft 365','Culture Amp','Lattice','QuickBooks','Xero','Expensify','NetSuite','Okta','OneLogin','Azure Active Directory','Zoom','GoToMeeting','Cornerstone OnDemand','Docebo','SAP SuccessFactors','SAP','Oracle HCM','Oracle','UKG (Ultimate Kronos Group)','Ceridian Dayforce','Bullhorn','JobDiva','Hireology','HiBob','Microsoft Azure AD'],
+      follow: function(){ return pick(["Good to know — integrations can make or break a decision.","Noted — that'll help rule out anything that doesn't connect.","Useful — we'll make sure the shortlist works with your stack."]); }
     },
     {
-      q: "Where does your company operate?",
+      qs: ["Where does your company operate?","Which regions does your workforce cover?","Where are your employees based?","What geographies do you need to support?"],
       key: 'geo', multi: true,
       opts: ['Global','US','UK','EU','APAC','LATAM','MEA'],
-      follow: function(v){ return v.indexOf('Global') !== -1 ? "Global ops — you'll need strong multi-country compliance support." : "Noted. That helps narrow the compliance requirements."; }
+      follow: function(v){
+        if (v.indexOf('Global') !== -1) return pick(["Global ops — you'll need strong multi-country compliance baked in.","Worldwide footprint — compliance and localisation will be key."]);
+        return pick(["Noted. That helps narrow the compliance requirements.","Good — that shapes which vendors are actually a fit."]);
+      }
     },
     {
-      q: "What budget are you working with? (per employee / month)",
+      qs: ["What budget are you working with? (per employee / month)","Any budget guidance? Most HR tools price per employee per month.","What's the ballpark spend you're expecting?","Have you got a budget range in mind yet?"],
       key: 'budget', multi: false,
       opts: ['Under $5 / employee / month','$5–$15 / employee / month','$15–$30 / employee / month','$30+ / employee / month','Not defined yet'],
-      follow: function(){ return "Got it on budget."; }
+      follow: function(v){
+        if (v === 'Not defined yet') return "No problem — we can still find good options and flag pricing ranges.";
+        if (v === '$30+ / employee / month') return "Noted — at that range, the premium platforms are all on the table.";
+        return pick(["Got it on budget.","Good to have that in mind.","Noted — that'll help filter the shortlist."]);
+      }
     },
     {
-      q: "Last one — any deal-breakers, timeline pressure, or compliance specifics?",
+      qs: ["Last one — any deal-breakers, timeline pressure, or compliance specifics?","Almost there — anything else I should factor in?","Any must-knows before I build the recommendation? Timeline, compliance, deal-breakers?","Final question — anything that would immediately rule a vendor out?"],
       key: 'notes', multi: false, freetext: true,
-      follow: function(v){ return v ? "Got it, I'll include that too." : "No worries, we have plenty to work with."; }
+      follow: function(v){ return v ? pick(["Got it, I'll make sure that's factored in.","Noted — that's useful context.","Good to know, I'll include that in the brief."]) : pick(["No worries, we have plenty to work with.","All good — that's enough to go on."]); }
     }
   ];
 
+  flow.forEach(function(s) { if (!s.q) s.q = pick(s.qs); });
+
   /* DOM */
-  var chatBody   = document.getElementById('udderChatBody');
-  var qrArea     = document.getElementById('udderQRArea');
-  var manualBar  = document.getElementById('udderManualBar');
-  var manualInp  = document.getElementById('udderManualInp');
-  var manualSend = document.getElementById('udderManualSend');
+  var chatBody    = document.getElementById('udderChatBody');
+  var qrArea      = document.getElementById('udderQRArea');
+  var manualBar   = document.getElementById('udderManualBar');
+  var manualInp   = document.getElementById('udderManualInp');
+  var manualSend  = document.getElementById('udderManualSend');
+  var suggestBox  = document.getElementById('udderSuggestions');
+
+  /* ── Autocomplete ── */
+  var _activeSuggIdx = -1;
+
+  function highlightMatch(text, query) {
+    if (!query) return escHtml(text);
+    var idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return escHtml(text);
+    return escHtml(text.slice(0, idx)) +
+      '<span class="uchat-suggestion-match">' + escHtml(text.slice(idx, idx + query.length)) + '</span>' +
+      escHtml(text.slice(idx + query.length));
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showSuggestions(query) {
+    suggestBox.innerHTML = '';
+    _activeSuggIdx = -1;
+
+    var q = (query || '').trim();
+    var searchFilters = getSearchFilters();
+    if (!q || !searchFilters.length) {
+      suggestBox.style.display = 'none';
+      return;
+    }
+
+    var matched = searchFilters.filter(function(item) {
+      var text = typeof item === 'string' ? item : (item.label || item.name || item.value || '');
+      return text.toLowerCase().indexOf(q.toLowerCase()) !== -1;
+    }).slice(0, 6);
+
+    if (!matched.length) {
+      suggestBox.style.display = 'none';
+      return;
+    }
+
+    matched.forEach(function(item, i) {
+      var text = typeof item === 'string' ? item : (item.label || item.name || item.value || '');
+      var row = document.createElement('div');
+      row.className = 'uchat-suggestion';
+      row.dataset.idx = i;
+      row.innerHTML =
+        '<svg class="uchat-suggestion-icon" width="13" height="13" viewBox="0 0 16 16" fill="none">' +
+          '<circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>' +
+          '<line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' +
+        '</svg>' +
+        '<span class="uchat-suggestion-text">' + highlightMatch(text, q) + '</span>';
+
+      row.addEventListener('mousedown', function(e) {
+        /* mousedown instead of click so it fires before the input blur */
+        e.preventDefault();
+        selectSuggestion(text);
+      });
+
+      suggestBox.appendChild(row);
+    });
+
+    suggestBox.style.display = 'flex';
+  }
+
+  function selectSuggestion(text) {
+    manualInp.value = text;
+    suggestBox.style.display = 'none';
+    suggestBox.innerHTML = '';
+    _activeSuggIdx = -1;
+    manualInp.focus();
+  }
+
+  function hideSuggestions() {
+    suggestBox.style.display = 'none';
+    suggestBox.innerHTML = '';
+    _activeSuggIdx = -1;
+  }
+
+  function navigateSuggestions(dir) {
+    var rows = suggestBox.querySelectorAll('.uchat-suggestion');
+    if (!rows.length) return;
+    rows[_activeSuggIdx] && rows[_activeSuggIdx].classList.remove('active');
+    _activeSuggIdx = (_activeSuggIdx + dir + rows.length) % rows.length;
+    var active = rows[_activeSuggIdx];
+    active.classList.add('active');
+    active.style.background = 'var(--off)';
+    /* Preview text in input */
+    var preview = active.querySelector('.uchat-suggestion-text');
+    if (preview) manualInp.value = preview.textContent;
+  }
+
+  /* Wire input events */
+  manualInp.addEventListener('input', function() {
+    if (window._udderManualMode) showSuggestions(this.value);
+    else hideSuggestions();
+  });
+
+  manualInp.addEventListener('keydown', function(e) {
+    if (suggestBox.style.display !== 'none') {
+      if (e.key === 'ArrowDown') { e.preventDefault(); navigateSuggestions(1); return; }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); navigateSuggestions(-1); return; }
+      if (e.key === 'Escape')    { hideSuggestions(); return; }
+    }
+    if (e.key !== 'Enter') return;
+    hideSuggestions();
+    if (window._udderFreetextMode) fireFreetextManual();
+    else if (window._udderManualMode) fireManual();
+  });
+
+  manualInp.addEventListener('blur', function() {
+    /* Small delay so mousedown on a suggestion fires first */
+    setTimeout(hideSuggestions, 150);
+  });
 
   /* ── Core helpers ── */
   function scrollDown() { chatBody.scrollTop = chatBody.scrollHeight; }
@@ -1666,11 +1800,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
     if (s.searchable) {
       var selItems = Array.isArray(state[s.key]) ? state[s.key].slice() : [];
-
       var picker = document.createElement('div');
       picker.className = 'uchat-picker';
-
-      /* Search row */
       var searchRow = document.createElement('div');
       searchRow.className = 'uchat-picker-search';
       searchRow.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
@@ -1680,19 +1811,13 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       searchInp.autocomplete = 'off';
       searchRow.appendChild(searchInp);
       picker.appendChild(searchRow);
-
-      /* Tags row */
       var tagsRow = document.createElement('div');
       tagsRow.className = 'uchat-picker-tags';
       tagsRow.style.display = 'none';
       picker.appendChild(tagsRow);
-
-      /* List */
       var list = document.createElement('div');
       list.className = 'uchat-picker-list';
       picker.appendChild(list);
-
-      /* Footer */
       var footer = document.createElement('div');
       footer.className = 'uchat-picker-footer';
       var countEl = document.createElement('span');
@@ -1722,8 +1847,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           x.addEventListener('click', function() {
             selItems = selItems.filter(function(i) { return i !== name; });
             state[s.key] = selItems.slice();
-            renderTags();
-            renderList(searchInp.value);
+            renderTags(); renderList(searchInp.value);
             countEl.textContent = selItems.length + ' selected';
           });
           tag.appendChild(document.createTextNode(name));
@@ -1737,13 +1861,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         list.innerHTML = '';
         var q = (query || '').toLowerCase().trim();
         var filtered = q ? s.tools.filter(function(t) { return t.toLowerCase().indexOf(q) !== -1; }) : s.tools;
-        if (!filtered.length) {
-          var none = document.createElement('div');
-          none.className = 'uchat-picker-none';
-          none.textContent = 'No tools found';
-          list.appendChild(none);
-          return;
-        }
+        if (!filtered.length) { var none = document.createElement('div'); none.className = 'uchat-picker-none'; none.textContent = 'No tools found'; list.appendChild(none); return; }
         filtered.forEach(function(name) {
           var isSel = selItems.indexOf(name) !== -1;
           var item = document.createElement('div');
@@ -1753,15 +1871,12 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           if (isSel) check.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
           var label = document.createElement('span');
           label.textContent = name;
-          item.appendChild(check);
-          item.appendChild(label);
+          item.appendChild(check); item.appendChild(label);
           item.addEventListener('click', function() {
             var idx = selItems.indexOf(name);
-            if (idx !== -1) selItems.splice(idx, 1);
-            else selItems.push(name);
+            if (idx !== -1) selItems.splice(idx, 1); else selItems.push(name);
             state[s.key] = selItems.slice();
-            renderTags();
-            renderList(searchInp.value);
+            renderTags(); renderList(searchInp.value);
             countEl.textContent = selItems.length + ' selected';
           });
           list.appendChild(item);
@@ -1770,13 +1885,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
       searchInp.addEventListener('input', function() { renderList(this.value); });
       skipBtn2.addEventListener('click', function() { handleAnswer('No specific integrations needed', s); });
-      doneBtn.addEventListener('click', function() {
-        handleAnswer(selItems.length ? selItems.join(', ') : 'No specific integrations needed', s);
-      });
-
-      renderTags();
-      renderList('');
-
+      doneBtn.addEventListener('click', function() { handleAnswer(selItems.length ? selItems.join(', ') : 'No specific integrations needed', s); });
+      renderTags(); renderList('');
       qrArea.appendChild(picker);
       setTimeout(function() { searchInp.focus(); }, 80);
       return;
@@ -1786,28 +1896,19 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       var groups = s.getGrouped();
       var allOpts = s.getDynamicOpts();
 
-      /* Skip only if no features were selected at all */
       if (!allOpts.length) {
         state[s.key] = [];
         step++;
         if (step < flow.length) {
           showTyping();
-          setTimeout(function() {
-            removeTyping();
-            addMsg(flow[step].q, 'bot').then(function() { renderQR(flow[step]); });
-          }, 600);
-        } else {
-          setTimeout(showSummary, 400);
-        }
+          setTimeout(function() { removeTyping(); addMsg(flow[step].q, 'bot').then(function() { renderQR(flow[step]); }); }, 600);
+        } else { setTimeout(showSummary, 400); }
         return;
       }
 
       var selItems = Array.isArray(state[s.key]) ? state[s.key].slice() : [];
-
       var picker = document.createElement('div');
       picker.className = 'uchat-picker';
-
-      /* Search */
       var searchRow = document.createElement('div');
       searchRow.className = 'uchat-picker-search';
       searchRow.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
@@ -1817,19 +1918,13 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       searchInp2.autocomplete = 'off';
       searchRow.appendChild(searchInp2);
       picker.appendChild(searchRow);
-
-      /* Tags */
       var tagsRow2 = document.createElement('div');
       tagsRow2.className = 'uchat-picker-tags';
       tagsRow2.style.display = 'none';
       picker.appendChild(tagsRow2);
-
-      /* List */
       var list2 = document.createElement('div');
       list2.className = 'uchat-picker-list';
       picker.appendChild(list2);
-
-      /* Footer */
       var footer2 = document.createElement('div');
       footer2.className = 'uchat-picker-footer';
       var countEl2 = document.createElement('span');
@@ -1842,10 +1937,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       var doneBtn2 = document.createElement('button');
       doneBtn2.className = 'uchat-picker-done';
       doneBtn2.textContent = 'Done ↗';
-      footerBtns2.appendChild(skipBtn3);
-      footerBtns2.appendChild(doneBtn2);
-      footer2.appendChild(countEl2);
-      footer2.appendChild(footerBtns2);
+      footerBtns2.appendChild(skipBtn3); footerBtns2.appendChild(doneBtn2);
+      footer2.appendChild(countEl2); footer2.appendChild(footerBtns2);
       picker.appendChild(footer2);
 
       function renderTags2() {
@@ -1862,37 +1955,10 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
             renderTags2(); renderList2(searchInp2.value);
             countEl2.textContent = selItems.length + ' selected';
           });
-          tag.appendChild(document.createTextNode(name));
-          tag.appendChild(x);
+          tag.appendChild(document.createTextNode(name)); tag.appendChild(x);
           tagsRow2.appendChild(tag);
         });
         tagsRow2.style.display = selItems.length ? 'flex' : 'none';
-      }
-
-      function renderList2(query) {
-        list2.innerHTML = '';
-        var q = (query || '').toLowerCase().trim();
-
-        if (q) {
-          /* Flat filtered list when searching */
-          var filtered = allOpts.filter(function(o){ return o.toLowerCase().indexOf(q) !== -1; });
-          if (!filtered.length) {
-            var none = document.createElement('div');
-            none.className = 'uchat-picker-none';
-            none.textContent = 'No capabilities found';
-            list2.appendChild(none); return;
-          }
-          filtered.forEach(function(name){ appendItem2(name); });
-        } else {
-          /* Grouped by category */
-          groups.forEach(function(group) {
-            var lbl = document.createElement('div');
-            lbl.className = 'uchat-picker-group-label';
-            lbl.textContent = group.label;
-            list2.appendChild(lbl);
-            group.opts.forEach(function(name){ appendItem2(name); });
-          });
-        }
       }
 
       function appendItem2(name) {
@@ -1904,12 +1970,10 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         if (isSel) check.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var label = document.createElement('span');
         label.textContent = name;
-        item.appendChild(check);
-        item.appendChild(label);
+        item.appendChild(check); item.appendChild(label);
         item.addEventListener('click', function() {
           var idx = selItems.indexOf(name);
-          if (idx !== -1) selItems.splice(idx, 1);
-          else selItems.push(name);
+          if (idx !== -1) selItems.splice(idx, 1); else selItems.push(name);
           state[s.key] = selItems.slice();
           renderTags2(); renderList2(searchInp2.value);
           countEl2.textContent = selItems.length + ' selected';
@@ -1917,15 +1981,28 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
         list2.appendChild(item);
       }
 
+      function renderList2(query) {
+        list2.innerHTML = '';
+        var q = (query || '').toLowerCase().trim();
+        if (q) {
+          var filtered = allOpts.filter(function(o){ return o.toLowerCase().indexOf(q) !== -1; });
+          if (!filtered.length) { var none = document.createElement('div'); none.className = 'uchat-picker-none'; none.textContent = 'No capabilities found'; list2.appendChild(none); return; }
+          filtered.forEach(function(name){ appendItem2(name); });
+        } else {
+          groups.forEach(function(group) {
+            var lbl = document.createElement('div');
+            lbl.className = 'uchat-picker-group-label';
+            lbl.textContent = group.label;
+            list2.appendChild(lbl);
+            group.opts.forEach(function(name){ appendItem2(name); });
+          });
+        }
+      }
+
       searchInp2.addEventListener('input', function() { renderList2(this.value); });
       skipBtn3.addEventListener('click', function() { handleAnswer('No specific capabilities', s); });
-      doneBtn2.addEventListener('click', function() {
-        handleAnswer(selItems.length ? selItems.join(', ') : 'No specific capabilities', s);
-      });
-
-      renderTags2();
-      renderList2('');
-
+      doneBtn2.addEventListener('click', function() { handleAnswer(selItems.length ? selItems.join(', ') : 'No specific capabilities', s); });
+      renderTags2(); renderList2('');
       qrArea.appendChild(picker);
       setTimeout(function() { searchInp2.focus(); }, 80);
       return;
@@ -1933,7 +2010,6 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
     window._udderFreetextMode = false;
     multiSel = Array.isArray(state[s.key]) ? state[s.key].slice() : (state[s.key] ? [state[s.key]] : []);
-
     var ALL_REGIONS = ['US','UK','EU','APAC','LATAM','MEA'];
     var doneBtn;
     var chipBtns = {};
@@ -1943,42 +2019,25 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       btn.className = 'uchat-qr' + (multiSel.indexOf(opt) !== -1 ? ' sel' : '');
       btn.textContent = opt;
       chipBtns[opt] = btn;
-
       btn.addEventListener('click', function() {
         if (!s.multi) {
           state[s.key] = opt;
           handleAnswer(opt, s);
         } else {
           if (opt === 'Global') {
-            /* Toggle Global — if selecting, select all regions too */
             var isNowSel = !btn.classList.contains('sel');
             multiSel = isNowSel ? ['Global'].concat(ALL_REGIONS) : [];
             state[s.key] = multiSel.slice();
-            /* Update all chip appearances */
-            s.opts.forEach(function(o) {
-              if (chipBtns[o]) {
-                if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel');
-                else chipBtns[o].classList.remove('sel');
-              }
-            });
+            s.opts.forEach(function(o) { if (chipBtns[o]) { if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel'); else chipBtns[o].classList.remove('sel'); } });
           } else {
-            /* Toggling a region — deselect Global if active */
             var idx = multiSel.indexOf(opt);
-            if (idx !== -1) multiSel.splice(idx, 1);
-            else multiSel.push(opt);
-            /* Remove Global if not all regions selected */
+            if (idx !== -1) multiSel.splice(idx, 1); else multiSel.push(opt);
             var allSelected = ALL_REGIONS.every(function(r) { return multiSel.indexOf(r) !== -1; });
             var gIdx = multiSel.indexOf('Global');
             if (allSelected && gIdx === -1) multiSel.unshift('Global');
             if (!allSelected && gIdx !== -1) multiSel.splice(gIdx, 1);
             state[s.key] = multiSel.slice();
-            /* Sync chip appearances */
-            s.opts.forEach(function(o) {
-              if (chipBtns[o]) {
-                if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel');
-                else chipBtns[o].classList.remove('sel');
-              }
-            });
+            s.opts.forEach(function(o) { if (chipBtns[o]) { if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel'); else chipBtns[o].classList.remove('sel'); } });
           }
           if (doneBtn) doneBtn.style.display = multiSel.filter(function(v){ return v !== 'Global'; }).length ? 'inline-flex' : 'none';
         }
@@ -1994,9 +2053,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       doneBtn.addEventListener('click', function() {
         if (!multiSel.length) return;
         if (s.key === 'geo') {
-          var display = multiSel.indexOf('Global') !== -1
-            ? 'Global (US, UK, EU, APAC, LATAM, MEA)'
-            : multiSel.join(', ');
+          var display = multiSel.indexOf('Global') !== -1 ? 'Global (US, UK, EU, APAC, LATAM, MEA)' : multiSel.join(', ');
           state[s.key] = multiSel.filter(function(v){ return v !== 'Global'; });
           handleAnswer(display, s);
         } else {
@@ -2012,9 +2069,9 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   function handleAnswer(displayText, s) {
     clearQR();
     manualBar.style.display = 'none';
+    hideSuggestions();
     window._udderFreetextMode = false;
     manualInp.placeholder = 'e.g. ATS for 2,000 headcount with UK right-to-work…';
-
     addMsg(displayText, 'user').then(function() {
       setTimeout(function() {
         showTyping();
@@ -2027,14 +2084,10 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
                 showTyping();
                 setTimeout(function() {
                   removeTyping();
-                  addMsg(flow[step].q, 'bot').then(function() {
-                    renderQR(flow[step]);
-                  });
+                  addMsg(flow[step].q, 'bot').then(function() { renderQR(flow[step]); });
                 }, 600);
               }, 200);
-            } else {
-              setTimeout(showSummary, 400);
-            }
+            } else { setTimeout(showSummary, 400); }
           });
         }, 700);
       }, 100);
@@ -2046,30 +2099,26 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     showTyping();
     setTimeout(function() {
       removeTyping();
-      var features      = Array.isArray(state.features)      && state.features.length      ? state.features.join(', ')      : 'not specified';
-      var subcategories = Array.isArray(state.subcategories) && state.subcategories.length ? state.subcategories.join(', ')  : '';
+      var features      = Array.isArray(state.features)      && state.features.length      ? state.features.join(', ')     : 'not specified';
+      var subcategories = Array.isArray(state.subcategories) && state.subcategories.length ? state.subcategories.join(', ') : '';
       var integrations  = Array.isArray(state.integrations)  && state.integrations.length  ? state.integrations.join(', ')  : 'none';
       var geo           = Array.isArray(state.geo)           && state.geo.length           ? state.geo.filter(function(v){ return v !== 'Global'; }).join(', ') : (state.geo || '');
       var lines = [
-        state.size          ? '\u00b7 Company size: '         + state.size         : null,
-        state.current       ? '\u00b7 Currently using: '      + state.current      : null,
-        features !== 'not specified' ? '\u00b7 Areas needed: '  + features          : null,
-        subcategories       ? '\u00b7 Specific capabilities: ' + subcategories      : null,
-        integrations !== 'none' ? '\u00b7 Integrations: '      + integrations       : null,
-        geo                 ? '\u00b7 Geography: '             + geo                : null,
-        state.budget        ? '\u00b7 Budget: '               + state.budget       : null,
-        state.notes         ? '\u00b7 Extra notes: '          + state.notes        : null,
+        state.size      ? '\u00b7 Company size: '         + state.size    : null,
+        state.current   ? '\u00b7 Currently using: '      + state.current : null,
+        features !== 'not specified' ? '\u00b7 Areas needed: ' + features : null,
+        subcategories   ? '\u00b7 Specific capabilities: ' + subcategories : null,
+        integrations !== 'none' ? '\u00b7 Integrations: ' + integrations  : null,
+        geo             ? '\u00b7 Geography: '            + geo           : null,
+        state.budget    ? '\u00b7 Budget: '              + state.budget  : null,
+        state.notes     ? '\u00b7 Extra notes: '         + state.notes   : null,
       ].filter(Boolean).join('\n');
-
       addMsg("Here\u2019s what I\u2019ve captured:\n\n" + lines, 'bot').then(function() {
         clearQR();
         var fireBtn = document.createElement('button');
         fireBtn.className = 'uchat-qr primary';
         fireBtn.textContent = 'Find matching HR systems \u2197';
-        fireBtn.addEventListener('click', function() {
-          clearQR();
-          fireSearch(features, subcategories, integrations, geo);
-        });
+        fireBtn.addEventListener('click', function() { clearQR(); fireSearch(features, subcategories, integrations, geo); });
         qrArea.appendChild(fireBtn);
         scrollDown();
       });
@@ -2105,6 +2154,14 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
               var loaderWrap = document.querySelector('.sm-loader-wrap');
               if (loaderWrap) loaderWrap.classList.remove('hide');
             }
+            /* Show "Start a new search" chip after search fires */
+            clearQR();
+            var soBtn = document.createElement('button');
+            soBtn.className = 'uchat-qr';
+            soBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;';
+            soBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 1v2.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Start a new search';
+            soBtn.addEventListener('click', restart);
+            qrArea.appendChild(soBtn);
           }, 500);
         });
       }, 900);
@@ -2114,41 +2171,21 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   /* ── Mode selection cards ── */
   function showModeCards() {
     clearQR();
-
     var wrap = document.createElement('div');
     wrap.className = 'uchat-mode-cards';
     wrap.id = 'uchatModeCardRow';
-
     var cards = [
-      {
-        icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" stroke="var(--o)" stroke-width="1.3" stroke-linejoin="round"/></svg>',
-        title: 'Help me generate a prompt',
-        desc:  "Answer a few quick questions and I'll build the perfect search for you.",
-        mode:  'guided'
-      },
-      {
-        icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="var(--t2)" stroke-width="1.4" stroke-linecap="round"/></svg>',
-        title: "I'll write my own prompt",
-        desc:  'Type exactly what you\'re looking for directly into the search.',
-        mode:  'manual'
-      }
+      { icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" stroke="var(--o)" stroke-width="1.3" stroke-linejoin="round"/></svg>', title: 'Help me generate a prompt', desc: "Answer a few quick questions and I'll build the perfect search for you.", mode: 'guided' },
+      { icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="var(--t2)" stroke-width="1.4" stroke-linecap="round"/></svg>', title: "I'll write my own prompt", desc: "Type exactly what you're looking for directly into the search.", mode: 'manual' }
     ];
-
     cards.forEach(function(c) {
       var card = document.createElement('button');
       card.className = 'uchat-mode-card';
-      card.innerHTML =
-        '<div class="uchat-mode-card-header">' +
-          '<div style="flex-shrink:0;display:flex;align-items:center;">' + c.icon + '</div>' +
-          '<div class="uchat-mode-card-title">' + c.title + '</div>' +
-        '</div>' +
-        '<div class="uchat-mode-card-desc">' + c.desc + '</div>';
-
+      card.innerHTML = '<div class="uchat-mode-card-header"><div style="flex-shrink:0;display:flex;align-items:center;">' + c.icon + '</div><div class="uchat-mode-card-title">' + c.title + '</div></div><div class="uchat-mode-card-desc">' + c.desc + '</div>';
       card.addEventListener('click', function() {
         var mc = document.getElementById('uchatModeCardRow');
         if (mc) mc.remove();
         clearQR();
-
         if (c.mode === 'guided') {
           addMsg('Help me generate a prompt', 'user').then(function() {
             showTyping();
@@ -2157,17 +2194,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
               addMsg("Great! Let's build it together — a few quick questions.", 'bot').then(function() {
                 setTimeout(function() {
                   showTyping();
-                  setTimeout(function() {
-                    removeTyping();
-                    addMsg(flow[0].q, 'bot').then(function() {
-                      renderQR(flow[0]);
-                    });
-                  }, 600);
+                  setTimeout(function() { removeTyping(); addMsg(flow[0].q, 'bot').then(function() { renderQR(flow[0]); }); }, 600);
                 }, 200);
               });
             }, 600);
           });
-
         } else {
           addMsg("I'll write my own prompt", 'user').then(function() {
             showTyping();
@@ -2182,10 +2213,8 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
           });
         }
       });
-
       wrap.appendChild(card);
     });
-
     qrArea.appendChild(wrap);
   }
 
@@ -2195,48 +2224,82 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     if (!val) return;
     manualInp.value = '';
     manualBar.style.display = 'none';
+    hideSuggestions();
     window._udderManualMode = false;
-
     addMsg(val, 'user').then(function() {
       showTyping();
       setTimeout(function() {
         removeTyping();
         addMsg('Searching the Udder database for you now\u2026', 'bot').then(function() {
-          setTimeout(function() { fireSearch(val, val); }, 400);
+          setTimeout(function() {
+            /* Fire the raw user query directly — no structured prompt wrapping */
+            if (typeof window.triggerUdderSearch === 'function') {
+              window.triggerUdderSearch(val);
+            } else {
+              var mi = document.getElementById('modalSearch');
+              if (mi) { mi.value = val; mi.dispatchEvent(new Event('input', { bubbles: true })); }
+              var loaderWrap = document.querySelector('.sm-loader-wrap');
+              if (loaderWrap) loaderWrap.classList.remove('hide');
+            }
+          }, 400);
         });
       }, 700);
     });
   }
 
-  /* freetext step also uses the manual bar */
   function fireFreetextManual() {
     var val = manualInp.value.trim();
     if (!val) return;
     manualInp.value = '';
     manualBar.style.display = 'none';
+    hideSuggestions();
     state.notes = val;
     handleAnswer(val, flow[step]);
   }
 
-  manualInp.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter') return;
+  manualSend.addEventListener('click', function() {
+    hideSuggestions();
     if (window._udderFreetextMode) fireFreetextManual();
     else if (window._udderManualMode) fireManual();
   });
 
-  manualSend.addEventListener('click', function() {
-    if (window._udderFreetextMode) fireFreetextManual();
-    else if (window._udderManualMode) fireManual();
-  });
+  /* ── Restart ── */
+  function restart() {
+    state = { size:'', current:'', features:[], subcategories:[], integrations:[], geo:[], budget:'', notes:'' };
+    step = 0;
+    multiSel = [];
+    window._udderManualMode = false;
+    window._udderFreetextMode = false;
+    chatBody.innerHTML = '';
+    clearQR();
+    hideSuggestions();
+    if (manualBar) manualBar.style.display = 'none';
+    /* Re-roll question variants */
+    flow.forEach(function(s) { s.q = pick(s.qs); });
+    /* Hide restart button until conversation starts again */
+    var rb = document.getElementById('udderRestartBtn');
+    if (rb) rb.style.display = 'none';
+    kickOff();
+  }
+
+  var restartBtn = document.getElementById('udderRestartBtn');
+  if (restartBtn) restartBtn.addEventListener('click', restart);
 
   /* ── Kick off ── */
-  showTyping();
-  setTimeout(function() {
-    removeTyping();
-    addMsg("Hey! What are you looking for today?", 'bot').then(function() {
-      showModeCards();
-    });
-  }, 900);
+  function kickOff() {
+    showTyping();
+    setTimeout(function() {
+      removeTyping();
+      addMsg("Hey! What are you looking for today?", 'bot').then(function() {
+        showModeCards();
+        /* Show restart button now that conversation has started */
+        var rb = document.getElementById('udderRestartBtn');
+        if (rb) rb.style.display = 'inline-flex';
+      });
+    }, 900);
+  }
+
+  kickOff();
 
 })();
 </script>

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UDDER DB — Knowledge Repository</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+
+    :root {
+      --o: #f04e23;
+      --o2: #c93d18;
+      --os: rgba(240,78,35,0.08);
+      --om: rgba(240,78,35,0.15);
+      --k: #0f0f0f;
+      --k2: #1c1c1c;
+      --w: #ffffff;
+      --off: #fafaf9;
+      --off2: #f3f2ef;
+      --b1: rgba(15,15,15,0.05);
+      --b2: rgba(15,15,15,0.09);
+      --b3: rgba(15,15,15,0.16);
+      --t1: #111110;
+      --t2: #4a4a46;
+      --t3: #8a8a85;
+      --t4: #b8b8b2;
+      --sans: 'Poppins','Helvetica Neue',Arial,sans-serif;
+      --lw: 236px;
+      --th: 52px;
+    }
+
+    html, body { height: 100%; overflow: hidden; background: var(--off) }
+    body { font-family: var(--sans); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--th); z-index: 300;
+      background: var(--w); border-bottom: 1px solid var(--b1);
+      display: flex; align-items: center;
+    }
+    .tb-logo {
+      width: var(--lw); flex-shrink: 0; height: 100%;
+      display: flex; align-items: center; gap: 9px; padding: 0 18px;
+      border-right: 1px solid var(--b1);
+    }
+    .tb-wordmark { font-size: 24px; font-weight: 900; color: var(--k); letter-spacing: -0.01em; line-height: 1 }
+    .tb-wordmark span { color: var(--o) }
+    .tb-crumb {
+      display: flex; align-items: center; gap: 7px; padding: 0 18px; height: 100%;
+      border-right: 1px solid var(--b1); font-size: 12px; color: var(--t3);
+    }
+    .tb-crumb a { color: var(--t3); text-decoration: none }
+    .tb-crumb .sep { color: var(--t4); font-size: 10px }
+    .tb-crumb .cur { color: var(--t1); font-weight: 500 }
+    .tb-search {
+      flex: 1; display: flex; align-items: center; gap: 9px;
+      margin: 0 14px; padding: 0 12px; height: 32px;
+      border-radius: 7px; border: 1px solid var(--b2); background: var(--off);
+    }
+    .tb-search svg { width: 13px; height: 13px; color: var(--t3); flex-shrink: 0 }
+    .tb-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1; min-width: 0;
+    }
+    .tb-search input::placeholder { color: var(--t4) }
+    .tb-search-kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 2px 7px; border: 1px solid var(--b2); border-radius: 5px;
+      font-size: 11px; color: var(--t4); background: var(--off2); flex-shrink: 0;
+    }
+    .tb-right { display: flex; align-items: center; gap: 8px; padding-right: 16px; flex-shrink: 0 }
+    .tb-btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px;
+      border: 1px solid var(--b2); border-radius: 20px; background: transparent;
+      font-size: 12px; font-weight: 500; color: var(--t2); cursor: pointer;
+      font-family: var(--sans); transition: all 0.15s; white-space: nowrap;
+    }
+    .tb-btn:hover { border-color: var(--b3); color: var(--t1) }
+    .tb-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: var(--th); left: 0; bottom: 0; width: var(--lw);
+      background: var(--w); border-right: 1px solid var(--b1);
+      display: flex; flex-direction: column; overflow-y: auto; z-index: 200;
+      scrollbar-width: thin; scrollbar-color: rgba(15,15,15,0.15) transparent;
+    }
+    .sb-user {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-bottom: 1px solid var(--b1); cursor: pointer; transition: background 0.15s;
+    }
+    .sb-user:hover { background: var(--off) }
+    .sb-avatar {
+      width: 32px; height: 32px; background: var(--k);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--w); flex-shrink: 0;
+    }
+    .sb-uname { font-size: 13px; font-weight: 600; color: var(--t1); line-height: 1.2 }
+    .sb-urole { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600 }
+    .sb-chev { color: var(--t4); font-size: 9px; margin-left: auto }
+    .sb-sec {
+      font-size: 11px; font-weight: 700; color: var(--t3);
+      text-transform: uppercase; letter-spacing: 0.12em; padding: 16px 16px 6px;
+    }
+    .sb-nav { list-style: none; padding: 0 6px; margin-bottom: 4px }
+    .sb-nav li { margin-bottom: 1px }
+    .sb-nav a, .sb-nav button {
+      display: flex; align-items: center; gap: 9px; width: 100%;
+      padding: 7px 10px; font-size: 13px; font-weight: 500; color: var(--t2);
+      text-decoration: none; background: none; border: none; cursor: pointer;
+      font-family: var(--sans); transition: all 0.13s; border-radius: 6px;
+      border-left: 3px solid transparent;
+    }
+    .sb-nav a:hover, .sb-nav button:hover { background: var(--off); color: var(--t1) }
+    .sb-nav a.on {
+      background: #f3f3f3; color: var(--t1); font-weight: 600;
+      border-left: 3px solid var(--o); border-radius: 0 6px 6px 0;
+    }
+    .sb-nav svg { width: 14px; height: 14px; color: var(--t3); flex-shrink: 0 }
+    .sb-nav a.on svg { color: var(--o) }
+    .nb {
+      margin-left: auto; font-size: 10px; font-weight: 700; padding: 2px 7px;
+      background: var(--off2); color: var(--t3);
+    }
+    .sb-nav a.on .nb { background: var(--o); color: white }
+    .sb-div { height: 1px; background: var(--b1); margin: 6px 12px }
+    .sb-foot {
+      padding: 10px 14px; margin-top: auto;
+      border-top: 1px solid var(--b1); font-size: 10px; color: var(--t4); line-height: 1.65;
+    }
+
+    /* ── MAIN WRAP ── */
+    .main-wrap {
+      position: fixed; top: var(--th); left: var(--lw); right: 0; bottom: 0; overflow: hidden;
+    }
+
+    /* ── INTERNAL BANNER ── */
+    .internal-banner {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 24px; height: 40px;
+      margin: 30px;
+      border-radius: 8px;
+      background: var(--k); color: var(--w);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .internal-banner svg { flex-shrink: 0 }
+
+    /* ── PAGE LAYOUT ── */
+    .kr-page {
+      display: flex; flex-direction: column; height: 100%; overflow: hidden;
+    }
+    .kr-body {
+      display: grid; grid-template-columns: 320px 1fr; flex: 1; overflow: hidden; min-height: 0;
+    }
+
+    /* ── LEFT VENDOR LIST ── */
+    .kr-left {
+      border-right: 1px solid var(--b1); background: var(--w);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .kr-left-header {
+      padding: 20px 20px 14px 30px; border-bottom: 1px solid var(--b1); flex-shrink: 0;
+    }
+    .kr-left-eyebrow {
+      font-size: 10px; font-weight: 700; color: var(--o);
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px;
+    }
+    .kr-left-title {
+      font-size: 26px; font-weight: 900; color: var(--t1); letter-spacing: -0.025em; line-height: 1;
+      margin-bottom: 14px;
+    }
+    .kr-search-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; height: 36px; border: 1px solid var(--b2); border-radius: 8px;
+      background: var(--off);
+    }
+    .kr-search-bar svg { width: 13px; height: 13px; color: var(--t4); flex-shrink: 0 }
+    .kr-search-bar input {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1;
+    }
+    .kr-search-bar input::placeholder { color: var(--t4) }
+
+    .kr-vendor-section { padding: 12px 0 0 30px; }
+    .kr-vendor-section-label {
+      font-size: 10px; font-weight: 700; color: var(--t4);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      padding: 0 16px; margin-bottom: 6px;
+    }
+    .kr-vendor-list { overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: rgba(15,15,15,0.12) transparent }
+    .kr-vendor-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; cursor: pointer; transition: background 0.12s;
+      border-left: 3px solid transparent;
+    }
+    .kr-vendor-item:hover { background: var(--off) }
+    .kr-vendor-item.active { background: #fdf3f0; border-left-color: var(--o) }
+    .kr-vendor-avatar {
+      width: 32px; height: 32px; border-radius: 6px; background: var(--off2);
+      border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--t2); flex-shrink: 0;
+    }
+    .kr-vendor-name { font-size: 13px; font-weight: 600; color: var(--t1); line-height: 1.2 }
+    .kr-vendor-cat { font-size: 11px; color: var(--t3) }
+    .kr-vendor-badge {
+      margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; color: var(--t3); white-space: nowrap; flex-shrink: 0;
+    }
+    .kr-vendor-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--o); flex-shrink: 0;
+    }
+    .kr-vendor-badge .dot.approved { background: var(--k) }
+
+    /* ── RIGHT DETAIL ── */
+    .kr-right {
+      display: flex; flex-direction: column; overflow: hidden; background: var(--w);
+    }
+    .kr-right-scroll { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(15,15,15,0.12) transparent }
+
+    /* Detail header */
+    .kr-detail-header {
+      padding: 20px 28px 16px; border-bottom: 1px solid var(--b1);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+      flex-shrink: 0;
+    }
+    .kr-detail-hero { display: flex; align-items: flex-start; gap: 14px; flex: 1 }
+    .kr-detail-vendor-logo {
+      width: 52px; height: 52px; border-radius: 10px; background: var(--off2);
+      border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: var(--t2); flex-shrink: 0;
+    }
+    .kr-detail-vendor-name {
+      font-size: 32px; font-weight: 900; color: var(--t1);
+      letter-spacing: -0.025em; line-height: 1; margin-bottom: 6px;
+    }
+    .kr-detail-vendor-meta {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--t3);
+    }
+    .kr-status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; background: var(--k);
+      color: var(--w); font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .kr-status-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0 }
+    .kr-status-badge.verified { background: var(--o) }
+    .kr-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px }
+    .kr-search-btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px;
+      border: 1px solid var(--b2); border-radius: 20px; background: transparent;
+      font-size: 12px; font-weight: 500; color: var(--t2); cursor: pointer;
+      font-family: var(--sans); transition: all 0.13s;
+    }
+    .kr-search-btn:hover { border-color: var(--b3); color: var(--t1) }
+    .kr-add-note-btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 16px;
+      border: none; border-radius: 20px; background: var(--o); color: var(--w);
+      font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+      transition: background 0.13s;
+    }
+    .kr-add-note-btn:hover { background: var(--o2) }
+
+    /* Right stats sidebar */
+    .kr-detail-body { display: grid; grid-template-columns: 1fr 350px; min-height: 0; }
+    .kr-detail-main { padding: 24px 28px; display: flex; flex-direction: column; gap: 28px }
+    .kr-detail-side { border-left: 1px solid var(--b1); padding: 20px 30px; display: flex; flex-direction: column; gap: 20px }
+
+    /* Section heading */
+    .kr-section-title { font-size: 18px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 16px }
+
+    /* Notes */
+    .kr-note {
+      border-left: 3px solid var(--o); background: var(--off);
+      border-radius: 0 8px 8px 0; padding: 14px 18px; margin-bottom: 12px;
+    }
+    .kr-note:last-child { margin-bottom: 0 }
+    .kr-note-meta {
+      font-size: 10px; font-weight: 700; color: var(--t4);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .kr-note-body { font-size: 13px; color: var(--t2); line-height: 1.65 }
+
+    /* Key stakeholders */
+    .kr-stakeholder {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border: 1px solid var(--b1); border-radius: 10px;
+      margin-bottom: 10px; transition: background 0.12s;
+    }
+    .kr-stakeholder:last-child { margin-bottom: 0 }
+    .kr-stakeholder:hover { background: var(--off) }
+    .kr-stk-avatar {
+      width: 40px; height: 40px; border-radius: 8px; background: var(--k);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--w); flex-shrink: 0;
+    }
+    .kr-stk-name { font-size: 14px; font-weight: 700; color: var(--t1); margin-bottom: 2px }
+    .kr-stk-role { font-size: 12px; color: var(--t3); line-height: 1.4 }
+    .kr-stk-pref {
+      margin-left: auto; padding: 4px 12px; border-radius: 20px;
+      background: var(--off2); border: 1px solid var(--b1);
+      font-size: 11px; font-weight: 600; color: var(--t2); white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* Side: Advocacy */
+    .kr-side-eyebrow {
+      font-size: 10px; font-weight: 700; color: var(--o);
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px;
+    }
+    .kr-advocacy-score {
+      font-size: 13px; font-weight: 600; color: var(--t2); margin-bottom: 6px;
+    }
+    .kr-advocacy-bars { display: flex; gap: 3px; margin-bottom: 4px }
+    .kr-bar-seg {
+      height: 6px; flex: 1; border-radius: 2px; background: var(--o);
+    }
+    .kr-bar-seg.empty { background: var(--off2) }
+    .kr-advocacy-label { font-size: 11px; color: var(--t3) }
+
+    .kr-impl-num {
+      font-size: 52px; font-weight: 900; color: var(--t1);
+      letter-spacing: -0.04em; line-height: 1;
+    }
+    .kr-impl-label { font-size: 11px; color: var(--t3); margin-top: 2px }
+
+    /* Side metrics row */
+    .kr-side-metric-row {
+      display: flex; gap: 16px; margin-top: 0;
+    }
+    .kr-side-metric { flex: 1 }
+
+    /* Engagements */
+    .kr-engagement-item {
+      padding: 10px 0; border-bottom: 1px solid var(--b1);
+    }
+    .kr-engagement-item:last-child { border-bottom: none; padding-bottom: 0 }
+    .kr-engagement-name { font-size: 13px; font-weight: 700; color: var(--t1) }
+    .kr-engagement-meta { font-size: 12px; color: var(--t3); margin-top: 1px }
+
+    /* Partnership tags */
+    .kr-tag-list { display: flex; flex-wrap: wrap; gap: 6px }
+    .kr-tag {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .kr-tag.dark { background: var(--k); color: var(--w) }
+    .kr-tag.light { background: var(--off2); border: 1px solid var(--b1); color: var(--t2) }
+
+    /* Watch-outs */
+    .kr-watchouts {
+      background: rgba(240,78,35,0.04); border: 1px solid rgba(240,78,35,0.18);
+      border-radius: 12px; padding: 18px 20px;
+    }
+    .kr-watchouts-title {
+      font-size: 10px; font-weight: 700; color: var(--o);
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px;
+    }
+    .kr-watchouts ul { list-style: disc; padding-left: 16px; display: flex; flex-direction: column; gap: 6px }
+    .kr-watchouts li { font-size: 13px; color: var(--t2); line-height: 1.5 }
+
+    /* Placeholder section */
+    .kr-placeholder {
+      background: var(--w); border: 1px solid var(--b1); border-radius: 12px;
+      padding: 32px; text-align: center;
+    }
+    .kr-placeholder-label { font-size: 13px; color: var(--t4) }
+
+    /* Divider */
+    .kr-divider { height: 1px; background: var(--b1); margin: 4px 0 20px }
+
+    @media (max-width: 1100px) {
+      .kr-detail-body { grid-template-columns: 1fr }
+      .kr-detail-side { border-left: none; border-top: 1px solid var(--b1) }
+    }
+
+    /* ── CHANGE 1: panel switching ── */
+    .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0 }
+    .panel.active { display: flex }
+
+    /* ── CHANGE 2: verification queue styles ── */
+    .vq-page { flex: 1; overflow-y: auto; padding: 32px 36px; background: var(--w); scrollbar-width: thin }
+    .vq-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px }
+    .vq-title { font-size: 36px; font-weight: 900; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 28px }
+
+    .vq-kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; margin-bottom: 32px }
+    .vq-kpi { padding: 18px 20px; border-right: 1px solid var(--b1) }
+    .vq-kpi:last-child { border-right: none }
+    .vq-kpi-lbl { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px }
+    .vq-kpi-val { font-size: 36px; font-weight: 900; color: var(--t1); letter-spacing: -0.03em; line-height: 1 }
+    .vq-kpi-val.warn { color: var(--o) }
+    .vq-kpi-val.good { color: #16a34a }
+    .vq-kpi-val.bad  { color: #ef4444 }
+
+    .vq-tabs { display: flex; border-bottom: 1px solid var(--b1); margin-bottom: 20px }
+    .vq-tab { padding: 10px 0; margin-right: 28px; font-size: 14px; font-weight: 600; color: var(--t3); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: var(--sans); display: inline-flex; align-items: center; gap: 8px; margin-bottom: -1px }
+    .vq-tab.active { color: var(--t1); border-bottom-color: var(--o) }
+    .vq-tab-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--o); color: var(--w); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center }
+    .vq-tab-badge.grey { background: var(--off2); color: var(--t3) }
+
+    .vq-desc { font-size: 13px; color: var(--t2); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+    .vq-inline-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--b2); background: var(--w); font-size: 11px; font-weight: 700; color: var(--t1) }
+    .vq-inline-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--k); flex-shrink: 0 }
+
+    .vq-table { border: 1px solid var(--b1); border-radius: 12px; overflow: hidden }
+    .vq-table-head { display: grid; grid-template-columns: 220px 220px 1fr 120px 110px 180px; padding: 11px 20px; background: var(--off); border-bottom: 1px solid var(--b1) }
+    .vq-th { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+    .vq-row { display: grid; grid-template-columns: 220px 220px 1fr 120px 110px 180px; padding: 18px 20px; border-bottom: 1px solid var(--b1); align-items: start; transition: background 0.12s }
+    .vq-row:last-child { border-bottom: none }
+    .vq-row:hover { background: var(--off) }
+
+    .vq-product { display: flex; align-items: center; gap: 10px }
+    .vq-product-avatar { width: 34px; height: 34px; border-radius: 7px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+    .vq-product-name { font-size: 13px; font-weight: 700; color: var(--t1) }
+    .vq-product-sub { font-size: 11px; color: var(--t3) }
+    .vq-claimant-name { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 2px }
+    .vq-claimant-role { font-size: 11px; color: var(--t3); margin-bottom: 2px }
+    .vq-claimant-email { font-size: 11px; color: var(--t3) }
+    .vq-evidence { list-style: disc; padding-left: 16px; display: flex; flex-direction: column; gap: 4px }
+    .vq-evidence li { font-size: 12px; color: var(--t2) }
+    .vq-submitted { font-size: 13px; color: var(--t2) }
+
+    .vq-status-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+    .vq-status-pill.review { background: rgba(234,179,8,0.08); color: #b45309; border-color: rgba(234,179,8,0.25) }
+    .vq-status-pill.action { background: rgba(240,78,35,0.08); color: var(--o); border-color: rgba(240,78,35,0.2) }
+
+    .vq-actions { display: flex; align-items: center; gap: 8px }
+    .vq-accept-btn { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px; background: var(--o); border: none; border-radius: 20px; color: var(--w); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+    .vq-accept-btn:hover { background: var(--o2) }
+    .vq-reject-btn { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px; background: transparent; border: 1.5px solid var(--b2); border-radius: 20px; color: var(--t2); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+    .vq-reject-btn:hover { border-color: #ef4444; color: #ef4444 }
+    /* ── VERIFICATION REQUESTS TAB ── */
+.vr-layout { display: grid; grid-template-columns: 300px 1fr; flex: 1; overflow: hidden; min-height: 0 }
+/* CHANGED: moved vr-detail-top out of vr-detail, now spans full width as first row of vr-right-area */
+.vr-right-area { display: grid; grid-template-columns: 1fr 260px; grid-template-rows: auto 1fr; overflow: hidden; min-height: 0 }
+.vr-detail-top { grid-column: 1 / -1; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 28px 28px 20px; border-bottom: 1px solid var(--b1) }
+
+.vr-list { border-right: 1px solid var(--b1); overflow-y: auto; padding: 20px 0; scrollbar-width: thin }
+.vr-list-label { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.12em; padding: 0 20px; margin-bottom: 10px }
+.vr-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 0 12px 6px; cursor: pointer; border: 1px solid transparent; border-radius: 10px; transition: all 0.12s }
+.vr-item:hover { background: var(--off); border-color: var(--b1) }
+.vr-item.active { background: #fdf3f0; border-color: rgba(240,78,35,0.25) }.vr-item-avatar { width: 36px; height: 36px; border-radius: 7px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.vr-item-name { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 3px }
+.vr-item-tier { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--t3); white-space: nowrap }
+.vr-item-tier .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.vr-item-status { margin-left: auto; flex-shrink: 0 }
+.vr-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700 }
+.vr-badge.review { background: var(--o); color: var(--w) }
+.vr-badge.pending { background: var(--off2); border: 1px solid var(--b1); color: var(--t2) }
+.vr-badge.action { background: var(--k); color: var(--w) }
+.vr-badge.awaiting { background: var(--k); color: var(--w) }
+
+/* CHANGED: removed padding-top:148px, padding now uniform */
+.vr-detail { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; scrollbar-width: thin }
+
+.vr-detail-avatar { width: 52px; height: 52px; border-radius: 10px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.vr-detail-hero { display: flex; align-items: flex-start; gap: 16px; flex: 1 }
+.vr-detail-name { font-size: 28px; font-weight: 900; color: var(--t1); letter-spacing: -0.025em; line-height: 1; display: inline; margin-right: 10px }
+.vr-detail-name-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 12px; font-weight: 700; vertical-align: middle; position: relative; top: -2px }
+.vr-detail-sub { font-size: 13px; color: var(--t3) }
+.vr-detail-name-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 11px; font-weight: 700; margin-left: 10px; vertical-align: middle }
+.vr-detail-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px }
+.vr-reject-btn { height: 36px; padding: 0 18px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-reject-btn:hover { border-color: #ef4444; color: #ef4444 }
+.vr-approve-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 20px; border: none; border-radius: 20px; background: var(--o); color: var(--w); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.vr-approve-btn:hover { background: var(--o2) }
+
+.vr-tier-flow { display: flex; align-items: center; gap: 10px; margin-bottom: 4px }
+.vr-tier-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--b2); font-size: 12px; font-weight: 700; color: var(--t1) }
+.vr-tier-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.vr-tier-pill.dest { background: var(--o); border-color: var(--o); color: var(--w) }
+.vr-tier-pill.dest .dot { background: var(--w) }
+.vr-tier-arrow { font-size: 16px; color: var(--t3) }
+
+.vr-info-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-info-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 20px }
+.vr-info-row { display: grid; grid-template-columns: 150px 1fr; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--b1); align-items: center }
+.vr-info-label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+.vr-info-value { font-size: 14px; color: var(--t1); font-weight: 400 }
+.vr-info-row:last-child { border-bottom: none; padding-bottom: 0 }
+.vr-info-value.email { color: var(--o) }
+
+.vr-evidence-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-evidence-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 16px }
+.vr-evidence-list { list-style: disc; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px }
+.vr-evidence-list li { font-size: 14px; color: var(--t2) }
+.vr-download-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 18px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-download-btn:hover { border-color: var(--b3); color: var(--t1) }
+
+.vr-checklist-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-checklist-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 6px }
+.vr-checklist-desc { font-size: 13px; color: var(--t3); margin-bottom: 20px; line-height: 1.6 }
+.vr-check-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--b1) }
+.vr-check-item:last-of-type { border-bottom: none }
+.vr-check-box { width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--b2); background: var(--w); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.13s }
+.vr-check-box.checked { background: var(--o); border-color: var(--o) }
+.vr-check-label { font-size: 14px; color: var(--t2); flex: 1 }
+.vr-check-label.checked { font-weight: 700; color: var(--t1) }
+.vr-check-tick { color: #16a34a; font-size: 14px }
+.vr-progress-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; margin-bottom: 8px }
+.vr-progress-label { font-size: 13px; color: var(--t3) }
+.vr-progress-count { font-size: 13px; font-weight: 700; color: var(--t1) }
+.vr-progress-bar { height: 6px; background: var(--off2); border-radius: 3px; overflow: hidden }
+.vr-progress-fill { height: 100%; background: var(--o); border-radius: 3px; width: 43% }
+
+/* CHANGED: removed padding-top:148px */
+.vr-side { border-left: 1px solid var(--b1); padding: 28px 20px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; scrollbar-width: thin }
+.vr-side-eyebrow { font-size: 10px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px }
+.vr-side-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); appearance: auto; cursor: pointer }
+.vr-side-btn { width: 100%; height: 40px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.vr-side-btn:hover { border-color: var(--b3); background: var(--off) }
+.vr-schedule-date { font-size: 14px; font-weight: 800; color: var(--t1); margin-bottom: 10px; line-height: 1.4; word-break: break-word }
+.vr-reschedule-btn { height: 36px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-reschedule-btn:hover { border-color: var(--b3); background: var(--off) }
+.vr-note-textarea { width: 100%; min-height: 100px; padding: 10px 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); resize: vertical; line-height: 1.6; outline: none; transition: border-color 0.15s }
+.vr-note-textarea:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.vr-note-btn { width: 100%; height: 38px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.vr-note-btn:hover { border-color: var(--b3); background: var(--off) }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="tb-logo">
+    <div class="tb-wordmark">UDDER <span>DB</span></div>
+  </div>
+  <div class="tb-crumb">
+    <a href="#">Consultant</a>
+    <span class="sep">/</span>
+    <a href="#">Knowledge Repository</a>
+    <span class="sep">/</span>
+    <span class="cur">Avature</span>
+  </div>
+  <div class="tb-search">
+    <svg viewBox="0 0 16 16" fill="none">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <input type="text" placeholder="Search 340+ HR tech products…">
+    <span class="tb-search-kbd">⌘K</span>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-user">
+    <div class="sb-avatar">AO</div>
+    <div>
+      <div class="sb-uname">Alice Oduya</div>
+      <div class="sb-urole">Udder Consultant</div>
+    </div>
+    <span class="sb-chev">▾</span>
+  </div>
+
+  <div class="sb-sec">Workspace</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="#" class="nav-link on" data-panel="kr">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v2H2zM2 7h8v2H2zM2 11h5v2H2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Knowledge Repository
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="vq">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM2 13c0-2.5 2-4 6-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10 9l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Verification Queue
+        <span class="nb">7</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Client Inquiries
+        <span class="nb">2</span>
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V7l3-3 3 3 3-4 3 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Client Engagements
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Market Landscape
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-div"></div>
+
+  <div class="sb-sec">Platform</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        Back to Landing
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Account settings
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-foot">The Udder Group<br>UdderDB v0.6 · MVP</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="kr-page">
+
+    <!-- Internal banner -->
+    <div class="internal-banner">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="7" width="12" height="8" rx="1.5" stroke="white" stroke-width="1.4"/>
+        <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      INTERNAL — UDDER CONSULTANTS ONLY · NOT VISIBLE TO VENDORS OR BUYERS
+    </div>
+
+    <div class="panel active" id="panel-kr">
+
+    <!-- Body -->
+    <div class="kr-body">
+
+      <!-- LEFT: vendor list -->
+      <div class="kr-left">
+        <div class="kr-left-header">
+          <div class="kr-left-eyebrow">Knowledge Repository</div>
+          <div class="kr-left-title">Vendor intelligence</div>
+          <div class="kr-search-bar">
+            <svg viewBox="0 0 16 16" fill="none">
+              <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+              <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            <input type="text" placeholder="Filter vendors…">
+          </div>
+        </div>
+
+        <div class="kr-vendor-list">
+          <div class="kr-vendor-section">
+            <div class="kr-vendor-section-label">Verified Vendors</div>
+
+            <div class="kr-vendor-item">
+              <div class="kr-vendor-avatar">SR</div>
+              <div>
+                <div class="kr-vendor-name">SmartRecruiters</div>
+                <div class="kr-vendor-cat">Applicant Tracking (ATS)</div>
+              </div>
+              <div class="kr-vendor-badge"><span class="dot approved"></span> UDDER APPROVED</div>
+            </div>
+
+            <div class="kr-vendor-item active">
+              <div class="kr-vendor-avatar">AV</div>
+              <div>
+                <div class="kr-vendor-name">Avature</div>
+                <div class="kr-vendor-cat">Applicant Tracking (ATS)</div>
+              </div>
+              <div class="kr-vendor-badge"><span class="dot approved"></span> UDDER APPROVED</div>
+            </div>
+
+            <div class="kr-vendor-item">
+              <div class="kr-vendor-avatar">WD</div>
+              <div>
+                <div class="kr-vendor-name">Workday HCM</div>
+                <div class="kr-vendor-cat">HRIS / Core HR</div>
+              </div>
+              <div class="kr-vendor-badge"><span class="dot"></span> UDDER VERIFIED</div>
+            </div>
+
+            <div class="kr-vendor-item">
+              <div class="kr-vendor-avatar">GH</div>
+              <div>
+                <div class="kr-vendor-name">Greenhouse</div>
+                <div class="kr-vendor-cat">Applicant Tracking (ATS)</div>
+              </div>
+              <div class="kr-vendor-badge"><span class="dot"></span> UDDER VERIFIED</div>
+            </div>
+
+            <div class="kr-vendor-item">
+              <div class="kr-vendor-avatar">HB</div>
+              <div>
+                <div class="kr-vendor-name">HiBob</div>
+                <div class="kr-vendor-cat">HRIS / Core HR</div>
+              </div>
+              <div class="kr-vendor-badge"><span class="dot"></span> UDDER VERIFIED</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: detail -->
+      <div class="kr-right">
+        <div class="kr-right-scroll">
+
+          <!-- Detail header -->
+          <div class="kr-detail-header">
+            <div class="kr-detail-hero">
+              <div class="kr-detail-vendor-logo">AV</div>
+              <div>
+                <div class="kr-detail-vendor-name">Avature</div>
+                <div class="kr-detail-vendor-meta">
+                  Avature Ltd. ·
+                  <span class="kr-status-badge"><span class="dot"></span> UDDER APPROVED</span>
+                </div>
+              </div>
+            </div>
+            <div class="kr-header-actions">
+              <button class="kr-search-btn">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+                  <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+                Search
+              </button>
+              <button class="kr-add-note-btn">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <line x1="8" y1="2" x2="8" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="8" x2="14" y2="8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                + Add note
+              </button>
+            </div>
+          </div>
+
+          <!-- Two-col body -->
+          <div class="kr-detail-body">
+
+            <!-- Main column -->
+            <div class="kr-detail-main">
+
+              <!-- Internal notes -->
+              <div>
+                <div class="kr-section-title">Internal notes</div>
+
+                <div class="kr-note">
+                  <div class="kr-note-meta">Alice Oduya · 3 days ago · Tag: Negotiation</div>
+                  <div class="kr-note-body">Sales cycle is slow (avg 9 months enterprise). They heavily discount on multi-year deals — always push for 3yr commitment to unlock 20–25% off list. Watch for "success plan" add-on; it's usually negotiable to free.</div>
+                </div>
+
+                <div class="kr-note">
+                  <div class="kr-note-meta">Rachel Patel · 2 weeks ago · Tag: Implementation</div>
+                  <div class="kr-note-body">Complex global rollouts take 6–9 months. CRM module lags behind core ATS. Be wary of co-selling with their integration partners — they push towards bespoke consulting rather than leveraging Udder expertise.</div>
+                </div>
+
+                <div class="kr-note">
+                  <div class="kr-note-meta">Tom Fielding · Nov 2025 · Tag: Cultural Fit</div>
+                  <div class="kr-note-body">Strong cultural fit with people-first orgs and those undergoing global HR transformation. Less good for SMBs or orgs wanting out-of-the-box simplicity — they will over-configure.</div>
+                </div>
+              </div>
+
+              <!-- Key stakeholders -->
+              <div>
+                <div class="kr-section-title">Key stakeholders</div>
+
+                <div class="kr-stakeholder">
+                  <div class="kr-stk-avatar">DG</div>
+                  <div>
+                    <div class="kr-stk-name">Dimitri Gonzalez</div>
+                    <div class="kr-stk-role">VP Global Strategic Alliances · Warm relationship — Udder whitelisted partner</div>
+                  </div>
+                  <span class="kr-stk-pref">Prefers email</span>
+                </div>
+
+                <div class="kr-stakeholder">
+                  <div class="kr-stk-avatar">NH</div>
+                  <div>
+                    <div class="kr-stk-name">Niamh Healy</div>
+                    <div class="kr-stk-role">Sr Director Product Marketing · Main contact for demos and validation</div>
+                  </div>
+                  <span class="kr-stk-pref">Prefers Slack</span>
+                </div>
+
+                <div class="kr-stakeholder">
+                  <div class="kr-stk-avatar">BK</div>
+                  <div>
+                    <div class="kr-stk-name">Bjorn Kilpatrick</div>
+                    <div class="kr-stk-role">VP Sales EMEA · Close first, explain later — approach with clear ROI ask</div>
+                  </div>
+                  <span class="kr-stk-pref">Phone-first</span>
+                </div>
+              </div>
+
+              <!-- Placeholder for more sections -->
+              <div class="kr-placeholder">
+                <div class="kr-placeholder-label">More sections — competitive intel, product roadmap, pricing notes — coming soon</div>
+              </div>
+
+            </div>
+
+            <!-- Right sidebar -->
+            <div class="kr-detail-side">
+
+              <!-- Advocacy + Implementations -->
+              <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
+                <div>
+                  <div class="kr-side-eyebrow">Advocacy for Udder</div>
+                  <div class="kr-advocacy-bars">
+                    <div class="kr-bar-seg"></div>
+                    <div class="kr-bar-seg"></div>
+                    <div class="kr-bar-seg"></div>
+                    <div class="kr-bar-seg"></div>
+                    <div class="kr-bar-seg empty"></div>
+                  </div>
+                  <div class="kr-advocacy-label">4 / 5</div>
+                </div>
+                <div>
+                  <div class="kr-side-eyebrow">Implementations</div>
+                  <div class="kr-impl-num">5</div>
+                </div>
+              </div>
+
+              <div class="kr-divider"></div>
+
+              <!-- Recent engagements -->
+              <div>
+                <div class="kr-side-eyebrow">Recent Udder Engagements</div>
+                <div class="kr-engagement-item">
+                  <div class="kr-engagement-name">Kinetik Retail</div>
+                  <div class="kr-engagement-meta">Implementation · Completed Jan 2026</div>
+                </div>
+                <div class="kr-engagement-item">
+                  <div class="kr-engagement-name">Halcyon Finance</div>
+                  <div class="kr-engagement-meta">Selection · Completed Sept 2025</div>
+                </div>
+                <div class="kr-engagement-item">
+                  <div class="kr-engagement-name">Aurora Bio</div>
+                  <div class="kr-engagement-meta">Selection · Lost to Greenhouse, Aug 2025</div>
+                </div>
+              </div>
+
+              <div class="kr-divider"></div>
+
+              <!-- Partnership tags -->
+              <div>
+                <div class="kr-side-eyebrow">Partnership Tags</div>
+                <div class="kr-tag-list">
+                  <span class="kr-tag dark">Strategic partner</span>
+                  <span class="kr-tag light">Co-marketing</span>
+                  <span class="kr-tag light">Referral program</span>
+                  <span class="kr-tag light">Annual QBR</span>
+                </div>
+              </div>
+
+              <div class="kr-divider"></div>
+
+              <!-- Watch-outs -->
+              <div class="kr-watchouts">
+                <div class="kr-watchouts-title">Watch-outs</div>
+                <ul>
+                  <li>Over-configures when given freedom</li>
+                  <li>Slow procurement cycle for enterprise</li>
+                  <li>AI module still maturing — avoid over-promising</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /kr-right-scroll -->
+      </div><!-- /kr-right -->
+
+    </div><!-- /kr-body -->
+    </div><!-- /panel-kr -->
+
+    <!-- CHANGE 5: verification queue panel -->
+    <div class="panel" id="panel-vq">
+      <div class="vq-page">
+        <div class="vq-eyebrow">Trust &amp; Quality</div>
+        <div class="vq-title">Verification queue</div>
+
+        <div class="vq-kpi-strip">
+          <div class="vq-kpi"><div class="vq-kpi-lbl">Claims Pending</div><div class="vq-kpi-val">4</div></div>
+          <div class="vq-kpi"><div class="vq-kpi-lbl">Verified Requests</div><div class="vq-kpi-val">4</div></div>
+          <div class="vq-kpi"><div class="vq-kpi-lbl">In Review</div><div class="vq-kpi-val">1</div></div>
+          <div class="vq-kpi"><div class="vq-kpi-lbl">Action Needed</div><div class="vq-kpi-val warn">1</div></div>
+          <div class="vq-kpi"><div class="vq-kpi-lbl">Approved (30d)</div><div class="vq-kpi-val good">5</div></div>
+          <div class="vq-kpi"><div class="vq-kpi-lbl">Rejected (30d)</div><div class="vq-kpi-val bad">2</div></div>
+        </div>
+
+        <div class="vq-tabs">
+          <button class="vq-tab active" id="tab-claims" onclick="switchVqTab('claims')">Platform claims <span class="vq-tab-badge">4</span></button>
+          <button class="vq-tab" id="tab-verif" onclick="switchVqTab('verif')">Verification requests (Udder Verified / Approved) <span class="vq-tab-badge grey">4</span></button>
+        </div>
+
+        <div class="vq-desc">
+          Vendors who have claimed an AI-generated listing and submitted updates. Review and accept or reject to upgrade to
+          <span class="vq-inline-badge"><span class="dot"></span> VENDOR OWNED</span>.
+        </div>
+
+        <div class="vq-table">
+          <div class="vq-table-head">
+            <span class="vq-th">Product</span>
+            <span class="vq-th">Claimed by</span>
+            <span class="vq-th">Evidence submitted</span>
+            <span class="vq-th">Submitted</span>
+            <span class="vq-th">Status</span>
+            <span class="vq-th">Actions</span>
+          </div>
+
+          <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">HB</div><div><div class="vq-product-name">HiBob</div><div class="vq-product-sub">Hi Bob Ltd.</div></div></div>
+            <div><div class="vq-claimant-name">Yael Cohen</div><div class="vq-claimant-role">Head of Partnerships</div><div class="vq-claimant-email">yael.cohen@hibob.com</div></div>
+            <ul class="vq-evidence"><li>Updated product description</li><li>Confirmed HQ and founding date</li><li>Added 3 integration partners</li></ul>
+            <div class="vq-submitted">2 hours ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+              <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+              <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+          </div>
+
+          <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">LT</div><div><div class="vq-product-name">Lattice</div><div class="vq-product-sub">Lattice</div></div></div>
+            <div><div class="vq-claimant-name">Devon Park</div><div class="vq-claimant-role">Sr. Partner Marketing Manager</div><div class="vq-claimant-email">devon@lattice.com</div></div>
+            <ul class="vq-evidence"><li>Confirmed all categories</li><li>Updated pricing model</li><li>Added 5 named customers</li></ul>
+            <div class="vq-submitted">1 day ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+              <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+              <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+          </div>
+
+          <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">DL</div><div><div class="vq-product-name">Deel</div><div class="vq-product-sub">Deel</div></div></div>
+            <div><div class="vq-claimant-name">Sofia Martins</div><div class="vq-claimant-role">Partner Enablement Lead</div><div class="vq-claimant-email">sofia.martins@deel.com</div></div>
+            <ul class="vq-evidence"><li>Confirmed global payroll capabilities</li><li>Updated regions and language count</li></ul>
+            <div class="vq-submitted">3 days ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+              <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+              <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+          </div>
+
+          <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">RP</div><div><div class="vq-product-name">Rippling</div><div class="vq-product-sub">Rippling Inc.</div></div></div>
+            <div><div class="vq-claimant-name">Marcus Webb</div><div class="vq-claimant-role">Channel Partnerships</div><div class="vq-claimant-email">marcus@rippling.com</div></div>
+            <ul class="vq-evidence"><li>Added feature capabilities list</li><li>Uploaded logo and brand assets</li><li>Confirmed pricing tiers</li></ul>
+            <div class="vq-submitted">5 days ago</div>
+            <div><span class="vq-status-pill review">In review</span></div>
+            <div class="vq-actions">
+              <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+              <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Verification requests view (hidden by default) -->
+        <div id="vq-verif-view" style="display:none;flex:1;overflow:hidden;min-height:0">
+          <div class="vr-layout">
+
+            <!-- Left list -->
+            <div class="vr-list">
+              <div class="vr-list-label">Requests</div>
+
+              <div class="vr-item active" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">SR</div>
+                <div>
+                  <div class="vr-item-name">SmartRecruiters</div>
+                  <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge review">In review</span></div>
+              </div>
+
+              <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">DL</div>
+                <div>
+                  <div class="vr-item-name">Deel</div>
+                  <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge pending">Pending</span></div>
+              </div>
+
+              <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">LT</div>
+                <div>
+                  <div class="vr-item-name">Lattice</div>
+                  <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge action">Action needed</span></div>
+              </div>
+
+              <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">HB</div>
+                <div>
+                  <div class="vr-item-name">HiBob</div>
+                  <div class="vr-item-tier"><span class="dot" style="background:var(--k)"></span> UDDER APPROVED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge awaiting">Awaiting refs</span></div>
+              </div>
+            </div>
+
+            <!-- CHANGED: vr-right-area now wraps both vr-detail-top (full-width header) + vr-detail + vr-side -->
+            <div class="vr-right-area">
+
+              <!-- Full-width header row spanning both detail and sidebar columns -->
+              <div class="vr-detail-top">
+                <div class="vr-detail-hero">
+                  <div class="vr-detail-avatar">SR</div>
+                  <div>
+                    <div style="margin-bottom:4px">
+                      <span class="vr-detail-name">SmartRecruiters</span>
+                      <span class="vr-detail-name-badge">In review</span>
+                    </div>
+                    <div class="vr-detail-sub" style="margin-bottom:12px">SmartRecruiters, Inc.</div>
+                    <div class="vr-tier-flow">
+                      <span class="vr-tier-pill"><span class="dot"></span> VENDOR OWNED</span>
+                      <span class="vr-tier-arrow">→</span>
+                      <span class="vr-tier-pill dest"><span class="dot"></span> UDDER VERIFIED</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="vr-detail-actions">
+                  <button class="vr-reject-btn">Reject</button>
+                  <button class="vr-approve-btn">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Approve tier upgrade
+                  </button>
+                </div>
+              </div>
+
+              <!-- Centre detail (vr-detail-top has been moved out above) -->
+              <div class="vr-detail">
+
+                <div class="vr-info-card">
+                  <div class="vr-info-title">Requestor</div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Contact</div>
+                    <div class="vr-info-value">Niamh Healy</div>
+                  </div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Title</div>
+                    <div class="vr-info-value">Sr Director Product Marketing</div>
+                  </div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Email</div>
+                    <div class="vr-info-value email">niamh@smartrecruiters.com</div>
+                  </div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Submitted</div>
+                    <div class="vr-info-value">2 days ago</div>
+                  </div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Assigned to</div>
+                    <div class="vr-info-value">Rachel Patel</div>
+                  </div>
+                  <div class="vr-info-row">
+                    <div class="vr-info-label">Demo scheduled</div>
+                    <div class="vr-info-value">Fri 3 May 2026, 2pm BST</div>
+                  </div>
+                </div>
+
+                <div class="vr-evidence-card">
+                  <div class="vr-evidence-title">Evidence submitted</div>
+                  <ul class="vr-evidence-list">
+                    <li>60-min capability walkthrough video</li>
+                    <li>12 feature claims with screenshots</li>
+                    <li>3 validated customer references</li>
+                  </ul>
+                  <button class="vr-download-btn">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Download all evidence
+                  </button>
+                </div>
+
+                <div class="vr-checklist-card">
+                  <div class="vr-checklist-title">Validation checklist</div>
+                  <div class="vr-checklist-desc">Check off each item as you complete validation. All items must be ticked before approving.</div>
+
+                  <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Listing completeness verified</div>
+                    <span class="vr-check-tick">✓</span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Demo video reviewed</div>
+                    <span class="vr-check-tick">✓</span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Core ATS features validated</div>
+                    <span class="vr-check-tick">✓</span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">CRM capabilities validated</div>
+                    <span></span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Onboarding module validated</div>
+                    <span></span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Integration claims checked</div>
+                    <span></span>
+                  </div>
+                  <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Customer references validated</div>
+                    <span></span>
+                  </div>
+
+                  <div class="vr-progress-row">
+                    <span class="vr-progress-label">Progress</span>
+                    <span class="vr-progress-count">3/7 complete</span>
+                  </div>
+                  <div class="vr-progress-bar"><div class="vr-progress-fill"></div></div>
+                </div>
+
+              </div>
+
+              <!-- Right sidebar -->
+              <div class="vr-side" style="padding: 28px 0px;">
+
+                <div style="
+                  background: var(--w);
+                  border: 1px solid var(--b1);
+                  border-radius: 12px;
+                  padding: 24px;">
+                  <div class="vr-side-eyebrow">Assign Consultant</div>
+                  <select class="vr-side-select">
+                    <option>Rachel Patel</option>
+                    <option>Alice Oduya</option>
+                    <option>Tom Fielding</option>
+                  </select>
+                  <button class="vr-side-btn">Save assignment</button>
+                </div>
+
+                <div style="
+                  background: var(--w);
+                  border: 1px solid var(--b1);
+                  border-radius: 12px;
+                  padding: 24px;">
+                  <div class="vr-side-eyebrow">Schedule Demo</div>
+                  <div class="vr-schedule-date">Fri 3 May 2026, 2pm BST</div>
+                  <button class="vr-reschedule-btn">Reschedule</button>
+                </div>
+
+                <div style="
+                  background: var(--w);
+                  border: 1px solid var(--b1);
+                  border-radius: 12px;
+                  padding: 24px;">
+                  <div class="vr-side-eyebrow">Internal Note</div>
+                  <textarea class="vr-note-textarea" placeholder="Add a note for the team..."></textarea>
+                  <button class="vr-note-btn">Add note</button>
+                </div>
+
+              </div>
+            </div><!-- /vr-right-area -->
+
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /panel-vq -->
+
+  </div><!-- /kr-page -->
+</div><!-- /main-wrap -->
+
+<!-- CHANGE 6: panel switching script -->
+<script>
+  document.querySelectorAll('.nav-link[data-panel]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('on'); });
+      this.classList.add('on');
+      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+      var panel = document.getElementById('panel-' + this.dataset.panel);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.vq-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.vq-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  function switchVqTab(tab) {
+    document.getElementById('tab-claims').classList.toggle('active', tab === 'claims');
+    document.getElementById('tab-verif').classList.toggle('active', tab === 'verif');
+    var claimsView = document.querySelector('.vq-desc');
+    var tableView = document.querySelector('.vq-table');
+    var verifView = document.getElementById('vq-verif-view');
+    // toggle platform claims elements
+    [claimsView, tableView].forEach(function(el) {
+      if (el) el.style.display = tab === 'claims' ? '' : 'none';
+    });
+    verifView.style.display = tab === 'verif' ? 'flex' : 'none';
+  }
+
+  function selectVrItem(el) {
+    document.querySelectorAll('.vr-item').forEach(function(i) { i.classList.remove('active'); });
+    el.classList.add('active');
+  }
+
+  function toggleCheck(box) {
+    var isChecked = box.classList.toggle('checked');
+    var label = box.nextElementSibling;
+    var tick = label.nextElementSibling;
+    label.classList.toggle('checked', isChecked);
+    box.innerHTML = isChecked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+    if (tick) tick.textContent = isChecked ? '✓' : '';
+    // update progress
+    var card = box.closest('.vr-checklist-card');
+    var total = card.querySelectorAll('.vr-check-box').length;
+    var done = card.querySelectorAll('.vr-check-box.checked').length;
+    card.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
+    card.querySelector('.vr-progress-fill').style.width = Math.round((done/total)*100) + '%';
+  }
+</script>
+
+</body>
+</html>
