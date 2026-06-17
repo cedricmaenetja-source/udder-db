@@ -18,9 +18,9 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-    const session = await requireAuth(req, res);
-    if (!session) return;
-    
+    // const session = await requireAuth(req, res);
+    // if (!session) return;
+
     const { action, vendorId, userId, referenceId } = req.query;
 
     const VALID_ACTIONS = [
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
     if (action === 'getVendorViews') return await getVendorViews(res, vendorId);
     if (action === 'getVendorScreenshots') return await getVendorScreenshots(res, vendorId);
     if (action === 'GetVendorsForClaiming') return await GetVendorsForClaiming(res);
-    if (action === 'getTopVendors') return await getTopVendors(res);
+    if (action === 'getTopVendors') return await getTopVendors(res, vendorId);
     if (action === 'getEvaluations') return await getEvaluations(res, vendorId, userId);
     if (action === 'getNotificationPrefs') return await getNotificationPrefs(res, userId);
     if (action === 'getAllEvaluations') return await getAllEvaluations(res, userId);
@@ -1763,10 +1763,11 @@ async function addComparison(res, vendorId, userId){
     return res.status(200).json({ data });
 }
 
-async function getTopVendors(res) {
+async function getTopVendors(res, id) {
     const { data, error } = await supabase
         .from('tblactivities')
-        .select('vendor_id');
+        .select('vendor_id')
+        .neq('vendor_id', id);
 
     if (error) {
         return res.status(500).json({

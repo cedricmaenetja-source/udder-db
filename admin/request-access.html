@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Request Admin Access — UDDER DB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --w:#ffffff;--off:#fafaf9;
+  --b1:rgba(15,15,15,0.06);--b2:rgba(15,15,15,0.12);--b3:rgba(15,15,15,0.22);
+  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
+  --display:'Poppins',sans-serif;--body:'Inter',sans-serif;
+  --admin:#1a1a2e;--admin2:#16213e;--admin3:#0f0f20;
+  --accent:#e94560;--accent2:#c73550;
+}
+html,body{min-height:100%;background:var(--admin3)}
+body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+
+/* ── LEFT ── */
+.left{
+  width:46%;max-width:560px;flex-shrink:0;
+  background:var(--admin);
+  display:flex;flex-direction:column;
+  padding:44px 48px;
+  position:relative;overflow:hidden;
+}
+.left-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(233,69,96,0.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(233,69,96,0.055) 1px,transparent 1px);
+  background-size:36px 36px;pointer-events:none;
+}
+.left-glow-top{
+  position:absolute;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(233,69,96,0.13) 0%,transparent 70%);
+  top:-100px;left:-80px;pointer-events:none;
+}
+.left-glow-btm{
+  position:absolute;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(26,26,80,0.5) 0%,transparent 70%);
+  bottom:-60px;right:-60px;pointer-events:none;
+}
+.brand{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--display);font-size:20px;font-weight:900;
+  color:var(--w);letter-spacing:-0.03em;text-transform:uppercase;
+  margin-bottom:auto;
+}
+.brand-name span{color:var(--accent)}
+.admin-badge{
+  font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.3);
+  color:var(--accent);border-radius:4px;padding:3px 7px;font-family:var(--body);
+}
+
+.left-body{
+  position:relative;z-index:2;
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:40px 0 20px;
+}
+.left-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(233,69,96,0.7);margin-bottom:14px;
+}
+.left-headline{
+  font-family:var(--display);font-size:clamp(26px,3.2vw,42px);font-weight:900;
+  color:var(--w);letter-spacing:-0.03em;line-height:1.02;
+  text-transform:uppercase;margin-bottom:22px;
+}
+.left-headline em{font-style:normal;color:var(--accent)}
+.left-divider{width:40px;height:2px;background:rgba(233,69,96,0.4);border-radius:1px;margin-bottom:24px;}
+
+/* process steps */
+.process-steps{display:flex;flex-direction:column;gap:0;}
+.process-step{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.process-step:last-child{border-bottom:none;}
+.step-num-wrap{position:relative;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.step-num{
+  width:28px;height:28px;border-radius:50%;
+  border:1.5px solid rgba(233,69,96,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:11px;font-weight:800;
+  color:var(--accent);flex-shrink:0;
+}
+.step-connector{width:1px;height:100%;background:rgba(233,69,96,0.15);margin-top:6px;flex:1;min-height:14px;}
+.process-step:last-child .step-connector{display:none;}
+.process-step-text{padding-top:4px;}
+.process-step-text strong{display:block;font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);margin-bottom:3px;}
+.process-step-text p{font-size:12px;color:rgba(255,255,255,0.38);line-height:1.5;}
+
+.left-footer{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:28px;border-top:1px solid rgba(255,255,255,0.07);
+  margin-top:auto;
+}
+.left-footer-link{font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.15s;}
+.left-footer-link:hover{color:rgba(255,255,255,0.6)}
+.left-footer-sep{color:rgba(255,255,255,0.15);font-size:12px}
+
+/* ── RIGHT ── */
+.right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px;overflow-y:auto;background:var(--w);
+}
+.form-card{width:100%;max-width:420px;}
+
+/* panels */
+.panel{display:none;}
+.panel.active{display:block;animation:fadeUp 0.28s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.form-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px;
+}
+.form-title{
+  font-family:var(--display);font-size:clamp(20px,2.5vw,27px);font-weight:800;
+  color:var(--t1);letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px;
+}
+.form-sub{font-size:13.5px;color:var(--t3);line-height:1.55;margin-bottom:28px;}
+.form-sub a{color:var(--accent);text-decoration:none;font-weight:500;}
+.form-sub a:hover{color:var(--accent2);}
+
+/* inputs */
+.form-group{margin-bottom:18px;}
+.form-label{
+  display:block;font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;
+}
+.req{color:var(--accent);margin-left:2px}
+.form-input{
+  width:100%;height:47px;padding:0 14px;
+  border:1.5px solid var(--b2);border-radius:9px;
+  background:var(--w);font-size:14px;color:var(--t1);
+  font-family:var(--body);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.form-input::placeholder{color:var(--t4)}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(233,69,96,0.09)}
+.form-input:hover:not(:focus){border-color:var(--b3)}
+.form-input.error-field{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.09)}
+.field-error{font-size:11px;color:#ef4444;margin-top:5px;min-height:16px;}
+
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+textarea.form-input{
+  height:90px;padding:12px 14px;resize:none;line-height:1.5;
+}
+
+/* role pills */
+.role-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+.role-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border:1.5px solid var(--b2);border-radius:999px;
+  font-size:13px;font-weight:500;color:var(--t2);background:var(--w);
+  cursor:pointer;transition:all 0.15s;user-select:none;white-space:nowrap;
+}
+.role-pill:hover{border-color:var(--b3);color:var(--t1)}
+.role-pill.selected{background:var(--admin);border-color:var(--admin);color:var(--w);}
+
+/* urgency select */
+.select-wrap{position:relative;}
+.select-wrap select{
+  width:100%;height:47px;padding:0 36px 0 14px;
+  border:1.5px solid var(--b2);border-radius:9px;
+  background:var(--w);font-size:14px;color:var(--t1);
+  font-family:var(--body);outline:none;appearance:none;cursor:pointer;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.select-wrap select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(233,69,96,0.09)}
+.select-wrap::after{
+  content:'';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:0;height:0;
+  border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:5px solid var(--t3);pointer-events:none;
+}
+
+/* justification notice */
+.info-note{
+  display:flex;align-items:flex-start;gap:9px;
+  background:rgba(233,69,96,0.04);border:1.5px solid rgba(233,69,96,0.13);
+  border-radius:8px;padding:11px 13px;margin-bottom:22px;
+}
+.info-note svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px;}
+.info-note p{font-size:12px;color:var(--t2);line-height:1.5;}
+
+/* submit btn */
+.btn-primary{
+  width:100%;height:50px;background:var(--admin);border:none;border-radius:999px;
+  color:var(--w);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:var(--body);transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;
+}
+.btn-primary:hover{background:var(--admin2);transform:translateY(-1px);box-shadow:0 4px 18px rgba(26,26,46,0.3)}
+.btn-primary:active{transform:none;box-shadow:none}
+.btn-primary:disabled{background:var(--b2);color:var(--t4);cursor:default;transform:none;box-shadow:none}
+.btn-primary svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.form-bottom{text-align:center;font-size:12.5px;color:var(--t4);}
+.form-bottom a{color:var(--t2);text-decoration:none;font-weight:500;}
+.form-bottom a:hover{color:var(--t1);}
+
+/* ── SUCCESS STATE ── */
+.success-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:16px 0 8px;
+}
+.success-icon-ring{
+  width:72px;height:72px;border-radius:50%;
+  border:2px solid rgba(233,69,96,0.2);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:6px;
+  animation:ripple 2s ease-in-out infinite;
+}
+@keyframes ripple{
+  0%,100%{box-shadow:0 0 0 0 rgba(233,69,96,0.15)}
+  50%{box-shadow:0 0 0 12px rgba(233,69,96,0)}
+}
+.success-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(233,69,96,0.1);
+  display:flex;align-items:center;justify-content:center;
+  animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+.success-icon svg{width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.success-ref{
+  display:inline-block;margin:16px 0 20px;
+  font-family:var(--display);font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  background:rgba(233,69,96,0.06);border:1.5px solid rgba(233,69,96,0.18);
+  color:var(--accent);border-radius:6px;padding:5px 14px;
+}
+.success-wrap h3{
+  font-family:var(--display);font-size:22px;font-weight:800;
+  color:var(--t1);letter-spacing:-0.02em;margin-bottom:10px;
+}
+.success-wrap p{font-size:13.5px;color:var(--t3);line-height:1.6;margin-bottom:28px;max-width:340px;}
+
+.success-timeline{
+  width:100%;background:var(--off);border:1.5px solid var(--b1);
+  border-radius:10px;padding:16px 18px;margin-bottom:28px;text-align:left;
+}
+.timeline-row{display:flex;align-items:center;gap:12px;padding:8px 0;}
+.timeline-row+.timeline-row{border-top:1px solid var(--b1);}
+.timeline-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.timeline-dot.done{background:var(--accent);}
+.timeline-dot.pending{background:var(--b3);}
+.timeline-label{font-size:12.5px;color:var(--t2);flex:1;}
+.timeline-label span{font-weight:600;color:var(--t1);}
+.timeline-time{font-size:11px;color:var(--t4);}
+
+.btn-back-login{
+  display:inline-flex;align-items:center;gap:6px;
+  height:46px;padding:0 24px;
+  background:var(--off);border:1.5px solid var(--b2);border-radius:999px;
+  color:var(--t2);font-size:13.5px;font-weight:600;cursor:pointer;
+  font-family:var(--body);transition:all 0.15s;text-decoration:none;
+}
+.btn-back-login:hover{border-color:var(--b3);color:var(--t1);}
+.btn-back-login svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+
+@media(max-width:900px){.left{display:none}.right{padding:32px 24px;align-items:flex-start;padding-top:48px}}
+@media(max-width:480px){.right{padding:24px 16px}.form-row-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-grid"></div>
+  <div class="left-glow-top"></div>
+  <div class="left-glow-btm"></div>
+
+  <div class="brand">
+    <span class="brand-name">Udder<span>DB</span></span>
+    <span class="admin-badge">Admin</span>
+  </div>
+
+  <div class="left-body">
+    <div class="left-eyebrow">Access request</div>
+    <div class="left-headline">What<br>happens <em>next</em></div>
+    <div class="left-divider"></div>
+
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num-wrap">
+          <div class="step-num">1</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="process-step-text">
+          <strong>You submit this form</strong>
+          <p>Your details and justification are sent to the UdderDB admin team for review.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num-wrap">
+          <div class="step-num">2</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="process-step-text">
+          <strong>We verify your identity</strong>
+          <p>We cross-check your organisation and role. This usually takes 1–2 business days.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num-wrap">
+          <div class="step-num">3</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="process-step-text">
+          <strong>Credentials arrive by email</strong>
+          <p>If approved, you'll receive a secure setup link valid for 24 hours.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num-wrap">
+          <div class="step-num">4</div>
+        </div>
+        <div class="process-step-text">
+          <strong>You set your password</strong>
+          <p>Follow the link to create your password and complete two-step verification.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    <a class="left-footer-link" href="#">Privacy policy</a>
+    <span class="left-footer-sep">·</span>
+    <a class="left-footer-link" href="#">Terms of use</a>
+    <span class="left-footer-sep">·</span>
+    <a class="left-footer-link" href="#">Support</a>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="form-card">
+
+    <!-- ── FORM PANEL ── -->
+    <div class="panel active" id="formPanel">
+
+      <div class="form-eyebrow">Request access</div>
+      <h1 class="form-title">Admin credential request</h1>
+      <p class="form-sub">Already have credentials? <a href="login.html">Sign in →</a></p>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="fname">First name <span class="req">*</span></label>
+          <input class="form-input" type="text" id="fname" placeholder="Alice" autocomplete="given-name">
+          <div class="field-error" id="fnameErr"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lname">Last name <span class="req">*</span></label>
+          <input class="form-input" type="text" id="lname" placeholder="Smith" autocomplete="family-name">
+          <div class="field-error" id="lnameErr"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="workemail">Work email <span class="req">*</span></label>
+        <input class="form-input" type="email" id="workemail" placeholder="alice@yourorg.co.uk" autocomplete="email">
+        <div class="field-error" id="workemailErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="jobtitle">Job title <span class="req">*</span></label>
+        <input class="form-input" type="text" id="jobtitle" placeholder="e.g. Head of HR Technology">
+        <div class="field-error" id="jobtitleErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Admin role requested <span class="req">*</span></label>
+        <div class="role-group" id="roleGroup">
+          <button class="role-pill" data-val="super-admin" type="button">Super Admin</button>
+          <button class="role-pill selected" data-val="content-admin" type="button">Content Admin</button>
+          <button class="role-pill" data-val="vendor-admin" type="button">Vendor Admin</button>
+          <button class="role-pill" data-val="read-only" type="button">Read-only</button>
+        </div>
+        <div class="field-error" id="roleErr"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <span style="display:flex;align-items:center;justify-content:space-between">
+            Urgency
+          </span>
+        </label>
+        <div class="select-wrap">
+          <select id="urgency">
+            <option value="standard" selected>Standard — within 2 business days</option>
+            <option value="urgent">Urgent — within 24 hours</option>
+            <option value="flexible">Flexible — no rush</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="justification">Why do you need admin access? <span class="req">*</span></label>
+        <div class="info-note">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5.5v.5"/></svg>
+          <p>Be specific — vague requests are declined. Mention your team, the tasks you'll perform, and who referred you if applicable.</p>
+        </div>
+        <textarea class="form-input" id="justification" placeholder="e.g. I manage vendor data for the UdderDB content team and need to update listings, resolve duplicate entries, and review flagged reviews…" style="height:110px;resize:none;padding:12px 14px;line-height:1.55"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+          <div class="field-error" id="justificationErr" style="margin-top:0"></div>
+          <span id="charCount" style="font-size:11px;color:var(--t4);margin-left:auto">0 / 500</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="submitBtn" type="button">
+        <span id="submitLabel">Submit request</span>
+        <div class="spinner" id="submitSpinner"></div>
+        <svg id="submitArrow" viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+      </button>
+
+      <div class="form-bottom">
+        <a href="login.html">← Back to login</a>
+      </div>
+
+    </div>
+
+    <!-- ── SUCCESS PANEL ── -->
+    <div class="panel" id="successPanel">
+      <div class="success-wrap">
+
+        <div class="success-icon-ring">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+        </div>
+
+        <span class="success-ref" id="successRef">REF #UDB-00000</span>
+
+        <h3>Request received</h3>
+        <p>We'll review your details and send a decision to <strong id="successEmail"></strong>. Check your spam folder if you don't hear back within the stated timeframe.</p>
+
+        <div class="success-timeline">
+          <div class="timeline-row">
+            <div class="timeline-dot done"></div>
+            <span class="timeline-label"><span>Request submitted</span></span>
+            <span class="timeline-time" id="successTime"></span>
+          </div>
+          <div class="timeline-row">
+            <div class="timeline-dot pending"></div>
+            <span class="timeline-label">Identity verification</span>
+            <span class="timeline-time" id="successDeadline"></span>
+          </div>
+          <div class="timeline-row">
+            <div class="timeline-dot pending"></div>
+            <span class="timeline-label">Credential email sent</span>
+            <span class="timeline-time">On approval</span>
+          </div>
+        </div>
+
+        <a class="btn-back-login" href="login.html">
+          <svg viewBox="0 0 14 14"><path d="M9 3L4 7l5 4"/></svg>
+          Back to login
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  /* ── role pills: single-select ── */
+  document.querySelectorAll('#roleGroup .role-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('#roleGroup .role-pill').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+      document.getElementById('roleErr').textContent = '';
+    });
+  });
+
+  /* ── character counter ── */
+  const justInput = document.getElementById('justification');
+  const charCount = document.getElementById('charCount');
+  justInput.addEventListener('input', () => {
+    const len = justInput.value.length;
+    charCount.textContent = len + ' / 500';
+    charCount.style.color = len > 450 ? '#ef4444' : 'var(--t4)';
+    if(len > 500) justInput.value = justInput.value.slice(0, 500);
+  });
+
+  /* ── validation helpers ── */
+  function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  function clearErrors(){
+    ['fnameErr','lnameErr','workemailErr','jobtitleErr','roleErr','justificationErr'].forEach(id => {
+      document.getElementById(id).textContent = '';
+    });
+    ['fname','lname','workemail','jobtitle','justification'].forEach(id => {
+      document.getElementById(id).classList.remove('error-field');
+    });
+  }
+
+  function fieldErr(inputId, errId, msg){
+    document.getElementById(inputId).classList.add('error-field');
+    document.getElementById(errId).textContent = msg;
+  }
+
+  /* ── submit ── */
+  document.getElementById('submitBtn').addEventListener('click', async function(){
+    clearErrors();
+
+    const fname   = document.getElementById('fname').value.trim();
+    const lname   = document.getElementById('lname').value.trim();
+    const email   = document.getElementById('workemail').value.trim();
+    const title   = document.getElementById('jobtitle').value.trim();
+    const role    = document.querySelector('#roleGroup .role-pill.selected')?.dataset.val || '';
+    const urgency = document.getElementById('urgency').value;
+    const just    = document.getElementById('justification').value.trim();
+
+    let valid = true;
+    if(!fname){  fieldErr('fname','fnameErr','First name is required.'); valid=false; }
+    if(!lname){  fieldErr('lname','lnameErr','Last name is required.');  valid=false; }
+    if(!email){  fieldErr('workemail','workemailErr','Work email is required.'); valid=false; }
+    else if(!isValidEmail(email)){ fieldErr('workemail','workemailErr','Enter a valid email address.'); valid=false; }
+    if(!title){  fieldErr('jobtitle','jobtitleErr','Job title is required.'); valid=false; }
+    if(!role){   document.getElementById('roleErr').textContent = 'Select a role.'; valid=false; }
+    if(!just || just.length < 30){
+      fieldErr('justification','justificationErr','Please provide at least 30 characters of justification.');
+      valid=false;
+    }
+    if(!valid) return;
+
+    // Loading
+    const btn     = document.getElementById('submitBtn');
+    const spinner = document.getElementById('submitSpinner');
+    const arrow   = document.getElementById('submitArrow');
+    const label   = document.getElementById('submitLabel');
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    arrow.style.display   = 'none';
+    label.textContent     = 'Submitting…';
+
+    try {
+      /* Replace with your real API call:
+         const res  = await fetch('/api/admin/request-access', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ fname, lname, email, org, jobTitle: title, role, urgency, justification: just })
+         });
+         const data = await res.json();
+         if(data.error){ ... }
+         showSuccess(email, urgency, data.ref);
+      */
+
+      // Demo simulation
+      await new Promise(r => setTimeout(r, 1100));
+      const ref = 'UDB-' + Math.floor(10000 + Math.random() * 90000);
+      showSuccess(email, urgency, ref);
+
+    } catch(e){
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      arrow.style.display   = 'block';
+      label.textContent     = 'Submit request';
+      fieldErr('justification','justificationErr','Something went wrong. Please try again.');
+    }
+  });
+
+  function showSuccess(email, urgency, ref){
+    // populate success panel
+    document.getElementById('successRef').textContent     = 'REF #' + ref;
+    document.getElementById('successEmail').textContent   = email;
+
+    const now = new Date();
+    document.getElementById('successTime').textContent = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+    const deadline = new Date(now);
+    if(urgency === 'urgent')   deadline.setHours(deadline.getHours() + 24);
+    else if(urgency === 'standard') { deadline.setDate(deadline.getDate() + 2); }
+    else { deadline.setDate(deadline.getDate() + 5); }
+
+    const deadlineStr = urgency === 'urgent'
+      ? 'Within 24 hours'
+      : 'By ' + deadline.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+
+    document.getElementById('successDeadline').textContent = deadlineStr;
+
+    // swap panels
+    document.getElementById('formPanel').classList.remove('active');
+    document.getElementById('successPanel').classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+})();
+</script>
+</body>
+</html>

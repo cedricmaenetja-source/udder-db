@@ -139,33 +139,44 @@ export let searchQueries = [
 export const mockUpFilter = {
     "industry": "human resources",
     "product_type": "platform",
-    "target_market": null,
+    "target_market": "50-500",
     "employee_count": null,
-    "region": "global",
+    "region": ["UK", "EU"],
     "required_modules": [
-        "Core HR / HRIS"
+        "Core HR & Operations",
+        "Talent, Performance & Development",
+        "Engagement, Culture & Wellbeing"
     ],
     "required_features": [
-        "Employee Records & Profiles",
-        "Organization Management"
+        "HRIS / HRMS / HCM",
+        "Performance Management",
+        "Engagement Surveys & Feedback Tools",
+        "Learning Management Systems (LMS)"
     ],
-    "required_integrations": [],
+    "required_integrations": ["Slack", "Google Workspace", "Okta"],
     "optional_features": [
-        "Employee self-service portal"
+        "Employee self-service (ESS)",
+        "Manager self-service (MSS)",
+        "Goal and OKR management",
+        "360-degree feedback",
+        "Pulse survey scheduling",
+        "Mobile app & responsive experience"
     ],
     "use_cases": [
-        "remote team management",
-        "distributed workforce administration"
+        "employee performance tracking",
+        "continuous learning and development",
+        "engagement and retention",
+        "manager effectiveness"
     ],
-    "technology": [],
+    "technology": ["artificial intelligence", "cloud computing"],
     "keywords": [
-        "hris platforms",
-        "remote teams",
-        "employee self-service",
-        "distributed workforce",
-        "core hr"
+        "hr platform mid-sized companies",
+        "performance management uk",
+        "employee engagement tools",
+        "lms integration hris",
+        "okr tracking"
     ],
-    "query": "HRIS platforms for remote teams with employee self-service features."
+    "query": "We need an HR platform for a mid-sized UK company with performance management, learning, and engagement tools that integrates with Slack and Google Workspace."
 };
 
 export function lockBtn($btn, options = {}) {

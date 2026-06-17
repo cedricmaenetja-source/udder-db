@@ -108,7 +108,7 @@ $(async function () {
 
   inp.addEventListener('input', applySearch);
 
-    populateTopVendors();
+    //populateTopVendors();
 });
 
 function logSearchActivity(q){
@@ -628,52 +628,61 @@ async function loadUserProfile(){
     });
 }
 
-async function populateTopVendors() {
-    try {
-        const response = await fetch('/api/supabase?action=getTopVendors');
-        const result = await response.json();
+window._loadAlsoEvaluating = function loadAlsoEvaluating(id) {
+    const container = document.getElementById('vdAlsoEvaluating');
+    console.log('running');
+    // Show loading state while waiting
+    container.innerHTML = `
+        <div class="vd-also-loading">
+            <span class="vd-also-spinner"></span> Loading ...
+        </div>
+    `;
 
-        if (!result.data) return;
-        
-        const container = document.getElementById('vdAlsoEvaluating');
-        container.innerHTML = '';
-        
-        result.data.forEach((vendor) => {
-            if (vendor.name !== undefined){
-                const status = vendor.status || 'AI Generated';
-                const statusClass = (status == 'AI Generated') ? 'ai-generated' : status.toLowerCase();
-
-                const item = `
-                    <a id="eval${vendor.id}" href="#" onclick="window.open('${vendor.website || '#'}', '_blank'); return false;" style="text-decoration:none">
-                    <div class="vd-also-item">
-                        <div class="vd-also-logo">
-                            ${App.initials(vendor.name)}
-                        </div>
-
-                        <div>
-                            <div class="vd-also-name">
-                                ${vendor.name}
-                            </div>
-
-                            <div class="vd-also-sub">
-                                ${vendor.website || ''}
-                            </div>
-                        </div>
-
-                        <div class="vd-also-badge ${statusClass}">
-                            <span class="vd-also-badge-dot"></span>
-                            ${status}
-                        </div>
-                    </div></a>
-                `;
-
-                container.innerHTML += item;
-            }
+    fetch(`/api/supabase?action=getTopVendors&vendorId=${id}`)
+        .then(r => r.json())
+        .then(result => {
+            if (result.error) { App.showToast(result.error, 'error'); return; }
+            renderVendors(container, result.data);
         });
+}
 
-    } catch (err) {
-        console.error('Failed to load vendors:', err);
-    }
+function renderVendors(container, vendors) {
+    container.innerHTML = '';
+
+    vendors.forEach((vendor) => {
+        if (vendor.name === undefined) return;
+
+        const status = vendor.status || 'AI Generated';
+        const statusClass = (status === 'AI Generated') ? 'ai-generated' : status.toLowerCase();
+
+        const item = `
+            <a id="eval${vendor.id}" href="#" onclick="window.open('${vendor.website || '#'}', '_blank'); return false;" style="text-decoration:none">
+            <div class="vd-also-item">
+                <div class="vd-also-logo">
+                   <img src="../assets/images/logos/${vendor.name.replaceAll(' ', '')}.webp" alt="${vendor.name} logo" loading="lazy" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'">
+                </div>
+
+                <div>
+                    <div class="vd-also-name">
+                        ${vendor.name}
+                    </div>
+
+                    <div class="vd-also-sub">
+                        ${vendor.website || ''}
+                    </div>
+                </div>
+
+                <div class="vd-also-badge ${statusClass}">
+                    <span class="vd-also-badge-dot"></span>
+                    ${status}
+                </div>
+            </div></a>
+        `;
+
+        container.innerHTML += item;
+    });
+
+    if (vendors.length == 0) container.innerHTML = `<div class="vd-also-empty">No vendors available yet.</div>`;
 }
 
 async function getHistoricalSearchFilters(){
@@ -809,14 +818,6 @@ async function runSearch(){
     }
 
     console.log('Claude Response:', filters);
-    // apply filters
-    filters.required_modules.forEach(module => {
-        $(`input[name="module"][value="${module}"]`).prop('checked', true);
-
-        filters.required_features.forEach(feature => {
-            $(`input[name="module"][data-module="${module}"][value="${feature}"]`).prop('checked', true);
-        });
-    });
 
     saveQuery(filters, value);
     filters['query'] = value;
@@ -1368,6 +1369,23 @@ async function loadVendors(filters = null, query = null){
     if (filters !== null) {
         applyScoreFilter();
         $('#rpSub').text('Showing platforms with 50% and higher match score');
+
+        // apply filters
+        filters.required_modules.forEach(module => {
+            $(`input[name="module"][value="${module}"]`).prop('checked', true);
+
+            filters.required_features.forEach(feature => {
+                $(`input[name="module"][data-module="${module}"][value="${feature}"]`).prop('checked', true);
+            });
+        });
+
+        if (filters.region !== null){
+            filters.region.forEach(region => {
+                $(`input[class="region-cb"][value="${region}"]`).prop('checked', true);
+            });
+        }
+
+        if (filters.target_market !== null) $(`input[class="orgsize-cb"][value="${filters.target_market}"]`).prop('checked', true);
     }
 }
 
@@ -1767,29 +1785,23 @@ function applyFilters(filters, vendors) {
             if (filters.target_market) {
                 filtersCount++;
 
-                const hasMatch = (meta.target_market || '')
-                    .toLowerCase()
-                    .includes(filters.target_market.toLowerCase());
-
-                if (hasMatch) {
+                if (filters.target_market == meta.target_market) {
                     score++;
                     matched.push(`Fits ${filters.target_market}`);
                 }
             }
 
             // ── Region ──────────────────────────────────────
-            if (filters.region) {
+            (filters.region || []).forEach(region => {
                 filtersCount++;
 
-                const regions = Array.isArray(meta.region)
-                    ? meta.region.join(' ').toLowerCase()
-                    : '';
+                const regionServed = meta.region_served || [];
 
-                if (regions.includes(filters.region.toLowerCase())) {
+                if (regionServed.includes(region)) {
                     score++;
-                    matched.push(`${filters.region} presence`);
+                    matched.push(`${region} region`);
                 }
-            }
+            });
 
             // ── Required Modules ───────────────────────────
             (filters.required_modules || []).forEach(module => {
@@ -1801,13 +1813,26 @@ function applyFilters(filters, vendors) {
                 }
             });
 
-            // ── Required Features ──────────────────────────
+            // ── Required subCategoriesLower ──────────────────────────
             (filters.required_features || []).forEach(feature => {
                 filtersCount++;
 
                 if (subCategoriesLower.includes(feature.toLowerCase())) {
                     score++;
-                    matched.push(feature);
+                    matched.push(`${feature} sub-category`);
+                }
+            });
+
+            // ── Required Features ──────────────────────────
+            // features are optional_features
+            (filters.optional_features || []).forEach(feature => {
+                filtersCount++;
+
+                const availableFeatures = extractAvailableFeatures(company.modules);
+                console.log('availableFeatures', availableFeatures);
+                if (availableFeatures.includes(feature)) {
+                    score++;
+                    matched.push(`${feature} feature`);
                 }
             });
 
@@ -1826,7 +1851,7 @@ function applyFilters(filters, vendors) {
             if (score === 0 || filtersCount === 0) {
                 return null;
             }
-
+           
             return {
                 ...vendor,
                 filters_count: filtersCount,
@@ -1837,6 +1862,14 @@ function applyFilters(filters, vendors) {
         })
         .filter(Boolean)
         .sort((a, b) => b.match_score - a.match_score);
+}
+
+function extractAvailableFeatures(taxonomy) {
+    return Object.values(taxonomy).flatMap(subModules =>
+        Object.values(subModules).flatMap(features =>
+            features.map(feature => feature.name)
+        )
+    );
 }
 
 // only use once-off
