@@ -32,7 +32,7 @@
       --th: 52px;
     }
 
-    html, body { height: 100%; overflow: hidden; background: var(--off) }
+    html, body { height: 100%; overflow: hidden;}
     body { font-family: var(--sans); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased }
 
     /* ── TOPBAR ── */
@@ -46,7 +46,7 @@
       display: flex; align-items: center; gap: 9px; padding: 0 18px;
       border-right: 1px solid var(--b1);
     }
-    .tb-wordmark { font-size: 24px; font-weight: 900; color: var(--k); letter-spacing: -0.01em; line-height: 1 }
+    .tb-wordmark { font-size: 24px; font-weight: 800; color: var(--k); letter-spacing: -0.01em; line-height: 1 }
     .tb-wordmark span { color: var(--o) }
     .tb-crumb {
       display: flex; align-items: center; gap: 7px; padding: 0 18px; height: 100%;
@@ -141,7 +141,7 @@
     .internal-banner {
       display: flex; align-items: center; gap: 10px;
       padding: 0 24px; height: 40px;
-      margin: 30px;
+      margin: 15px;
       border-radius: 8px;
       background: var(--k); color: var(--w);
       font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
@@ -170,7 +170,7 @@
       text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px;
     }
     .kr-left-title {
-      font-size: 26px; font-weight: 900; color: var(--t1); letter-spacing: -0.025em; line-height: 1;
+      font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; line-height: 1;
       margin-bottom: 14px;
     }
     .kr-search-bar {
@@ -234,7 +234,7 @@
       font-size: 15px; font-weight: 800; color: var(--t2); flex-shrink: 0;
     }
     .kr-detail-vendor-name {
-      font-size: 32px; font-weight: 900; color: var(--t1);
+      font-size: 32px; font-weight: 800; color: var(--t1);
       letter-spacing: -0.025em; line-height: 1; margin-bottom: 6px;
     }
     .kr-detail-vendor-meta {
@@ -320,7 +320,7 @@
     .kr-advocacy-label { font-size: 11px; color: var(--t3) }
 
     .kr-impl-num {
-      font-size: 52px; font-weight: 900; color: var(--t1);
+      font-size: 52px; font-weight: 800; color: var(--t1);
       letter-spacing: -0.04em; line-height: 1;
     }
     .kr-impl-label { font-size: 11px; color: var(--t3); margin-top: 2px }
@@ -382,13 +382,13 @@
     /* ── CHANGE 2: verification queue styles ── */
     .vq-page { flex: 1; overflow-y: auto; padding: 32px 36px; background: var(--w); scrollbar-width: thin }
     .vq-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px }
-    .vq-title { font-size: 36px; font-weight: 900; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 28px }
+    .vq-title { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 28px }
 
     .vq-kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; margin-bottom: 32px }
     .vq-kpi { padding: 18px 20px; border-right: 1px solid var(--b1) }
     .vq-kpi:last-child { border-right: none }
     .vq-kpi-lbl { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px }
-    .vq-kpi-val { font-size: 36px; font-weight: 900; color: var(--t1); letter-spacing: -0.03em; line-height: 1 }
+    .vq-kpi-val { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1 }
     .vq-kpi-val.warn { color: var(--o) }
     .vq-kpi-val.good { color: #16a34a }
     .vq-kpi-val.bad  { color: #ef4444 }
@@ -456,18 +456,18 @@
 
 .vr-detail-avatar { width: 52px; height: 52px; border-radius: 10px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
 .vr-detail-hero { display: flex; align-items: flex-start; gap: 16px; flex: 1 }
-.vr-detail-name { font-size: 28px; font-weight: 900; color: var(--t1); letter-spacing: -0.025em; line-height: 1; display: inline; margin-right: 10px }
-.vr-detail-name-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 12px; font-weight: 700; vertical-align: middle; position: relative; top: -2px }
+.vr-detail-name { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; line-height: 1; display: inline; margin-right: 10px }
+.vr-detail-name-badge { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 12px; font-weight: 700; vertical-align: middle; position: relative; top: -2px }
 .vr-detail-sub { font-size: 13px; color: var(--t3) }
 .vr-detail-name-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 11px; font-weight: 700; margin-left: 10px; vertical-align: middle }
 .vr-detail-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px }
-.vr-reject-btn { height: 36px; padding: 0 18px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-reject-btn { height: 36px; padding: 6px 10px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 12px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
 .vr-reject-btn:hover { border-color: #ef4444; color: #ef4444 }
-.vr-approve-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 20px; border: none; border-radius: 20px; background: var(--o); color: var(--w); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.vr-approve-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 6px 10px; border: none; border-radius: 20px; background: var(--o); color: var(--w); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
 .vr-approve-btn:hover { background: var(--o2) }
 
 .vr-tier-flow { display: flex; align-items: center; gap: 10px; margin-bottom: 4px }
-.vr-tier-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--b2); font-size: 12px; font-weight: 700; color: var(--t1) }
+.vr-tier-pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 20px; border: 1.5px solid var(--b2); font-size: 10px; font-weight: 700; color: var(--t1) }
 .vr-tier-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
 .vr-tier-pill.dest { background: var(--o); border-color: var(--o); color: var(--w) }
 .vr-tier-pill.dest .dot { background: var(--w) }
@@ -517,6 +517,81 @@
 .vr-note-textarea:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
 .vr-note-btn { width: 100%; height: 38px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
 .vr-note-btn:hover { border-color: var(--b3); background: var(--off) }
+/* ── CLIENT INQUIRIES ── */
+.ci-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--w) }
+.ci-header { padding: 10px 32px 0; flex-shrink: 0; background: var(--w) }
+.ci-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 8px }
+.ci-title { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 20px }
+.ci-filter-btn { height: 34px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s; white-space: nowrap }
+.ci-filter-btn:hover { border-color: var(--b3); color: var(--t1) }
+.ci-filter-btn.active { background: var(--o); border-color: var(--o); color: var(--w) }
+.ci-body { display: grid; grid-template-columns: 360px 1fr; flex: 1; overflow: hidden; min-height: 0; border-top: 1px solid var(--b1); margin-top: 20px }
+.ci-list { border-right: 1px solid var(--b1); overflow-y: auto; padding: 16px 0; scrollbar-width: thin }
+.ci-search-wrap { padding: 0 16px 12px }
+.ci-search { display: flex; align-items: center; gap: 8px; padding: 0 14px; height: 38px; border: 1px solid var(--b2); border-radius: 20px; background: var(--off) }
+.ci-search svg { width: 13px; height: 13px; color: var(--t4); flex-shrink: 0 }
+.ci-search input { border: none; outline: none; background: transparent; font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1 }
+.ci-search input::placeholder { color: var(--t4) }
+.ci-item { padding: 14px 20px; cursor: pointer; transition: background 0.12s; border-left: 3px solid transparent }
+.ci-item:hover { background: var(--off) }
+.ci-item.active { background: #fdf3f0; border-left-color: var(--o) }
+.ci-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px }
+.ci-item-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.ci-item-dot.green { background: #16a34a }
+.ci-item-name { font-size: 14px; font-weight: 700; color: var(--t1); flex: 1 }
+.ci-item-time { font-size: 12px; color: var(--t3); white-space: nowrap }
+.ci-item-desc { font-size: 12px; color: var(--t3); margin-bottom: 8px; padding-left: 16px }
+.ci-item-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-left: 16px }
+.ci-tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600 }
+.ci-tag.new { background: var(--o); color: var(--w) }
+.ci-tag.inprogress { background: var(--k); color: var(--w) }
+.ci-tag.proposal { background: #2563eb; color: var(--w) }
+.ci-tag.won { background: #16a34a; color: var(--w) }
+.ci-tag.lost { background: var(--off2); color: var(--t3); border: 1px solid var(--b1) }
+.ci-tag.size { background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+.ci-tag.person { background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+.ci-detail { overflow-y: auto; scrollbar-width: thin; }
+.ci-detail-inner { display: grid; grid-template-columns: 1fr 320px; gap: 0; min-height: 100% }
+.ci-detail-main { padding: 28px 24px; display: flex; flex-direction: column; gap: 16px }
+.ci-detail-side { border-left: 1px solid var(--b1); padding: 28px 30px; display: flex; flex-direction: column; gap: 24px; background: var(--w) }
+.ci-detail-eyebrow { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px }
+.ci-detail-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.ci-detail-name { font-size: 28px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; line-height: 1; margin-bottom: 6px }
+.ci-detail-meta { font-size: 13px; color: var(--t3) }
+.ci-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 16px }
+.ci-card-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 20px }
+.ci-card-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px }
+.ci-card-title-note { font-size: 12px; color: var(--t3) }
+.ci-contact-row { display: flex; align-items: center; gap: 14px }
+.ci-contact-avatar { width: 40px; height: 40px; border-radius: 8px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.ci-contact-name { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 2px }
+.ci-contact-role { font-size: 13px; color: var(--t3) }
+.ci-contact-email { font-size: 13px; color: var(--o) }
+.ci-service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px }
+.ci-service-tag { display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 20px; background: var(--k); color: var(--w); font-size: 12px; font-weight: 700 }
+.ci-info-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; padding: 13px 0; border-bottom: 1px solid var(--b1); align-items: center }
+.ci-info-row:last-child { border-bottom: none; padding-bottom: 0 }
+.ci-info-label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+.ci-info-value { font-size: 14px; color: var(--t1) }
+.ci-message { font-size: 14px; color: var(--t2); line-height: 1.75; font-style: italic }
+.ci-notes-textarea { width: 100%; min-height: 120px; padding: 12px 14px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); resize: vertical; line-height: 1.6; outline: none; transition: border-color 0.15s }
+.ci-notes-textarea:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.ci-save-notes-btn { height: 36px; padding: 0 20px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 12px }
+.ci-save-notes-btn:hover { border-color: var(--b3); background: var(--off) }
+.ci-side-eyebrow { font-size: 10px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px }
+.ci-side-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); cursor: pointer }
+.ci-side-save-btn { width: 100%; height: 38px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.ci-side-save-btn:hover { border-color: var(--b3); background: var(--off) }
+.ci-send-btn { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--o); color: var(--w); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.ci-send-btn:hover { background: var(--o2) }
+.ci-status-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); cursor: pointer; margin-bottom: 10px }
+.ci-activity-item { padding: 8px 0; border-bottom: 1px solid var(--b1); font-size: 12px; color: var(--t2) }
+.ci-activity-item:last-child { border-bottom: none }
+.ci-activity-time { font-size: 11px; color: var(--t4); margin-top: 2px }
+.ci-related-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.ci-related-item:last-child { border-bottom: none }
+.ci-related-avatar { width: 28px; height: 28px; border-radius: 6px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.ci-related-name { font-size: 13px; font-weight: 600; color: var(--t1) }
   </style>
 </head>
 <body>
@@ -570,7 +645,7 @@
       </a>
     </li>
     <li>
-      <a href="#">
+      <a href="#" class="nav-link" data-panel="ci">
         <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Client Inquiries
         <span class="nb">2</span>
@@ -647,7 +722,7 @@
           <div class="kr-vendor-section">
             <div class="kr-vendor-section-label">Verified Vendors</div>
 
-            <div class="kr-vendor-item">
+            <div class="kr-vendor-item active" onclick="selectKrVendor(this,'smartrecruiters')">
               <div class="kr-vendor-avatar">SR</div>
               <div>
                 <div class="kr-vendor-name">SmartRecruiters</div>
@@ -656,7 +731,7 @@
               <div class="kr-vendor-badge"><span class="dot approved"></span> UDDER APPROVED</div>
             </div>
 
-            <div class="kr-vendor-item active">
+            <div class="kr-vendor-item" onclick="selectKrVendor(this,'avature')">
               <div class="kr-vendor-avatar">AV</div>
               <div>
                 <div class="kr-vendor-name">Avature</div>
@@ -665,7 +740,7 @@
               <div class="kr-vendor-badge"><span class="dot approved"></span> UDDER APPROVED</div>
             </div>
 
-            <div class="kr-vendor-item">
+            <div class="kr-vendor-item" onclick="selectKrVendor(this,'workday')">
               <div class="kr-vendor-avatar">WD</div>
               <div>
                 <div class="kr-vendor-name">Workday HCM</div>
@@ -674,7 +749,7 @@
               <div class="kr-vendor-badge"><span class="dot"></span> UDDER VERIFIED</div>
             </div>
 
-            <div class="kr-vendor-item">
+            <div class="kr-vendor-item" onclick="selectKrVendor(this,'greenhouse')">
               <div class="kr-vendor-avatar">GH</div>
               <div>
                 <div class="kr-vendor-name">Greenhouse</div>
@@ -683,7 +758,7 @@
               <div class="kr-vendor-badge"><span class="dot"></span> UDDER VERIFIED</div>
             </div>
 
-            <div class="kr-vendor-item">
+            <div class="kr-vendor-item" onclick="selectKrVendor(this,'hibob')">
               <div class="kr-vendor-avatar">HB</div>
               <div>
                 <div class="kr-vendor-name">HiBob</div>
@@ -1167,6 +1242,162 @@
       </div>
     </div><!-- /panel-vq -->
 
+    <!-- ── CLIENT INQUIRIES PANEL ── -->
+    <div class="panel" id="panel-ci">
+      <div class="ci-page">
+        <div class="ci-header">
+          <div class="ci-eyebrow">Business Development</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px">
+            <div class="ci-title">Client inquiries</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-top:8px">
+              <button class="ci-filter-btn active" onclick="filterCI(this,'all')">All <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:10px;background:rgba(255,255,255,0.25);font-size:11px;margin-left:4px">7</span></button>
+              <button class="ci-filter-btn" onclick="filterCI(this,'new')">New</button>
+              <button class="ci-filter-btn" onclick="filterCI(this,'inprogress')">In progress</button>
+              <button class="ci-filter-btn" onclick="filterCI(this,'proposal')">Proposal sent</button>
+              <button class="ci-filter-btn" onclick="filterCI(this,'won')">Closed — won</button>
+              <button class="ci-filter-btn" onclick="filterCI(this,'lost')">Closed — lost</button>
+            </div>
+          </div>
+        </div>
+        <div class="ci-body">
+          <div class="ci-list">
+            <div class="ci-search-wrap">
+              <div class="ci-search">
+                <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search inquiries…" oninput="searchCI(this.value)">
+              </div>
+            </div>
+            <div class="ci-item active" data-status="new" onclick="selectCI(this,'rolls-royce')">
+              <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Rolls-Royce plc</span><span class="ci-item-time">35 min ago</span></div>
+              <div class="ci-item-desc">Vendor selection · RFI / RFP management</div>
+              <div class="ci-item-tags"><span class="ci-tag new">New</span><span class="ci-tag size">25,000+</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'asos')">
+              <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Asos plc</span><span class="ci-item-time">2 hours ago</span></div>
+              <div class="ci-item-desc">HR tech strategy · Digital maturity assessment</div>
+              <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Alice</span></div>
+            </div>
+            <div class="ci-item" data-status="proposal" onclick="selectCI(this,'national-grid')">
+              <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">National Grid</span><span class="ci-item-time">1 day ago</span></div>
+              <div class="ci-item-desc">Market landscape review · Vendor selection</div>
+              <div class="ci-item-tags"><span class="ci-tag proposal">Proposal sent</span><span class="ci-tag size">25,000+</span><span class="ci-tag person">Rachel</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'deliveroo')">
+              <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Deliveroo</span><span class="ci-item-time">3 days ago</span></div>
+              <div class="ci-item-desc">Implementation support · Change management</div>
+              <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Tom</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'linklaters')">
+              <div class="ci-item-top"><span class="ci-item-dot green"></span><span class="ci-item-name">Linklaters LLP</span><span class="ci-item-time">4 days ago</span></div>
+              <div class="ci-item-desc">Platform optimisation · HR tech strategy</div>
+              <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Alice</span></div>
+            </div>
+            <div class="ci-item" data-status="won" onclick="selectCI(this,'bp')">
+              <div class="ci-item-top"><span class="ci-item-dot green"></span><span class="ci-item-name">BP plc</span><span class="ci-item-time">1 week ago</span></div>
+              <div class="ci-item-desc">Vendor selection · Implementation support</div>
+              <div class="ci-item-tags"><span class="ci-tag won">Closed — won</span><span class="ci-tag size">25,000+</span><span class="ci-tag person">Rachel</span></div>
+            </div>
+            <div class="ci-item" data-status="lost" onclick="selectCI(this,'bt')">
+              <div class="ci-item-top"><span class="ci-item-dot" style="background:var(--t4)"></span><span class="ci-item-name">BT Group</span><span class="ci-item-time">2 weeks ago</span></div>
+              <div class="ci-item-desc">RFI / RFP management</div>
+              <div class="ci-item-tags"><span class="ci-tag lost">Closed — lost</span><span class="ci-tag size">25,000+</span></div>
+            </div>
+          </div>
+
+          <div class="ci-detail">
+            <div class="ci-detail-inner">
+              <div class="ci-detail-main">
+                <div>
+                  <div class="ci-detail-eyebrow"><span class="ci-detail-dot"></span> HIGH PRIORITY</div>
+                  <div class="ci-detail-name" id="ciDetailName">Rolls-Royce plc</div>
+                  <div class="ci-detail-meta" id="ciDetailMeta">Aerospace &amp; Defence · 25,000+ · UK / Global</div>
+                </div>
+                <div class="ci-card">
+                  <div class="ci-card-title">Contact</div>
+                  <div class="ci-contact-row">
+                    <div class="ci-contact-avatar" id="ciContactAvatar">CB</div>
+                    <div>
+                      <div class="ci-contact-name" id="ciContactName">Charlotte Baines</div>
+                      <div class="ci-contact-role" id="ciContactRole">VP People Technology</div>
+                      <div class="ci-contact-email" id="ciContactEmail">c.baines@rolls-royce.com</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ci-card">
+                  <div class="ci-card-title">Requested services</div>
+                  <div class="ci-service-tags" id="ciServiceTags">
+                    <span class="ci-service-tag">Vendor selection</span>
+                    <span class="ci-service-tag">RFI / RFP management</span>
+                  </div>
+                  <div class="ci-info-row"><div class="ci-info-label">Budget</div><div class="ci-info-value" id="ciBudget">£500k – £1m consulting</div></div>
+                  <div class="ci-info-row"><div class="ci-info-label">Timeline</div><div class="ci-info-value" id="ciTimeline">Q3 2026</div></div>
+                  <div class="ci-info-row"><div class="ci-info-label">Submitted</div><div class="ci-info-value" id="ciSubmitted">35 min ago</div></div>
+                </div>
+                <div class="ci-card">
+                  <div class="ci-card-title">Client message</div>
+                  <div class="ci-message" id="ciMessage">"We're embarking on a global HR tech transformation and need support selecting a new HRIS and ATS to replace our legacy SAP suite. We have roughly 42,000 employees across 50 countries. Timeline is tight — board approval needed by September. We've heard great things about Udder's vendor selection methodology."</div>
+                </div>
+                <div class="ci-card">
+                  <div class="ci-card-title-row">
+                    <div class="ci-card-title">Internal notes</div>
+                    <div class="ci-card-title-note">Udder-only · not visible to client</div>
+                  </div>
+                  <textarea class="ci-notes-textarea" placeholder="Add notes, next steps, context…"></textarea>
+                  <button class="ci-save-notes-btn">Save notes</button>
+                </div>
+              </div>
+              <div class="ci-detail-side">
+                <div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <select class="ci-status-select" style="flex:1;margin-bottom:0" id="ciStatusSelect">
+                      <option value="new">New</option>
+                      <option value="inprogress">In progress</option>
+                      <option value="proposal">Proposal sent</option>
+                      <option value="won">Closed — won</option>
+                      <option value="lost">Closed — lost</option>
+                    </select>
+                    <button class="ci-send-btn" style="width:auto;padding:0 16px;flex-shrink:0">Send proposal</button>
+                  </div>
+                </div>
+                <div style="
+                    background: var(--w);
+                    border: 1px solid var(--b1);
+                    border-radius: 12px;
+                    padding: 24px;">
+                  <div class="ci-side-eyebrow">Assigned to</div>
+                  <select class="ci-side-select" id="ciAssignedSelect">
+                    <option>Unassigned</option>
+                    <option>Alice Oduya</option>
+                    <option>Rachel Patel</option>
+                    <option>Tom Fielding</option>
+                  </select>
+                  <button class="ci-side-save-btn">Save</button>
+                </div>
+                <div style="
+                    background: var(--w);
+                    border: 1px solid var(--b1);
+                    border-radius: 12px;
+                    padding: 24px;">
+                  <div class="ci-side-eyebrow">Activity</div>
+                  <div class="ci-activity-item"><div>Submitted</div><div class="ci-activity-time">35 min ago</div></div>
+                </div>
+                <div style="
+                    background: var(--w);
+                    border: 1px solid var(--b1);
+                    border-radius: 12px;
+                    padding: 24px;">
+                  <div class="ci-side-eyebrow">Related to UdderDB</div>
+                  <div class="ci-related-item"><div class="ci-related-avatar">SR</div><div class="ci-related-name">SmartRecruiters</div></div>
+                  <div class="ci-related-item"><div class="ci-related-avatar">AV</div><div class="ci-related-name">Avature</div></div>
+                  <div class="ci-related-item"><div class="ci-related-avatar">WD</div><div class="ci-related-name">Workday HCM</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /panel-ci -->
+
   </div><!-- /kr-page -->
 </div><!-- /main-wrap -->
 
@@ -1203,9 +1434,122 @@
     verifView.style.display = tab === 'verif' ? 'flex' : 'none';
   }
 
+  var VR_DATA = {
+    SR: {
+      name: 'SmartRecruiters', sub: 'SmartRecruiters, Inc.', badge: 'In review',
+      tier: 'UDDER VERIFIED', contact: 'Niamh Healy', title: 'Sr Director Product Marketing',
+      email: 'niamh@smartrecruiters.com', submitted: '2 days ago', assigned: 'Rachel Patel',
+      demo: 'Fri 3 May 2026, 2pm BST',
+      evidence: ['60-min capability walkthrough video', '12 feature claims with screenshots', '3 validated customer references'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: true },
+        { label: 'Core ATS features validated', checked: true },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    DL: {
+      name: 'Deel', sub: 'Deel Inc.', badge: 'Pending',
+      tier: 'UDDER VERIFIED', contact: 'Sofia Martins', title: 'Partner Enablement Lead',
+      email: 'sofia.martins@deel.com', submitted: '3 days ago', assigned: 'Alice Oduya',
+      demo: 'Not scheduled',
+      evidence: ['Confirmed global payroll capabilities', 'Updated regions and language count'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: false },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    LT: {
+      name: 'Lattice', sub: 'Lattice Inc.', badge: 'Action needed',
+      tier: 'UDDER VERIFIED', contact: 'Devon Park', title: 'Sr. Partner Marketing Manager',
+      email: 'devon@lattice.com', submitted: '1 day ago', assigned: 'Tom Fielding',
+      demo: 'Mon 6 May 2026, 10am BST',
+      evidence: ['Confirmed all categories', 'Updated pricing model', 'Added 5 named customers'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: true },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    HB: {
+      name: 'HiBob', sub: 'Hi Bob Ltd.', badge: 'Awaiting refs',
+      tier: 'UDDER APPROVED', contact: 'Yael Cohen', title: 'Head of Partnerships',
+      email: 'yael.cohen@hibob.com', submitted: '2 hours ago', assigned: 'Rachel Patel',
+      demo: 'Not scheduled',
+      evidence: ['Updated product description', 'Confirmed HQ and founding date', 'Added 3 integration partners'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: false },
+        { label: 'Demo video reviewed', checked: false },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    }
+  };
+
   function selectVrItem(el) {
     document.querySelectorAll('.vr-item').forEach(function(i) { i.classList.remove('active'); });
     el.classList.add('active');
+
+    var initials = el.querySelector('.vr-item-avatar').textContent.trim();
+    var d = VR_DATA[initials];
+    if (!d) return;
+
+    // Update header
+    document.querySelector('.vr-detail-name').textContent = d.name;
+    document.querySelector('.vr-detail-name-badge').textContent = d.badge;
+    document.querySelector('.vr-detail-sub').textContent = d.sub;
+
+    // Update requestor card
+    var rows = document.querySelectorAll('.vr-info-row .vr-info-value');
+    rows[0].textContent = d.contact;
+    rows[1].textContent = d.title;
+    rows[2].textContent = d.email;
+    rows[2].className = 'vr-info-value email';
+    rows[3].textContent = d.submitted;
+    rows[4].textContent = d.assigned;
+    rows[5].textContent = d.demo;
+
+    // Update evidence list
+    var evList = document.querySelector('.vr-evidence-list');
+    evList.innerHTML = d.evidence.map(function(e) { return '<li>' + e + '</li>'; }).join('');
+
+    // Update checklist
+    var checkItems = document.querySelectorAll('.vr-check-item');
+    d.checklist.forEach(function(item, i) {
+      if (!checkItems[i]) return;
+      var box = checkItems[i].querySelector('.vr-check-box');
+      var label = checkItems[i].querySelector('.vr-check-label');
+      var tick = checkItems[i].querySelector('.vr-check-tick') || checkItems[i].querySelector('span:last-child');
+      box.className = 'vr-check-box' + (item.checked ? ' checked' : '');
+      box.innerHTML = item.checked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+      label.className = 'vr-check-label' + (item.checked ? ' checked' : '');
+      label.textContent = item.label;
+      if (tick) tick.textContent = item.checked ? '✓' : '';
+    });
+
+    // Update progress
+    var done = d.checklist.filter(function(c) { return c.checked; }).length;
+    var total = d.checklist.length;
+    document.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
+    document.querySelector('.vr-progress-fill').style.width = Math.round((done / total) * 100) + '%';
+
+    // Update schedule demo in sidebar
+    document.querySelector('.vr-schedule-date').textContent = d.demo;
   }
 
   function toggleCheck(box) {
@@ -1222,6 +1566,209 @@
     card.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
     card.querySelector('.vr-progress-fill').style.width = Math.round((done/total)*100) + '%';
   }
+
+  var CI_DATA = {
+  'rolls-royce': { name: 'Rolls-Royce plc', meta: 'Aerospace &amp; Defence · 25,000+ · UK / Global', status: 'new', contact: { initials: 'CB', name: 'Charlotte Baines', role: 'VP People Technology', email: 'c.baines@rolls-royce.com' }, services: ['Vendor selection', 'RFI / RFP management'], budget: '£500k – £1m consulting', timeline: 'Q3 2026', submitted: '35 min ago', message: '"We\'re embarking on a global HR tech transformation and need support selecting a new HRIS and ATS to replace our legacy SAP suite. We have roughly 42,000 employees across 50 countries. Timeline is tight — board approval needed by September. We\'ve heard great things about Udder\'s vendor selection methodology."', assigned: 'Unassigned', activity: [{ text: 'Submitted', time: '35 min ago' }], related: [{ initials: 'SR', name: 'SmartRecruiters' }, { initials: 'AV', name: 'Avature' }, { initials: 'WD', name: 'Workday HCM' }] },
+  'asos': { name: 'Asos plc', meta: 'Retail / E-commerce · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'MK', name: 'Maya Khan', role: 'Head of People Technology', email: 'm.khan@asos.com' }, services: ['HR tech strategy', 'Digital maturity assessment'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '2 hours ago', message: '"We want an independent view on our HR tech stack before committing to a major transformation. Looking for a digital maturity assessment and roadmap to help align our P&T leadership."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '1 hour ago' }, { text: 'Submitted', time: '2 hours ago' }], related: [{ initials: 'HB', name: 'HiBob' }, { initials: 'LT', name: 'Lattice' }] },
+  'national-grid': { name: 'National Grid', meta: 'Energy & Utilities · 25,000+ · UK / US', status: 'proposal', contact: { initials: 'JR', name: 'James Reid', role: 'Group HR Technology Director', email: 'j.reid@nationalgrid.com' }, services: ['Market landscape review', 'Vendor selection'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '1 day ago', message: '"We\'re running a competitive RFP for a new global HRIS. We need an independent advisor to help shortlist vendors and run the evaluation process."', assigned: 'Rachel Patel', activity: [{ text: 'Proposal sent', time: '4 hours ago' }, { text: 'Submitted', time: '1 day ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }, { initials: 'SR', name: 'SmartRecruiters' }] },
+  'deliveroo': { name: 'Deliveroo', meta: 'Technology / Gig Economy · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'SP', name: 'Sophie Park', role: 'Talent Operations Manager', email: 's.park@deliveroo.com' }, services: ['Implementation support', 'Change management'], budget: '£50k – £100k consulting', timeline: 'Q3 2026', submitted: '3 days ago', message: '"We\'ve selected a new ATS but need help with change management and rollout across our ops and corporate teams."', assigned: 'Tom Fielding', activity: [{ text: 'Assigned to Tom', time: '2 days ago' }, { text: 'Submitted', time: '3 days ago' }], related: [{ initials: 'GH', name: 'Greenhouse' }] },
+  'linklaters': { name: 'Linklaters LLP', meta: 'Legal Services · 5,000–25,000 · UK / Global', status: 'inprogress', contact: { initials: 'EW', name: 'Emma Walsh', role: 'Chief People Officer', email: 'e.walsh@linklaters.com' }, services: ['Platform optimisation', 'HR tech strategy'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '4 days ago', message: '"We\'re midway through a Workday implementation and struggling with adoption. We need experienced support to optimise configuration."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '3 days ago' }, { text: 'Submitted', time: '4 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
+  'bp': { name: 'BP plc', meta: 'Energy · 25,000+ · UK / Global', status: 'won', contact: { initials: 'DM', name: 'David Moore', role: 'VP HR Transformation', email: 'd.moore@bp.com' }, services: ['Vendor selection', 'Implementation support'], budget: '£500k – £1m consulting', timeline: 'Q1 2026', submitted: '1 week ago', message: '"Project successfully closed. BP selected Workday HCM following our recommendation."', assigned: 'Rachel Patel', activity: [{ text: 'Closed — won', time: '2 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
+  'bt': { name: 'BT Group', meta: 'Telecommunications · 25,000+ · UK', status: 'lost', contact: { initials: 'PH', name: 'Paul Harris', role: 'Head of HR Technology', email: 'p.harris@bt.com' }, services: ['RFI / RFP management'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '2 weeks ago', message: '"BT selected a competitor consultancy for this engagement."', assigned: 'Unassigned', activity: [{ text: 'Closed — lost', time: '1 week ago' }], related: [] }
+};
+
+function selectCI(el, key) {
+  document.querySelectorAll('.ci-item').forEach(function(i) { i.classList.remove('active'); });
+  el.classList.add('active');
+  var d = CI_DATA[key];
+  if (!d) return;
+  document.getElementById('ciDetailName').textContent = d.name;
+  document.getElementById('ciDetailMeta').innerHTML = d.meta;
+  document.getElementById('ciContactAvatar').textContent = d.contact.initials;
+  document.getElementById('ciContactName').textContent = d.contact.name;
+  document.getElementById('ciContactRole').textContent = d.contact.role;
+  document.getElementById('ciContactEmail').textContent = d.contact.email;
+  document.getElementById('ciBudget').textContent = d.budget;
+  document.getElementById('ciTimeline').textContent = d.timeline;
+  document.getElementById('ciSubmitted').textContent = d.submitted;
+  document.getElementById('ciMessage').textContent = d.message;
+  document.getElementById('ciServiceTags').innerHTML = d.services.map(function(s) { return '<span class="ci-service-tag">' + s + '</span>'; }).join('');
+  document.getElementById('ciStatusSelect').value = d.status;
+  document.getElementById('ciAssignedSelect').value = d.assigned;
+  var actParent = document.querySelector('#panel-ci .ci-activity-item').parentNode;
+  actParent.innerHTML = d.activity.map(function(a) { return '<div class="ci-activity-item"><div>' + a.text + '</div><div class="ci-activity-time">' + a.time + '</div></div>'; }).join('');
+  var relItems = document.querySelectorAll('#panel-ci .ci-related-item');
+  var relParent = relItems.length ? relItems[0].parentNode : null;
+  if (relParent) relParent.innerHTML = d.related.length === 0 ? '<div style="font-size:12px;color:var(--t4)">None linked</div>' : d.related.map(function(r) { return '<div class="ci-related-item"><div class="ci-related-avatar">' + r.initials + '</div><div class="ci-related-name">' + r.name + '</div></div>'; }).join('');
+}
+
+function filterCI(btn, status) {
+  document.querySelectorAll('.ci-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.ci-item').forEach(function(item) {
+    item.style.display = (status === 'all' || item.dataset.status === status) ? '' : 'none';
+  });
+}
+
+function searchCI(q) {
+  var query = q.toLowerCase();
+  document.querySelectorAll('.ci-item').forEach(function(item) {
+    var name = item.querySelector('.ci-item-name').textContent.toLowerCase();
+    var desc = item.querySelector('.ci-item-desc').textContent.toLowerCase();
+    item.style.display = (name.includes(query) || desc.includes(query)) ? '' : 'none';
+  });
+}
+var KR_DATA = {
+  'avature': {
+    logo: 'AV', name: 'Avature', meta: 'Avature Ltd.', badge: 'UDDER APPROVED', badgeClass: '',
+    notes: [
+      { author: 'Alice Oduya', time: '3 days ago', tag: 'Negotiation', body: 'Sales cycle is slow (avg 9 months enterprise). They heavily discount on multi-year deals — always push for 3yr commitment to unlock 20–25% off list. Watch for "success plan" add-on; it\'s usually negotiable to free.' },
+      { author: 'Rachel Patel', time: '2 weeks ago', tag: 'Implementation', body: 'Complex global rollouts take 6–9 months. CRM module lags behind core ATS. Be wary of co-selling with their integration partners — they push towards bespoke consulting rather than leveraging Udder expertise.' },
+      { author: 'Tom Fielding', time: 'Nov 2025', tag: 'Cultural Fit', body: 'Strong cultural fit with people-first orgs and those undergoing global HR transformation. Less good for SMBs or orgs wanting out-of-the-box simplicity — they will over-configure.' }
+    ],
+    stakeholders: [
+      { initials: 'DG', name: 'Dimitri Gonzalez', role: 'VP Global Strategic Alliances · Warm relationship — Udder whitelisted partner', pref: 'Prefers email' },
+      { initials: 'NH', name: 'Niamh Healy', role: 'Sr Director Product Marketing · Main contact for demos and validation', pref: 'Prefers Slack' },
+      { initials: 'BK', name: 'Bjorn Kilpatrick', role: 'VP Sales EMEA · Close first, explain later — approach with clear ROI ask', pref: 'Phone-first' }
+    ],
+    advocacy: 4, implementations: 5,
+    engagements: [
+      { name: 'Kinetik Retail', meta: 'Implementation · Completed Jan 2026' },
+      { name: 'Halcyon Finance', meta: 'Selection · Completed Sept 2025' },
+      { name: 'Aurora Bio', meta: 'Selection · Lost to Greenhouse, Aug 2025' }
+    ],
+    tags: [{ label: 'Strategic partner', dark: true }, { label: 'Co-marketing' }, { label: 'Referral program' }, { label: 'Annual QBR' }],
+    watchouts: ['Over-configures when given freedom', 'Slow procurement cycle for enterprise', 'AI module still maturing — avoid over-promising']
+  },
+  'smartrecruiters': {
+    logo: 'SR', name: 'SmartRecruiters', meta: 'SmartRecruiters, Inc.', badge: 'UDDER APPROVED', badgeClass: '',
+    notes: [
+      { author: 'Rachel Patel', time: '1 week ago', tag: 'Product', body: 'Strong mid-market ATS with excellent UX. CRM and sourcing features are above average. Recent AI updates show real promise but still early. Good for high-growth scale-ups.' },
+      { author: 'Alice Oduya', time: '3 weeks ago', tag: 'Negotiation', body: 'Pricing is more transparent than most. Enterprise deals include a success fee structure — push back on this early. Watch for implementation partner lock-in.' }
+    ],
+    stakeholders: [
+      { initials: 'NB', name: 'Niamh Burke', role: 'VP EMEA Partnerships · Key relationship, responsive', pref: 'Prefers Slack' },
+      { initials: 'JS', name: 'James Shoemaker', role: 'Director of Strategic Accounts · Main commercial contact', pref: 'Prefers email' }
+    ],
+    advocacy: 5, implementations: 8,
+    engagements: [
+      { name: 'Rolls-Royce plc', meta: 'Selection · In progress' },
+      { name: 'Linklaters LLP', meta: 'Implementation · Completed Mar 2026' },
+      { name: 'BT Group', meta: 'Selection · Lost to Workday, Jan 2026' }
+    ],
+    tags: [{ label: 'Strategic partner', dark: true }, { label: 'Co-marketing' }, { label: 'Annual QBR' }],
+    watchouts: ['Implementation timelines often slip at enterprise scale', 'Support quality varies by region', 'AI features marketed ahead of readiness']
+  },
+  'workday': {
+    logo: 'WD', name: 'Workday HCM', meta: 'Workday, Inc.', badge: 'UDDER VERIFIED', badgeClass: 'verified',
+    notes: [
+      { author: 'Tom Fielding', time: '2 weeks ago', tag: 'Implementation', body: 'Rollouts are complex and expensive — 12–18 months is typical at enterprise. Always include a dedicated change management workstream. Partner ecosystem is large but quality varies significantly.' },
+      { author: 'Alice Oduya', time: '1 month ago', tag: 'Negotiation', body: 'Multi-year deals give 10–15% off. Workday rarely moves on implementation fees but will sometimes include Peakon or Learning at reduced cost.' }
+    ],
+    stakeholders: [
+      { initials: 'PL', name: 'Patrick Liu', role: 'Global Alliance Director · Formal relationship, quarterly touchpoints', pref: 'Prefers email' },
+      { initials: 'SC', name: 'Sarah Connor', role: 'Sr Partner Success Manager · Day-to-day contact', pref: 'Prefers email' }
+    ],
+    advocacy: 3, implementations: 12,
+    engagements: [
+      { name: 'BP plc', meta: 'Implementation · Completed Feb 2026' },
+      { name: 'National Grid', meta: 'Selection · In progress' },
+      { name: 'Linklaters LLP', meta: 'Implementation · In progress' }
+    ],
+    tags: [{ label: 'Verified partner', dark: true }, { label: 'Referral program' }],
+    watchouts: ['Implementation costs frequently exceed budget', 'Customisation creates upgrade debt', 'Strong-arms clients at renewal']
+  },
+  'greenhouse': {
+    logo: 'GH', name: 'Greenhouse', meta: 'Greenhouse Software, Inc.', badge: 'UDDER VERIFIED', badgeClass: 'verified',
+    notes: [
+      { author: 'Rachel Patel', time: '4 days ago', tag: 'Product', body: 'Best-in-class structured hiring methodology. Integration ecosystem is extensive. Not a good fit for volume/hourly hiring — the workflow is built for knowledge worker hiring.' },
+      { author: 'Tom Fielding', time: '2 months ago', tag: 'Cultural Fit', body: 'Strong fit for PE-backed or data-driven talent orgs. Less suited to highly regulated industries where compliance workflow flexibility is needed.' }
+    ],
+    stakeholders: [
+      { initials: 'LM', name: 'Lara Mitchell', role: 'EMEA Partnerships Lead · Warm relationship', pref: 'Prefers Slack' }
+    ],
+    advocacy: 4, implementations: 6,
+    engagements: [
+      { name: 'Aurora Bio', meta: 'Selection · Won vs Avature, Aug 2025' },
+      { name: 'Deliveroo', meta: 'Implementation · In progress' }
+    ],
+    tags: [{ label: 'Verified partner', dark: true }, { label: 'Co-marketing' }, { label: 'Referral program' }],
+    watchouts: ['Limited HRIS capabilities — always needs an integration', 'Reporting is strong but setup-heavy', 'Not suited for high-volume or hourly hiring']
+  },
+  'hibob': {
+    logo: 'HB', name: 'HiBob', meta: 'Hi Bob Ltd.', badge: 'UDDER VERIFIED', badgeClass: 'verified',
+    notes: [
+      { author: 'Alice Oduya', time: '1 week ago', tag: 'Product', body: 'Strong HRIS for mid-market tech companies. Culture and engagement features are a genuine differentiator. Payroll integrations have improved significantly in the last 12 months.' },
+      { author: 'Rachel Patel', time: '6 weeks ago', tag: 'Negotiation', body: 'Aggressive on pricing for competitive deals. Will match Personio or BambooHR on price. Watch for auto-renewal clauses — they\'re buried in the contract.' }
+    ],
+    stakeholders: [
+      { initials: 'YC', name: 'Yael Cohen', role: 'Head of Partnerships · Main contact, responsive', pref: 'Prefers email' },
+      { initials: 'DR', name: 'Dan Rose', role: 'VP Sales EMEA · Escalation contact', pref: 'Phone-first' }
+    ],
+    advocacy: 4, implementations: 7,
+    engagements: [
+      { name: 'Asos plc', meta: 'Selection · In progress' },
+      { name: 'Finsbury Glover Hering', meta: 'Implementation · Completed Nov 2025' }
+    ],
+    tags: [{ label: 'Verified partner', dark: true }, { label: 'Co-marketing' }, { label: 'Referral program' }, { label: 'Annual QBR' }],
+    watchouts: ['Payroll still patchy outside UK/US/NL', 'Performance module less mature than competitors', 'Fast growth = service inconsistency']
+  }
+};
+
+function selectKrVendor(el, key) {
+  document.querySelectorAll('.kr-vendor-item').forEach(function(i) { i.classList.remove('active'); });
+  el.classList.add('active');
+  var d = KR_DATA[key];
+  if (!d) return;
+
+  // Logo + name + meta
+  document.querySelector('.kr-detail-vendor-logo').textContent = d.logo;
+  document.querySelector('.kr-detail-vendor-name').textContent = d.name;
+  var metaEl = document.querySelector('.kr-detail-vendor-meta');
+  metaEl.innerHTML = d.meta + ' · <span class="kr-status-badge ' + d.badgeClass + '"><span class="dot"></span> ' + d.badge + '</span>';
+
+  // Notes
+  var notesContainer = document.querySelector('.kr-detail-main > div:first-child');
+  notesContainer.innerHTML = '<div class="kr-section-title">Internal notes</div>' +
+    d.notes.map(function(n) {
+      return '<div class="kr-note"><div class="kr-note-meta">' + n.author + ' · ' + n.time + ' · Tag: ' + n.tag + '</div><div class="kr-note-body">' + n.body + '</div></div>';
+    }).join('');
+
+  // Stakeholders
+  var stkContainer = document.querySelector('.kr-detail-main > div:nth-child(2)');
+  stkContainer.innerHTML = '<div class="kr-section-title">Key stakeholders</div>' +
+    d.stakeholders.map(function(s) {
+      return '<div class="kr-stakeholder"><div class="kr-stk-avatar">' + s.initials + '</div><div><div class="kr-stk-name">' + s.name + '</div><div class="kr-stk-role">' + s.role + '</div></div><span class="kr-stk-pref">' + s.pref + '</span></div>';
+    }).join('');
+
+  // Advocacy bars
+  var barsHtml = '';
+  for (var i = 0; i < 5; i++) {
+    barsHtml += '<div class="kr-bar-seg' + (i >= d.advocacy ? ' empty' : '') + '"></div>';
+  }
+  document.querySelector('.kr-advocacy-bars').innerHTML = barsHtml;
+  document.querySelector('.kr-advocacy-label').textContent = d.advocacy + ' / 5';
+
+  // Implementations
+  document.querySelector('.kr-impl-num').textContent = d.implementations;
+
+  // Engagements
+  var engContainer = document.querySelector('.kr-detail-side > div:nth-child(3)');
+  engContainer.innerHTML = '<div class="kr-side-eyebrow">Recent Udder Engagements</div>' +
+    d.engagements.map(function(e) {
+      return '<div class="kr-engagement-item"><div class="kr-engagement-name">' + e.name + '</div><div class="kr-engagement-meta">' + e.meta + '</div></div>';
+    }).join('');
+
+  // Tags
+  document.querySelector('.kr-tag-list').innerHTML = d.tags.map(function(t) {
+    return '<span class="kr-tag ' + (t.dark ? 'dark' : 'light') + '">' + t.label + '</span>';
+  }).join('');
+
+  // Watch-outs
+  document.querySelector('.kr-watchouts ul').innerHTML = d.watchouts.map(function(w) {
+    return '<li>' + w + '</li>';
+  }).join('');
+}
 </script>
 
 </body>
