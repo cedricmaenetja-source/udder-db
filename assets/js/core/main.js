@@ -43,6 +43,13 @@ let sessionId;
 let loggedIn;
 
 window.searchFilters = [];
+window._categories = [];
+
+let sessionReady;
+let sessionReadyResolve;
+sessionReady = new Promise(function(resolve) {
+    sessionReadyResolve = resolve;
+});
 
 window._capitalize = function capitalize(str) {
   if (!str) return '';
@@ -51,7 +58,6 @@ window._capitalize = function capitalize(str) {
 
 $(async function () {
     await initSession();
-
     loggedIn = await isLoggedIn();
     if (!loggedIn) {
         $('#sbSignIn').removeClass('hide');
@@ -75,6 +81,8 @@ $(async function () {
         $('#sbSignInNote').addClass('hide');
         $('#sbUser').removeClass('hide');
     }
+
+    //sessionReadyResolve();
 
     $.getJSON("https://api.ipify.org?format=json", function(data) {
         window._ipAddress = data.ip;
@@ -134,10 +142,13 @@ function logSearchActivity(q){
   });
 }
 
-window.triggerUdderSearch = function(prompt) {
-    console.log('prompt', prompt);
-  document.getElementById('modalSearch').value = prompt;
-  document.getElementById('askAiBtn').click();
+window.triggerUdderSearch = async function(filters) {
+    filters = JSON.parse(filters);
+    filters['required_features'] = [];
+    filters['required_integrations'] = [];
+    filters['optional_features'] = [];
+   await loadVendors(filters);
+   //window.closeUdderModal();
 };
 
 $(document).ready(function() {
@@ -202,7 +213,8 @@ $(document).ready(function() {
     });
 
     $("#askAiBtn").on("click", function(event) {
-        runSearch();
+        //runSearch();
+        runSearchWithFilters();
     });
 
     let query = App.getCookie('query');
@@ -216,7 +228,6 @@ $(document).ready(function() {
         //runSearch();
     }else{
         loadVendors().then(() => {
-            // setupPagination();
             regionServed.forEach(region => {
                 $('#regionFilter').append(`<option>${region}</option>`);
             });
@@ -331,7 +342,7 @@ $(document).ready(function() {
         e.preventDefault();
 
         $('.page').addClass('fade-out');
-        console.log('loaded');
+    
         setTimeout(function () {
             window.location.href = url;
         }, 300);
@@ -638,7 +649,7 @@ async function loadUserProfile(){
 
 window._loadAlsoEvaluating = function loadAlsoEvaluating(id) {
     const container = document.getElementById('vdAlsoEvaluating');
-    console.log('running');
+
     // Show loading state while waiting
     container.innerHTML = `
         <div class="vd-also-loading">
@@ -667,7 +678,7 @@ function renderVendors(container, vendors) {
             <a id="eval${vendor.id}" href="#" onclick="window.open('${vendor.website || '#'}', '_blank'); return false;" style="text-decoration:none">
             <div class="vd-also-item">
                 <div class="vd-also-logo">
-                   <img src="../assets/images/logos/${vendor.name.replaceAll(' ', '')}.webp" alt="${vendor.name} logo" loading="lazy" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'">
+                   <img src="../assets/images/logos/${vendor.name.replaceAll(' ', '')}.webp" alt="${vendor.name} logo" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'">
                 </div>
 
                 <div>
@@ -708,7 +719,6 @@ async function getHistoricalSearchFilters(){
     });
 
     window.searchFilters = searchFilters;
-    console.log(window.searchFilters);
 }
 
 function addCategories(){
@@ -765,6 +775,37 @@ async function checkGuestAILimit(){
 
     const res = await reslimit.json();
     return res;
+}
+
+async function runSearchWithFilters(filters){
+    const modal = document.getElementById('searchModal');
+    const body = document.body;
+
+    if (!filters){
+        $('#modalSearch').val('');
+        $('#search').val('');
+        return;
+    } 
+
+    $('#modalSearch').prop('disabled', true);
+    
+    $('.layout').hide();
+    $('.spinner-container').removeClass('hide');
+    $('#askAiBtn').addClass('hide');
+    
+    await loadVendors(filters, value);
+    
+    $('.layout').show();
+    $('#xloader').empty();
+    $('.spinner-container').addClass('hide');
+    $('#modalSearch').prop('disabled', false);
+    $('#askAiBtn').removeClass('hide');
+    App.setCookie('query', '');
+
+    modal.classList.remove('active', 'open');
+    body.classList.remove('modal-active');
+    $('#modalSearch').val('');
+    $('#search').val('');
 }
 
 async function runSearch(){
@@ -827,8 +868,6 @@ async function runSearch(){
         $('#askAiBtn').removeClass('hide');
         return;
     }
-
-    console.log('Claude Response:', filters);
 
     saveQuery(filters, value);
     filters['query'] = value;
@@ -1203,6 +1242,9 @@ async function loadVendors(filters = null, query = null){
     let vendors;
     regionServed = [];
 
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn) await initSession();
+
     try {
         const response = await fetch('/api/supabase?action=getVendors');
         const result = await response.json();
@@ -1238,7 +1280,7 @@ async function loadVendors(filters = null, query = null){
             (filters.target_market !== null) ? text.push(`Company size ${filters.target_market}`) : '';
             (filters.region !== null) ? text.push(`Region ${filters.region}`) : '';
             
-            if (filters.required_features.length > 0){
+            if (filters.required_features !== null && filters.required_features.length > 0){
                 text.push(`Requirements: [${filters.required_features.join(',')}]`);
             }
 
@@ -1248,11 +1290,11 @@ async function loadVendors(filters = null, query = null){
                 vIds.push({vendor_id: v.id, query: query});
             });
 
-            fetch('/api/supabase?action=addSearchMatches', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({payload:vIds}),
-            });
+            // fetch('/api/supabase?action=addSearchMatches', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({payload:vIds}),
+            // });
         }else{
             $('#vendors').append(`<div class="no-results">
                 <div class="nr-icon-wrap">
@@ -1270,6 +1312,7 @@ async function loadVendors(filters = null, query = null){
         }
     }
 
+    let cardsHtml = '';
     vendorList = vendors;
     vendors.forEach(async vendor => {
         vendorData[vendor.id] = vendor;
@@ -1277,6 +1320,8 @@ async function loadVendors(filters = null, query = null){
                 <img width="10" src="../assets/images/udder-verified-icon-32x32.png"/> Verified
             </span>`
             : '';
+        
+        //if (vendor.categories !== null && !vendor.categories.includes(vendor.categories)) window._categories.push(vendor.categories);
         
         if (vendor.data !== null && vendor.data.company !== null){
             const allFeatures = getAllVendorFeatures(vendor);
@@ -1327,7 +1372,7 @@ async function loadVendors(filters = null, query = null){
             // data-implementations="3"
             // data-references (comma separated with an optional | for meta line) e.g. Visa|Enterprise · Multi-region, Bosch|Enterprise · UK, LinkedIn, McDonald's, Ubisoft|SMB · EU
             // data-ver-history (semicolon separated with | between dates and description) e.g. 14 MAR 2026|Upgraded to Udder Approved by Alice Oduya, Udder;02 JAN 2026|Vendor claimed listing — 42 hours of capability evidence attached;12 NOV 2025|AI-generated from public sources (vendor website, G2, Capterra)
-            $('#vendors').append(`
+            cardsHtml += `
                 <div class="card" 
                     data-categories="${vendor.categories}"
                     data-modules="${modules.modules.join(',')}"
@@ -1350,7 +1395,7 @@ async function loadVendors(filters = null, query = null){
                     data-verified="${vendor.verified ? '1' : '0'}">
                         ${verifiedBadge}
                         <div class="card-header">
-                            <img src="${vendor.logo}" alt="${vendor.name} logo" loading="lazy" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'" />
+                            <img src="${vendor.logo}" alt="${vendor.name} logo" class="card-logo" onerror="this.onerror=null;this.src='../assets/images/no-logo.png'" />
                             <h4>${vendor.name}</h4>
                         </div>
                         <p>${vendor.categories}</p>
@@ -1362,9 +1407,11 @@ async function loadVendors(filters = null, query = null){
                             data-score="${vendor.match_score}" 
                             data-matcheditems="${vendor.matched_items}"
                             data-filterscount="${vendor.filters_count}">View →</button>
-                </div>`);
+                </div>`;
         }
     });
+
+    $('#vendors').append(cardsHtml);
 
     updateVendorTotal();
     renderRegionFilter();
@@ -1374,6 +1421,8 @@ async function loadVendors(filters = null, query = null){
 
     $('.skeleton').remove();
     $('.layout').removeClass('hide');
+
+    if (typeof window.closeUdderModal === 'function') window.closeUdderModal();
     $('.sort-dropdown').removeClass('hide');
     $('.faqs-section').removeClass('hide');
 
@@ -1397,6 +1446,17 @@ async function loadVendors(filters = null, query = null){
         }
 
         if (filters.target_market !== null) $(`input[class="orgsize-cb"][value="${filters.target_market}"]`).prop('checked', true);
+
+        // hide filters that do not apply
+        if (filters.category_filters !== null){
+            filters.category_filters.forEach(category => {
+                var input = document.querySelector('input[value="' + category + '"]');
+                if (!input) return;
+                var el = input.parentElement;
+                while (el && el.tagName !== 'LI') el = el.parentElement;
+                if (el) el.classList.add('hide');
+            });
+        }
     }
 }
 
@@ -1750,7 +1810,11 @@ function getAllVendorFeatures(vendor){
             });
         });
     });
-   
+    
+    features = features.map(item => item.replace(/\(([^)]+)\)/g, (match, inner) => 
+     `(${inner.replace(/,\s*/g, '/')})`
+    ));
+
     return features;
 }
 
@@ -1770,7 +1834,7 @@ function updateVendorTotal(){
 
 function applyFilters(filters, vendors) {
     if (!filters || !Array.isArray(vendors)) return [];
-
+   
     return vendors
         .map(vendor => {
             const company = vendor?.data?.company;
@@ -1795,7 +1859,8 @@ function applyFilters(filters, vendors) {
             // ── Target Market ───────────────────────────────
             if (filters.target_market) {
                 filtersCount++;
-
+                
+                filters.target_market = filters.target_market.replace(',', '');
                 if (filters.target_market == meta.target_market) {
                     score++;
                     matched.push(`Fits ${filters.target_market}`);
@@ -1840,7 +1905,6 @@ function applyFilters(filters, vendors) {
                 filtersCount++;
 
                 const availableFeatures = extractAvailableFeatures(company.modules);
-                console.log('availableFeatures', availableFeatures);
                 if (availableFeatures.includes(feature)) {
                     score++;
                     matched.push(`${feature} feature`);
@@ -1855,6 +1919,16 @@ function applyFilters(filters, vendors) {
                 if (integrations.includes(integration.toLowerCase())) {
                     score++;
                     matched.push(`${integration} integration`);
+                }
+            });
+
+            // ── Required Categories ───────────────────────────
+            (filters.categories || []).forEach(category => {
+                filtersCount++;
+                
+                if (vendor.categories !== null && filters.categories.includes(vendor.categories)) {
+                    score++;
+                    matched.push(`${category} category`);
                 }
             });
 

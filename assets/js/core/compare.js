@@ -88,25 +88,27 @@
       selectedCards.push(card);
       $(card).addClass('compare-selected');
       $btn.addClass('added').html(ICON_TICK + '&nbsp;Added');
-      const response = await fetch('/api/supabase?action=addComparison', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-              vendorId: card.dataset.id,
-              userId: window._user.id
-          }),
-      });
+      if (window._user){
+          const response = await fetch('/api/supabase?action=addComparison', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vendorId: card.dataset.id,
+                userId: window._user.id
+            }),
+        });
 
-      fetch('/api/supabase?action=addActivity', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          vendorId: card.dataset.id,
-          username: `${window._user.first_name} ${window._user.last_name}`,
-          message: 'added you to comparison',
-          source: 'Comparison views'
-        })
-      });
+        fetch('/api/supabase?action=addActivity', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            vendorId: card.dataset.id,
+            username: `${window._user.first_name} ${window._user.last_name}`,
+            message: 'added you to comparison',
+            source: 'Comparison views'
+          })
+        });
+      }
     }
     syncActionBtn();
   });
@@ -246,7 +248,13 @@
     var body =
       secHead('Company') +
       dataRow('Org size',     vendors.map(function (v) { return txt(v.headcount); })) +
-      dataRow('Regions',      vendors.map(function (v) { return txt(v.region); })) +
+      dataRow('Regions', vendors.map(function (v) {
+      var region = (v.region || '').split(',').map(function (r) {
+          var t = r.trim();
+          return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+        }).filter(Boolean).join(', ');
+        return txt(region);
+      })) +
       dataRow('Verification', vendors.map(function (v) {
         if (!v.badgeText) return '<span class="cp-muted">&mdash;</span>';
         return '<span class="cp-badge cp-badge-' + (v.isVerified ? 'verified' : 'approved') + '">' +
@@ -254,17 +262,73 @@
       })) +
       boolRow('Certified', vendors.map(function (v) { return v.isApproved || v.isVerified; }));
 
-    TAXONOMY.forEach(function (cat) {
-      body += secHead(cat.label) +
-        boolRow('Supported', vendors.map(function (v) {
-          return (v.modules + ' ' + v.subcategories).toLowerCase().indexOf(cat.key) > -1;
-        }));
-      cat.items.forEach(function (item) {
-        var key = item.toLowerCase();
-        body += boolRow(item, vendors.map(function (v) { return !!v.set[key]; }));
+    /* ── Collect all unique modules, subcategories, features across all vendors ── */
+    var allModules      = [];
+    var allSubcategories = [];
+    var allFeatures     = [];
+
+    vendors.forEach(function (v) {
+      v.modules.split(',').forEach(function (m) {
+        var t = m.trim(); if (t && allModules.indexOf(t) === -1) allModules.push(t);
+      });
+      v.subcategories.split(',').forEach(function (s) {
+        var t = s.trim(); if (t && allSubcategories.indexOf(t) === -1) allSubcategories.push(t);
+      });
+      v.features.split(',').forEach(function (f) {
+        var t = f.trim().replace(/^\[x\]\s*/i,'').replace(/^\[p\]\s*/i,'');
+        if (t && allFeatures.indexOf(t) === -1) allFeatures.push(t);
       });
     });
 
+    /* ── Modules section ── */
+    if (allModules.length) {
+      body += secHead('Area');
+      allModules.sort().forEach(function (item) {
+        var key = item.toLowerCase();
+        body += boolRow(item, vendors.map(function (v) {
+          return v.modules.toLowerCase().split(',').some(function (m) {
+            return m.trim() === key;
+          });
+        }));
+      });
+    }
+
+    /* ── Subcategories section ── */
+    if (allSubcategories.length) {
+      body += secHead('Category');
+      allSubcategories.sort().forEach(function (item) {
+        var key = item.toLowerCase();
+        body += boolRow(item, vendors.map(function (v) {
+          return v.subcategories.toLowerCase().split(',').some(function (s) {
+            return s.trim() === key;
+          });
+        }));
+      });
+    }
+
+    /* ── Features section ── */
+    if (allFeatures.length) {
+      body += secHead('Feature');
+      allFeatures.sort().forEach(function (item) {
+        var key = item.toLowerCase();
+        body += boolRow(item, vendors.map(function (v) {
+          /* [x] prefix means not available, [p] means via partner — still shows as tick */
+          var rawFeatures = v.features.split(',').map(function (f) {
+            return f.trim().replace(/^\[x\]\s*/i,'').replace(/^\[p\]\s*/i,'').toLowerCase();
+          });
+          /* [x] should show as cross */
+          var unavailable = v.features.split(',').filter(function (f) {
+            return /^\[x\]/i.test(f.trim());
+          }).map(function (f) {
+            return f.trim().replace(/^\[x\]\s*/i,'').toLowerCase();
+          });
+          if (unavailable.indexOf(key) > -1) return false;
+          return rawFeatures.indexOf(key) > -1;
+        }));
+      });
+    }
+
+    /* ── Integrations ── */
     body += secHead('Integrations') +
       dataRow('Supported', vendors.map(function (v) { return chips(v.integrations); }));
 
@@ -287,6 +351,15 @@
       });
       syncActionBtn();
       selectedCards.length < 2 ? $('#compareModal').removeClass('open') : buildPanel(selectedCards);
+    }).on('click.cm', '.cp-view-btn', function () {
+      var name = $(this).data('name');
+      var card = selectedCards.find(function (c) {
+        return $(c).data('name') === name;
+      });
+      if (card && typeof window.openVendorDetail === 'function') {
+        $('#compareModal').removeClass('open');
+        window.openVendorDetail(card);
+      }
     });
   }
 

@@ -18,8 +18,23 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-    // const session = await requireAuth(req, res);
-    // if (!session) return;
+    const token = req.cookies.auth;
+   
+    if (!token) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return null;
+    }
+
+    const { data: session } = await supabase
+        .from('tblsessions')
+        .select('user_id')
+        .eq('session_id', token)
+        .maybeSingle();
+
+    if (!session) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return null;
+    }
 
     const { action, vendorId, userId, referenceId } = req.query;
 

@@ -1,1 +1,2196 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UDDER DB — Platform Dashboard</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+
+    :root {
+      --o: #f04e23;
+      --o2: #c93d18;
+      --os: rgba(240,78,35,0.08);
+      --om: rgba(240,78,35,0.15);
+      --k: #0f0f0f;
+      --k2: #1c1c1c;
+      --w: #ffffff;
+      --off: #fafaf9;
+      --off2: #f3f2ef;
+      --b1: rgba(15,15,15,0.05);
+      --b2: rgba(15,15,15,0.09);
+      --b3: rgba(15,15,15,0.16);
+      --t1: #111110;
+      --t2: #4a4a46;
+      --t3: #8a8a85;
+      --t4: #b8b8b2;
+      --sans: 'Poppins','Helvetica Neue',Arial,sans-serif;
+      --lw: 236px;
+      --th: 52px;
+    }
+
+    html, body { height: 100%; overflow: hidden;}
+    body { font-family: var(--sans); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--th); z-index: 300;
+      background: var(--w); border-bottom: 1px solid var(--b1);
+      display: flex; align-items: center;
+    }
+    .tb-logo {
+      width: var(--lw); flex-shrink: 0; height: 100%;
+      display: flex; align-items: center; gap: 9px; padding: 0 18px;
+      border-right: 1px solid var(--b1);
+    }
+    .tb-wordmark { font-size: 24px; font-weight: 800; color: var(--k); letter-spacing: -0.01em; line-height: 1 }
+    .tb-wordmark span { color: var(--o) }
+    .tb-crumb {
+      display: flex; align-items: center; gap: 7px; padding: 0 18px; height: 100%;
+      border-right: 1px solid var(--b1); font-size: 12px; color: var(--t3);
+    }
+    .tb-crumb a { color: var(--t3); text-decoration: none }
+    .tb-crumb .sep { color: var(--t4); font-size: 10px }
+    .tb-crumb .cur { color: var(--t1); font-weight: 500 }
+    .tb-search {
+      flex: 1; display: flex; align-items: center; gap: 9px;
+      margin: 0 14px; padding: 0 12px; height: 32px;
+      border-radius: 7px; border: 1px solid var(--b2); background: var(--off);
+    }
+    .tb-search svg { width: 13px; height: 13px; color: var(--t3); flex-shrink: 0 }
+    .tb-search input {
+      border: none; outline: none; background: transparent;
+      font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1; min-width: 0;
+    }
+    .tb-search input::placeholder { color: var(--t4) }
+    .tb-search-kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 2px 7px; border: 1px solid var(--b2); border-radius: 5px;
+      font-size: 11px; color: var(--t4); background: var(--off2); flex-shrink: 0;
+    }
+    .tb-right { display: flex; align-items: center; gap: 8px; padding-right: 16px; flex-shrink: 0 }
+    .tb-export-btn {
+      display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 16px;
+      border: none; border-radius: 20px; background: var(--o); color: var(--w);
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+      transition: background 0.13s; white-space: nowrap;
+    }
+    .tb-export-btn:hover { background: var(--o2) }
+    .tb-export-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: var(--th); left: 0; bottom: 0; width: var(--lw);
+      background: var(--w); border-right: 1px solid var(--b1);
+      display: flex; flex-direction: column; overflow-y: auto; z-index: 200;
+      scrollbar-width: thin; scrollbar-color: rgba(15,15,15,0.15) transparent;
+    }
+    .sb-user {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border-bottom: 1px solid var(--b1); cursor: pointer; transition: background 0.15s;
+    }
+    .sb-user:hover { background: var(--off) }
+    .sb-avatar {
+      width: 32px; height: 32px; background: var(--k);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--w); flex-shrink: 0;
+    }
+    .sb-uname { font-size: 13px; font-weight: 600; color: var(--t1); line-height: 1.2 }
+    .sb-urole { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600 }
+    .sb-chev { color: var(--t4); font-size: 9px; margin-left: auto }
+    .sb-sec {
+      font-size: 11px; font-weight: 700; color: var(--t3);
+      text-transform: uppercase; letter-spacing: 0.12em; padding: 16px 16px 6px;
+    }
+    .sb-nav { list-style: none; padding: 0 6px; margin-bottom: 4px }
+    .sb-nav li { margin-bottom: 1px }
+    .sb-nav a, .sb-nav button {
+      display: flex; align-items: center; gap: 9px; width: 100%;
+      padding: 7px 10px; font-size: 13px; font-weight: 500; color: var(--t2);
+      text-decoration: none; background: none; border: none; cursor: pointer;
+      font-family: var(--sans); transition: all 0.13s; border-radius: 6px;
+      border-left: 3px solid transparent;
+    }
+    .sb-nav a:hover, .sb-nav button:hover { background: var(--off); color: var(--t1) }
+    .sb-nav a.on {
+      background: #f3f3f3; color: var(--t1); font-weight: 600;
+      border-left: 3px solid var(--o); border-radius: 0 6px 6px 0;
+    }
+    .sb-nav svg { width: 14px; height: 14px; color: var(--t3); flex-shrink: 0 }
+    .sb-nav a.on svg { color: var(--o) }
+    .sb-nav a.sub { padding-left: 32px; font-size: 12.5px; color: var(--t3) }
+    .sb-nav a.sub:hover { color: var(--t1) }
+    .sb-nav a.sub.on { padding-left: 29px }
+    .nb {
+      margin-left: auto; font-size: 10px; font-weight: 700; padding: 2px 7px;
+      background: var(--off2); color: var(--t3);
+    }
+    .sb-nav a.on .nb { background: var(--o); color: white }
+    .sb-div { height: 1px; background: var(--b1); margin: 6px 12px }
+    .sb-foot {
+      padding: 10px 14px; margin-top: auto;
+      border-top: 1px solid var(--b1); font-size: 10px; color: var(--t4); line-height: 1.65;
+    }
+
+    /* ── MAIN WRAP ── */
+    .main-wrap {
+      position: fixed; top: var(--th); left: var(--lw); right: 0; bottom: 0; overflow: hidden;
+    }
+    .panel { display: none; flex-direction: column; height: 100%; overflow: hidden; min-height: 0 }
+    .panel.active { display: flex }
+
+    /* ── PLATFORM DASHBOARD ── */
+    .pd-page { flex: 1; overflow-y: auto; padding: 28px 36px 48px; background: var(--w); scrollbar-width: thin }
+    .pd-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px }
+    .pd-title { font-size: 30px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 24px }
+
+    .pd-kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; margin-bottom: 28px }
+    .pd-kpi { padding: 18px 20px; border-right: 1px solid var(--b1) }
+    .pd-kpi:last-child { border-right: none }
+    .pd-kpi-lbl { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 8px }
+    .pd-kpi-val { font-size: 28px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px }
+    .pd-kpi-delta { font-size: 12px; font-weight: 600; color: #16a34a }
+    .pd-kpi-delta.bad { color: #ef4444 }
+
+    .pd-row2 { display: grid; grid-template-columns: 1fr 380px; gap: 20px; margin-bottom: 28px; align-items: stretch }
+    .pd-panel { border: 1px solid var(--b1); border-radius: 14px; padding: 24px; background: var(--w) }
+    .pd-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px }
+    .pd-panel-title { font-size: 18px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em }
+
+    .pd-toggle-group { display: flex; gap: 6px }
+    .pd-toggle-btn { height: 30px; padding: 0 14px; border: 1px solid var(--b2); border-radius: 20px; background: var(--w); font-size: 12px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+    .pd-toggle-btn:hover { border-color: var(--b3) }
+    .pd-toggle-btn.active { background: var(--o); border-color: var(--o); color: var(--w) }
+
+    .pd-stage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px }
+    .pd-stage-card { background: var(--off); border-radius: 10px; padding: 16px }
+    .pd-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 14px }
+    .pd-badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0 }
+    .pd-badge.grey { background: var(--off2); color: var(--t2) }
+    .pd-badge.grey .dot { background: var(--t3) }
+    .pd-badge.outline { background: var(--w); border: 1.5px solid var(--b2); color: var(--t1) }
+    .pd-badge.outline .dot { background: var(--t1) }
+    .pd-badge.orange { background: var(--o); color: var(--w) }
+    .pd-badge.orange .dot { background: var(--w) }
+    .pd-badge.black { background: var(--k); color: var(--w) }
+    .pd-badge.black .dot { background: var(--w) }
+    .pd-stage-num { font-size: 30px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px }
+    .pd-stage-pct { font-size: 12px; color: var(--t3) }
+
+    .pd-segbar { display: flex; height: 8px; border-radius: 4px; overflow: hidden }
+    .pd-segbar > div { height: 100% }
+
+    .pd-chart-wrap { height: 170px; display: flex; align-items: flex-end; gap: 5px; margin-bottom: 12px }
+    .pd-chart-bar { flex: 1; background: var(--o); border-radius: 3px 3px 0 0; min-height: 4px }
+    .pd-chart-label { font-size: 12px; color: var(--t3) }
+
+    .pd-section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px }
+    .pd-section-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.02em }
+    .pd-pending-pill { display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 20px; background: var(--k); color: var(--w); font-size: 12px; font-weight: 700 }
+
+    .pd-table { border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; margin-bottom: 28px }
+    .pd-table-head { display: grid; grid-template-columns: 1.3fr 1.3fr 1fr 0.8fr 1fr 0.9fr 0.7fr; padding: 11px 20px; background: var(--off); border-bottom: 1px solid var(--b1) }
+    .pd-th { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+    .pd-row { display: grid; grid-template-columns: 1.3fr 1.3fr 1fr 0.8fr 1fr 0.9fr 0.7fr; padding: 16px 20px; border-bottom: 1px solid var(--b1); align-items: center; transition: background 0.12s }
+    .pd-row:last-child { border-bottom: none }
+    .pd-row:hover { background: var(--off) }
+    .pd-product-name { font-size: 13px; font-weight: 700; color: var(--t1) }
+    .pd-vendor-name { font-size: 13px; color: var(--t2) }
+    .pd-tier-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700 }
+    .pd-tier-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--w); flex-shrink: 0 }
+    .pd-tier-pill.orange { background: var(--o); color: var(--w) }
+    .pd-tier-pill.black { background: var(--k); color: var(--w) }
+    .pd-submitted { font-size: 13px; color: var(--t2) }
+    .pd-assigned { font-size: 13px; color: var(--t1) }
+    .pd-assigned.unassigned { color: var(--t4); font-style: italic }
+    .pd-status-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+    .pd-row-btn { height: 32px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 20px; background: var(--w); font-size: 12px; font-weight: 700; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+    .pd-row-btn:hover { border-color: var(--b3); background: var(--off) }
+
+    .pd-list-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--b1) }
+    .pd-list-item:last-child { border-bottom: none; padding-bottom: 0 }
+    .pd-list-left { display: flex; align-items: center; gap: 14px }
+    .pd-rank { width: 22px; height: 22px; border-radius: 6px; background: var(--off2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--t2); flex-shrink: 0 }
+    .pd-search-term { font-size: 14px; font-weight: 600; color: var(--t1) }
+    .pd-search-count { font-size: 14px; font-weight: 700; color: var(--t1) }
+
+    .pd-activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--b1) }
+    .pd-activity-item:last-child { border-bottom: none; padding-bottom: 0 }
+    .pd-activity-avatar { width: 30px; height: 30px; border-radius: 7px; background: var(--k); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--w); flex-shrink: 0 }
+    .pd-activity-name { font-size: 13px; font-weight: 700; color: var(--t1) }
+    .pd-activity-action { font-size: 13px; color: var(--t2); margin-top: 1px }
+    .pd-activity-time { font-size: 11px; color: var(--t4); white-space: nowrap; flex-shrink: 0; margin-left: auto; padding-top: 2px }
+
+    .pd-placeholder { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 48px; text-align: center }
+    .pd-placeholder-label { font-size: 13px; color: var(--t4) }
+    .pa-subtitle { font-size: 13px; color: var(--t3); margin-bottom: 0 }
+.pa-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px }
+
+.pa-legend-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--b1) }
+.pa-legend-row:last-of-type { border-bottom: none }
+.pa-legend-left { display: flex; align-items: center; gap: 10px }
+.pa-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0 }
+.pa-legend-dot.grey { background: var(--t3) }
+.pa-legend-dot.black { background: var(--k) }
+.pa-legend-dot.orange { background: var(--o) }
+.pa-legend-dot.red { background: var(--o) }
+.pa-legend-dot.blue { background: #2563eb }
+.pa-legend-dot.green { background: #16a34a }
+.pa-legend-label { font-size: 14px; font-weight: 600; color: var(--t1) }
+.pa-legend-right { display: flex; align-items: center; gap: 10px }
+.pa-legend-count { font-size: 15px; font-weight: 800; color: var(--t1) }
+.pa-legend-pct { font-size: 12px; color: var(--t3); min-width: 30px; text-align: right }
+
+.pa-stat-pair, .pa-stat-row3 { display: grid; gap: 12px; margin-top: 20px }
+.pa-stat-pair { grid-template-columns: 1fr 1fr }
+.pa-stat-row3 { grid-template-columns: 1fr 1fr 1fr }
+.pa-stat-box { background: var(--off); border-radius: 10px; padding: 16px; text-align: center }
+.pa-stat-num { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--t1); line-height: 1; margin-bottom: 6px }
+.pa-stat-num.green { color: #16a34a }
+.pa-stat-num.orange { color: var(--o) }
+.pa-stat-label { font-size: 12px; color: var(--t3) }
+
+.pa-cat-row { margin-bottom: 16px }
+.pa-cat-row:last-child { margin-bottom: 0 }
+.pa-cat-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px }
+.pa-cat-name { font-size: 14px; font-weight: 600; color: var(--t1) }
+.pa-cat-count { font-size: 14px; font-weight: 800; color: var(--t1) }
+.pa-cat-track { height: 6px; background: var(--off2); border-radius: 3px; overflow: hidden }
+.pa-cat-fill { height: 100%; border-radius: 3px; background: var(--t3) }
+.pa-cat-fill.orange { background: var(--o) }
+
+.pa-reg-chart { height: 130px; display: flex; align-items: flex-end; gap: 3px; margin-bottom: 8px }
+.pa-reg-bar { flex: 1; background: var(--k); border-radius: 2px 2px 0 0; min-height: 4px }
+.pa-reg-axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--t3) }
+.internal-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 24px; height: 40px;
+  border-radius: 8px;
+  background: var(--k); color: var(--w);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.internal-banner svg { flex-shrink: 0 }
+/* ── VERIFICATION QUEUE ── */
+.vq-page { flex: 1; overflow-y: auto; padding: 32px 36px; background: var(--w); scrollbar-width: thin }
+.vq-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 10px }
+.vq-title { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 28px }
+
+.vq-kpi-strip { display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--b1); border-radius: 12px; overflow: hidden; margin-bottom: 32px }
+.vq-kpi { padding: 18px 20px; border-right: 1px solid var(--b1) }
+.vq-kpi:last-child { border-right: none }
+.vq-kpi-lbl { font-size: 10px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px }
+.vq-kpi-val { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1 }
+.vq-kpi-val.warn { color: var(--o) }
+.vq-kpi-val.good { color: #16a34a }
+.vq-kpi-val.bad  { color: #ef4444 }
+
+.vq-tabs { display: flex; border-bottom: 1px solid var(--b1); margin-bottom: 20px }
+.vq-tab { padding: 10px 0; margin-right: 28px; font-size: 14px; font-weight: 600; color: var(--t3); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: var(--sans); display: inline-flex; align-items: center; gap: 8px; margin-bottom: -1px }
+.vq-tab.active { color: var(--t1); border-bottom-color: var(--o) }
+.vq-tab-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--o); color: var(--w); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center }
+.vq-tab-badge.grey { background: var(--off2); color: var(--t3) }
+
+.vq-desc { font-size: 13px; color: var(--t2); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.vq-inline-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--b2); background: var(--w); font-size: 11px; font-weight: 700; color: var(--t1) }
+.vq-inline-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--k); flex-shrink: 0 }
+
+.vq-table { border: 1px solid var(--b1); border-radius: 12px; overflow: hidden }
+.vq-table-head { display: grid; grid-template-columns: 220px 220px 1fr 120px 110px 180px; padding: 11px 20px; background: var(--off); border-bottom: 1px solid var(--b1) }
+.vq-th { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+.vq-row { display: grid; grid-template-columns: 220px 220px 1fr 120px 110px 180px; padding: 18px 20px; border-bottom: 1px solid var(--b1); align-items: start; transition: background 0.12s }
+.vq-row:last-child { border-bottom: none }
+.vq-row:hover { background: var(--off) }
+
+.vq-product { display: flex; align-items: center; gap: 10px }
+.vq-product-avatar { width: 34px; height: 34px; border-radius: 7px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.vq-product-name { font-size: 13px; font-weight: 700; color: var(--t1) }
+.vq-product-sub { font-size: 11px; color: var(--t3) }
+.vq-claimant-name { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 2px }
+.vq-claimant-role { font-size: 11px; color: var(--t3); margin-bottom: 2px }
+.vq-claimant-email { font-size: 11px; color: var(--t3) }
+.vq-evidence { list-style: disc; padding-left: 16px; display: flex; flex-direction: column; gap: 4px }
+.vq-evidence li { font-size: 12px; color: var(--t2) }
+.vq-submitted { font-size: 13px; color: var(--t2) }
+
+.vq-status-pill { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+.vq-status-pill.review { background: rgba(234,179,8,0.08); color: #b45309; border-color: rgba(234,179,8,0.25) }
+.vq-status-pill.action { background: rgba(240,78,35,0.08); color: var(--o); border-color: rgba(240,78,35,0.2) }
+
+.vq-actions { display: flex; align-items: center; gap: 8px }
+.vq-accept-btn { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px; background: var(--o); border: none; border-radius: 20px; color: var(--w); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.vq-accept-btn:hover { background: var(--o2) }
+.vq-reject-btn { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 16px; background: transparent; border: 1.5px solid var(--b2); border-radius: 20px; color: var(--t2); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vq-reject-btn:hover { border-color: #ef4444; color: #ef4444 }
+
+/* ── VERIFICATION REQUESTS TAB ── */
+.vr-layout { display: grid; grid-template-columns: 300px 1fr; flex: 1; overflow: hidden; min-height: 0 }
+.vr-right-area { display: grid; grid-template-columns: 1fr 260px; grid-template-rows: auto 1fr; overflow: hidden; min-height: 0 }
+.vr-detail-top { grid-column: 1 / -1; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 28px 28px 20px; border-bottom: 1px solid var(--b1) }
+
+.vr-list { border-right: 1px solid var(--b1); overflow-y: auto; padding: 20px 0; scrollbar-width: thin }
+.vr-list-label { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.12em; padding: 0 20px; margin-bottom: 10px }
+.vr-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin: 0 12px 6px; cursor: pointer; border: 1px solid transparent; border-radius: 10px; transition: all 0.12s }
+.vr-item:hover { background: var(--off); border-color: var(--b1) }
+.vr-item.active { background: #fdf3f0; border-color: rgba(240,78,35,0.25) }
+.vr-item-avatar { width: 36px; height: 36px; border-radius: 7px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.vr-item-name { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 3px }
+.vr-item-tier { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--t3); white-space: nowrap }
+.vr-item-tier .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.vr-item-status { margin-left: auto; flex-shrink: 0 }
+.vr-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700 }
+.vr-badge.review { background: var(--o); color: var(--w) }
+.vr-badge.pending { background: var(--off2); border: 1px solid var(--b1); color: var(--t2) }
+.vr-badge.action { background: var(--k); color: var(--w) }
+.vr-badge.awaiting { background: var(--k); color: var(--w) }
+
+.vr-detail { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; scrollbar-width: thin }
+
+.vr-detail-avatar { width: 52px; height: 52px; border-radius: 10px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.vr-detail-hero { display: flex; align-items: flex-start; gap: 16px; flex: 1 }
+.vr-detail-name { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; line-height: 1; display: inline; margin-right: 10px }
+.vr-detail-sub { font-size: 13px; color: var(--t3) }
+.vr-detail-name-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; background: var(--o); color: var(--w); font-size: 11px; font-weight: 700; margin-left: 10px; vertical-align: middle }
+.vr-detail-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px }
+.vr-reject-btn { height: 36px; padding: 6px 10px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 12px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-reject-btn:hover { border-color: #ef4444; color: #ef4444 }
+.vr-approve-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 6px 10px; border: none; border-radius: 20px; background: var(--o); color: var(--w); font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.vr-approve-btn:hover { background: var(--o2) }
+
+.vr-tier-flow { display: flex; align-items: center; gap: 10px; margin-bottom: 4px }
+.vr-tier-pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 20px; border: 1.5px solid var(--b2); font-size: 10px; font-weight: 700; color: var(--t1) }
+.vr-tier-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.vr-tier-pill.dest { background: var(--o); border-color: var(--o); color: var(--w) }
+.vr-tier-pill.dest .dot { background: var(--w) }
+.vr-tier-arrow { font-size: 16px; color: var(--t3) }
+
+.vr-info-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-info-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 20px }
+.vr-info-row { display: grid; grid-template-columns: 150px 1fr; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--b1); align-items: center }
+.vr-info-label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+.vr-info-value { font-size: 14px; color: var(--t1); font-weight: 400 }
+.vr-info-row:last-child { border-bottom: none; padding-bottom: 0 }
+.vr-info-value.email { color: var(--o) }
+
+.vr-evidence-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-evidence-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 16px }
+.vr-evidence-list { list-style: disc; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px }
+.vr-evidence-list li { font-size: 14px; color: var(--t2) }
+.vr-download-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 18px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-download-btn:hover { border-color: var(--b3); color: var(--t1) }
+
+.vr-checklist-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px }
+.vr-checklist-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 6px }
+.vr-checklist-desc { font-size: 13px; color: var(--t3); margin-bottom: 20px; line-height: 1.6 }
+.vr-check-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--b1) }
+.vr-check-item:last-of-type { border-bottom: none }
+.vr-check-box { width: 20px; height: 20px; border-radius: 5px; border: 1.5px solid var(--b2); background: var(--w); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.13s }
+.vr-check-box.checked { background: var(--o); border-color: var(--o) }
+.vr-check-label { font-size: 14px; color: var(--t2); flex: 1 }
+.vr-check-label.checked { font-weight: 700; color: var(--t1) }
+.vr-check-tick { color: #16a34a; font-size: 14px }
+.vr-progress-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; margin-bottom: 8px }
+.vr-progress-label { font-size: 13px; color: var(--t3) }
+.vr-progress-count { font-size: 13px; font-weight: 700; color: var(--t1) }
+.vr-progress-bar { height: 6px; background: var(--off2); border-radius: 3px; overflow: hidden }
+.vr-progress-fill { height: 100%; background: var(--o); border-radius: 3px; width: 43% }
+
+.vr-side { border-left: 1px solid var(--b1); padding: 28px 20px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; scrollbar-width: thin }
+.vr-side-eyebrow { font-size: 10px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px }
+.vr-side-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); appearance: auto; cursor: pointer }
+.vr-side-btn { width: 100%; height: 40px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.vr-side-btn:hover { border-color: var(--b3); background: var(--off) }
+.vr-schedule-date { font-size: 14px; font-weight: 800; color: var(--t1); margin-bottom: 10px; line-height: 1.4; word-break: break-word }
+.vr-reschedule-btn { height: 36px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vr-reschedule-btn:hover { border-color: var(--b3); background: var(--off) }
+.vr-note-textarea { width: 100%; min-height: 100px; padding: 10px 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); resize: vertical; line-height: 1.6; outline: none; transition: border-color 0.15s }
+.vr-note-textarea:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.vr-note-btn { width: 100%; height: 38px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.vr-note-btn:hover { border-color: var(--b3); background: var(--off) }
+
+/* ── CLIENT INQUIRIES ── */
+.ci-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--w) }
+.ci-header { padding: 10px 32px 0; flex-shrink: 0; background: var(--w) }
+.ci-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 8px }
+.ci-title { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em; line-height: 1; margin-bottom: 20px }
+.ci-filter-btn { height: 34px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t2); cursor: pointer; font-family: var(--sans); transition: all 0.13s; white-space: nowrap }
+.ci-filter-btn:hover { border-color: var(--b3); color: var(--t1) }
+.ci-filter-btn.active { background: var(--o); border-color: var(--o); color: var(--w) }
+.ci-body { display: grid; grid-template-columns: 360px 1fr; flex: 1; overflow: hidden; min-height: 0; border-top: 1px solid var(--b1); margin-top: 20px }
+.ci-list { border-right: 1px solid var(--b1); overflow-y: auto; padding: 16px 0; scrollbar-width: thin }
+.ci-search-wrap { padding: 0 16px 12px }
+.ci-search { display: flex; align-items: center; gap: 8px; padding: 0 14px; height: 38px; border: 1px solid var(--b2); border-radius: 20px; background: var(--off) }
+.ci-search svg { width: 13px; height: 13px; color: var(--t4); flex-shrink: 0 }
+.ci-search input { border: none; outline: none; background: transparent; font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1 }
+.ci-search input::placeholder { color: var(--t4) }
+.ci-item { padding: 14px 20px; cursor: pointer; transition: background 0.12s; border-left: 3px solid transparent }
+.ci-item:hover { background: var(--off) }
+.ci-item.active { background: #fdf3f0; border-left-color: var(--o) }
+.ci-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px }
+.ci-item-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.ci-item-dot.green { background: #16a34a }
+.ci-item-name { font-size: 14px; font-weight: 700; color: var(--t1); flex: 1 }
+.ci-item-time { font-size: 12px; color: var(--t3); white-space: nowrap }
+.ci-item-desc { font-size: 12px; color: var(--t3); margin-bottom: 8px; padding-left: 16px }
+.ci-item-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-left: 16px }
+.ci-tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600 }
+.ci-tag.new { background: var(--o); color: var(--w) }
+.ci-tag.inprogress { background: var(--k); color: var(--w) }
+.ci-tag.proposal { background: #2563eb; color: var(--w) }
+.ci-tag.won { background: #16a34a; color: var(--w) }
+.ci-tag.lost { background: var(--off2); color: var(--t3); border: 1px solid var(--b1) }
+.ci-tag.size { background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+.ci-tag.person { background: var(--off2); color: var(--t2); border: 1px solid var(--b1) }
+.ci-detail { overflow-y: auto; scrollbar-width: thin; }
+.ci-detail-inner { display: grid; grid-template-columns: 1fr 320px; gap: 0; min-height: 100% }
+.ci-detail-main { padding: 28px 24px; display: flex; flex-direction: column; gap: 16px }
+.ci-detail-side { border-left: 1px solid var(--b1); padding: 28px 30px; display: flex; flex-direction: column; gap: 24px; background: var(--w) }
+.ci-detail-eyebrow { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px }
+.ci-detail-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--o); flex-shrink: 0 }
+.ci-detail-name { font-size: 28px; font-weight: 800; color: var(--t1); letter-spacing: -0.025em; line-height: 1; margin-bottom: 6px }
+.ci-detail-meta { font-size: 13px; color: var(--t3) }
+.ci-card { background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 16px }
+.ci-card-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 20px }
+.ci-card-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px }
+.ci-card-title-note { font-size: 12px; color: var(--t3) }
+.ci-contact-row { display: flex; align-items: center; gap: 14px }
+.ci-contact-avatar { width: 40px; height: 40px; border-radius: 8px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.ci-contact-name { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 2px }
+.ci-contact-role { font-size: 13px; color: var(--t3) }
+.ci-contact-email { font-size: 13px; color: var(--o) }
+.ci-service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px }
+.ci-service-tag { display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 20px; background: var(--k); color: var(--w); font-size: 12px; font-weight: 700 }
+.ci-info-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; padding: 13px 0; border-bottom: 1px solid var(--b1); align-items: center }
+.ci-info-row:last-child { border-bottom: none; padding-bottom: 0 }
+.ci-info-label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em }
+.ci-info-value { font-size: 14px; color: var(--t1) }
+.ci-message { font-size: 14px; color: var(--t2); line-height: 1.75; font-style: italic }
+.ci-notes-textarea { width: 100%; min-height: 120px; padding: 12px 14px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); resize: vertical; line-height: 1.6; outline: none; transition: border-color 0.15s }
+.ci-notes-textarea:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.ci-save-notes-btn { height: 36px; padding: 0 20px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 12px }
+.ci-save-notes-btn:hover { border-color: var(--b3); background: var(--off) }
+.ci-side-eyebrow { font-size: 10px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px }
+.ci-side-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); cursor: pointer }
+.ci-side-save-btn { width: 100%; height: 38px; border: 1.5px solid var(--b2); border-radius: 8px; background: transparent; font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s; margin-top: 10px }
+.ci-side-save-btn:hover { border-color: var(--b3); background: var(--off) }
+.ci-send-btn { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--o); color: var(--w); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.ci-send-btn:hover { background: var(--o2) }
+.ci-status-select { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px; background: var(--w); font-size: 13px; color: var(--t1); font-family: var(--sans); cursor: pointer; margin-bottom: 10px }
+.ci-activity-item { padding: 8px 0; border-bottom: 1px solid var(--b1); font-size: 12px; color: var(--t2) }
+.ci-activity-item:last-child { border-bottom: none }
+.ci-activity-time { font-size: 11px; color: var(--t4); margin-top: 2px }
+.ci-related-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.ci-related-item:last-child { border-bottom: none }
+.ci-related-avatar { width: 28px; height: 28px; border-radius: 6px; background: var(--off2); border: 1px solid var(--b1); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--t2); flex-shrink: 0 }
+.ci-related-name { font-size: 13px; font-weight: 600; color: var(--t1) }
+/* ── ACCOUNT SETTINGS ── */
+.as-body { display: grid; grid-template-columns: 210px 1fr; gap: 40px; align-items: start }
+.as-nav { display: flex; flex-direction: column }
+.as-nav-item {
+  display: block; padding: 10px 4px; font-size: 14px; font-weight: 600; color: var(--t2);
+  text-decoration: none; border-bottom: 2px solid transparent; cursor: pointer; background: none; border-left: none; border-right: none; border-top: none;
+  font-family: var(--sans); text-align: left; width: 100%;
+}
+.as-nav-item.active { color: var(--t1); border-bottom-color: var(--o) }
+.as-nav-item:not(.active):hover { color: var(--t1) }
+.as-nav-div { height: 1px; background: var(--b1); margin: 12px 0 10px }
+.as-nav-link { display: flex; align-items: center; gap: 6px; padding: 8px 4px; font-size: 13px; color: var(--t3); text-decoration: none }
+.as-nav-link:hover { color: var(--t1) }
+.as-nav-link svg { width: 13px; height: 13px; flex-shrink: 0 }
+
+.as-panel { border: 1px solid var(--b1); border-radius: 14px; padding: 32px; background: var(--w) }
+.as-panel-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 24px }
+.as-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px }
+.as-field { margin-bottom: 20px }
+.as-field:last-of-type { margin-bottom: 0 }
+.as-label { font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; display: block }
+.as-input, .as-select {
+  width: 100%; height: 42px; padding: 0 14px; border: 1px solid var(--b2); border-radius: 8px;
+  background: var(--w); font-size: 14px; color: var(--t1); font-family: var(--sans); outline: none;
+  transition: border-color 0.15s;
+}
+.as-input:focus, .as-select:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.as-input::placeholder { color: var(--t4) }
+.as-select { appearance: auto; cursor: pointer }
+.as-input-wrap { position: relative }
+.as-input-badge {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border-radius: 6px; background: var(--o);
+  display: flex; align-items: center; justify-content: center; color: var(--w);
+}
+.as-divider-line { height: 1px; background: var(--b1); margin: 28px 0 20px }
+.as-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px }
+.as-cancel-btn { height: 40px; padding: 0 20px; border: 1.5px solid var(--b2); border-radius: 20px; background: transparent; font-size: 13px; font-weight: 700; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.as-cancel-btn:hover { border-color: var(--b3); background: var(--off) }
+.as-save-btn { height: 40px; padding: 0 22px; border: none; border-radius: 20px; background: var(--o); color: var(--w); font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s }
+.as-save-btn:hover { background: var(--o2) }
+.as-notif-intro { font-size: 14px; color: var(--t2); margin-bottom: 24px }
+.as-section-label {
+  font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 4px; margin-top: 24px;
+}
+.as-section-label:first-of-type { margin-top: 0 }
+.as-toggle-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 18px 0; border-bottom: 1px solid var(--b1);
+}
+.as-toggle-row:last-of-type { border-bottom: none }
+.as-toggle-name { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 3px }
+.as-toggle-desc { font-size: 13px; color: var(--t3) }
+.as-toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0 }
+.as-toggle input { opacity: 0; width: 0; height: 0 }
+.as-toggle-slider {
+  position: absolute; cursor: pointer; inset: 0; background-color: var(--off2);
+  border: 1px solid var(--b2); transition: 0.2s; border-radius: 24px;
+}
+.as-toggle-slider:before {
+  position: absolute; content: ""; height: 18px; width: 18px; left: 2px; top: 2px;
+  background-color: white; transition: 0.2s; border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.as-toggle input:checked + .as-toggle-slider { background-color: var(--o); border-color: var(--o) }
+.as-toggle input:checked + .as-toggle-slider:before { transform: translateX(18px) }
+.as-req-box {
+  background: var(--off); border-radius: 10px; padding: 20px 24px; margin-top: 4px;
+}
+.as-req-title { font-size: 14px; font-weight: 700; color: var(--t1); margin-bottom: 10px }
+.as-req-box ul { list-style: disc; padding-left: 18px; display: flex; flex-direction: column; gap: 4px }
+.as-req-box li { font-size: 13px; color: var(--t2) }
+.as-forgot-label {
+  font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 8px;
+}
+.as-forgot-desc { font-size: 13px; color: var(--t2); margin-bottom: 14px }
+.as-reset-btn {
+  height: 38px; padding: 0 18px; border: 1.5px solid var(--b2); border-radius: 20px;
+  background: var(--w); font-size: 13px; font-weight: 700; color: var(--t1); cursor: pointer;
+  font-family: var(--sans); transition: all 0.13s;
+}
+.as-reset-btn:hover { border-color: var(--b3); background: var(--off) }
+.as-panel-desc { font-size: 14px; color: var(--t2); margin-bottom: 20px }
+.as-link-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 18px;
+  border: 1.5px solid var(--b2); border-radius: 20px; background: var(--w);
+  font-size: 13px; font-weight: 700; color: var(--t1); cursor: pointer;
+  font-family: var(--sans); transition: all 0.13s; text-decoration: none;
+}
+.as-link-btn:hover { border-color: var(--b3); background: var(--off) }
+.as-link-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+.as-danger-panel {
+  border: 1.5px solid #ef4444; border-radius: 14px; padding: 32px; background: var(--w); margin-top: 24px;
+}
+.as-danger-label { font-size: 11px; font-weight: 700; color: #ef4444; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px }
+.as-danger-title { font-size: 20px; font-weight: 800; color: var(--t1); letter-spacing: -0.015em; margin-bottom: 14px }
+.as-danger-desc { font-size: 14px; color: var(--t2); line-height: 1.6; margin-bottom: 20px }
+.as-danger-btn {
+  height: 38px; padding: 0 18px; border: 1.5px solid #ef4444; border-radius: 20px;
+  background: transparent; font-size: 13px; font-weight: 700; color: #ef4444; cursor: pointer;
+  font-family: var(--sans); transition: all 0.13s;
+}
+.as-danger-btn:hover { background: #ef4444; color: var(--w) }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="tb-logo">
+    <div class="tb-wordmark">UDDER <span>DB</span></div>
+  </div>
+  <div class="tb-crumb">
+    <a href="#">Admin</a>
+    <span class="sep">/</span>
+    <span class="cur" id="tbCrumbCur">Platform Dashboard</span>
+  </div>
+  <div class="tb-search">
+    <svg viewBox="0 0 16 16" fill="none">
+      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <input type="text" placeholder="Search 340+ HR tech products…">
+    <span class="tb-search-kbd">⌘K</span>
+  </div>
+  <div class="tb-right">
+    <button class="tb-export-btn">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Export report
+    </button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-user">
+    <div class="sb-avatar">JP</div>
+    <div>
+      <div class="sb-uname">James Park</div>
+      <div class="sb-urole">Platform Admin</div>
+    </div>
+    <span class="sb-chev">▾</span>
+  </div>
+
+  <div class="sb-sec">Workspace</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="#" class="nav-link on" data-panel="dashboard" data-crumb="Platform Dashboard">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V9h3v4H2zM6.5 13V5h3v8h-3zM11 13V2h3v11h-3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        Platform Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link sub" data-panel="analytics" data-crumb="Platform Analytics">Platform Analytics</a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="vendors" data-crumb="Vendors">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
+        Vendors
+        <span class="nb">342</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="users" data-crumb="Users">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5.5" r="2.3" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 13c0-2.4 1.9-4 4.2-4s4.2 1.6 4.2 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="11.5" cy="5.8" r="1.8" stroke="currentColor" stroke-width="1.2"/><path d="M9.8 8.3c1.9 0.2 3.4 1.6 3.5 3.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Users
+        <span class="nb">1284</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="verifqueue" data-crumb="Verification Queue">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM2 13c0-2.5 2-4 6-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10 9l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Verification Queue
+        <span class="nb">12</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="inquiries" data-crumb="Client Inquiries">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.3"/><path d="M2 3l6 5 6-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Client Inquiries
+        <span class="nb">2</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="taxonomy" data-crumb="Taxonomy">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="2" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="6" y="10" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4 6v2a2 2 0 0 0 2 2M12 6v2a2 2 0 0 1-2 2" stroke="currentColor" stroke-width="1.3"/></svg>
+        Taxonomy
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="settings" data-crumb="Platform Settings">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Platform Settings
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-div"></div>
+
+  <div class="sb-sec">Platform</div>
+  <ul class="sb-nav">
+    <li>
+      <a href="#">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/></svg>
+        Back to Landing
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link" data-panel="account" data-crumb="Account Settings">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Account settings
+      </a>
+    </li>
+  </ul>
+
+  <div class="sb-foot">The Udder Group<br>UdderDB v0.6 · MVP</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- PLATFORM DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="pd-page">
+      <div class="pd-eyebrow">Platform Operations</div>
+      <div class="pd-title">UdderDB — Q2 2026 to date</div>
+
+      <div class="pd-kpi-strip">
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Total products</div>
+          <div class="pd-kpi-val">342</div>
+          <div class="pd-kpi-delta">+18 this month</div>
+        </div>
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Vendor-owned</div>
+          <div class="pd-kpi-val">128</div>
+          <div class="pd-kpi-delta">+7</div>
+        </div>
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Registered users</div>
+          <div class="pd-kpi-val">1,284</div>
+          <div class="pd-kpi-delta">+142</div>
+        </div>
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Searches (7d)</div>
+          <div class="pd-kpi-val">8,412</div>
+          <div class="pd-kpi-delta">+12%</div>
+        </div>
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Intros sent</div>
+          <div class="pd-kpi-val">216</div>
+          <div class="pd-kpi-delta">+33</div>
+        </div>
+        <div class="pd-kpi">
+          <div class="pd-kpi-lbl">Verif. queue</div>
+          <div class="pd-kpi-val">12</div>
+          <div class="pd-kpi-delta bad">Stale &gt; 14d</div>
+        </div>
+      </div>
+
+      <div class="pd-row2">
+        <!-- Verification pipeline -->
+        <div class="pd-panel">
+          <div class="pd-panel-header">
+            <div class="pd-panel-title">Verification pipeline</div>
+            <div class="pd-toggle-group">
+              <button class="pd-toggle-btn">Last 30d</button>
+              <button class="pd-toggle-btn active">Last 90d</button>
+            </div>
+          </div>
+
+          <div class="pd-stage-grid">
+            <div class="pd-stage-card">
+              <span class="pd-badge grey"><span class="dot"></span> AI-GENERATED</span>
+              <div class="pd-stage-num">214</div>
+              <div class="pd-stage-pct">62% of catalogue</div>
+            </div>
+            <div class="pd-stage-card">
+              <span class="pd-badge outline"><span class="dot"></span> VENDOR OWNED</span>
+              <div class="pd-stage-num">81</div>
+              <div class="pd-stage-pct">24% of catalogue</div>
+            </div>
+            <div class="pd-stage-card">
+              <span class="pd-badge orange"><span class="dot"></span> UDDER VERIFIED</span>
+              <div class="pd-stage-num">36</div>
+              <div class="pd-stage-pct">10% of catalogue</div>
+            </div>
+            <div class="pd-stage-card">
+              <span class="pd-badge black"><span class="dot"></span> UDDER APPROVED</span>
+              <div class="pd-stage-num">11</div>
+              <div class="pd-stage-pct">4% of catalogue</div>
+            </div>
+          </div>
+
+          <div class="pd-segbar">
+            <div style="width:62%;background:var(--t3)"></div>
+            <div style="width:24%;background:var(--k)"></div>
+            <div style="width:10%;background:var(--o)"></div>
+            <div style="width:4%;background:var(--k)"></div>
+          </div>
+        </div>
+
+        <!-- Search volume -->
+        <div class="pd-panel">
+          <div class="pd-panel-header">
+            <div class="pd-panel-title">Search volume</div>
+          </div>
+          <div class="pd-chart-wrap" id="pdChart"></div>
+          <div class="pd-chart-label">Daily queries · last 16 days</div>
+        </div>
+      </div>
+
+      <!-- Verification queue -->
+      <div class="pd-section-header">
+        <div class="pd-section-title">Verification queue</div>
+        <span class="pd-pending-pill">12 pending</span>
+      </div>
+
+      <div class="pd-table">
+        <div class="pd-table-head">
+          <span class="pd-th">Product</span>
+          <span class="pd-th">Vendor</span>
+          <span class="pd-th">Requested tier</span>
+          <span class="pd-th">Submitted</span>
+          <span class="pd-th">Assigned</span>
+          <span class="pd-th">Status</span>
+          <span class="pd-th"></span>
+        </div>
+
+        <div class="pd-row">
+          <div class="pd-product-name">SmartRecruiters</div>
+          <div class="pd-vendor-name">SmartRecruiters, Inc.</div>
+          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
+          <div class="pd-submitted">2 days ago</div>
+          <div class="pd-assigned">Rachel Patel</div>
+          <div><span class="pd-status-pill">Reviewing</span></div>
+          <div><button class="pd-row-btn">Open</button></div>
+        </div>
+
+        <div class="pd-row">
+          <div class="pd-product-name">HiBob</div>
+          <div class="pd-vendor-name">Hi Bob Ltd.</div>
+          <div><span class="pd-tier-pill black"><span class="dot"></span> UDDER APPROVED</span></div>
+          <div class="pd-submitted">5 days ago</div>
+          <div class="pd-assigned">Alice Oduya</div>
+          <div><span class="pd-status-pill">Awaiting refs</span></div>
+          <div><button class="pd-row-btn">Open</button></div>
+        </div>
+
+        <div class="pd-row">
+          <div class="pd-product-name">Lattice</div>
+          <div class="pd-vendor-name">Lattice</div>
+          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
+          <div class="pd-submitted">1 week ago</div>
+          <div class="pd-assigned unassigned">Unassigned</div>
+          <div><span class="pd-status-pill">Action needed</span></div>
+          <div><button class="pd-row-btn">Assign</button></div>
+        </div>
+
+        <div class="pd-row">
+          <div class="pd-product-name">Deel</div>
+          <div class="pd-vendor-name">Deel</div>
+          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
+          <div class="pd-submitted">1 week ago</div>
+          <div class="pd-assigned">Tom Fielding</div>
+          <div><span class="pd-status-pill">Scheduled demo</span></div>
+          <div><button class="pd-row-btn">Open</button></div>
+        </div>
+      </div>
+
+      <div class="pd-row2" style="grid-template-columns: 1fr 1fr; margin-bottom: 0">
+        <!-- Top searches -->
+        <div class="pd-panel">
+          <div class="pd-panel-header">
+            <div class="pd-panel-title">Top searches (7d)</div>
+          </div>
+          <div class="pd-list-item">
+            <div class="pd-list-left"><span class="pd-rank">1</span><span class="pd-search-term">Applicant Tracking System UK</span></div>
+            <span class="pd-search-count">842</span>
+          </div>
+          <div class="pd-list-item">
+            <div class="pd-list-left"><span class="pd-rank">2</span><span class="pd-search-term">Global payroll</span></div>
+            <span class="pd-search-count">621</span>
+          </div>
+          <div class="pd-list-item">
+            <div class="pd-list-left"><span class="pd-rank">3</span><span class="pd-search-term">HRIS mid-market</span></div>
+            <span class="pd-search-count">513</span>
+          </div>
+          <div class="pd-list-item">
+            <div class="pd-list-left"><span class="pd-rank">4</span><span class="pd-search-term">Internal mobility platform</span></div>
+            <span class="pd-search-count">401</span>
+          </div>
+          <div class="pd-list-item">
+            <div class="pd-list-left"><span class="pd-rank">5</span><span class="pd-search-term">Engagement survey tool</span></div>
+            <span class="pd-search-count">376</span>
+          </div>
+        </div>
+
+        <!-- Recent admin activity -->
+        <div class="pd-panel">
+          <div class="pd-panel-header">
+            <div class="pd-panel-title">Recent admin activity</div>
+          </div>
+          <div class="pd-activity-item">
+            <div class="pd-activity-avatar">JP</div>
+            <div>
+              <div class="pd-activity-name">James Park</div>
+              <div class="pd-activity-action">Approved HiBob's Verified tier upgrade</div>
+            </div>
+            <div class="pd-activity-time">2m ago</div>
+          </div>
+          <div class="pd-activity-item">
+            <div class="pd-activity-avatar">AO</div>
+            <div>
+              <div class="pd-activity-name">Alice Oduya</div>
+              <div class="pd-activity-action">Added taxonomy entry "AI-powered matching"</div>
+            </div>
+            <div class="pd-activity-time">1h ago</div>
+          </div>
+          <div class="pd-activity-item">
+            <div class="pd-activity-avatar">RP</div>
+            <div>
+              <div class="pd-activity-name">Rachel Patel</div>
+              <div class="pd-activity-action">Assigned Deel to herself</div>
+            </div>
+            <div class="pd-activity-time">3h ago</div>
+          </div>
+          <div class="pd-activity-item">
+            <div class="pd-activity-avatar">JP</div>
+            <div>
+              <div class="pd-activity-name">James Park</div>
+              <div class="pd-activity-action">Suspended vendor account — policy violation</div>
+            </div>
+            <div class="pd-activity-time">Yesterday</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /panel-dashboard -->
+
+  <!-- PLACEHOLDER PANELS -->
+  <div class="panel" id="panel-analytics">
+    <div class="pd-page">
+        <div class="internal-banner" style="margin: 0 0 20px">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="7" width="12" height="8" rx="1.5" stroke="white" stroke-width="1.4"/>
+            <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        INTERNAL — UDDER PLATFORM OPERATIONS
+        </div>
+
+        <div class="pa-header-row">
+        <div>
+            <div class="pd-eyebrow">Platform Analytics</div>
+            <div class="pd-title" style="margin-bottom: 6px">UdderDB at a glance</div>
+            <div class="pa-subtitle">Live as of 16 July 2026</div>
+        </div>
+        <div class="pd-toggle-group">
+            <button class="pd-toggle-btn">Last 7 days</button>
+            <button class="pd-toggle-btn active">Last 30 days</button>
+            <button class="pd-toggle-btn">YTD</button>
+        </div>
+        </div>
+
+        <div class="pd-kpi-strip">
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Registered users</div>
+            <div class="pd-kpi-val">1,284</div>
+            <div class="pd-kpi-delta">↑ +142 vs prior</div>
+        </div>
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Platforms listed</div>
+            <div class="pd-kpi-val">342</div>
+            <div class="pd-kpi-delta">↑ +18 vs prior</div>
+        </div>
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Leads generated</div>
+            <div class="pd-kpi-val">216</div>
+            <div class="pd-kpi-delta">↑ +33 vs prior</div>
+        </div>
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Client inquiries</div>
+            <div class="pd-kpi-val">24</div>
+            <div class="pd-kpi-delta">↑ +6 vs prior</div>
+        </div>
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Platform searches</div>
+            <div class="pd-kpi-val">31,840</div>
+            <div class="pd-kpi-delta">↑ +22% vs prior</div>
+        </div>
+        <div class="pd-kpi">
+            <div class="pd-kpi-lbl">Intros sent</div>
+            <div class="pd-kpi-val">147</div>
+            <div class="pd-kpi-delta">↑ +28 vs prior</div>
+        </div>
+        </div>
+
+        <div class="pd-row2" style="grid-template-columns: 1fr 1fr">
+        <!-- Platform verification breakdown -->
+        <div class="pd-panel">
+            <div class="pd-panel-header">
+            <div class="pd-panel-title">Platform verification breakdown</div>
+            <div style="font-size:13px;color:var(--t3)">342 total</div>
+            </div>
+
+            <div class="pd-segbar" style="margin-bottom:20px">
+            <div style="width:62%;background:var(--t3)"></div>
+            <div style="width:24%;background:var(--k)"></div>
+            <div style="width:10%;background:var(--o)"></div>
+            <div style="width:4%;background:var(--k)"></div>
+            </div>
+
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">AI-Generated</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">214</span><span class="pa-legend-pct">62%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Vendor Owned</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">81</span><span class="pa-legend-pct">24%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot orange"></span><span class="pa-legend-label">Udder Verified</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">36</span><span class="pa-legend-pct">10%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Udder Approved</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">11</span><span class="pa-legend-pct">4%</span></div>
+            </div>
+
+            <div class="pa-stat-pair">
+            <div class="pa-stat-box">
+                <div class="pa-stat-num green">47</div>
+                <div class="pa-stat-label">Udder Verified / Approved</div>
+            </div>
+            <div class="pa-stat-box">
+                <div class="pa-stat-num">295</div>
+                <div class="pa-stat-label">AI-Generated / Vendor-only</div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Registered users by role -->
+        <div class="pd-panel">
+            <div class="pd-panel-header">
+            <div class="pd-panel-title">Registered users by role</div>
+            <div style="font-size:13px;color:var(--t3)">1,284 total</div>
+            </div>
+
+            <div class="pd-segbar" style="margin-bottom:20px">
+            <div style="width:69%;background:var(--o)"></div>
+            <div style="width:27%;background:var(--k)"></div>
+            <div style="width:1%;background:var(--k)"></div>
+            <div style="width:3%;background:var(--t3)"></div>
+            </div>
+
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot orange"></span><span class="pa-legend-label">HR Buyers</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">892</span><span class="pa-legend-pct">69%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Vendors</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">342</span><span class="pa-legend-pct">27%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Udder Consultants</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">12</span><span class="pa-legend-pct">1%</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">Admins</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">4</span><span class="pa-legend-pct">0%</span></div>
+            </div>
+
+            <div class="pa-stat-pair">
+            <div class="pa-stat-box">
+                <div class="pa-stat-num orange">+142</div>
+                <div class="pa-stat-label">New users this period</div>
+            </div>
+            <div class="pa-stat-box">
+                <div class="pa-stat-num">74%</div>
+                <div class="pa-stat-label">Profile completion rate</div>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="pd-row2" style="grid-template-columns: 1fr 1fr 1fr">
+        <!-- Leads pipeline -->
+        <div class="pd-panel">
+            <div class="pd-panel-header"><div class="pd-panel-title">Leads pipeline</div></div>
+            <div class="pd-chart-wrap" id="paLeadsChart"></div>
+            <div class="pa-stat-row3">
+            <div class="pa-stat-box"><div class="pa-stat-num">216</div><div class="pa-stat-label">Total leads</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num">6h</div><div class="pa-stat-label">Avg response</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num">68%</div><div class="pa-stat-label">Response rate</div></div>
+            </div>
+        </div>
+
+        <!-- Client inquiries by status -->
+        <div class="pd-panel">
+            <div class="pd-panel-header"><div class="pd-panel-title">Client inquiries by status</div></div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot red"></span><span class="pa-legend-label">New</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">2</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">In progress</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">12</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot blue"></span><span class="pa-legend-label">Proposal sent</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">5</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot green"></span><span class="pa-legend-label">Closed — won</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">38</span></div>
+            </div>
+            <div class="pa-legend-row">
+            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">Closed — lost</span></div>
+            <div class="pa-legend-right"><span class="pa-legend-count">32</span></div>
+            </div>
+            <div class="pa-stat-row3">
+            <div class="pa-stat-box"><div class="pa-stat-num green">38</div><div class="pa-stat-label">Won</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num">54%</div><div class="pa-stat-label">Win rate</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num">24</div><div class="pa-stat-label">This period</div></div>
+            </div>
+        </div>
+
+        <!-- Top searched categories -->
+        <div class="pd-panel">
+            <div class="pd-panel-header"><div class="pd-panel-title">Top searched categories</div></div>
+
+            <div class="pa-cat-row">
+            <div class="pa-cat-head"><span class="pa-cat-name">Applicant Tracking (ATS)</span><span class="pa-cat-count">128</span></div>
+            <div class="pa-cat-track"><div class="pa-cat-fill orange" style="width:100%"></div></div>
+            </div>
+            <div class="pa-cat-row">
+            <div class="pa-cat-head"><span class="pa-cat-name">HRIS / Core HR</span><span class="pa-cat-count">94</span></div>
+            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:73%"></div></div>
+            </div>
+            <div class="pa-cat-row">
+            <div class="pa-cat-head"><span class="pa-cat-name">Payroll</span><span class="pa-cat-count">71</span></div>
+            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:55%"></div></div>
+            </div>
+            <div class="pa-cat-row">
+            <div class="pa-cat-head"><span class="pa-cat-name">Learning &amp; Development</span><span class="pa-cat-count">58</span></div>
+            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:45%"></div></div>
+            </div>
+            <div class="pa-cat-row">
+            <div class="pa-cat-head"><span class="pa-cat-name">Performance Management</span><span class="pa-cat-count">52</span></div>
+            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:40%"></div></div>
+            </div>
+        </div>
+        </div>
+
+        <div class="pd-row2" style="grid-template-columns: 1fr 1fr; margin-bottom: 0">
+        <!-- User registrations over time -->
+        <div class="pd-panel">
+            <div class="pd-panel-header"><div class="pd-panel-title">User registrations over time</div></div>
+            <div class="pa-reg-chart" id="paRegChart"></div>
+            <div class="pa-reg-axis"><span>30 days ago</span><span>Today</span></div>
+        </div>
+
+        <!-- Recent platform activity -->
+        <div class="pd-panel">
+            <div class="pd-panel-header"><div class="pd-panel-title">Recent platform activity</div></div>
+            <div class="pd-activity-item">
+            <div class="pd-activity-avatar">SC</div>
+            <div>
+                <div class="pd-activity-name">Sarah Chen (HR Buyer)</div>
+                <div class="pd-activity-action">Requested intro to SmartRecruiters</div>
+            </div>
+            <div class="pd-activity-time">4m ago</div>
+            </div>
+            <div class="pd-activity-item">
+            <div class="pd-activity-avatar">MR</div>
+            <div>
+                <div class="pd-activity-name">Marcus Reid (Vendor)</div>
+                <div class="pd-activity-action">Updated SmartRecruiters listing</div>
+            </div>
+            <div class="pd-activity-time">12m ago</div>
+            </div>
+            <div class="pd-activity-item">
+            <div class="pd-activity-avatar">CH</div>
+            <div>
+                <div class="pd-activity-name">Charlotte Baines (Kinetik)</div>
+                <div class="pd-activity-action">Submitted client inquiry</div>
+            </div>
+            <div class="pd-activity-time">35m ago</div>
+            </div>
+            <div class="pd-activity-item">
+            <div class="pd-activity-avatar">RP</div>
+            <div>
+                <div class="pd-activity-name">Rachel Patel (Udder)</div>
+                <div class="pd-activity-action">Approved HiBob Vendor claim</div>
+            </div>
+            <div class="pd-activity-time">1h ago</div>
+            </div>
+            <div class="pd-activity-item">
+            <div class="pd-activity-avatar">AO</div>
+            <div>
+                <div class="pd-activity-name">Alice Oduya (Udder)</div>
+                <div class="pd-activity-action">Added internal note on Avature</div>
+            </div>
+            <div class="pd-activity-time">2h ago</div>
+            </div>
+        </div>
+        </div>
+
+    </div>
+    </div>
+
+  <div class="panel" id="panel-vendors">
+    <div class="pd-page">
+      <div class="pd-eyebrow">Platform Operations</div>
+      <div class="pd-title">Vendors</div>
+      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-users">
+    <div class="pd-page">
+      <div class="pd-eyebrow">Platform Operations</div>
+      <div class="pd-title">Users</div>
+      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-verifqueue">
+    <div class="vq-page">
+        <div class="internal-banner" style="margin: 0 0 20px">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="7" width="12" height="8" rx="1.5" stroke="white" stroke-width="1.4"/>
+            <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        INTERNAL — UDDER PLATFORM OPERATIONS
+        </div>
+
+        <div class="vq-eyebrow">Trust &amp; Quality</div>
+        <div class="vq-title">Verification queue</div>
+
+        <div class="vq-kpi-strip">
+        <div class="vq-kpi"><div class="vq-kpi-lbl">Claims Pending</div><div class="vq-kpi-val">4</div></div>
+        <div class="vq-kpi"><div class="vq-kpi-lbl">Verified Requests</div><div class="vq-kpi-val">4</div></div>
+        <div class="vq-kpi"><div class="vq-kpi-lbl">In Review</div><div class="vq-kpi-val">1</div></div>
+        <div class="vq-kpi"><div class="vq-kpi-lbl">Action Needed</div><div class="vq-kpi-val warn">1</div></div>
+        <div class="vq-kpi"><div class="vq-kpi-lbl">Approved (30d)</div><div class="vq-kpi-val good">5</div></div>
+        <div class="vq-kpi"><div class="vq-kpi-lbl">Rejected (30d)</div><div class="vq-kpi-val bad">2</div></div>
+        </div>
+
+        <div class="vq-tabs">
+        <button class="vq-tab active" id="tab-claims" onclick="switchVqTab('claims')">Platform claims <span class="vq-tab-badge">4</span></button>
+        <button class="vq-tab" id="tab-verif" onclick="switchVqTab('verif')">Verification requests (Udder Verified / Approved) <span class="vq-tab-badge grey">4</span></button>
+        </div>
+
+        <div class="vq-desc">
+        Vendors who have claimed an AI-generated listing and submitted updates. Review and accept or reject to upgrade to
+        <span class="vq-inline-badge"><span class="dot"></span> VENDOR OWNED</span>.
+        </div>
+
+        <div class="vq-table">
+        <div class="vq-table-head">
+            <span class="vq-th">Product</span>
+            <span class="vq-th">Claimed by</span>
+            <span class="vq-th">Evidence submitted</span>
+            <span class="vq-th">Submitted</span>
+            <span class="vq-th">Status</span>
+            <span class="vq-th">Actions</span>
+        </div>
+
+        <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">HB</div><div><div class="vq-product-name">HiBob</div><div class="vq-product-sub">Hi Bob Ltd.</div></div></div>
+            <div><div class="vq-claimant-name">Yael Cohen</div><div class="vq-claimant-role">Head of Partnerships</div><div class="vq-claimant-email">yael.cohen@hibob.com</div></div>
+            <ul class="vq-evidence"><li>Updated product description</li><li>Confirmed HQ and founding date</li><li>Added 3 integration partners</li></ul>
+            <div class="vq-submitted">2 hours ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+            <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+            <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+        </div>
+
+        <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">LT</div><div><div class="vq-product-name">Lattice</div><div class="vq-product-sub">Lattice</div></div></div>
+            <div><div class="vq-claimant-name">Devon Park</div><div class="vq-claimant-role">Sr. Partner Marketing Manager</div><div class="vq-claimant-email">devon@lattice.com</div></div>
+            <ul class="vq-evidence"><li>Confirmed all categories</li><li>Updated pricing model</li><li>Added 5 named customers</li></ul>
+            <div class="vq-submitted">1 day ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+            <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+            <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+        </div>
+
+        <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">DL</div><div><div class="vq-product-name">Deel</div><div class="vq-product-sub">Deel</div></div></div>
+            <div><div class="vq-claimant-name">Sofia Martins</div><div class="vq-claimant-role">Partner Enablement Lead</div><div class="vq-claimant-email">sofia.martins@deel.com</div></div>
+            <ul class="vq-evidence"><li>Confirmed global payroll capabilities</li><li>Updated regions and language count</li></ul>
+            <div class="vq-submitted">3 days ago</div>
+            <div><span class="vq-status-pill">Pending</span></div>
+            <div class="vq-actions">
+            <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+            <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+        </div>
+
+        <div class="vq-row">
+            <div class="vq-product"><div class="vq-product-avatar">RP</div><div><div class="vq-product-name">Rippling</div><div class="vq-product-sub">Rippling Inc.</div></div></div>
+            <div><div class="vq-claimant-name">Marcus Webb</div><div class="vq-claimant-role">Channel Partnerships</div><div class="vq-claimant-email">marcus@rippling.com</div></div>
+            <ul class="vq-evidence"><li>Added feature capabilities list</li><li>Uploaded logo and brand assets</li><li>Confirmed pricing tiers</li></ul>
+            <div class="vq-submitted">5 days ago</div>
+            <div><span class="vq-status-pill review">In review</span></div>
+            <div class="vq-actions">
+            <button class="vq-accept-btn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Accept</button>
+            <button class="vq-reject-btn"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Reject</button>
+            </div>
+        </div>
+        </div>
+
+        <!-- Verification requests view (hidden by default) -->
+        <div id="vq-verif-view" style="display:none;flex:1;overflow:hidden;min-height:0">
+        <div class="vr-layout">
+
+            <div class="vr-list">
+            <div class="vr-list-label">Requests</div>
+
+            <div class="vr-item active" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">SR</div>
+                <div>
+                <div class="vr-item-name">SmartRecruiters</div>
+                <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge review">In review</span></div>
+            </div>
+
+            <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">DL</div>
+                <div>
+                <div class="vr-item-name">Deel</div>
+                <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge pending">Pending</span></div>
+            </div>
+
+            <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">LT</div>
+                <div>
+                <div class="vr-item-name">Lattice</div>
+                <div class="vr-item-tier"><span class="dot"></span> UDDER VERIFIED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge action">Action needed</span></div>
+            </div>
+
+            <div class="vr-item" onclick="selectVrItem(this)">
+                <div class="vr-item-avatar">HB</div>
+                <div>
+                <div class="vr-item-name">HiBob</div>
+                <div class="vr-item-tier"><span class="dot" style="background:var(--k)"></span> UDDER APPROVED</div>
+                </div>
+                <div class="vr-item-status"><span class="vr-badge awaiting">Awaiting refs</span></div>
+            </div>
+            </div>
+
+            <div class="vr-right-area">
+
+            <div class="vr-detail-top">
+                <div class="vr-detail-hero">
+                <div class="vr-detail-avatar">SR</div>
+                <div>
+                    <div style="margin-bottom:4px">
+                    <span class="vr-detail-name">SmartRecruiters</span>
+                    <span class="vr-detail-name-badge">In review</span>
+                    </div>
+                    <div class="vr-detail-sub" style="margin-bottom:12px">SmartRecruiters, Inc.</div>
+                    <div class="vr-tier-flow">
+                    <span class="vr-tier-pill"><span class="dot"></span> VENDOR OWNED</span>
+                    <span class="vr-tier-arrow">→</span>
+                    <span class="vr-tier-pill dest"><span class="dot"></span> UDDER VERIFIED</span>
+                    </div>
+                </div>
+                </div>
+                <div class="vr-detail-actions">
+                <button class="vr-reject-btn">Reject</button>
+                <button class="vr-approve-btn">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Approve tier upgrade
+                </button>
+                </div>
+            </div>
+
+            <div class="vr-detail">
+
+                <div class="vr-info-card">
+                <div class="vr-info-title">Requestor</div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Contact</div>
+                    <div class="vr-info-value">Niamh Healy</div>
+                </div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Title</div>
+                    <div class="vr-info-value">Sr Director Product Marketing</div>
+                </div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Email</div>
+                    <div class="vr-info-value email">niamh@smartrecruiters.com</div>
+                </div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Submitted</div>
+                    <div class="vr-info-value">2 days ago</div>
+                </div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Assigned to</div>
+                    <div class="vr-info-value">Rachel Patel</div>
+                </div>
+                <div class="vr-info-row">
+                    <div class="vr-info-label">Demo scheduled</div>
+                    <div class="vr-info-value">Fri 3 May 2026, 2pm BST</div>
+                </div>
+                </div>
+
+                <div class="vr-evidence-card">
+                <div class="vr-evidence-title">Evidence submitted</div>
+                <ul class="vr-evidence-list">
+                    <li>60-min capability walkthrough video</li>
+                    <li>12 feature claims with screenshots</li>
+                    <li>3 validated customer references</li>
+                </ul>
+                <button class="vr-download-btn">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Download all evidence
+                </button>
+                </div>
+
+                <div class="vr-checklist-card">
+                <div class="vr-checklist-title">Validation checklist</div>
+                <div class="vr-checklist-desc">Check off each item as you complete validation. All items must be ticked before approving.</div>
+
+                <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Listing completeness verified</div>
+                    <span class="vr-check-tick">✓</span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Demo video reviewed</div>
+                    <span class="vr-check-tick">✓</span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box checked" onclick="toggleCheck(this)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="vr-check-label checked">Core ATS features validated</div>
+                    <span class="vr-check-tick">✓</span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">CRM capabilities validated</div>
+                    <span></span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Onboarding module validated</div>
+                    <span></span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Integration claims checked</div>
+                    <span></span>
+                </div>
+                <div class="vr-check-item">
+                    <div class="vr-check-box" onclick="toggleCheck(this)"></div>
+                    <div class="vr-check-label">Customer references validated</div>
+                    <span></span>
+                </div>
+
+                <div class="vr-progress-row">
+                    <span class="vr-progress-label">Progress</span>
+                    <span class="vr-progress-count">3/7 complete</span>
+                </div>
+                <div class="vr-progress-bar"><div class="vr-progress-fill"></div></div>
+                </div>
+
+            </div>
+
+            <div class="vr-side" style="padding: 28px 0px;">
+
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="vr-side-eyebrow">Assign Consultant</div>
+                <select class="vr-side-select">
+                    <option>Rachel Patel</option>
+                    <option>Alice Oduya</option>
+                    <option>Tom Fielding</option>
+                </select>
+                <button class="vr-side-btn">Save assignment</button>
+                </div>
+
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="vr-side-eyebrow">Schedule Demo</div>
+                <div class="vr-schedule-date">Fri 3 May 2026, 2pm BST</div>
+                <button class="vr-reschedule-btn">Reschedule</button>
+                </div>
+
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="vr-side-eyebrow">Internal Note</div>
+                <textarea class="vr-note-textarea" placeholder="Add a note for the team..."></textarea>
+                <button class="vr-note-btn">Add note</button>
+                </div>
+
+            </div>
+            </div>
+
+        </div>
+        </div>
+
+    </div>
+    </div><!-- /panel-verifqueue -->
+
+  <div class="panel" id="panel-inquiries">
+    <div class="ci-page">
+        <div class="ci-header">
+        <div class="internal-banner" style="margin: 0 0 20px">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="7" width="12" height="8" rx="1.5" stroke="white" stroke-width="1.4"/>
+            <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            INTERNAL — UDDER PLATFORM OPERATIONS
+        </div>
+        <div class="ci-eyebrow">Business Development</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px">
+            <div class="ci-title">Client inquiries</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-top:8px">
+            <button class="ci-filter-btn active" onclick="filterCI(this,'all')">All <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:10px;background:rgba(255,255,255,0.25);font-size:11px;margin-left:4px">7</span></button>
+            <button class="ci-filter-btn" onclick="filterCI(this,'new')">New</button>
+            <button class="ci-filter-btn" onclick="filterCI(this,'inprogress')">In progress</button>
+            <button class="ci-filter-btn" onclick="filterCI(this,'proposal')">Proposal sent</button>
+            <button class="ci-filter-btn" onclick="filterCI(this,'won')">Closed — won</button>
+            <button class="ci-filter-btn" onclick="filterCI(this,'lost')">Closed — lost</button>
+            </div>
+        </div>
+        </div>
+        <div class="ci-body">
+        <div class="ci-list">
+            <div class="ci-search-wrap">
+            <div class="ci-search">
+                <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search inquiries…" oninput="searchCI(this.value)">
+            </div>
+            </div>
+            <div class="ci-item active" data-status="new" onclick="selectCI(this,'rolls-royce')">
+            <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Rolls-Royce plc</span><span class="ci-item-time">35 min ago</span></div>
+            <div class="ci-item-desc">Vendor selection · RFI / RFP management</div>
+            <div class="ci-item-tags"><span class="ci-tag new">New</span><span class="ci-tag size">25,000+</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'asos')">
+            <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Asos plc</span><span class="ci-item-time">2 hours ago</span></div>
+            <div class="ci-item-desc">HR tech strategy · Digital maturity assessment</div>
+            <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Alice</span></div>
+            </div>
+            <div class="ci-item" data-status="proposal" onclick="selectCI(this,'national-grid')">
+            <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">National Grid</span><span class="ci-item-time">1 day ago</span></div>
+            <div class="ci-item-desc">Market landscape review · Vendor selection</div>
+            <div class="ci-item-tags"><span class="ci-tag proposal">Proposal sent</span><span class="ci-tag size">25,000+</span><span class="ci-tag person">Rachel</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'deliveroo')">
+            <div class="ci-item-top"><span class="ci-item-dot"></span><span class="ci-item-name">Deliveroo</span><span class="ci-item-time">3 days ago</span></div>
+            <div class="ci-item-desc">Implementation support · Change management</div>
+            <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Tom</span></div>
+            </div>
+            <div class="ci-item" data-status="inprogress" onclick="selectCI(this,'linklaters')">
+            <div class="ci-item-top"><span class="ci-item-dot green"></span><span class="ci-item-name">Linklaters LLP</span><span class="ci-item-time">4 days ago</span></div>
+            <div class="ci-item-desc">Platform optimisation · HR tech strategy</div>
+            <div class="ci-item-tags"><span class="ci-tag inprogress">In progress</span><span class="ci-tag size">5,000–25,000</span><span class="ci-tag person">Alice</span></div>
+            </div>
+            <div class="ci-item" data-status="won" onclick="selectCI(this,'bp')">
+            <div class="ci-item-top"><span class="ci-item-dot green"></span><span class="ci-item-name">BP plc</span><span class="ci-item-time">1 week ago</span></div>
+            <div class="ci-item-desc">Vendor selection · Implementation support</div>
+            <div class="ci-item-tags"><span class="ci-tag won">Closed — won</span><span class="ci-tag size">25,000+</span><span class="ci-tag person">Rachel</span></div>
+            </div>
+            <div class="ci-item" data-status="lost" onclick="selectCI(this,'bt')">
+            <div class="ci-item-top"><span class="ci-item-dot" style="background:var(--t4)"></span><span class="ci-item-name">BT Group</span><span class="ci-item-time">2 weeks ago</span></div>
+            <div class="ci-item-desc">RFI / RFP management</div>
+            <div class="ci-item-tags"><span class="ci-tag lost">Closed — lost</span><span class="ci-tag size">25,000+</span></div>
+            </div>
+        </div>
+
+        <div class="ci-detail">
+            <div class="ci-detail-inner">
+            <div class="ci-detail-main">
+                <div>
+                <div class="ci-detail-eyebrow"><span class="ci-detail-dot"></span> HIGH PRIORITY</div>
+                <div class="ci-detail-name" id="ciDetailName">Rolls-Royce plc</div>
+                <div class="ci-detail-meta" id="ciDetailMeta">Aerospace &amp; Defence · 25,000+ · UK / Global</div>
+                </div>
+                <div class="ci-card">
+                <div class="ci-card-title">Contact</div>
+                <div class="ci-contact-row">
+                    <div class="ci-contact-avatar" id="ciContactAvatar">CB</div>
+                    <div>
+                    <div class="ci-contact-name" id="ciContactName">Charlotte Baines</div>
+                    <div class="ci-contact-role" id="ciContactRole">VP People Technology</div>
+                    <div class="ci-contact-email" id="ciContactEmail">c.baines@rolls-royce.com</div>
+                    </div>
+                </div>
+                </div>
+                <div class="ci-card">
+                <div class="ci-card-title">Requested services</div>
+                <div class="ci-service-tags" id="ciServiceTags">
+                    <span class="ci-service-tag">Vendor selection</span>
+                    <span class="ci-service-tag">RFI / RFP management</span>
+                </div>
+                <div class="ci-info-row"><div class="ci-info-label">Budget</div><div class="ci-info-value" id="ciBudget">£500k – £1m consulting</div></div>
+                <div class="ci-info-row"><div class="ci-info-label">Timeline</div><div class="ci-info-value" id="ciTimeline">Q3 2026</div></div>
+                <div class="ci-info-row"><div class="ci-info-label">Submitted</div><div class="ci-info-value" id="ciSubmitted">35 min ago</div></div>
+                </div>
+                <div class="ci-card">
+                <div class="ci-card-title">Client message</div>
+                <div class="ci-message" id="ciMessage">"We're embarking on a global HR tech transformation and need support selecting a new HRIS and ATS to replace our legacy SAP suite. We have roughly 42,000 employees across 50 countries. Timeline is tight — board approval needed by September. We've heard great things about Udder's vendor selection methodology."</div>
+                </div>
+                <div class="ci-card">
+                <div class="ci-card-title-row">
+                    <div class="ci-card-title">Internal notes</div>
+                    <div class="ci-card-title-note">Udder-only · not visible to client</div>
+                </div>
+                <textarea class="ci-notes-textarea" placeholder="Add notes, next steps, context…"></textarea>
+                <button class="ci-save-notes-btn">Save notes</button>
+                </div>
+            </div>
+            <div class="ci-detail-side">
+                <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <select class="ci-status-select" style="flex:1;margin-bottom:0" id="ciStatusSelect">
+                    <option value="new">New</option>
+                    <option value="inprogress">In progress</option>
+                    <option value="proposal">Proposal sent</option>
+                    <option value="won">Closed — won</option>
+                    <option value="lost">Closed — lost</option>
+                    </select>
+                    <button class="ci-send-btn" style="width:auto;padding:0 16px;flex-shrink:0">Send proposal</button>
+                </div>
+                </div>
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="ci-side-eyebrow">Assigned to</div>
+                <select class="ci-side-select" id="ciAssignedSelect">
+                    <option>Unassigned</option>
+                    <option>Alice Oduya</option>
+                    <option>Rachel Patel</option>
+                    <option>Tom Fielding</option>
+                </select>
+                <button class="ci-side-save-btn">Save</button>
+                </div>
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="ci-side-eyebrow">Activity</div>
+                <div class="ci-activity-item"><div>Submitted</div><div class="ci-activity-time">35 min ago</div></div>
+                </div>
+                <div style="background: var(--w); border: 1px solid var(--b1); border-radius: 12px; padding: 24px;">
+                <div class="ci-side-eyebrow">Related to UdderDB</div>
+                <div class="ci-related-item"><div class="ci-related-avatar">SR</div><div class="ci-related-name">SmartRecruiters</div></div>
+                <div class="ci-related-item"><div class="ci-related-avatar">AV</div><div class="ci-related-name">Avature</div></div>
+                <div class="ci-related-item"><div class="ci-related-avatar">WD</div><div class="ci-related-name">Workday HCM</div></div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div><!-- /panel-inquiries -->
+
+  <div class="panel" id="panel-taxonomy">
+    <div class="pd-page">
+      <div class="pd-eyebrow">Platform Operations</div>
+      <div class="pd-title">Taxonomy</div>
+      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-settings">
+    <div class="pd-page">
+      <div class="pd-eyebrow">Platform Operations</div>
+      <div class="pd-title">Platform Settings</div>
+      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-account">
+    <div class="pd-page">
+        <div class="pd-title">Account settings</div>
+        <div class="as-body">
+
+        <!-- Left tab nav -->
+        <div class="as-nav">
+            <button class="as-nav-item active" onclick="switchAsTab(this,'details')">My details</button>
+            <button class="as-nav-item" onclick="switchAsTab(this,'notifications')">Notifications</button>
+            <button class="as-nav-item" onclick="switchAsTab(this,'password')">Password</button>
+            <button class="as-nav-item" onclick="switchAsTab(this,'account')">Account</button>
+            <div class="as-nav-div"></div>
+            <a href="#" class="as-nav-link">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M7 2h7v7M14 2L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Privacy policy
+            </a>
+        </div>
+
+        <!-- Right content -->
+        <div id="as-content-details">
+            <div class="as-panel">
+            <div class="as-panel-title">Personal details</div>
+
+            <div class="as-row2">
+                <div class="as-field">
+                <label class="as-label">First name</label>
+                <div class="as-input-wrap">
+                    <input type="text" class="as-input" value="Sarah" style="padding-right:44px">
+                    <span class="as-input-badge">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
+                    </span>
+                </div>
+                </div>
+                <div class="as-field">
+                <label class="as-label">Last name</label>
+                <input type="text" class="as-input" value="Chen">
+                </div>
+            </div>
+
+            <div class="as-field">
+                <label class="as-label">Work email</label>
+                <input type="email" class="as-input" value="sarah.chen@kinetik.co.uk">
+            </div>
+
+            <div class="as-field">
+                <label class="as-label">Job title</label>
+                <input type="text" class="as-input" value="Head of People Technology">
+            </div>
+
+            <div class="as-field">
+                <label class="as-label">Organisation</label>
+                <input type="text" class="as-input" value="Kinetik Retail Group">
+            </div>
+
+            <div class="as-row2">
+                <div class="as-field">
+                <label class="as-label">Organisation size</label>
+                <select class="as-select">
+                    <option>1–50</option>
+                    <option>51–250</option>
+                    <option>251–1,000</option>
+                    <option>1,001–5,000</option>
+                    <option>5,001–25,000</option>
+                    <option>25,000+</option>
+                </select>
+                </div>
+                <div class="as-field">
+                <label class="as-label">Primary region</label>
+                <select class="as-select">
+                    <option>UK</option>
+                    <option>Europe</option>
+                    <option>North America</option>
+                    <option>APAC</option>
+                    <option>Global</option>
+                </select>
+                </div>
+            </div>
+
+            <div class="as-field">
+                <label class="as-label">Phone (optional)</label>
+                <input type="tel" class="as-input" placeholder="+44 7700 …">
+            </div>
+
+            <div class="as-divider-line"></div>
+
+            <div class="as-actions">
+                <button class="as-cancel-btn">Cancel</button>
+                <button class="as-save-btn">Save changes</button>
+            </div>
+            </div>
+        </div>
+
+        <div id="as-content-notifications" style="display:none">
+            <div class="as-panel">
+                <div class="as-panel-title">Notification preferences</div>
+                <div class="as-notif-intro">Choose what you hear about — we'll never spam you.</div>
+
+                <div class="as-section-label">Vendor activity</div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">Intro request updates</div>
+                    <div class="as-toggle-desc">When a vendor responds to your intro request</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox" checked>
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">New comparisons</div>
+                    <div class="as-toggle-desc">When a vendor adds new comparison data</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox">
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">Verification updates</div>
+                    <div class="as-toggle-desc">When a shortlisted vendor changes verification tier</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox" checked>
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-section-label">Platform</div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">Weekly digest</div>
+                    <div class="as-toggle-desc">Your shortlist and market updates, once a week</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox" checked>
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">Product updates</div>
+                    <div class="as-toggle-desc">New features and platform improvements</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox">
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-toggle-row">
+                <div>
+                    <div class="as-toggle-name">Market insights</div>
+                    <div class="as-toggle-desc">Monthly trends in HR technology from Udder</div>
+                </div>
+                <label class="as-toggle">
+                    <input type="checkbox">
+                    <span class="as-toggle-slider"></span>
+                </label>
+                </div>
+
+                <div class="as-divider-line"></div>
+
+                <div class="as-actions">
+                <button class="as-save-btn">Save preferences</button>
+                </div>
+            </div>
+            </div>
+
+        <div id="as-content-password" style="display:none">
+            <div class="as-panel">
+                <div class="as-panel-title">Change password</div>
+
+                <div class="as-field">
+                <label class="as-label">Current password</label>
+                <div class="as-input-wrap">
+                    <input type="password" class="as-input" placeholder="Current password" style="padding-right:44px">
+                    <span class="as-input-badge">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
+                    </span>
+                </div>
+                </div>
+
+                <div class="as-field">
+                <label class="as-label">New password</label>
+                <div class="as-input-wrap">
+                    <input type="password" class="as-input" placeholder="At least 12 characters" style="padding-right:44px">
+                    <span class="as-input-badge">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
+                    </span>
+                </div>
+                </div>
+
+                <div class="as-field">
+                <label class="as-label">Confirm new password</label>
+                <div class="as-input-wrap">
+                    <input type="password" class="as-input" placeholder="Repeat new password" style="padding-right:44px">
+                    <span class="as-input-badge">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
+                    </span>
+                </div>
+                </div>
+
+                <div class="as-req-box">
+                <div class="as-req-title">Password requirements</div>
+                <ul>
+                    <li>At least 12 characters</li>
+                    <li>One uppercase letter</li>
+                    <li>One number or symbol</li>
+                </ul>
+                </div>
+
+                <div class="as-divider-line"></div>
+
+                <div class="as-forgot-label">Forgot your password?</div>
+                <div class="as-forgot-desc">We'll send a reset link to your registered email address.</div>
+                <button class="as-reset-btn">Send reset email</button>
+
+                <div class="as-divider-line"></div>
+
+                <div class="as-actions">
+                <button class="as-cancel-btn">Cancel</button>
+                <button class="as-save-btn">Update password</button>
+                </div>
+            </div>
+            </div>
+
+        <div id="as-content-account" style="display:none">
+            <div class="as-panel">
+                <div class="as-panel-title">Privacy policy</div>
+                <div class="as-panel-desc">Understand how UdderDB collects, stores, and uses your data.</div>
+                <a href="#" class="as-link-btn">
+                <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M7 2h7v7M14 2L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Read privacy policy ↗
+                </a>
+            </div>
+
+            <div class="as-danger-panel">
+                <div class="as-danger-label">Danger zone</div>
+                <div class="as-danger-title">Delete account</div>
+                <div class="as-danger-desc">Deleting your account will permanently remove your profile, shortlist, comparisons, and evaluations. This cannot be undone.</div>
+                <button class="as-danger-btn">Delete my account</button>
+            </div>
+            </div>
+
+        </div>
+    </div>
+    </div><!-- /panel-account -->
+
+</div><!-- /main-wrap -->
+
+<script>
+  // Panel + breadcrumb switching
+  document.querySelectorAll('.nav-link[data-panel]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('on'); });
+      this.classList.add('on');
+      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+      var panel = document.getElementById('panel-' + this.dataset.panel);
+      if (panel) panel.classList.add('active');
+      var crumb = document.getElementById('tbCrumbCur');
+      if (crumb && this.dataset.crumb) crumb.textContent = this.dataset.crumb;
+    });
+  });
+
+  document.querySelectorAll('.pd-toggle-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.parentNode.querySelectorAll('.pd-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  // Search volume mini bar chart — 16 days, generally increasing
+  (function() {
+    var data = [38, 42, 44, 47, 45, 50, 55, 58, 60, 63, 68, 72, 78, 84, 92, 100];
+    var max = Math.max.apply(null, data);
+    var wrap = document.getElementById('pdChart');
+    data.forEach(function(v) {
+      var bar = document.createElement('div');
+      bar.className = 'pd-chart-bar';
+      bar.style.height = Math.round((v / max) * 100) + '%';
+      wrap.appendChild(bar);
+    });
+  })();
+
+  // Leads pipeline chart — Platform Analytics
+  (function() {
+    var data = [30,34,33,38,42,45,48,52,50,55,58,54,60,63,59,65,68,64,70,66,72,74,70,76,73,78,80,77,82,85];
+    var max = Math.max.apply(null, data);
+    var wrap = document.getElementById('paLeadsChart');
+    if (!wrap) return;
+    data.forEach(function(v) {
+      var bar = document.createElement('div');
+      bar.className = 'pd-chart-bar';
+      bar.style.height = Math.round((v / max) * 100) + '%';
+      wrap.appendChild(bar);
+    });
+  })();
+
+  // User registrations over time chart — Platform Analytics
+  (function() {
+    var data = [];
+    for (var i = 0; i < 30; i++) {
+      data.push(20 + Math.round(i * 2.3) + (i % 5 === 0 ? 6 : 0));
+    }
+    var max = Math.max.apply(null, data);
+    var wrap = document.getElementById('paRegChart');
+    if (!wrap) return;
+    data.forEach(function(v) {
+      var bar = document.createElement('div');
+      bar.className = 'pa-reg-bar';
+      bar.style.height = Math.round((v / max) * 100) + '%';
+      wrap.appendChild(bar);
+    });
+  })();
+  // Verification queue tab switching
+  function switchVqTab(tab) {
+    document.getElementById('tab-claims').classList.toggle('active', tab === 'claims');
+    document.getElementById('tab-verif').classList.toggle('active', tab === 'verif');
+    var claimsView = document.querySelector('#panel-verifqueue .vq-desc');
+    var tableView = document.querySelector('#panel-verifqueue .vq-table');
+    var verifView = document.getElementById('vq-verif-view');
+    [claimsView, tableView].forEach(function(el) {
+      if (el) el.style.display = tab === 'claims' ? '' : 'none';
+    });
+    verifView.style.display = tab === 'verif' ? 'flex' : 'none';
+  }
+
+  var VR_DATA = {
+    SR: {
+      name: 'SmartRecruiters', sub: 'SmartRecruiters, Inc.', badge: 'In review',
+      contact: 'Niamh Healy', title: 'Sr Director Product Marketing',
+      email: 'niamh@smartrecruiters.com', submitted: '2 days ago', assigned: 'Rachel Patel',
+      demo: 'Fri 3 May 2026, 2pm BST',
+      evidence: ['60-min capability walkthrough video', '12 feature claims with screenshots', '3 validated customer references'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: true },
+        { label: 'Core ATS features validated', checked: true },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    DL: {
+      name: 'Deel', sub: 'Deel Inc.', badge: 'Pending',
+      contact: 'Sofia Martins', title: 'Partner Enablement Lead',
+      email: 'sofia.martins@deel.com', submitted: '3 days ago', assigned: 'Alice Oduya',
+      demo: 'Not scheduled',
+      evidence: ['Confirmed global payroll capabilities', 'Updated regions and language count'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: false },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    LT: {
+      name: 'Lattice', sub: 'Lattice Inc.', badge: 'Action needed',
+      contact: 'Devon Park', title: 'Sr. Partner Marketing Manager',
+      email: 'devon@lattice.com', submitted: '1 day ago', assigned: 'Tom Fielding',
+      demo: 'Mon 6 May 2026, 10am BST',
+      evidence: ['Confirmed all categories', 'Updated pricing model', 'Added 5 named customers'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: true },
+        { label: 'Demo video reviewed', checked: true },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    },
+    HB: {
+      name: 'HiBob', sub: 'Hi Bob Ltd.', badge: 'Awaiting refs',
+      contact: 'Yael Cohen', title: 'Head of Partnerships',
+      email: 'yael.cohen@hibob.com', submitted: '2 hours ago', assigned: 'Rachel Patel',
+      demo: 'Not scheduled',
+      evidence: ['Updated product description', 'Confirmed HQ and founding date', 'Added 3 integration partners'],
+      checklist: [
+        { label: 'Listing completeness verified', checked: false },
+        { label: 'Demo video reviewed', checked: false },
+        { label: 'Core ATS features validated', checked: false },
+        { label: 'CRM capabilities validated', checked: false },
+        { label: 'Onboarding module validated', checked: false },
+        { label: 'Integration claims checked', checked: false },
+        { label: 'Customer references validated', checked: false }
+      ]
+    }
+  };
+
+  function selectVrItem(el) {
+    document.querySelectorAll('.vr-item').forEach(function(i) { i.classList.remove('active'); });
+    el.classList.add('active');
+
+    var initials = el.querySelector('.vr-item-avatar').textContent.trim();
+    var d = VR_DATA[initials];
+    if (!d) return;
+
+    document.querySelector('.vr-detail-name').textContent = d.name;
+    document.querySelector('.vr-detail-name-badge').textContent = d.badge;
+    document.querySelector('.vr-detail-sub').textContent = d.sub;
+
+    var rows = document.querySelectorAll('.vr-info-row .vr-info-value');
+    rows[0].textContent = d.contact;
+    rows[1].textContent = d.title;
+    rows[2].textContent = d.email;
+    rows[2].className = 'vr-info-value email';
+    rows[3].textContent = d.submitted;
+    rows[4].textContent = d.assigned;
+    rows[5].textContent = d.demo;
+
+    var evList = document.querySelector('.vr-evidence-list');
+    evList.innerHTML = d.evidence.map(function(e) { return '<li>' + e + '</li>'; }).join('');
+
+    var checkItems = document.querySelectorAll('.vr-check-item');
+    d.checklist.forEach(function(item, i) {
+      if (!checkItems[i]) return;
+      var box = checkItems[i].querySelector('.vr-check-box');
+      var label = checkItems[i].querySelector('.vr-check-label');
+      var tick = checkItems[i].querySelector('.vr-check-tick') || checkItems[i].querySelector('span:last-child');
+      box.className = 'vr-check-box' + (item.checked ? ' checked' : '');
+      box.innerHTML = item.checked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+      label.className = 'vr-check-label' + (item.checked ? ' checked' : '');
+      label.textContent = item.label;
+      if (tick) tick.textContent = item.checked ? '✓' : '';
+    });
+
+    var done = d.checklist.filter(function(c) { return c.checked; }).length;
+    var total = d.checklist.length;
+    document.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
+    document.querySelector('.vr-progress-fill').style.width = Math.round((done / total) * 100) + '%';
+    document.querySelector('.vr-schedule-date').textContent = d.demo;
+  }
+
+  function toggleCheck(box) {
+    var isChecked = box.classList.toggle('checked');
+    var label = box.nextElementSibling;
+    var tick = label.nextElementSibling;
+    label.classList.toggle('checked', isChecked);
+    box.innerHTML = isChecked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+    if (tick) tick.textContent = isChecked ? '✓' : '';
+    var card = box.closest('.vr-checklist-card');
+    var total = card.querySelectorAll('.vr-check-box').length;
+    var done = card.querySelectorAll('.vr-check-box.checked').length;
+    card.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
+    card.querySelector('.vr-progress-fill').style.width = Math.round((done/total)*100) + '%';
+  }
+
+  // Client inquiries
+  var CI_DATA = {
+    'rolls-royce': { name: 'Rolls-Royce plc', meta: 'Aerospace &amp; Defence · 25,000+ · UK / Global', status: 'new', contact: { initials: 'CB', name: 'Charlotte Baines', role: 'VP People Technology', email: 'c.baines@rolls-royce.com' }, services: ['Vendor selection', 'RFI / RFP management'], budget: '£500k – £1m consulting', timeline: 'Q3 2026', submitted: '35 min ago', message: '"We\'re embarking on a global HR tech transformation and need support selecting a new HRIS and ATS to replace our legacy SAP suite. We have roughly 42,000 employees across 50 countries. Timeline is tight — board approval needed by September. We\'ve heard great things about Udder\'s vendor selection methodology."', assigned: 'Unassigned', activity: [{ text: 'Submitted', time: '35 min ago' }], related: [{ initials: 'SR', name: 'SmartRecruiters' }, { initials: 'AV', name: 'Avature' }, { initials: 'WD', name: 'Workday HCM' }] },
+    'asos': { name: 'Asos plc', meta: 'Retail / E-commerce · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'MK', name: 'Maya Khan', role: 'Head of People Technology', email: 'm.khan@asos.com' }, services: ['HR tech strategy', 'Digital maturity assessment'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '2 hours ago', message: '"We want an independent view on our HR tech stack before committing to a major transformation. Looking for a digital maturity assessment and roadmap to help align our P&T leadership."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '1 hour ago' }, { text: 'Submitted', time: '2 hours ago' }], related: [{ initials: 'HB', name: 'HiBob' }, { initials: 'LT', name: 'Lattice' }] },
+    'national-grid': { name: 'National Grid', meta: 'Energy & Utilities · 25,000+ · UK / US', status: 'proposal', contact: { initials: 'JR', name: 'James Reid', role: 'Group HR Technology Director', email: 'j.reid@nationalgrid.com' }, services: ['Market landscape review', 'Vendor selection'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '1 day ago', message: '"We\'re running a competitive RFP for a new global HRIS. We need an independent advisor to help shortlist vendors and run the evaluation process."', assigned: 'Rachel Patel', activity: [{ text: 'Proposal sent', time: '4 hours ago' }, { text: 'Submitted', time: '1 day ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }, { initials: 'SR', name: 'SmartRecruiters' }] },
+    'deliveroo': { name: 'Deliveroo', meta: 'Technology / Gig Economy · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'SP', name: 'Sophie Park', role: 'Talent Operations Manager', email: 's.park@deliveroo.com' }, services: ['Implementation support', 'Change management'], budget: '£50k – £100k consulting', timeline: 'Q3 2026', submitted: '3 days ago', message: '"We\'ve selected a new ATS but need help with change management and rollout across our ops and corporate teams."', assigned: 'Tom Fielding', activity: [{ text: 'Assigned to Tom', time: '2 days ago' }, { text: 'Submitted', time: '3 days ago' }], related: [{ initials: 'GH', name: 'Greenhouse' }] },
+    'linklaters': { name: 'Linklaters LLP', meta: 'Legal Services · 5,000–25,000 · UK / Global', status: 'inprogress', contact: { initials: 'EW', name: 'Emma Walsh', role: 'Chief People Officer', email: 'e.walsh@linklaters.com' }, services: ['Platform optimisation', 'HR tech strategy'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '4 days ago', message: '"We\'re midway through a Workday implementation and struggling with adoption. We need experienced support to optimise configuration."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '3 days ago' }, { text: 'Submitted', time: '4 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
+    'bp': { name: 'BP plc', meta: 'Energy · 25,000+ · UK / Global', status: 'won', contact: { initials: 'DM', name: 'David Moore', role: 'VP HR Transformation', email: 'd.moore@bp.com' }, services: ['Vendor selection', 'Implementation support'], budget: '£500k – £1m consulting', timeline: 'Q1 2026', submitted: '1 week ago', message: '"Project successfully closed. BP selected Workday HCM following our recommendation."', assigned: 'Rachel Patel', activity: [{ text: 'Closed — won', time: '2 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
+    'bt': { name: 'BT Group', meta: 'Telecommunications · 25,000+ · UK', status: 'lost', contact: { initials: 'PH', name: 'Paul Harris', role: 'Head of HR Technology', email: 'p.harris@bt.com' }, services: ['RFI / RFP management'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '2 weeks ago', message: '"BT selected a competitor consultancy for this engagement."', assigned: 'Unassigned', activity: [{ text: 'Closed — lost', time: '1 week ago' }], related: [] }
+  };
+
+  function selectCI(el, key) {
+    document.querySelectorAll('.ci-item').forEach(function(i) { i.classList.remove('active'); });
+    el.classList.add('active');
+    var d = CI_DATA[key];
+    if (!d) return;
+    document.getElementById('ciDetailName').textContent = d.name;
+    document.getElementById('ciDetailMeta').innerHTML = d.meta;
+    document.getElementById('ciContactAvatar').textContent = d.contact.initials;
+    document.getElementById('ciContactName').textContent = d.contact.name;
+    document.getElementById('ciContactRole').textContent = d.contact.role;
+    document.getElementById('ciContactEmail').textContent = d.contact.email;
+    document.getElementById('ciBudget').textContent = d.budget;
+    document.getElementById('ciTimeline').textContent = d.timeline;
+    document.getElementById('ciSubmitted').textContent = d.submitted;
+    document.getElementById('ciMessage').textContent = d.message;
+    document.getElementById('ciServiceTags').innerHTML = d.services.map(function(s) { return '<span class="ci-service-tag">' + s + '</span>'; }).join('');
+    document.getElementById('ciStatusSelect').value = d.status;
+    document.getElementById('ciAssignedSelect').value = d.assigned;
+    var actParent = document.querySelector('#panel-inquiries .ci-activity-item').parentNode;
+    actParent.innerHTML = d.activity.map(function(a) { return '<div class="ci-activity-item"><div>' + a.text + '</div><div class="ci-activity-time">' + a.time + '</div></div>'; }).join('');
+    var relItems = document.querySelectorAll('#panel-inquiries .ci-related-item');
+    var relParent = relItems.length ? relItems[0].parentNode : null;
+    if (relParent) relParent.innerHTML = d.related.length === 0 ? '<div style="font-size:12px;color:var(--t4)">None linked</div>' : d.related.map(function(r) { return '<div class="ci-related-item"><div class="ci-related-avatar">' + r.initials + '</div><div class="ci-related-name">' + r.name + '</div></div>'; }).join('');
+  }
+
+  function filterCI(btn, status) {
+    document.querySelectorAll('.ci-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('#panel-inquiries .ci-item').forEach(function(item) {
+      item.style.display = (status === 'all' || item.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  function searchCI(q) {
+    var query = q.toLowerCase();
+    document.querySelectorAll('#panel-inquiries .ci-item').forEach(function(item) {
+      var name = item.querySelector('.ci-item-name').textContent.toLowerCase();
+      var desc = item.querySelector('.ci-item-desc').textContent.toLowerCase();
+      item.style.display = (name.includes(query) || desc.includes(query)) ? '' : 'none';
+    });
+  }
+
+  function switchAsTab(btn, tab) {
+    document.querySelectorAll('.as-nav-item').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    ['details','notifications','password','account'].forEach(function(t) {
+      var el = document.getElementById('as-content-' + t);
+      if (el) el.style.display = (t === tab) ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>

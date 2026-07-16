@@ -172,5 +172,7 @@ export const HRINTEGRATIONS = [
   {'name':'GoToMeeting', 'logo':'images/gotomeeting.png'}, {'name':'Cornerstone OnDemand', 'logo':'images/cornerstone-ondemand.png'}, {'name':'Docebo', 'logo':'images/docebo.png'},
   {'name':'SAP SuccessFactors', 'logo':'images/sap.png'}, {'name':'SAP', 'logo':'images/sap.png'}, {'name':'Oracle HCM', 'logo':'images/oracle.png'}, {'name':'Oracle', 'logo':'images/oracle.png'}, {'name':'UKG (Ultimate Kronos Group)', 'logo':'images/ukg.png'},
   {'name':'Ceridian Dayforce', 'logo':'images/dayforce.png'}, {'name':'Bullhorn', 'logo':'images/bullhorn.png'}, {'name':'JobDiva', 'logo':'images/jobdiva.png'}, {'name':'Hireology', 'logo':'images/hireology.png'},
-  {'name':'HiBob', 'logo':'images/hibob.png'}, {'name':'Microsoft Azure AD', 'logo':'images/ms-azure.png'}
+  {'name':'HiBob', 'logo':'images/hibob.png'}, {'name':'Microsoft Azure AD', 'logo':'images/ms-azure.png'}, {'name':'Checkr', 'logo':'images/checkr.png'}, {'name':'Sterling', 'logo':'images/Sterling.webp'}, {'name':'Accurate Background', 'logo':'images/accurateBackground.png'}, {'name':'HireRight', 'logo':'images/hireright.png'},
+  {'name':'Intellicheck', 'logo':'images/intellicheck.png'}, {'name':'Persona', 'logo':'images/persona.png'}, {'name':'Indeed', 'logo':'images/indeed.png'}, {'name':'ZipRecruiter', 'logo':'images/ZipRecruiter.webp'}, {'name':'Snagajob', 'logo':'images/Snagajob.png'}, {'name':'WhatsApp', 'logo':'images/WhatsApp.png'}, 
+  {'name':'Twilio', 'logo':'images/Twilio.png'}
 ];

@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  authorize(req, res);
+  //authorize(req, res);
   
   const token = req.cookies.auth;
 

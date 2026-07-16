@@ -2,3 +2,4 @@ node_modules
 dist
 v2
 services
+.claude

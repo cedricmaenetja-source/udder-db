@@ -1160,7 +1160,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
   </div>
   <div class="tb-crumb"><a href="#">Discover</a><span class="sep">/</span><span class="cur">HR Tech Products</span></div>
   <div class="tb-search">
-    <img src="https://portal.adoptech.co.uk/packs/static/images/icons/search-ai-0bda7c45d3aa67d84464.svg" class="globalSearch--searchIcon" alt="Search" style="
+    <img src="../assets/images/ai-search.svg" class="globalSearch--searchIcon" alt="Search" style="
     width: 20px;">
     <input id="search" type="text" placeholder="Ask AI…">
   </div>
@@ -1238,11 +1238,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 </div>
 
 <!-- SEARCH MODAL -->
+<!-- ── Udder AI Modal (category-filtered modules) ── -->
 <div class="modal" id="searchModal">
   <div class="sm-box">
- 
+
    <!-- ── Header ── -->
-<!-- ── Header ── -->
 <div class="sm-header">
   <div class="sm-brand">
     <div class="sm-brand-icon">
@@ -1305,34 +1305,6 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <button id="askAiBtn"    type="button" style="display:none" aria-hidden="true"></button>
 <button id="modalClear"  type="button" style="display:none" aria-hidden="true"></button>
 
-<!-- ── Manual mode input bar ── -->
-<div id="udderManualBar" style="display:none;flex-direction:column;border-top:1px solid var(--b1);">
-  <!-- Autocomplete suggestions -->
-  <div id="udderSuggestions" style="display:none;flex-direction:column;border-bottom:1px solid var(--b1);max-height:180px;overflow-y:auto;"></div>
-  <!-- Input row -->
-  <div style="display:flex;align-items:center;gap:8px;padding:11px 16px;">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--t3);flex-shrink:0">
-      <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
-      <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-    </svg>
-    <input
-      id="udderManualInp"
-      type="text"
-      autocomplete="off"
-      placeholder="e.g. ATS for 2,000 headcount with UK right-to-work…"
-      style="flex:1;border:1px solid var(--b2);outline:none;border-radius:20px;padding:8px 14px;font-size:13px;font-family:var(--sans);color:var(--t1);background:var(--off);transition:border-color 0.15s;"
-      onfocus="this.style.borderColor='var(--o)';this.style.background='var(--w)'"
-      onblur="this.style.borderColor='var(--b2)';this.style.background='var(--off)'"
-    >
-    <button id="udderManualSend" style="width:34px;height:34px;border-radius:50%;background:var(--o);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.13s;" onmouseover="this.style.background='var(--o2)'" onmouseout="this.style.background='var(--o)'">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-        <line x1="12" y1="19" x2="12" y2="5" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-        <polyline points="5,12 12,5 19,12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </div>
-</div>
-
 <!-- ── Footer ── -->
 <div class="sm-footer">
   <span class="sm-footer-brand">Powered by Udder AI</span>
@@ -1388,354 +1360,439 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 .uchat-qr.primary { background: var(--k); color: var(--w); border-color: var(--k); }
 .uchat-qr.primary:hover { background: #333; border-color: #333; color: var(--w); }
 
-.uchat-mode-cards {
-  display: flex; flex-direction: row; gap: 8px;
-  padding-left: 34px; width: 100%;
+.uchat-ac-wrap { width: 100%; position: relative; }
+.uchat-ac-inp::placeholder { color: var(--t4); }
+.uchat-ac-dropdown {
+  position: fixed;
+  background: var(--w); border: 1px solid var(--b2); border-radius: 8px;
+  max-height: 200px; overflow-y: auto; z-index: 99999;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
 }
-.uchat-mode-card {
-  flex: 1; text-align: left; padding: 14px 16px;
-  border: 1px solid var(--b2); border-radius: 10px;
-  background: var(--w); cursor: pointer; font-family: var(--sans);
-  transition: all 0.15s; display: flex; flex-direction: column; gap: 4px;
+.uchat-ac-dropdown::-webkit-scrollbar { width: 3px; }
+.uchat-ac-dropdown::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 6px; }
+.uchat-ac-item {
+  padding: 8px 14px; cursor: pointer; font-size: 12.5px;
+  color: var(--t2); font-family: var(--sans); transition: background 0.1s;
+  border-bottom: 1px solid var(--b1);
 }
-.uchat-mode-card:hover { border-color: var(--o); background: var(--os); }
-.uchat-mode-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
-.uchat-mode-card-title { font-size: 13px; font-weight: 600; color: var(--t1); line-height: 1.3; }
-.uchat-mode-card-desc  { font-size: 11px; color: var(--t3); line-height: 1.45; padding-left: 24px; }
+.uchat-ac-item:last-of-type { border-bottom: none; }
+.uchat-ac-item:hover, .uchat-ac-item.active { background: var(--os); color: var(--o); }
+.uchat-ac-item strong { color: var(--o); font-weight: 600; }
+.uchat-ac-none { padding: 14px; font-size: 12.5px; color: var(--t4); text-align: center; }
+.uchat-ac-hint {
+  padding: 6px 14px; font-size: 11px; color: var(--t4);
+  border-top: 1px solid var(--b1); background: var(--off);
+  border-radius: 0 0 8px 8px;
+}
 
-/* Searchable integration picker */
-.uchat-picker {
-  width: 100%; display: flex; flex-direction: column; gap: 0;
-  border: 1px solid var(--b2); border-radius: 10px; overflow: hidden;
-  background: var(--w);
+/* Module filter badge */
+.uchat-module-context {
+  width: 100%;
+  padding: 5px 10px;
+  background: var(--os);
+  border: 1px solid rgba(240,78,35,0.2);
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--o);
+  font-family: var(--sans);
+  font-weight: 500;
+  margin-bottom: 2px;
 }
-.uchat-picker-search {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 12px; border-bottom: 1px solid var(--b1);
-}
-.uchat-picker-search svg { flex-shrink: 0; color: var(--t3); }
-.uchat-picker-inp {
-  flex: 1; border: none; outline: none; font-size: 13px;
-  font-family: var(--sans); color: var(--t1); background: transparent;
-}
-.uchat-picker-inp::placeholder { color: var(--t4); }
-.uchat-picker-tags {
-  display: flex; flex-wrap: wrap; gap: 5px;
-  padding: 8px 12px; border-bottom: 1px solid var(--b1); min-height: 36px;
-}
-.uchat-picker-tags:empty { display: none; }
-.uchat-picker-tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px; background: var(--os); border: 1px solid var(--om);
-  border-radius: 20px; font-size: 11px; font-weight: 500; color: var(--o);
-}
-.uchat-picker-tag-x {
-  background: none; border: none; cursor: pointer; color: var(--o);
-  font-size: 13px; line-height: 1; padding: 0; margin-left: 1px;
-}
-.uchat-picker-list {
-  max-height: 180px; overflow-y: auto; padding: 4px 0;
-}
-.uchat-picker-list::-webkit-scrollbar { width: 3px; }
-.uchat-picker-list::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 6px; }
-.uchat-picker-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; cursor: pointer; font-size: 13px;
-  color: var(--t2); transition: background 0.1s; font-family: var(--sans);
-}
-.uchat-picker-item:hover { background: var(--off); }
-.uchat-picker-item.sel { background: var(--os); color: var(--o); font-weight: 500; }
-.uchat-picker-item-check {
-  width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--b3);
-  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  transition: all 0.1s;
-}
-.uchat-picker-item.sel .uchat-picker-item-check {
-  background: var(--o); border-color: var(--o);
-}
-.uchat-picker-group-label {
-  padding: 6px 12px 4px; font-size: 10px; font-weight: 700; color: var(--t3);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  background: var(--off); border-bottom: 1px solid var(--b1);
-  position: sticky; top: 0;
-}
-.uchat-picker-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; border-top: 1px solid var(--b1);
-  font-size: 11px; color: var(--t3);
-}
-.uchat-picker-done {
-  padding: 6px 14px; background: var(--k); color: var(--w); border: none;
-  border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;
-  font-family: var(--sans); transition: background 0.13s;
-}
-.uchat-picker-done:hover { background: #333; }
-.uchat-picker-skip {
-  background: none; border: none; cursor: pointer; font-size: 12px;
-  color: var(--t3); font-family: var(--sans); padding: 0; transition: color 0.13s;
-}
-.uchat-picker-skip:hover { color: var(--t1); }
-.uchat-picker-none { padding: 16px 12px; font-size: 13px; color: var(--t4); text-align: center; }
-
-/* ── Autocomplete suggestions ── */
-#udderSuggestions::-webkit-scrollbar { width: 3px; }
-#udderSuggestions::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 6px; }
-.uchat-suggestion {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px; cursor: pointer;
-  font-size: 13px; color: var(--t2); font-family: var(--sans);
-  transition: background 0.1s; border-bottom: 1px solid var(--b1);
-}
-.uchat-suggestion:last-child { border-bottom: none; }
-.uchat-suggestion:hover { background: var(--off); color: var(--t1); }
-.uchat-suggestion:hover .uchat-suggestion-icon { color: var(--o); }
-.uchat-suggestion-icon { color: var(--t4); flex-shrink: 0; }
-.uchat-suggestion-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.uchat-suggestion-match { color: var(--o); font-weight: 600; }
 </style>
 
 <!-- ── Logic ── -->
 <script>
 (function () {
 
-  var state = { size:'', current:'', features:[], subcategories:[], integrations:[], geo:[], budget:'', notes:'' };
+  /* ── State ── */
+  var state = { systemType: '', size: '', modules: [], geo: [] };
   var step = 0;
-  var multiSel = [];
 
-  /* 25002500 Search filters for autocomplete (manual mode) 25002500 */
-  /* Read live from window, strip nulls and case-insensitive duplicates */
-  function getSearchFilters() {
-    var seen = {};
-    return (window.searchFilters || []).filter(function(item) {
-      var text = typeof item === 'string' ? item.trim() : (item && (item.label || item.name || item.value) || '');
-      if (!text) return false;
-      var key = text.toLowerCase();
-      if (seen[key]) return false;
-      seen[key] = true;
-      return true;
-    });
-  }
+  /* ── All possible modules ── */
+  var ALL_MODULE_OPTIONS = [
+    "Attraction & Sourcing",
+    "Selection & Hiring",
+    "Onboarding",
+    "Core HR & Operations",
+    "Time, Pay & Benefits",
+    "Employee Engagement & Support",
+    "Expenses",
+    "Talent, Performance & Development",
+    "Engagement, Culture & Wellbeing",
+    "Mobility, Compliance & Workforce Risk",
+    "Analytics, Integration & Intelligent Layers"
+  ];
 
-  var SUB_CATEGORIES = {
-    "Attraction & Sourcing": ["Employer Branding & Career Sites","Candidate Relationship Management (CRM)","Sourcing & Recruitment Marketing","Programmatic Job Advertising"],
-    "Selection & Hiring": ["Applicant Tracking Systems (ATS)","Pre-Hire Assessment & Screening","Interview Intelligence & Scheduling","Background Screening & Verification","Reference Checking","Contingent Workforce / VMS & Freelancer Management"],
-    "Onboarding": ["Onboarding"],
-    "Core HR & Operations": ["HRIS / HRMS / HCM","HR Service Delivery","Case Management & Employee Relations","Org Design & Headcount Planning","Workforce Planning & Predictive Analytics"],
-    "Time, Pay & Benefits": ["Time & Attendance","Scheduling & Labor Forecasting","Leave & Absence Management","Payroll Management","Compensation Planning & Management","Pay Equity Analytics","Equity / Stock Management","Benefits Administration"],
-    "Employee Engagement & Support": ["Employee Communication & Education","Financial Wellbeing & Earned Wage Access"],
-    "Expenses": ["Expense management"],
-    "Talent, Performance & Development": ["Performance Management","Skills Intelligence & Internal Talent Marketplaces","Succession Planning","Career Pathing & Mentoring","Coaching & Mentoring Platforms","Learning Management Systems (LMS)","Learning Experience Platforms (LXP)","Learning Content Libraries"],
-    "Engagement, Culture & Wellbeing": ["Engagement Surveys & Feedback Tools","Continuous Listening / Always-on Feedback","Recognition & Rewards Platforms","Employee Wellbeing Technology","Internal Communication & Collaboration Hubs","D&I Technology"],
-    "Mobility, Compliance & Workforce Risk": ["Mobility & Relocation","Immigration & Right-to-Work","Health & Safety / EHS"],
-    "Analytics, Integration & Intelligent Layers": ["People Analytics","HR Chatbots & Virtual Assistants"]
+  /* ── Category → relevant modules map ── */
+  var CATEGORY_MODULES = {
+    "Applicant Tracking Systems (ATS)": [
+      "Attraction & Sourcing",
+      "Selection & Hiring",
+      "Onboarding",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Background Screening & Verification": [
+      "Selection & Hiring",
+      "Onboarding",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Candidate Relationship Management (CRM)": [
+      "Attraction & Sourcing",
+      "Selection & Hiring",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Career Pathing & Mentoring": [
+      "Talent, Performance & Development",
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing"
+    ],
+    "Case Management & Employee Relations": [
+      "Core HR & Operations",
+      "Employee Engagement & Support",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Coaching Platforms": [
+      "Talent, Performance & Development",
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing"
+    ],
+    "Compensation Planning & Management": [
+      "Time, Pay & Benefits",
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Compliance & Reporting": [
+      "Mobility, Compliance & Workforce Risk",
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Contingent Workforce / VMS & Freelancer Management": [
+      "Attraction & Sourcing",
+      "Selection & Hiring",
+      "Time, Pay & Benefits",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Continuous Listening / Always-on Feedback": [
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "D&I Technology": [
+      "Attraction & Sourcing",
+      "Engagement, Culture & Wellbeing",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Data Integration & Management": [
+      "Analytics, Integration & Intelligent Layers",
+      "Core HR & Operations"
+    ],
+    "Document Management & e-Signature": [
+      "Core HR & Operations",
+      "Onboarding",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Employee Wellbeing Technology": [
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing",
+      "Time, Pay & Benefits"
+    ],
+    "Employer Branding & Career Sites": [
+      "Attraction & Sourcing",
+      "Engagement, Culture & Wellbeing"
+    ],
+    "Engagement Surveys & Feedback Tools": [
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Equity / Stock Management": [
+      "Time, Pay & Benefits",
+      "Core HR & Operations"
+    ],
+    "HR Chatbots & Virtual Assistants": [
+      "Employee Engagement & Support",
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "HR Service Delivery Platforms": [
+      "Core HR & Operations",
+      "Employee Engagement & Support",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "HRIS / HRMS / HCM": [
+      "Core HR & Operations",
+      "Time, Pay & Benefits",
+      "Onboarding",
+      "Talent, Performance & Development",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Headcount Planning": [
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers",
+      "Talent, Performance & Development"
+    ],
+    "Immigration & Right-to-Work": [
+      "Mobility, Compliance & Workforce Risk",
+      "Onboarding",
+      "Core HR & Operations"
+    ],
+    "Internal Communication & Collaboration Hubs": [
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing"
+    ],
+    "Interview Intelligence & Scheduling": [
+      "Selection & Hiring",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Learning Content Libraries": [
+      "Talent, Performance & Development",
+      "Onboarding"
+    ],
+    "Learning Experience Platforms (LXP)": [
+      "Talent, Performance & Development",
+      "Onboarding",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Learning Management Systems (LMS)": [
+      "Talent, Performance & Development",
+      "Onboarding",
+      "Mobility, Compliance & Workforce Risk",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Mobility & Relocation": [
+      "Mobility, Compliance & Workforce Risk",
+      "Core HR & Operations",
+      "Expenses"
+    ],
+    "Onboarding": [
+      "Onboarding",
+      "Core HR & Operations",
+      "Employee Engagement & Support"
+    ],
+    "Org Design & Org Charting": [
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Pay Equity Analytics": [
+      "Time, Pay & Benefits",
+      "Analytics, Integration & Intelligent Layers",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Payroll Management": [
+      "Time, Pay & Benefits",
+      "Core HR & Operations",
+      "Mobility, Compliance & Workforce Risk",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "People Analytics Platforms": [
+      "Analytics, Integration & Intelligent Layers",
+      "Talent, Performance & Development",
+      "Engagement, Culture & Wellbeing"
+    ],
+    "Performance Management": [
+      "Talent, Performance & Development",
+      "Employee Engagement & Support",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Pre-Hire Assessment & Screening": [
+      "Selection & Hiring",
+      "Attraction & Sourcing"
+    ],
+    "Programmatic Job Advertising": [
+      "Attraction & Sourcing",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Recognition & Rewards Platforms": [
+      "Employee Engagement & Support",
+      "Engagement, Culture & Wellbeing",
+      "Time, Pay & Benefits"
+    ],
+    "Reference Checking": [
+      "Selection & Hiring",
+      "Onboarding"
+    ],
+    "Scheduling & Labor Forecasting": [
+      "Time, Pay & Benefits",
+      "Core HR & Operations",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Skills Intelligence & Internal Talent Marketplaces (ITMs)": [
+      "Talent, Performance & Development",
+      "Attraction & Sourcing",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Sourcing & Recruitment Marketing": [
+      "Attraction & Sourcing",
+      "Selection & Hiring",
+      "Analytics, Integration & Intelligent Layers"
+    ],
+    "Time & Attendance": [
+      "Time, Pay & Benefits",
+      "Core HR & Operations",
+      "Mobility, Compliance & Workforce Risk"
+    ],
+    "Whistleblowing & Speak-Up Platforms": [
+      "Employee Engagement & Support",
+      "Mobility, Compliance & Workforce Risk",
+      "Core HR & Operations"
+    ]
   };
 
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  /* Returns relevant modules for the selected system type, or all if no match */
+  function getModulesForCategory(categoryName) {
+    return CATEGORY_MODULES[categoryName] || ALL_MODULE_OPTIONS;
+  }
 
+  /* ── System type list ── */
+  var SYSTEM_TYPES = [
+    "Applicant Tracking Systems (ATS)",
+    "Background Screening & Verification",
+    "Candidate Relationship Management (CRM)",
+    "Career Pathing & Mentoring",
+    "Case Management & Employee Relations",
+    "Coaching Platforms",
+    "Compensation Planning & Management",
+    "Compliance & Reporting",
+    "Contingent Workforce / VMS & Freelancer Management",
+    "Continuous Listening / Always-on Feedback",
+    "D&I Technology",
+    "Data Integration & Management",
+    "Document Management & e-Signature",
+    "Employee Wellbeing Technology",
+    "Employer Branding & Career Sites",
+    "Engagement Surveys & Feedback Tools",
+    "Equity / Stock Management",
+    "HR Chatbots & Virtual Assistants",
+    "HR Service Delivery Platforms",
+    "HRIS / HRMS / HCM",
+    "Headcount Planning",
+    "Immigration & Right-to-Work",
+    "Internal Communication & Collaboration Hubs",
+    "Interview Intelligence & Scheduling",
+    "Learning Content Libraries",
+    "Learning Experience Platforms (LXP)",
+    "Learning Management Systems (LMS)",
+    "Mobility & Relocation",
+    "Onboarding",
+    "Org Design & Org Charting",
+    "Pay Equity Analytics",
+    "Payroll Management",
+    "People Analytics Platforms",
+    "Performance Management",
+    "Pre-Hire Assessment & Screening",
+    "Programmatic Job Advertising",
+    "Recognition & Rewards Platforms",
+    "Reference Checking",
+    "Scheduling & Labor Forecasting",
+    "Skills Intelligence & Internal Talent Marketplaces (ITMs)",
+    "Sourcing & Recruitment Marketing",
+    "Time & Attendance",
+    "Whistleblowing & Speak-Up Platforms"
+  ];
+
+  var ACRONYM_MAP = {
+    'ats':  'Applicant Tracking Systems (ATS)',
+    'crm':  'Candidate Relationship Management (CRM)',
+    'lms':  'Learning Management Systems (LMS)',
+    'lxp':  'Learning Experience Platforms (LXP)',
+    'hris': 'HRIS / HRMS / HCM',
+    'hrms': 'HRIS / HRMS / HCM',
+    'hcm':  'HRIS / HRMS / HCM',
+    'vms':  'Contingent Workforce / VMS & Freelancer Management',
+    'itm':  'Skills Intelligence & Internal Talent Marketplaces (ITMs)',
+    'itms': 'Skills Intelligence & Internal Talent Marketplaces (ITMs)',
+    'ehs':  'Compliance & Reporting',
+    'dei':  'D&I Technology',
+    'rpa':  'Data Integration & Management'
+  };
+
+  /* ── Flow definition ── */
   var flow = [
     {
-      qs: ["How many people are in your company?","First up — what's the headcount?","How big is the team we're finding a system for?","What's your organisation size?"],
-      key: 'size', multi: false,
-      opts: ['1–50','50–500','500–5,000','5,000–25,000','25,000+'],
-      follow: function(v){
-        if (v === '25,000+') return "That's a large enterprise — we'll focus on platforms built for scale.";
-        if (v === '5,000–25,000') return "Good size — plenty of strong mid-market and enterprise options to explore.";
-        if (v === '50–500') return pick(["Got it, that opens up a lot of solid mid-market options.","Nice — plenty of great tools in that range."]);
-        return pick(["Perfect, that helps narrow things down.","Good to know — let's keep going."]);
+      key: 'systemType',
+      qs: [
+        "What type of HR system are you looking for?",
+        "Which category of HR tech are you exploring?",
+        "What kind of system are you trying to find?"
+      ],
+      type: 'systemAutocomplete',
+      follow: function(v) {
+        return [
+          "Great choice — " + v + " it is.",
+          v + " — solid category to explore.",
+          "Good call. Let\u2019s build around " + v + "."
+        ][Math.floor(Math.random() * 3)];
       }
     },
     {
-      qs: ["How are you currently managing HR?","What does your HR setup look like right now?","What are you working with today — any existing tools?","Before we look forward, what's the current state of play?"],
-      key: 'current', multi: false,
-      opts: ['Nothing / spreadsheets','Basic HRIS only','Multiple disconnected tools','Legacy on-premise system','Switching from another system'],
-      follow: function(v){
-        if (v === 'Nothing / spreadsheets') return pick(["Spreadsheets — classic. Plenty of room to upgrade!","Starting from scratch — that's actually a good position to be in."]);
-        if (v === 'Switching from another system') return "Switching can be tricky — we'll factor that in.";
-        if (v === 'Legacy on-premise system') return "Moving off legacy is a big step — we'll find options that make that transition smoother.";
-        return pick(["Makes sense. Let's figure out what you actually need.","Good context — now let's dig into what you're looking for."]);
+      key: 'size',
+      qs: [
+        "How many people are in your company?",
+        "What\u2019s your organisation\u2019s headcount?",
+        "How big is the team we\u2019re finding a system for?"
+      ],
+      type: 'chips',
+      multi: false,
+      opts: ['1–50', '50–500', '500–5,000', '5,000–25,000', '25,000+'],
+      follow: function(v) {
+        if (v === '25,000+') return "Large enterprise \u2014 we\u2019ll focus on platforms built for scale.";
+        if (v === '5,000–25,000') return "Good size \u2014 plenty of strong mid-market and enterprise options.";
+        return ["Got it, that helps narrow things down.", "Perfect \u2014 let\u2019s keep going."][Math.floor(Math.random() * 2)];
       }
     },
     {
-      qs: ["What does the new system need to handle? Select everything that matters.","Which HR areas are you trying to cover? Pick all that apply.","What should this platform actually do for you?","What are the must-have functional areas for the new system?"],
-      key: 'features', multi: true,
-      opts: ['Attraction & Sourcing','Selection & Hiring','Onboarding','Core HR & Operations','Time, Pay & Benefits','Employee Engagement & Support','Expenses','Talent, Performance & Development','Engagement, Culture & Wellbeing','Mobility, Compliance & Workforce Risk','Analytics, Integration & Intelligent Layers'],
-      follow: function(){ return pick(["Got it. Now let\u2019s get more specific.","Solid list. Let\u2019s drill down a bit.","Nice — now let me ask something more specific."]); }
-    },
-    {
-      qs: ["Which specific capabilities matter most to you?","Let's get granular — which of these are priorities?","Within those areas, what are the critical capabilities?","Any particular features within those that are non-negotiable?"],
-      key: 'subcategories', multi: true, dynamic: true,
-      getDynamicOpts: function(){
-        var opts = [];
-        (state.features || []).forEach(function(f){
-          (SUB_CATEGORIES[f] || []).forEach(function(s){ if(opts.indexOf(s)===-1) opts.push(s); });
-        });
-        return opts;
-      },
-      getGrouped: function(){
-        var groups = [];
-        (state.features || []).forEach(function(f){
-          var subs = SUB_CATEGORIES[f];
-          if(subs && subs.length) groups.push({ label: f, opts: subs });
-        });
-        return groups;
-      },
-      follow: function(){ return pick(["Perfect — that level of detail will really sharpen the results.","Great — that's exactly what we need to get precise matches.","Noted. That'll make the recommendations much more targeted."]); }
-    },
-    {
-      qs: ["Any tools it absolutely needs to connect with?","What's already in your tech stack that this needs to play nicely with?","Any must-have integrations — tools this needs to talk to?","Are there any existing platforms it has to integrate with?"],
-      key: 'integrations', multi: true, searchable: true,
-      tools: ['Workday','ADP','Deel','ADP Workforce Now','BambooHR','Paycom','Paylocity','Gusto','Rippling','Papaya Global','Personio','Comeet','Taleo','Namely','LinkedIn','DocuSign','Adobe Sign','Salesforce','Leapsome','Bupa','Chargebee','Zapier','Merge.dev','Greenhouse','Lever','Jobvite','iCIMS','SmartRecruiters','Workable','JazzHR','Perkbox','Gympass','Wellhub','Slack','Microsoft Teams','Google Workspace','Jira','Microsoft 365','Culture Amp','Lattice','QuickBooks','Xero','Expensify','NetSuite','Okta','OneLogin','Azure Active Directory','Zoom','GoToMeeting','Cornerstone OnDemand','Docebo','SAP SuccessFactors','SAP','Oracle HCM','Oracle','UKG (Ultimate Kronos Group)','Ceridian Dayforce','Bullhorn','JobDiva','Hireology','HiBob','Microsoft Azure AD'],
-      follow: function(){ return pick(["Good to know — integrations can make or break a decision.","Noted — that'll help rule out anything that doesn't connect.","Useful — we'll make sure the shortlist works with your stack."]); }
-    },
-    {
-      qs: ["Where does your company operate?","Which regions does your workforce cover?","Where are your employees based?","What geographies do you need to support?"],
-      key: 'geo', multi: true,
-      opts: ['Global','US','UK','EU','APAC','LATAM','MEA'],
-      follow: function(v){
-        if (v.indexOf('Global') !== -1) return pick(["Global ops — you'll need strong multi-country compliance baked in.","Worldwide footprint — compliance and localisation will be key."]);
-        return pick(["Noted. That helps narrow the compliance requirements.","Good — that shapes which vendors are actually a fit."]);
+      key: 'modules',
+      qs: [
+        "Which specific modules or capabilities are must-haves?",
+        "What features does this system absolutely need to cover?",
+        "Any particular capabilities that are non-negotiable?"
+      ],
+      type: 'moduleChips',
+      follow: function() {
+        return ["Noted \u2014 that\u2019ll sharpen the results.", "Perfect \u2014 that level of detail really helps.", "Good \u2014 nearly there."][Math.floor(Math.random() * 3)];
       }
     },
     {
-      qs: ["What budget are you working with? (per employee / month)","Any budget guidance? Most HR tools price per employee per month.","What's the ballpark spend you're expecting?","Have you got a budget range in mind yet?"],
-      key: 'budget', multi: false,
-      opts: ['Under $5 / employee / month','$5–$15 / employee / month','$15–$30 / employee / month','$30+ / employee / month','Not defined yet'],
-      follow: function(v){
-        if (v === 'Not defined yet') return "No problem — we can still find good options and flag pricing ranges.";
-        if (v === '$30+ / employee / month') return "Noted — at that range, the premium platforms are all on the table.";
-        return pick(["Got it on budget.","Good to have that in mind.","Noted — that'll help filter the shortlist."]);
+      key: 'geo',
+      qs: [
+        "Where does your company operate?",
+        "Which regions does your workforce cover?",
+        "What geographies do you need to support?"
+      ],
+      type: 'chips',
+      multi: true,
+      opts: ['Global', 'US', 'UK', 'EU', 'APAC', 'LATAM', 'MEA'],
+      follow: function(v) {
+        if (v.indexOf('Global') !== -1) return "Global ops \u2014 we\u2019ll make sure compliance and localisation are covered.";
+        return ["Noted \u2014 that shapes the compliance requirements.", "Good \u2014 that helps narrow the shortlist."][Math.floor(Math.random() * 2)];
       }
-    },
-    {
-      qs: ["Last one — any deal-breakers, timeline pressure, or compliance specifics?","Almost there — anything else I should factor in?","Any must-knows before I build the recommendation? Timeline, compliance, deal-breakers?","Final question — anything that would immediately rule a vendor out?"],
-      key: 'notes', multi: false, freetext: true,
-      follow: function(v){ return v ? pick(["Got it, I'll make sure that's factored in.","Noted — that's useful context.","Good to know, I'll include that in the brief."]) : pick(["No worries, we have plenty to work with.","All good — that's enough to go on."]); }
     }
   ];
 
-  flow.forEach(function(s) { if (!s.q) s.q = pick(s.qs); });
+  flow.forEach(function(s) { s.q = s.qs[Math.floor(Math.random() * s.qs.length)]; });
 
-  /* DOM */
-  var chatBody    = document.getElementById('udderChatBody');
-  var qrArea      = document.getElementById('udderQRArea');
-  var manualBar   = document.getElementById('udderManualBar');
-  var manualInp   = document.getElementById('udderManualInp');
-  var manualSend  = document.getElementById('udderManualSend');
-  var suggestBox  = document.getElementById('udderSuggestions');
+  /* ── DOM refs ── */
+  var chatBody = document.getElementById('udderChatBody');
+  var qrArea   = document.getElementById('udderQRArea');
 
-  /* ── Autocomplete ── */
-  var _activeSuggIdx = -1;
-
-  function highlightMatch(text, query) {
-    if (!query) return escHtml(text);
-    var idx = text.toLowerCase().indexOf(query.toLowerCase());
-    if (idx === -1) return escHtml(text);
-    return escHtml(text.slice(0, idx)) +
-      '<span class="uchat-suggestion-match">' + escHtml(text.slice(idx, idx + query.length)) + '</span>' +
-      escHtml(text.slice(idx + query.length));
+  /* ── Helpers ── */
+  function scrollDown() {
+    setTimeout(function() { chatBody.scrollTop = chatBody.scrollHeight; }, 0);
+    setTimeout(function() { chatBody.scrollTop = chatBody.scrollHeight; }, 80);
   }
 
   function escHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  function showSuggestions(query) {
-    suggestBox.innerHTML = '';
-    _activeSuggIdx = -1;
-
-    var q = (query || '').trim();
-    var searchFilters = getSearchFilters();
-    if (!q || !searchFilters.length) {
-      suggestBox.style.display = 'none';
-      return;
-    }
-
-    var matched = searchFilters.filter(function(item) {
-      var text = typeof item === 'string' ? item : (item.label || item.name || item.value || '');
-      return text.toLowerCase().indexOf(q.toLowerCase()) !== -1;
-    }).slice(0, 6);
-
-    if (!matched.length) {
-      suggestBox.style.display = 'none';
-      return;
-    }
-
-    matched.forEach(function(item, i) {
-      var text = typeof item === 'string' ? item : (item.label || item.name || item.value || '');
-      var row = document.createElement('div');
-      row.className = 'uchat-suggestion';
-      row.dataset.idx = i;
-      row.innerHTML =
-        '<svg class="uchat-suggestion-icon" width="13" height="13" viewBox="0 0 16 16" fill="none">' +
-          '<circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>' +
-          '<line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' +
-        '</svg>' +
-        '<span class="uchat-suggestion-text">' + highlightMatch(text, q) + '</span>';
-
-      row.addEventListener('mousedown', function(e) {
-        /* mousedown instead of click so it fires before the input blur */
-        e.preventDefault();
-        selectSuggestion(text);
-      });
-
-      suggestBox.appendChild(row);
-    });
-
-    suggestBox.style.display = 'flex';
+  function highlightMatch(text, query) {
+    if (!query) return escHtml(text);
+    var idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return escHtml(text);
+    return escHtml(text.slice(0, idx)) +
+      '<strong>' + escHtml(text.slice(idx, idx + query.length)) + '</strong>' +
+      escHtml(text.slice(idx + query.length));
   }
-
-  function selectSuggestion(text) {
-    manualInp.value = text;
-    suggestBox.style.display = 'none';
-    suggestBox.innerHTML = '';
-    _activeSuggIdx = -1;
-    manualInp.focus();
-  }
-
-  function hideSuggestions() {
-    suggestBox.style.display = 'none';
-    suggestBox.innerHTML = '';
-    _activeSuggIdx = -1;
-  }
-
-  function navigateSuggestions(dir) {
-    var rows = suggestBox.querySelectorAll('.uchat-suggestion');
-    if (!rows.length) return;
-    rows[_activeSuggIdx] && rows[_activeSuggIdx].classList.remove('active');
-    _activeSuggIdx = (_activeSuggIdx + dir + rows.length) % rows.length;
-    var active = rows[_activeSuggIdx];
-    active.classList.add('active');
-    active.style.background = 'var(--off)';
-    /* Preview text in input */
-    var preview = active.querySelector('.uchat-suggestion-text');
-    if (preview) manualInp.value = preview.textContent;
-  }
-
-  /* Wire input events */
-  manualInp.addEventListener('input', function() {
-    if (window._udderManualMode) showSuggestions(this.value);
-    else hideSuggestions();
-  });
-
-  manualInp.addEventListener('keydown', function(e) {
-    if (suggestBox.style.display !== 'none') {
-      if (e.key === 'ArrowDown') { e.preventDefault(); navigateSuggestions(1); return; }
-      if (e.key === 'ArrowUp')   { e.preventDefault(); navigateSuggestions(-1); return; }
-      if (e.key === 'Escape')    { hideSuggestions(); return; }
-    }
-    if (e.key !== 'Enter') return;
-    hideSuggestions();
-    if (window._udderFreetextMode) fireFreetextManual();
-    else if (window._udderManualMode) fireManual();
-  });
-
-  manualInp.addEventListener('blur', function() {
-    /* Small delay so mousedown on a suggestion fires first */
-    setTimeout(hideSuggestions, 150);
-  });
-
-  /* ── Core helpers ── */
-  function scrollDown() { chatBody.scrollTop = chatBody.scrollHeight; }
 
   function addMsg(text, type) {
     return new Promise(function(res) {
@@ -1778,272 +1835,239 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
   function clearQR() { qrArea.innerHTML = ''; }
 
-  /* ── Render chips / picker ── */
-  function renderQR(s) {
+  /* ── Render input for each step ── */
+  function renderStep(s) {
     clearQR();
+    if (s.type === 'systemAutocomplete') renderSystemAutocomplete(s);
+    else if (s.type === 'chips')         renderChips(s);
+    else if (s.type === 'moduleChips')   renderModuleChips(s);
+  }
 
-    if (s.freetext) {
-      var skipBtn = document.createElement('button');
-      skipBtn.className = 'uchat-qr';
-      skipBtn.textContent = 'Nothing to add — skip ↗';
-      skipBtn.addEventListener('click', function() {
-        state[s.key] = '';
-        handleAnswer('Nothing extra to add', s);
-      });
-      qrArea.appendChild(skipBtn);
-      manualBar.style.display = 'flex';
-      manualInp.placeholder = 'Type here, or click skip…';
-      window._udderFreetextMode = true;
-      setTimeout(function() { manualInp.focus(); }, 80);
-      return;
+  /* ── System type autocomplete ── */
+  function renderSystemAutocomplete(s) {
+    var activeIdx = -1;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'uchat-ac-wrap';
+
+    var inp = document.createElement('input');
+    inp.className = 'uchat-ac-inp';
+    inp.type = 'text';
+    inp.autocomplete = 'off';
+    inp.placeholder = 'e.g. ATS, Payroll, LMS, Onboarding…';
+    inp.style.cssText = 'width:100%;border:1px solid var(--b2);outline:none;border-radius:20px;padding:8px 14px;font-size:13px;font-family:var(--sans);color:var(--t1);background:var(--off);transition:border-color 0.15s;box-sizing:border-box;';
+    inp.addEventListener('focus', function(){ this.style.borderColor='var(--o)'; this.style.background='var(--w)'; });
+    inp.addEventListener('blur',  function(){ this.style.borderColor='var(--b2)'; this.style.background='var(--off)'; });
+    wrap.appendChild(inp);
+
+    var dropdown = document.createElement('div');
+    dropdown.className = 'uchat-ac-dropdown';
+    dropdown.style.display = 'none';
+    document.body.appendChild(dropdown);
+
+    function positionDropdown() {
+      var rect = inp.getBoundingClientRect();
+      dropdown.style.left  = rect.left + 'px';
+      dropdown.style.width = rect.width + 'px';
+      dropdown.style.top   = (rect.bottom + 4) + 'px';
     }
 
-    if (s.searchable) {
-      var selItems = Array.isArray(state[s.key]) ? state[s.key].slice() : [];
-      var picker = document.createElement('div');
-      picker.className = 'uchat-picker';
-      var searchRow = document.createElement('div');
-      searchRow.className = 'uchat-picker-search';
-      searchRow.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
-      var searchInp = document.createElement('input');
-      searchInp.className = 'uchat-picker-inp';
-      searchInp.placeholder = 'Search tools…';
-      searchInp.autocomplete = 'off';
-      searchRow.appendChild(searchInp);
-      picker.appendChild(searchRow);
-      var tagsRow = document.createElement('div');
-      tagsRow.className = 'uchat-picker-tags';
-      tagsRow.style.display = 'none';
-      picker.appendChild(tagsRow);
-      var list = document.createElement('div');
-      list.className = 'uchat-picker-list';
-      picker.appendChild(list);
-      var footer = document.createElement('div');
-      footer.className = 'uchat-picker-footer';
-      var countEl = document.createElement('span');
-      countEl.textContent = '0 selected';
-      var footerBtns = document.createElement('div');
-      footerBtns.style.cssText = 'display:flex;align-items:center;gap:10px;';
-      var skipBtn2 = document.createElement('button');
-      skipBtn2.className = 'uchat-picker-skip';
-      skipBtn2.textContent = 'Skip';
-      var doneBtn = document.createElement('button');
-      doneBtn.className = 'uchat-picker-done';
-      doneBtn.textContent = 'Done ↗';
-      footerBtns.appendChild(skipBtn2);
-      footerBtns.appendChild(doneBtn);
-      footer.appendChild(countEl);
-      footer.appendChild(footerBtns);
-      picker.appendChild(footer);
+    function getMatches(q) {
+      q = (q || '').trim();
+      if (!q) return [];
+      var resolved = ACRONYM_MAP[q.toLowerCase()];
+      return SYSTEM_TYPES.filter(function(t) {
+        return t.toLowerCase().indexOf(q.toLowerCase()) !== -1 || (resolved && t === resolved);
+      }).slice(0, 10);
+    }
 
-      function renderTags() {
-        tagsRow.innerHTML = '';
-        selItems.forEach(function(name) {
-          var tag = document.createElement('span');
-          tag.className = 'uchat-picker-tag';
-          var x = document.createElement('button');
-          x.className = 'uchat-picker-tag-x';
-          x.innerHTML = '&times;';
-          x.addEventListener('click', function() {
-            selItems = selItems.filter(function(i) { return i !== name; });
-            state[s.key] = selItems.slice();
-            renderTags(); renderList(searchInp.value);
-            countEl.textContent = selItems.length + ' selected';
-          });
-          tag.appendChild(document.createTextNode(name));
-          tag.appendChild(x);
-          tagsRow.appendChild(tag);
-        });
-        tagsRow.style.display = selItems.length ? 'flex' : 'none';
-      }
-
-      function renderList(query) {
-        list.innerHTML = '';
-        var q = (query || '').toLowerCase().trim();
-        var filtered = q ? s.tools.filter(function(t) { return t.toLowerCase().indexOf(q) !== -1; }) : s.tools;
-        if (!filtered.length) { var none = document.createElement('div'); none.className = 'uchat-picker-none'; none.textContent = 'No tools found'; list.appendChild(none); return; }
-        filtered.forEach(function(name) {
-          var isSel = selItems.indexOf(name) !== -1;
+    function renderDropdown(query) {
+      dropdown.innerHTML = '';
+      activeIdx = -1;
+      var matches = getMatches(query);
+      if (!matches.length) {
+        var none = document.createElement('div');
+        none.className = 'uchat-ac-none';
+        none.textContent = 'No matching system type';
+        dropdown.appendChild(none);
+      } else {
+        var q = (query || '').trim();
+        matches.forEach(function(name, i) {
           var item = document.createElement('div');
-          item.className = 'uchat-picker-item' + (isSel ? ' sel' : '');
-          var check = document.createElement('div');
-          check.className = 'uchat-picker-item-check';
-          if (isSel) check.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          var label = document.createElement('span');
-          label.textContent = name;
-          item.appendChild(check); item.appendChild(label);
-          item.addEventListener('click', function() {
-            var idx = selItems.indexOf(name);
-            if (idx !== -1) selItems.splice(idx, 1); else selItems.push(name);
-            state[s.key] = selItems.slice();
-            renderTags(); renderList(searchInp.value);
-            countEl.textContent = selItems.length + ' selected';
+          item.className = 'uchat-ac-item';
+          item.dataset.idx = i;
+          item.innerHTML = q ? highlightMatch(name, q) : escHtml(name);
+          item.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            selectType(name, s);
           });
-          list.appendChild(item);
+          dropdown.appendChild(item);
         });
+        var hint = document.createElement('div');
+        hint.className = 'uchat-ac-hint';
+        hint.textContent = matches.length + ' of ' + SYSTEM_TYPES.length + ' system types';
+        dropdown.appendChild(hint);
       }
-
-      searchInp.addEventListener('input', function() { renderList(this.value); });
-      skipBtn2.addEventListener('click', function() { handleAnswer('No specific integrations needed', s); });
-      doneBtn.addEventListener('click', function() { handleAnswer(selItems.length ? selItems.join(', ') : 'No specific integrations needed', s); });
-      renderTags(); renderList('');
-      qrArea.appendChild(picker);
-      setTimeout(function() { searchInp.focus(); }, 80);
-      return;
+      positionDropdown();
+      dropdown.style.display = 'block';
     }
 
-    if (s.dynamic) {
-      var groups = s.getGrouped();
-      var allOpts = s.getDynamicOpts();
+    function hideDropdown() { dropdown.style.display = 'none'; }
 
-      if (!allOpts.length) {
-        state[s.key] = [];
-        step++;
-        if (step < flow.length) {
-          showTyping();
-          setTimeout(function() { removeTyping(); addMsg(flow[step].q, 'bot').then(function() { renderQR(flow[step]); }); }, 600);
-        } else { setTimeout(showSummary, 400); }
+    function onScrollResize() { if (dropdown.style.display !== 'none') positionDropdown(); }
+    window.addEventListener('scroll', onScrollResize, true);
+    window.addEventListener('resize', onScrollResize);
+
+    function updateActive(items) {
+      items.forEach(function(el, i) { el.classList.toggle('active', i === activeIdx); });
+    }
+
+    inp.addEventListener('input', function() {
+      if (this.value.trim()) renderDropdown(this.value);
+      else hideDropdown();
+    });
+    inp.addEventListener('keydown', function(e) {
+      var items = dropdown.querySelectorAll('.uchat-ac-item');
+      if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); updateActive(items); return; }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0);               updateActive(items); return; }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIdx >= 0 && items[activeIdx]) {
+          selectType(items[activeIdx].textContent, s);
+        } else {
+          var q = inp.value.trim();
+          var resolved = q ? (ACRONYM_MAP[q.toLowerCase()] || null) : null;
+          var exact = SYSTEM_TYPES.find(function(t) { return t.toLowerCase() === q.toLowerCase(); });
+          var pick = exact || resolved || (getMatches(q)[0] || null);
+          if (pick) selectType(pick, s);
+        }
         return;
       }
+      if (e.key === 'Escape') hideDropdown();
+    });
+    inp.addEventListener('blur', function() { setTimeout(hideDropdown, 150); });
 
-      var selItems = Array.isArray(state[s.key]) ? state[s.key].slice() : [];
-      var picker = document.createElement('div');
-      picker.className = 'uchat-picker';
-      var searchRow = document.createElement('div');
-      searchRow.className = 'uchat-picker-search';
-      searchRow.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
-      var searchInp2 = document.createElement('input');
-      searchInp2.className = 'uchat-picker-inp';
-      searchInp2.placeholder = 'Search capabilities…';
-      searchInp2.autocomplete = 'off';
-      searchRow.appendChild(searchInp2);
-      picker.appendChild(searchRow);
-      var tagsRow2 = document.createElement('div');
-      tagsRow2.className = 'uchat-picker-tags';
-      tagsRow2.style.display = 'none';
-      picker.appendChild(tagsRow2);
-      var list2 = document.createElement('div');
-      list2.className = 'uchat-picker-list';
-      picker.appendChild(list2);
-      var footer2 = document.createElement('div');
-      footer2.className = 'uchat-picker-footer';
-      var countEl2 = document.createElement('span');
-      countEl2.textContent = '0 selected';
-      var footerBtns2 = document.createElement('div');
-      footerBtns2.style.cssText = 'display:flex;align-items:center;gap:10px;';
-      var skipBtn3 = document.createElement('button');
-      skipBtn3.className = 'uchat-picker-skip';
-      skipBtn3.textContent = 'Skip';
-      var doneBtn2 = document.createElement('button');
-      doneBtn2.className = 'uchat-picker-done';
-      doneBtn2.textContent = 'Done ↗';
-      footerBtns2.appendChild(skipBtn3); footerBtns2.appendChild(doneBtn2);
-      footer2.appendChild(countEl2); footer2.appendChild(footerBtns2);
-      picker.appendChild(footer2);
-
-      function renderTags2() {
-        tagsRow2.innerHTML = '';
-        selItems.forEach(function(name) {
-          var tag = document.createElement('span');
-          tag.className = 'uchat-picker-tag';
-          var x = document.createElement('button');
-          x.className = 'uchat-picker-tag-x';
-          x.innerHTML = '&times;';
-          x.addEventListener('click', function() {
-            selItems = selItems.filter(function(i){ return i !== name; });
-            state[s.key] = selItems.slice();
-            renderTags2(); renderList2(searchInp2.value);
-            countEl2.textContent = selItems.length + ' selected';
-          });
-          tag.appendChild(document.createTextNode(name)); tag.appendChild(x);
-          tagsRow2.appendChild(tag);
-        });
-        tagsRow2.style.display = selItems.length ? 'flex' : 'none';
-      }
-
-      function appendItem2(name) {
-        var isSel = selItems.indexOf(name) !== -1;
-        var item = document.createElement('div');
-        item.className = 'uchat-picker-item' + (isSel ? ' sel' : '');
-        var check = document.createElement('div');
-        check.className = 'uchat-picker-item-check';
-        if (isSel) check.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        var label = document.createElement('span');
-        label.textContent = name;
-        item.appendChild(check); item.appendChild(label);
-        item.addEventListener('click', function() {
-          var idx = selItems.indexOf(name);
-          if (idx !== -1) selItems.splice(idx, 1); else selItems.push(name);
-          state[s.key] = selItems.slice();
-          renderTags2(); renderList2(searchInp2.value);
-          countEl2.textContent = selItems.length + ' selected';
-        });
-        list2.appendChild(item);
-      }
-
-      function renderList2(query) {
-        list2.innerHTML = '';
-        var q = (query || '').toLowerCase().trim();
-        if (q) {
-          var filtered = allOpts.filter(function(o){ return o.toLowerCase().indexOf(q) !== -1; });
-          if (!filtered.length) { var none = document.createElement('div'); none.className = 'uchat-picker-none'; none.textContent = 'No capabilities found'; list2.appendChild(none); return; }
-          filtered.forEach(function(name){ appendItem2(name); });
-        } else {
-          groups.forEach(function(group) {
-            var lbl = document.createElement('div');
-            lbl.className = 'uchat-picker-group-label';
-            lbl.textContent = group.label;
-            list2.appendChild(lbl);
-            group.opts.forEach(function(name){ appendItem2(name); });
-          });
-        }
-      }
-
-      searchInp2.addEventListener('input', function() { renderList2(this.value); });
-      skipBtn3.addEventListener('click', function() { handleAnswer('No specific capabilities', s); });
-      doneBtn2.addEventListener('click', function() { handleAnswer(selItems.length ? selItems.join(', ') : 'No specific capabilities', s); });
-      renderTags2(); renderList2('');
-      qrArea.appendChild(picker);
-      setTimeout(function() { searchInp2.focus(); }, 80);
-      return;
+    function selectType(name, s) {
+      inp.value = name;
+      hideDropdown();
+      window.removeEventListener('scroll', onScrollResize, true);
+      window.removeEventListener('resize', onScrollResize);
+      setTimeout(function() { if (dropdown.parentNode) dropdown.parentNode.removeChild(dropdown); }, 300);
+      state.systemType = name;
+      handleAnswer(name, s);
     }
 
-    window._udderFreetextMode = false;
-    multiSel = Array.isArray(state[s.key]) ? state[s.key].slice() : (state[s.key] ? [state[s.key]] : []);
+    qrArea.appendChild(wrap);
+  }
+
+  /* ── Module chips — filtered by selected category ── */
+  function renderModuleChips(s) {
+    var selModules = [];
+    var chipBtns   = {};
+    var doneBtn;
+
+    /* Show a context label so the user knows why some modules may be absent */
+    var relevantModules = getModulesForCategory(state.systemType);
+    var isFiltered = relevantModules.length < ALL_MODULE_OPTIONS.length;
+
+    if (isFiltered && state.systemType) {
+      var badge = document.createElement('div');
+      badge.className = 'uchat-module-context';
+      badge.textContent = 'Showing capabilities relevant to ' + state.systemType;
+      qrArea.appendChild(badge);
+    }
+
+    relevantModules.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'uchat-qr';
+      btn.textContent = opt;
+      chipBtns[opt] = btn;
+      btn.addEventListener('click', function() {
+        var idx = selModules.indexOf(opt);
+        if (idx !== -1) selModules.splice(idx, 1); else selModules.push(opt);
+        state.modules = selModules.slice();
+        btn.classList.toggle('sel', selModules.indexOf(opt) !== -1);
+        if (doneBtn) doneBtn.style.display = selModules.length ? 'inline-flex' : 'none';
+      });
+      qrArea.appendChild(btn);
+    });
+
+    doneBtn = document.createElement('button');
+    doneBtn.className = 'uchat-qr primary';
+    doneBtn.textContent = 'Done ↗';
+    doneBtn.style.display = 'none';
+    doneBtn.addEventListener('click', function() {
+      if (!selModules.length) return;
+      handleAnswer(selModules.join(', '), s);
+    });
+    qrArea.appendChild(doneBtn);
+
+    var skipBtn = document.createElement('button');
+    skipBtn.className = 'uchat-qr';
+    skipBtn.textContent = 'Skip — no specific modules';
+    skipBtn.addEventListener('click', function() {
+      state.modules = [];
+      handleAnswer('No specific modules', s);
+    });
+    qrArea.appendChild(skipBtn);
+  }
+
+  /* ── Generic chips (single or multi) ── */
+  function renderChips(s) {
+    var multiSel = [];
+    var chipBtns = {};
     var ALL_REGIONS = ['US','UK','EU','APAC','LATAM','MEA'];
     var doneBtn;
-    var chipBtns = {};
 
     s.opts.forEach(function(opt) {
       var btn = document.createElement('button');
-      btn.className = 'uchat-qr' + (multiSel.indexOf(opt) !== -1 ? ' sel' : '');
+      btn.className = 'uchat-qr';
       btn.textContent = opt;
       chipBtns[opt] = btn;
+
       btn.addEventListener('click', function() {
         if (!s.multi) {
           state[s.key] = opt;
           handleAnswer(opt, s);
+          return;
+        }
+        if (opt === 'Global') {
+          var willSelect = !btn.classList.contains('sel');
+          multiSel = willSelect ? ['Global'].concat(ALL_REGIONS) : [];
+          state[s.key] = multiSel.slice();
+          s.opts.forEach(function(o) {
+            chipBtns[o] && chipBtns[o].classList.toggle('sel', multiSel.indexOf(o) !== -1);
+          });
         } else {
-          if (opt === 'Global') {
-            var isNowSel = !btn.classList.contains('sel');
-            multiSel = isNowSel ? ['Global'].concat(ALL_REGIONS) : [];
-            state[s.key] = multiSel.slice();
-            s.opts.forEach(function(o) { if (chipBtns[o]) { if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel'); else chipBtns[o].classList.remove('sel'); } });
-          } else {
-            var idx = multiSel.indexOf(opt);
-            if (idx !== -1) multiSel.splice(idx, 1); else multiSel.push(opt);
-            var allSelected = ALL_REGIONS.every(function(r) { return multiSel.indexOf(r) !== -1; });
-            var gIdx = multiSel.indexOf('Global');
-            if (allSelected && gIdx === -1) multiSel.unshift('Global');
-            if (!allSelected && gIdx !== -1) multiSel.splice(gIdx, 1);
-            state[s.key] = multiSel.slice();
-            s.opts.forEach(function(o) { if (chipBtns[o]) { if (multiSel.indexOf(o) !== -1) chipBtns[o].classList.add('sel'); else chipBtns[o].classList.remove('sel'); } });
-          }
-          if (doneBtn) doneBtn.style.display = multiSel.filter(function(v){ return v !== 'Global'; }).length ? 'inline-flex' : 'none';
+          var idx = multiSel.indexOf(opt);
+          if (idx !== -1) multiSel.splice(idx, 1); else multiSel.push(opt);
+          var allRegions = ALL_REGIONS.every(function(r) { return multiSel.indexOf(r) !== -1; });
+          var gIdx = multiSel.indexOf('Global');
+          if (allRegions && gIdx === -1) multiSel.unshift('Global');
+          if (!allRegions && gIdx !== -1) multiSel.splice(gIdx, 1);
+          state[s.key] = multiSel.slice();
+          s.opts.forEach(function(o) {
+            chipBtns[o] && chipBtns[o].classList.toggle('sel', multiSel.indexOf(o) !== -1);
+          });
+        }
+        if (doneBtn) {
+          doneBtn.style.display = multiSel.filter(function(v){ return v !== 'Global'; }).length ? 'inline-flex' : 'none';
         }
       });
+
       qrArea.appendChild(btn);
     });
+
+    if (!s.multi) {
+      var skipBtn = document.createElement('button');
+      skipBtn.className = 'uchat-qr';
+      skipBtn.textContent = 'Skip';
+      skipBtn.addEventListener('click', function() {
+        state[s.key] = '';
+        handleAnswer('No specific size', s);
+      });
+      qrArea.appendChild(skipBtn);
+    }
 
     if (s.multi) {
       doneBtn = document.createElement('button');
@@ -2052,46 +2076,53 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       doneBtn.style.display = 'none';
       doneBtn.addEventListener('click', function() {
         if (!multiSel.length) return;
-        if (s.key === 'geo') {
-          var display = multiSel.indexOf('Global') !== -1 ? 'Global (US, UK, EU, APAC, LATAM, MEA)' : multiSel.join(', ');
-          state[s.key] = multiSel.filter(function(v){ return v !== 'Global'; });
-          handleAnswer(display, s);
-        } else {
-          state[s.key] = multiSel.slice();
-          handleAnswer(multiSel.join(', '), s);
-        }
+        var hasGlobal = multiSel.indexOf('Global') !== -1;
+        var display   = hasGlobal ? 'Global (US, UK, EU, APAC, LATAM, MEA)' : multiSel.join(', ');
+        state[s.key]  = multiSel.filter(function(v){ return v !== 'Global'; });
+        handleAnswer(display, s);
       });
       qrArea.appendChild(doneBtn);
+
+      var skipBtn2 = document.createElement('button');
+      skipBtn2.className = 'uchat-qr';
+      skipBtn2.textContent = 'Skip';
+      skipBtn2.addEventListener('click', function() {
+        state[s.key] = [];
+        handleAnswer('No specific geography', s);
+      });
+      qrArea.appendChild(skipBtn2);
     }
   }
 
-  /* ── Handle answer ── */
+  /* ── Answer handler ── */
   function handleAnswer(displayText, s) {
     clearQR();
-    manualBar.style.display = 'none';
-    hideSuggestions();
-    window._udderFreetextMode = false;
-    manualInp.placeholder = 'e.g. ATS for 2,000 headcount with UK right-to-work…';
     addMsg(displayText, 'user').then(function() {
       setTimeout(function() {
         showTyping();
         setTimeout(function() {
           removeTyping();
           addMsg(s.follow(displayText), 'bot').then(function() {
-            step++;
-            if (step < flow.length) {
-              setTimeout(function() {
-                showTyping();
-                setTimeout(function() {
-                  removeTyping();
-                  addMsg(flow[step].q, 'bot').then(function() { renderQR(flow[step]); });
-                }, 600);
-              }, 200);
-            } else { setTimeout(showSummary, 400); }
+            advanceStep(s, displayText);
           });
         }, 700);
       }, 100);
     });
+  }
+
+  function advanceStep(s, displayText) {
+    step++;
+    if (step < flow.length) {
+      setTimeout(function() {
+        showTyping();
+        setTimeout(function() {
+          removeTyping();
+          addMsg(flow[step].q, 'bot').then(function() { renderStep(flow[step]); });
+        }, 600);
+      }, 200);
+    } else {
+      setTimeout(showSummary, 400);
+    }
   }
 
   /* ── Summary ── */
@@ -2099,184 +2130,103 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     showTyping();
     setTimeout(function() {
       removeTyping();
-      var features      = Array.isArray(state.features)      && state.features.length      ? state.features.join(', ')     : 'not specified';
-      var subcategories = Array.isArray(state.subcategories) && state.subcategories.length ? state.subcategories.join(', ') : '';
-      var integrations  = Array.isArray(state.integrations)  && state.integrations.length  ? state.integrations.join(', ')  : 'none';
-      var geo           = Array.isArray(state.geo)           && state.geo.length           ? state.geo.filter(function(v){ return v !== 'Global'; }).join(', ') : (state.geo || '');
+      var geo = Array.isArray(state.geo) ? state.geo.filter(function(v){ return v !== 'Global'; }).join(', ') : (state.geo || '');
+      var modules = Array.isArray(state.modules) && state.modules.length ? state.modules.join(', ') : 'none specified';
       var lines = [
-        state.size      ? '\u00b7 Company size: '         + state.size    : null,
-        state.current   ? '\u00b7 Currently using: '      + state.current : null,
-        features !== 'not specified' ? '\u00b7 Areas needed: ' + features : null,
-        subcategories   ? '\u00b7 Specific capabilities: ' + subcategories : null,
-        integrations !== 'none' ? '\u00b7 Integrations: ' + integrations  : null,
-        geo             ? '\u00b7 Geography: '            + geo           : null,
-        state.budget    ? '\u00b7 Budget: '              + state.budget  : null,
-        state.notes     ? '\u00b7 Extra notes: '         + state.notes   : null,
+        state.systemType ? '\u00b7 System type: '  + state.systemType : null,
+        state.size       ? '\u00b7 Company size: '  + state.size       : null,
+        modules !== 'none specified' ? '\u00b7 Modules: ' + modules    : null,
+        geo              ? '\u00b7 Geography: '     + geo               : null,
       ].filter(Boolean).join('\n');
+
       addMsg("Here\u2019s what I\u2019ve captured:\n\n" + lines, 'bot').then(function() {
         clearQR();
         var fireBtn = document.createElement('button');
         fireBtn.className = 'uchat-qr primary';
         fireBtn.textContent = 'Find matching HR systems \u2197';
-        fireBtn.addEventListener('click', function() { clearQR(); fireSearch(features, subcategories, integrations, geo); });
+        fireBtn.addEventListener('click', function() { clearQR(); fireSearch(); });
         qrArea.appendChild(fireBtn);
         scrollDown();
       });
     }, 800);
   }
 
+  /* ── Close modal ── */
+  window.closeUdderModal = function() {
+    var modal = document.getElementById('searchModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.remove('active');
+      modal.style.display = '';
+      document.body.classList.remove('modal-active');
+    }
+  };
+
   /* ── Fire search ── */
-  function fireSearch(features, subcategories, integrations, geo) {
-    var prompt =
-      'I am looking for an HR system for a ' + state.size + ' company. ' +
-      'We currently use: ' + state.current + '.\n\n' +
-      'HR areas needed: ' + features + '.\n' +
-      (subcategories ? 'Specific capabilities required: ' + subcategories + '.\n' : '') +
-      'Integration requirements: ' + (integrations !== 'none' ? integrations : 'none specified') + '.\n' +
-      'We operate in: ' + (geo || 'not specified') + '. Budget: ' + state.budget + '.' +
-      (state.notes ? '\n\nAdditional requirements: ' + state.notes : '') +
-      '\n\nBased on this, which HR systems in the Udder database would you recommend and why? ' +
-      'Compare the top 3 options across: feature coverage, pricing model, implementation complexity, ' +
-      'compliance fit for our geography, and integration support. ' +
-      'Call out which one is the best overall fit and explain why.';
+  function fireSearch() {
+    var geo = Array.isArray(state.geo) ? state.geo.filter(function(v){ return v !== 'Global'; }) : [];
 
-    addMsg('Finding your best matches\u2026', 'user').then(function() {
-      showTyping();
-      setTimeout(function() {
-        removeTyping();
-        addMsg('Great \u2014 searching the Udder database for your best matches now.', 'bot').then(function() {
-          setTimeout(function() {
-            if (typeof window.triggerUdderSearch === 'function') {
-              window.triggerUdderSearch(prompt);
-            } else {
-              var mi = document.getElementById('modalSearch');
-              if (mi) { mi.value = prompt; mi.dispatchEvent(new Event('input', { bubbles:true })); }
-              var loaderWrap = document.querySelector('.sm-loader-wrap');
-              if (loaderWrap) loaderWrap.classList.remove('hide');
-            }
-            /* Show "Start a new search" chip after search fires */
-            clearQR();
-            var soBtn = document.createElement('button');
-            soBtn.className = 'uchat-qr';
-            soBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;';
-            soBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 1v2.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Start a new search';
-            soBtn.addEventListener('click', restart);
-            qrArea.appendChild(soBtn);
-          }, 500);
-        });
-      }, 900);
+    var relevantModules = getModulesForCategory(state.systemType);
+    var filteredOutModules = ALL_MODULE_OPTIONS.filter(function(m) {
+      return relevantModules.indexOf(m) === -1;
     });
-  }
 
-  /* ── Mode selection cards ── */
-  function showModeCards() {
+    var payload = {
+      target_market:     state.size    || null,
+      region:            geo.length    ? geo : null,
+      required_modules:  Array.isArray(state.modules) ? state.modules : [],
+      categories:        state.systemType ? [state.systemType] : [],
+      category_filters:  filteredOutModules
+    };
+
+    var jsonStr = JSON.stringify(payload, null, 2);
+
     clearQR();
-    var wrap = document.createElement('div');
-    wrap.className = 'uchat-mode-cards';
-    wrap.id = 'uchatModeCardRow';
-    var cards = [
-      { icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.6 3.8L13.5 7l-3.9 1.7L8 12.5l-1.6-3.8L2.5 7l3.9-1.7L8 1.5z" stroke="var(--o)" stroke-width="1.3" stroke-linejoin="round"/></svg>', title: 'Help me generate a prompt', desc: "Answer a few quick questions and I'll build the perfect search for you.", mode: 'guided' },
-      { icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="var(--t2)" stroke-width="1.4" stroke-linecap="round"/></svg>', title: "I'll write my own prompt", desc: "Type exactly what you're looking for directly into the search.", mode: 'manual' }
-    ];
-    cards.forEach(function(c) {
-      var card = document.createElement('button');
-      card.className = 'uchat-mode-card';
-      card.innerHTML = '<div class="uchat-mode-card-header"><div style="flex-shrink:0;display:flex;align-items:center;">' + c.icon + '</div><div class="uchat-mode-card-title">' + c.title + '</div></div><div class="uchat-mode-card-desc">' + c.desc + '</div>';
-      card.addEventListener('click', function() {
-        var mc = document.getElementById('uchatModeCardRow');
-        if (mc) mc.remove();
-        clearQR();
-        if (c.mode === 'guided') {
-          addMsg('Help me generate a prompt', 'user').then(function() {
-            showTyping();
-            setTimeout(function() {
-              removeTyping();
-              addMsg("Great! Let's build it together — a few quick questions.", 'bot').then(function() {
-                setTimeout(function() {
-                  showTyping();
-                  setTimeout(function() { removeTyping(); addMsg(flow[0].q, 'bot').then(function() { renderQR(flow[0]); }); }, 600);
-                }, 200);
-              });
-            }, 600);
-          });
-        } else {
-          addMsg("I'll write my own prompt", 'user').then(function() {
-            showTyping();
-            setTimeout(function() {
-              removeTyping();
-              addMsg("Go ahead — type your search below and I'll find the best matches.", 'bot').then(function() {
-                manualBar.style.display = 'flex';
-                window._udderManualMode = true;
-                setTimeout(function() { manualInp.focus(); }, 80);
-              });
-            }, 600);
-          });
-        }
-      });
-      wrap.appendChild(card);
-    });
-    qrArea.appendChild(wrap);
-  }
 
-  /* ── Manual bar ── */
-  function fireManual() {
-    var val = manualInp.value.trim();
-    if (!val) return;
-    manualInp.value = '';
-    manualBar.style.display = 'none';
-    hideSuggestions();
-    window._udderManualMode = false;
-    addMsg(val, 'user').then(function() {
-      showTyping();
-      setTimeout(function() {
-        removeTyping();
-        addMsg('Searching the Udder database for you now\u2026', 'bot').then(function() {
-          setTimeout(function() {
-            /* Fire the raw user query directly — no structured prompt wrapping */
-            if (typeof window.triggerUdderSearch === 'function') {
-              window.triggerUdderSearch(val);
-            } else {
-              var mi = document.getElementById('modalSearch');
-              if (mi) { mi.value = val; mi.dispatchEvent(new Event('input', { bubbles: true })); }
-              var loaderWrap = document.querySelector('.sm-loader-wrap');
-              if (loaderWrap) loaderWrap.classList.remove('hide');
-            }
-          }, 400);
-        });
-      }, 700);
-    });
-  }
+    var searchRow = document.createElement('div');
+    searchRow.className = 'uchat-typing-row';
+    searchRow.id = 'uchatSearching';
+    var av = document.createElement('div');
+    av.className = 'uchat-av bot';
+    av.textContent = 'AI';
+    var bub = document.createElement('div');
+    bub.className = 'uchat-typing-bub';
+    bub.style.cssText = 'gap:8px;padding:10px 16px;min-width:180px;';
 
-  function fireFreetextManual() {
-    var val = manualInp.value.trim();
-    if (!val) return;
-    manualInp.value = '';
-    manualBar.style.display = 'none';
-    hideSuggestions();
-    state.notes = val;
-    handleAnswer(val, flow[step]);
-  }
+    var stages = ['Searching vendors\u2026', 'Matching capabilities\u2026', 'Ranking results\u2026'];
+    var stageIdx = 0;
+    var label = document.createElement('span');
+    label.style.cssText = 'font-size:12px;color:var(--t3);font-family:var(--sans);';
+    label.textContent = stages[0];
 
-  manualSend.addEventListener('click', function() {
-    hideSuggestions();
-    if (window._udderFreetextMode) fireFreetextManual();
-    else if (window._udderManualMode) fireManual();
-  });
+    var dots = document.createElement('span');
+    dots.innerHTML = '<div class="uchat-dot"></div><div class="uchat-dot"></div><div class="uchat-dot"></div>';
+    dots.style.cssText = 'display:flex;gap:4px;align-items:center;';
+
+    bub.appendChild(dots);
+    bub.appendChild(label);
+    searchRow.appendChild(av);
+    searchRow.appendChild(bub);
+    chatBody.appendChild(searchRow);
+    scrollDown();
+
+    setInterval(function() {
+      stageIdx = (stageIdx + 1) % stages.length;
+      label.textContent = stages[stageIdx];
+    }, 900);
+
+    if (typeof window.triggerUdderSearch === 'function') {
+      window.triggerUdderSearch(jsonStr);
+    }
+  }
 
   /* ── Restart ── */
   function restart() {
-    state = { size:'', current:'', features:[], subcategories:[], integrations:[], geo:[], budget:'', notes:'' };
-    step = 0;
-    multiSel = [];
-    window._udderManualMode = false;
-    window._udderFreetextMode = false;
+    state = { systemType: '', size: '', modules: [], geo: [] };
+    step  = 0;
     chatBody.innerHTML = '';
     clearQR();
-    hideSuggestions();
-    if (manualBar) manualBar.style.display = 'none';
-    /* Re-roll question variants */
-    flow.forEach(function(s) { s.q = pick(s.qs); });
-    /* Hide restart button until conversation starts again */
+    flow.forEach(function(s) { s.q = s.qs[Math.floor(Math.random() * s.qs.length)]; });
     var rb = document.getElementById('udderRestartBtn');
     if (rb) rb.style.display = 'none';
     kickOff();
@@ -2291,15 +2241,45 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
     setTimeout(function() {
       removeTyping();
       addMsg("Hey! What are you looking for today?", 'bot').then(function() {
-        showModeCards();
-        /* Show restart button now that conversation has started */
-        var rb = document.getElementById('udderRestartBtn');
-        if (rb) rb.style.display = 'inline-flex';
+        showTyping();
+        setTimeout(function() {
+          removeTyping();
+          addMsg(flow[0].q, 'bot').then(function() {
+            renderStep(flow[0]);
+            var rb = document.getElementById('udderRestartBtn');
+            if (rb) rb.style.display = 'inline-flex';
+          });
+        }, 600);
       });
     }, 900);
   }
 
-  kickOff();
+  /* ── Start on modal open ── */
+  var _modalEl = document.getElementById('searchModal');
+  var _udderWasOpen = false;
+
+  function handleModalStateChange() {
+    var isOpen = _modalEl.classList.contains('open') || _modalEl.classList.contains('active');
+    if (isOpen && !_udderWasOpen) {
+      _udderWasOpen = true;
+      setTimeout(function() {
+        state = { systemType: '', size: '', modules: [], geo: [] };
+        step  = 0;
+        chatBody.innerHTML = '';
+        clearQR();
+        flow.forEach(function(s) { s.q = s.qs[Math.floor(Math.random() * s.qs.length)]; });
+        var rb = document.getElementById('udderRestartBtn');
+        if (rb) rb.style.display = 'none';
+        kickOff();
+      }, 50);
+    }
+    if (!isOpen) _udderWasOpen = false;
+  }
+
+  if (_modalEl) {
+    new MutationObserver(handleModalStateChange)
+      .observe(_modalEl, { attributes: true, attributeFilter: ['class', 'style'] });
+  }
 
 })();
 </script>
@@ -2402,7 +2382,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       <button class="vd-tab active" data-tab="overview">Overview</button>
       <button class="vd-tab" data-tab="features">Features</button>
       <button class="vd-tab" data-tab="integrations">Integrations</button>
-      <button class="vd-tab" data-tab="references">References</button>
+      <!-- <button class="vd-tab" data-tab="references">References</button> -->
       <button class="vd-tab" data-tab="verification">Verification</button>
     </div>
     <div class="vd-body">
@@ -2427,11 +2407,11 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
             <div id="vdIntegrations"></div>
           </div>
 
-          <div class="vd-tab-pane" id="vd-references">
+          <!-- <div class="vd-tab-pane" id="vd-references">
             <h2 style="font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-0.02em;margin-bottom:12px">Named customers</h2>
             <p style="font-size:13px;color:var(--t3);margin-bottom:28px">Publicly referenced or validated by Udder.</p>
             <div id="vdReferences"></div>
-          </div>
+          </div> -->
 
           <div class="vd-tab-pane" id="vd-verification">
             <div id="vdVerification"></div>
@@ -2466,8 +2446,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <div class="sl-panel" id="shortlistPanel">
   <div class="sl-topbar">
     <button class="sl-back" id="shortlistBack">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back to results
+      ← Back to results
     </button>
     <div class="sl-topbar-title">My Platforms</div>
     <div class="sl-topbar-right"></div>
@@ -2503,7 +2482,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
       <div id="mpComparisonsList">
 
         <!-- Example comparison group — repeat this pattern dynamically later -->
-        <div class="mp-comparison-group">
+        <!-- <div class="mp-comparison-group">
           <div class="mp-comparison-header">
             <div>
               <div class="mp-comparison-title">ATS Shortlist — Round 1</div>
@@ -2556,7 +2535,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
               <div class="mp-comp-add-label">Add product</div>
             </div>
           </div>
-        </div>
+        </div> -->
 
       </div>
     </div>
@@ -2726,8 +2705,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <div class="me-panel" id="myEvaluationsPanel">
   <div class="me-topbar">
     <button class="me-back" id="myEvaluationsBack">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back to results
+      ← Back to results
     </button>
     <div class="me-topbar-title">My Evaluations</div>
     <div></div>
@@ -2754,8 +2732,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <div class="st-panel" id="settingsPanel">
   <div class="st-topbar">
     <button class="st-back" id="settingsBack">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back to results
+      ← Back to results
     </button>
     <div class="st-topbar-title">Settings</div>
     <div></div>
@@ -3018,7 +2995,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 <!-- COMPARISON PANEL -->
 <div class="cp-panel" id="compareModal">
   <div class="cm-topbar">
-    <button class="cm-back" id="comparisonCloseModalBtn"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to results</button>
+    <button class="cm-back" id="comparisonCloseModalBtn">← Back to results</button>
     <div class="cm-topbar-title">Vendor Comparison</div>
     <div class="cm-topbar-right">
     <button class="vd-action-btn link-secured" id="cmSaveComparisonBtn">
@@ -3324,7 +3301,7 @@ function updatePills(){var pills=document.getElementById('catPills');if(!pills)r
 function bindCategoryListeners(){document.querySelectorAll('#catTree input[type=checkbox]').forEach(function(cb){if(!cb.dataset.bound){cb.dataset.bound='1';cb.addEventListener('change',updatePills)}})}
 var catTree=document.getElementById('catTree');
 if(catTree)new MutationObserver(bindCategoryListeners).observe(catTree,{childList:true,subtree:true});
-function clearCats(){document.querySelectorAll('#catTree input[type=checkbox]').forEach(function(cb){cb.checked=false});updatePills()}
+function clearCats(){document.querySelectorAll('#catTree input[type=checkbox]').forEach(function(cb){cb.checked=false});updatePills();$('#catTree li').removeClass('hide');}
 window.clearCats = clearCats;
 var cs=document.getElementById('catSearch');
 if(cs)cs.addEventListener('input',function(){var q=this.value.toLowerCase();document.querySelectorAll('#catTree > li').forEach(function(li){var ne=li.querySelector('.ct-name');if(!ne)return;var nm=ne.textContent.toLowerCase();var sh=Array.from(li.querySelectorAll('.ct-sub .ct-name')).some(function(s){return s.textContent.toLowerCase().includes(q)});li.style.display=(!q||nm.includes(q)||sh)?'':'none';if(q&&sh){var sub=li.querySelector('.ct-sub');var exp=li.querySelector('.ct-exp:not(.noc)');if(sub)sub.classList.add('open');if(exp)exp.classList.add('open')}})});
@@ -3529,23 +3506,23 @@ async function openVendorDetail(card){
       '</div>';
   }
   var references = card.dataset.references || '';
-  if(!references){
-    document.getElementById('vdReferences').innerHTML = '<p class="vd-para" style="color:var(--t3)">No named customers listed.</p>';
-  } else {
-    var refs = references.split(',').filter(function(r){ return r.trim(); });
-    document.getElementById('vdReferences').innerHTML =
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">' +
-      refs.map(function(r){
-        var parts = r.trim().split('|');
-        var refName = parts[0].trim();
-        var refMeta = parts[1] ? parts[1].trim() : 'Enterprise · Multi-region';
-        return '<div style="padding:20px 20px 22px;border:1px solid var(--b2);border-radius:10px;background:var(--w)">'+
-          '<div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:10px">'+refName+'</div>'+
-          '<div style="font-size:13px;color:var(--t3)">'+refMeta+'</div>'+
-        '</div>';
-      }).join('')+
-      '</div>';
-  }
+  // if(!references){
+  //   document.getElementById('vdReferences').innerHTML = '<p class="vd-para" style="color:var(--t3)">No named customers listed.</p>';
+  // } else {
+  //   var refs = references.split(',').filter(function(r){ return r.trim(); });
+  //   document.getElementById('vdReferences').innerHTML =
+  //     '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">' +
+  //     refs.map(function(r){
+  //       var parts = r.trim().split('|');
+  //       var refName = parts[0].trim();
+  //       var refMeta = parts[1] ? parts[1].trim() : 'Enterprise · Multi-region';
+  //       return '<div style="padding:20px 20px 22px;border:1px solid var(--b2);border-radius:10px;background:var(--w)">'+
+  //         '<div style="font-size:15px;font-weight:700;color:var(--t1);margin-bottom:10px">'+refName+'</div>'+
+  //         '<div style="font-size:13px;color:var(--t3)">'+refMeta+'</div>'+
+  //       '</div>';
+  //     }).join('')+
+  //     '</div>';
+  // }
   /* Verification tab */
   var badgeText = '';
   var badgeEl2 = card.querySelector('.verification-badge');
@@ -3643,6 +3620,8 @@ async function openVendorDetail(card){
     })
   });
 }
+window.openVendorDetail = openVendorDetail;
+
 function closeVendorDetail(){if(vdPanel)vdPanel.classList.remove('open')}
 if(document.getElementById('vendorDetailBack'))document.getElementById('vendorDetailBack').addEventListener('click',closeVendorDetail);
 document.querySelectorAll('.vd-tab').forEach(function(tab){tab.addEventListener('click',function(){var t=this.dataset.tab;document.querySelectorAll('.vd-tab').forEach(function(x){x.classList.remove('active')});document.querySelectorAll('.vd-tab-pane').forEach(function(x){x.classList.remove('active')});this.classList.add('active');var p=document.getElementById('vd-'+t);if(p)p.classList.add('active')})});
@@ -5234,10 +5213,10 @@ document.querySelectorAll('.sb-nav a').forEach(function(a){a.addEventListener('c
 </script>
 <script type="module">
   import { showToast, lockBtn } from '../assets/js/app.js';
-  import { isLoggedIn } from '../assets/js/core/auth/session.js';
+  import { isLoggedIn, initSession } from '../assets/js/core/auth/session.js';
   import { requireLogin } from '../assets/js/core/auth/loginRequired.js';
   /* ── REQUEST INTRO MODAL ── */
-(function(){
+(async function(){
   var modal    = document.getElementById('introModal');
   var riTags   = [];
 
