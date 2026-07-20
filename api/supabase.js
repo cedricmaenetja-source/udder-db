@@ -97,7 +97,17 @@ export default async function handler(req, res) {
         'getAllVendorActivities',
         'getAssignedVendors',
         'passIntroRequest',
-        'updateLead'
+        'updateLead',
+        'verifyAdmin',
+        'getUsers',
+        'getAllUsers',
+        'getIntroRequests',
+        'getSearchFilters',
+        'getVerifications',
+        'getAdminActivities',
+        'getAdminUsers',
+        'getLeads',
+        'getClientEnquiries'
     ];
 
     if (!action) {
@@ -111,6 +121,20 @@ export default async function handler(req, res) {
     if (action === 'getVendors') {
         return await getVendors(res);
     }
+
+    if (action === 'getUsers') {
+        return await getUsers(res);
+    }
+
+    if (action === 'getAllUsers') return await getAllUsers(res);
+    
+    if (action === 'getAdminActivities') return await getAdminActivities(res, userId);
+    if (action === 'getVerifications') return await getVerifications(res);
+    if (action === 'getSearchFilters') return await getSearchFilters(res);
+    if (action === 'getIntroRequests') return await getIntroRequests(res);
+    if (action === 'getAdminUsers') return await getAdminUsers(res, userId); 
+    if (action === 'getLeads') return await getLeads(res);
+    if (action === 'getClientEnquiries') return await getClientEnquiries(res);
 
     if (action === 'getVendorById') return await getVendorById(res, vendorId);
     if (action === 'getFilter') return await getFilter(res);
@@ -681,6 +705,24 @@ export default async function handler(req, res) {
         }
     } 
 
+    if (action === 'verifyAdmin'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { email, otp, token } = req.body;
+            if (!email || !otp || !token) return res.status(400).json({ error: "Invalid Request" });
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (email != decoded.email && otp != decoded.otp) return res.status(401).json({ error: "Invalid Otp" });
+            
+            return res.status(200).json({ success: true });
+        } catch (err) {
+            return res.status(401).json({ error: 'Invalid or expired token' });
+        }
+    }
+
     if (action === 'addClientInquiry'){
         if (req.method !== "POST") {
             return res.status(405).json({ error: "Only POST allowed" });
@@ -855,6 +897,128 @@ async function getVendors(res){
     res.setHeader(
         'Cache-Control', 
         'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getVerifications(res){
+    const { data, error } = await supabase
+        .from('tblverifications')
+        .select('*');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    // Cache on Vercel Edge for 1 hour
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getLeads(res){
+    const { data, error } = await supabase
+        .from('tbldbleads')
+        .select('*');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+async function getAdminUsers(res, userId){
+    const { data, error } = await supabase
+        .from('tblusers')
+        .select('*')
+        .eq('role', 'admin')
+        .neq('id', userId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+async function getAdminActivities(res, userId){
+    const { data, error } = await supabase
+        .from('tbladminactivities')
+        .select('*')
+        .neq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getAllUsers(res){
+    const { data, error } = await supabase
+        .from('tblusers')
+        .select('*')
+        .order('first_name', { ascending: true });
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    // Cache on Vercel Edge for 1 hour
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getUsers(res){
+    const { data, error } = await supabase
+        .from('tblusers')
+        .select('*')
+        .neq('first_name', 'Admin')
+        .order('first_name', { ascending: true });
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    // Cache on Vercel Edge for 1 hour
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getIntroRequests(res){
+    const { data, error } = await supabase
+        .from('tblintrorequests')
+        .select('*');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    // Cache on Vercel Edge for 1 hour
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    );
+
+    return res.status(200).json({ data });
+}
+
+async function getSearchFilters(res){
+    const { data, error } = await supabase
+        .from('tblsearchfilters')
+        .select('*');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    res.setHeader(
+        'Cache-Control', 
+        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
     );
 
     return res.status(200).json({ data });
@@ -1376,7 +1540,7 @@ async function updateVerification(res, verified, id) {
 async function login(req, res, email, password) {
     const { data, error } = await supabase
     .from('tblusers')
-    .select('id, password, role')
+    .select('id, password, role, requires_otp, email')
     .eq('email', email)
     .eq('verified', 'Y')
     .maybeSingle();
@@ -1405,6 +1569,19 @@ async function login(req, res, email, password) {
             path: "/",
             maxAge: 60 * 60 * 24 * 7 // 7 days
         }));
+        
+        if (data.requires_otp){
+            const otp = Math.floor(100000 + Math.random() * 900000);
+            const access_token = jwt.sign(
+                {otp: otp, user_id: data.id},
+                process.env.JWT_SECRET,
+                { expiresIn: '30m' }
+            );
+
+            data['token'] = access_token;
+        }
+
+        delete data.password;
 
         return res.status(200).json({ data });
     }
@@ -1728,6 +1905,15 @@ async function getComparisons(res, vendorId){
         .from('tblcomparisons')
         .select('*')
         .eq('vendor_id', vendorId);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
+async function getClientEnquiries(res){
+    const { data, error } = await supabase
+        .from('tblclientinquiries')
+        .select('*');
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verify identity — UDDER DB Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#F15025;--o2:#D03E14;
+  --k:#0f0f0f;--w:#ffffff;--off:#fafaf9;
+  --b1:rgba(15,15,15,0.07);--b2:rgba(15,15,15,0.12);--b3:rgba(15,15,15,0.22);
+  --t1:#111110;--t2:#4a4a46;--t3:#8a8a85;--t4:#b8b8b2;
+  --display:'Poppins',sans-serif;--body:'Inter',sans-serif;
+  --admin:#1a1a2e;--admin2:#16213e;--admin3:#0f0f20;
+  --accent:#e94560;--accent2:#c73550;
+}
+html,body{min-height:100%;background:var(--admin3)}
+body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+
+/* ── LEFT: full dark panel ── */
+.left{
+  width:46%;max-width:560px;flex-shrink:0;
+  background:var(--admin);
+  display:flex;flex-direction:column;
+  padding:44px 48px;
+  position:relative;overflow:hidden;
+}
+.left-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(233,69,96,0.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(233,69,96,0.055) 1px,transparent 1px);
+  background-size:36px 36px;
+  pointer-events:none;
+}
+.left-glow-top{
+  position:absolute;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(233,69,96,0.14) 0%,transparent 70%);
+  top:-100px;left:-80px;pointer-events:none;
+}
+.left-glow-btm{
+  position:absolute;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(26,26,80,0.6) 0%,transparent 70%);
+  bottom:-60px;right:-60px;pointer-events:none;
+}
+
+.brand{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--display);font-size:20px;font-weight:900;
+  color:var(--w);letter-spacing:-0.03em;text-transform:uppercase;
+  margin-bottom:auto;
+}
+.brand-name span{color:var(--accent)}
+.admin-badge{
+  font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.3);
+  color:var(--accent);border-radius:4px;padding:3px 7px;font-family:var(--body);
+}
+
+.left-body{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  flex:1;justify-content:center;
+  padding:40px 0 20px;
+}
+.left-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(233,69,96,0.7);margin-bottom:14px;
+}
+.left-headline{
+  font-family:var(--display);
+  font-size:clamp(28px,3.4vw,46px);
+  font-weight:900;color:var(--w);
+  letter-spacing:-0.03em;line-height:1.0;
+  text-transform:uppercase;margin-bottom:24px;
+}
+.left-headline em{font-style:normal;color:var(--accent)}
+
+.left-divider{
+  width:40px;height:2px;background:rgba(233,69,96,0.4);
+  border-radius:1px;margin-bottom:24px;
+}
+
+.session-meta{display:flex;flex-direction:column;gap:12px;margin-bottom:0}
+.session-row{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;
+}
+.session-row-icon{
+  width:30px;height:30px;border-radius:6px;
+  background:rgba(233,69,96,0.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.session-row-icon svg{width:13px;height:13px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.session-row-text p{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.4}
+.session-row-text strong{font-size:12px;color:rgba(255,255,255,0.75);font-weight:600}
+
+.left-footer{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:28px;border-top:1px solid rgba(255,255,255,0.07);
+  margin-top:auto;
+}
+.left-footer-link{font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.15s}
+.left-footer-link:hover{color:rgba(255,255,255,0.6)}
+.left-footer-sep{color:rgba(255,255,255,0.15);font-size:12px}
+
+/* ── RIGHT: OTP form ── */
+.right{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:48px 48px;overflow-y:auto;
+  background:var(--w);
+}
+.form-card{width:100%;max-width:400px}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;color:var(--t3);text-decoration:none;
+  margin-bottom:28px;transition:color 0.15s;
+}
+.back-link:hover{color:var(--t1)}
+.back-link svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.form-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px;
+}
+.form-title{
+  font-family:var(--display);font-size:clamp(22px,2.6vw,28px);font-weight:800;
+  color:var(--t1);letter-spacing:-0.03em;line-height:1.1;margin-bottom:8px;
+}
+.form-sub{font-size:13.5px;color:var(--t3);line-height:1.55;margin-bottom:8px}
+.form-sub strong{color:var(--t1);font-weight:600}
+.form-sub-2{font-size:13.5px;color:var(--t3);line-height:1.55;margin-bottom:32px}
+
+/* OTP boxes */
+.otp-group{margin-bottom:10px}
+.otp-label{
+  display:block;font-size:10px;font-weight:700;color:var(--t3);
+  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;
+}
+.otp-boxes{display:flex;gap:10px;margin-bottom:8px}
+.otp-box{
+  width:100%;height:56px;
+  border:1.5px solid var(--b2);border-radius:10px;
+  background:var(--w);text-align:center;
+  font-family:var(--display);font-size:22px;font-weight:700;color:var(--t1);
+  outline:none;transition:border-color 0.15s,box-shadow 0.15s;
+}
+.otp-box::placeholder{color:var(--t4);font-weight:400}
+.otp-box:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(233,69,96,0.09)}
+.otp-box:hover:not(:focus){border-color:var(--b3)}
+.otp-box.filled{border-color:var(--admin)}
+.otp-box.error-field{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.09)}
+
+.field-error{font-size:11px;color:#ef4444;min-height:16px;margin-bottom:14px}
+
+/* resend / timer row */
+.resend-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;font-size:13px;
+}
+.resend-text{color:var(--t3)}
+.resend-link{color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;background:none;border:none;font-family:var(--body);font-size:13px;padding:0}
+.resend-link:hover{color:var(--accent2)}
+.resend-link:disabled{color:var(--t4);cursor:default}
+.resend-timer{color:var(--t4);font-weight:500}
+
+/* submit */
+.btn-primary{
+  width:100%;height:50px;
+  background:var(--admin);border:none;border-radius:999px;
+  color:var(--w);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:var(--body);transition:all 0.15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:20px;
+}
+.btn-primary:hover{background:var(--admin2);transform:translateY(-1px);box-shadow:0 4px 18px rgba(26,26,46,0.3)}
+.btn-primary:active{transform:none;box-shadow:none}
+.btn-primary:disabled{background:var(--b2);color:var(--t4);cursor:default;transform:none;box-shadow:none}
+.btn-primary svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* success state */
+.success-banner{
+  display:none;align-items:flex-start;gap:10px;
+  background:rgba(22,163,74,0.06);border:1.5px solid rgba(22,163,74,0.2);
+  border-radius:8px;padding:12px 14px;margin-bottom:20px;
+  animation:fadeUp 0.2s ease both;
+}
+.success-banner.visible{display:flex}
+.success-banner svg{width:15px;height:15px;stroke:#16a34a;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px}
+.success-banner p{font-size:12.5px;color:#15803d;line-height:1.5}
+
+/* error banner */
+.error-banner{
+  display:none;align-items:flex-start;gap:10px;
+  background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.2);
+  border-radius:8px;padding:12px 14px;margin-bottom:20px;
+  animation:fadeUp 0.2s ease both;
+}
+.error-banner.visible{display:flex}
+.error-banner svg{width:15px;height:15px;stroke:#ef4444;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px}
+.error-banner p{font-size:12.5px;color:#b91c1c;line-height:1.5}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.form-bottom{
+  text-align:center;font-size:12.5px;color:var(--t4);
+  padding-top:20px;border-top:1px solid var(--b1);margin-top:4px;
+}
+.form-bottom a{color:var(--t2);text-decoration:none;font-weight:500}
+.form-bottom a:hover{color:var(--t1)}
+
+@media(max-width:900px){.left{display:none}.right{padding:32px 24px;align-items:flex-start;padding-top:48px}}
+@media(max-width:480px){.right{padding:24px 16px}.otp-box{height:48px;font-size:19px}.otp-boxes{gap:7px}}
+</style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-grid"></div>
+  <div class="left-glow-top"></div>
+  <div class="left-glow-btm"></div>
+
+  <div class="brand">
+    <span class="brand-name">Udder<span>DB</span></span>
+    <span class="admin-badge">Admin</span>
+  </div>
+
+  <div class="left-body">
+    <div class="left-eyebrow">Restricted access</div>
+    <div class="left-headline">One last<br>step to <em>verify</em></div>
+    <div class="left-divider"></div>
+
+    <div class="session-meta">
+      <div class="session-row">
+        <div class="session-row-icon">
+          <svg viewBox="0 0 14 14"><rect x="2" y="6" width="10" height="7" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 015 0V6"/></svg>
+        </div>
+        <div class="session-row-text">
+          <strong>Two-step verification</strong>
+          <p>All admin logins require email OTP after password.</p>
+        </div>
+      </div>
+      <div class="session-row">
+        <div class="session-row-icon">
+          <svg viewBox="0 0 14 14"><path d="M7 1l1.5 4h4l-3.2 2.4 1.2 4L7 9l-3.5 2.4 1.2-4L1.5 5h4z"/></svg>
+        </div>
+        <div class="session-row-text">
+          <strong>Audit logged</strong>
+          <p>Every session is recorded with timestamp and IP.</p>
+        </div>
+      </div>
+      <div class="session-row">
+        <div class="session-row-icon">
+          <svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>
+        </div>
+        <div class="session-row-text">
+          <strong>Code expires in 10 minutes</strong>
+          <p>For your security, request a new one if it lapses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    <a class="left-footer-link" href="#">Privacy policy</a>
+    <span class="left-footer-sep">·</span>
+    <a class="left-footer-link" href="#">Terms of use</a>
+    <span class="left-footer-sep">·</span>
+    <a class="left-footer-link" href="#">Support</a>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="form-card">
+
+    <a href="login.html" class="back-link">
+      <svg viewBox="0 0 14 14"><path d="M9 3L4 7l5 4"/></svg>
+      Back to sign in
+    </a>
+
+    <div class="form-eyebrow">Verify identity</div>
+    <h1 class="form-title">Enter verification code</h1>
+    <p class="form-sub">We've sent a 6-digit code to <strong id="userEmail">alice@yourorg.co.uk</strong>.</p>
+    <p class="form-sub-2">Enter it below to complete sign-in.</p>
+
+    <!-- Success banner -->
+    <div class="success-banner" id="successBanner">
+      <svg viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5"/></svg>
+      <p>A new code has been sent to your email.</p>
+    </div>
+
+    <!-- Error banner -->
+    <div class="error-banner" id="errorBanner">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v4M8 10.5v.5"/></svg>
+      <p id="errorMsg">That code isn't right. Please try again.</p>
+    </div>
+
+    <div class="otp-group">
+      <label class="otp-label">6-digit code <span style="color:var(--accent)">*</span></label>
+      <div class="otp-boxes" id="otpBoxes">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" data-idx="0">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" data-idx="1">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" data-idx="2">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" data-idx="3">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" data-idx="4">
+        <input class="otp-box" type="text" inputmode="numeric" maxlength="1" data-idx="5">
+      </div>
+      <div class="field-error" id="otpErr"></div>
+    </div>
+
+    <div class="resend-row">
+      <span class="resend-text">Didn't get a code?</span>
+      <button class="resend-link" id="resendBtn" type="button" disabled>Resend in <span class="resend-timer" id="resendTimer">30s</span></button>
+    </div>
+
+    <button class="btn-primary" id="verifyBtn" type="button">
+      <span id="verifyLabel">Verify &amp; sign in</span>
+      <div class="spinner" id="verifySpinner"></div>
+      <svg id="verifyArrow" viewBox="0 0 14 14"><path d="M3 7h8M8 4l3 3-3 3"/></svg>
+    </button>
+
+    <div class="form-bottom">
+      Wrong email? <a href="login.html">Start over</a>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { getUrlParam } from '../assets/js/app.js';
+
+  $(function(){
+    const email = getUrlParam('email');
+    const tk = getUrlParam('token');
+   
+    if (!email || !tk){location.href = './login.html';return;}
+  });
+(function(){
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.otp-box'));
+
+  /* ── OTP box behaviour: auto-advance, backspace, paste ── */
+  boxes.forEach(function(box, i){
+    box.addEventListener('input', function(){
+      box.value = box.value.replace(/[^0-9]/g, '').slice(0,1);
+      box.classList.toggle('filled', !!box.value);
+      clearErrors();
+      if(box.value && i < boxes.length - 1){
+        boxes[i+1].focus();
+      }
+      maybeAutoSubmit();
+    });
+
+    box.addEventListener('keydown', function(e){
+      if(e.key === 'Backspace' && !box.value && i > 0){
+        boxes[i-1].focus();
+      }
+    });
+
+    box.addEventListener('paste', function(e){
+      e.preventDefault();
+      var text = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+      text.split('').forEach(function(ch, idx){
+        if(boxes[idx]){
+          boxes[idx].value = ch;
+          boxes[idx].classList.add('filled');
+        }
+      });
+      var next = Math.min(text.length, boxes.length - 1);
+      boxes[next].focus();
+      maybeAutoSubmit();
+    });
+  });
+
+  function getCode(){
+    return boxes.map(function(b){ return b.value; }).join('');
+  }
+
+  function maybeAutoSubmit(){
+    if(getCode().length === 6){
+      verify();
+    }
+  }
+
+  function clearErrors(){
+    boxes.forEach(function(b){ b.classList.remove('error-field'); });
+    document.getElementById('otpErr').textContent = '';
+    document.getElementById('errorBanner').classList.remove('visible');
+  }
+
+  function showError(msg){
+    boxes.forEach(function(b){ b.classList.add('error-field'); });
+    document.getElementById('errorMsg').textContent = msg;
+    document.getElementById('errorBanner').classList.add('visible');
+    document.getElementById('successBanner').classList.remove('visible');
+  }
+
+  /* ── verify ── */
+  async function verify(){
+    clearErrors();
+    var code = getCode();
+    if(code.length < 6){
+      document.getElementById('otpErr').textContent = 'Enter all 6 digits.';
+      return;
+    }
+
+    var btn      = document.getElementById('verifyBtn');
+    var spinner  = document.getElementById('verifySpinner');
+    var arrow    = document.getElementById('verifyArrow');
+    var label    = document.getElementById('verifyLabel');
+    btn.disabled          = true;
+    spinner.style.display = 'block';
+    arrow.style.display   = 'none';
+    label.textContent     = 'Verifying…';
+
+    const token = getUrlParam('token');
+
+    try {
+      const response = await fetch('/api/supabase?action=verifyAdmin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('userEmail').textContent, otp: code, token: token })
+      });
+
+      const result = await response.json();
+      if(result.error){
+        showError(result.error);
+        return;
+      }
+
+      /* Demo: simulate network call — remove in production */
+      //await new Promise(r => setTimeout(r, 800));
+
+      location.href = './';
+
+    } catch(e){
+      showError('Something went wrong. Please try again.');
+    } finally {
+      btn.disabled          = false;
+      spinner.style.display = 'none';
+      arrow.style.display   = 'block';
+      label.textContent     = 'Verify & sign in';
+    }
+  }
+
+  document.getElementById('verifyBtn').addEventListener('click', verify);
+
+  /* ── resend timer ── */
+  var resendBtn   = document.getElementById('resendBtn');
+  var resendTimer = document.getElementById('resendTimer');
+  var seconds     = 30;
+  var interval    = null;
+
+  function startTimer(){
+    seconds = 30;
+    resendBtn.disabled = true;
+    resendBtn.innerHTML = 'Resend in <span class="resend-timer" id="resendTimer">' + seconds + 's</span>';
+    interval = setInterval(function(){
+      seconds--;
+      var t = document.getElementById('resendTimer');
+      if(t) t.textContent = seconds + 's';
+      if(seconds <= 0){
+        clearInterval(interval);
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Resend code';
+      }
+    }, 1000);
+  }
+
+  resendBtn.addEventListener('click', async function(){
+    if(resendBtn.disabled) return;
+    clearErrors();
+
+    startTimer();
+
+    try {
+      const token = getUrlParam('token');
+      const e = getUrlParam('email');
+      
+      await fetch('/api/supabase?action=resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('userEmail').textContent })
+      });
+      const rc = await fetch('/api/send-email?action=adminVerify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+              to: decodeURIComponent(e),
+              token: token
+          })
+      });
+    } catch(e){ /* fail silently, still show success in demo */ }
+
+    document.getElementById('successBanner').classList.add('visible');
+    boxes.forEach(function(b){ b.value=''; b.classList.remove('filled'); });
+    boxes[0].focus();
+  });
+
+  startTimer();
+  boxes[0].focus();
+
+  /* ── prefill email from query string or localStorage if available ── */
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var email = params.get('email') || localStorage.getItem('pendingAdminEmail');
+    if(email) document.getElementById('userEmail').textContent = email;
+  } catch(e){}
+
+})();
+</script>
+</body>
+</html>

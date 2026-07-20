@@ -325,7 +325,6 @@ body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;
 
     <div class="form-eyebrow">Admin portal</div>
     <h1 class="form-title">Sign in to your account</h1>
-    <p class="form-sub">Don't have access? <a href="request-access.html">Request admin credentials →</a></p>
 
     <!-- Error banner -->
     <div class="error-banner" id="errorBanner">
@@ -352,10 +351,6 @@ body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;
     </div>
 
     <div class="form-meta">
-      <label class="remember-wrap">
-        <input type="checkbox" id="rememberMe">
-        <span class="remember-label">Remember this device</span>
-      </label>
       <a class="forgot-link" href="#">Forgot password?</a>
     </div>
 
@@ -366,7 +361,7 @@ body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;
     </button>
 
     <div class="form-bottom">
-      Not an admin? <a href="create-account.html">Back to main site →</a>
+      Don't have an account? <a href="#">Contact your administrator</a>
     </div>
 
   </div>
@@ -429,28 +424,43 @@ body{font-family:var(--body);color:var(--t1);-webkit-font-smoothing:antialiased;
     spinner.style.display = 'block';
     arrow.style.display   = 'none';
     label.textContent     = 'Signing in…';
-
+    
     try {
-      /* Replace with your real auth call:
-         const res  = await fetch('/api/admin/login', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ email, password: pwd, rememberMe: document.getElementById('rememberMe').checked })
-         });
-         const data = await res.json();
-         if(data.error){ showError(data.error); return; }
-         location.href = data.requiresOtp ? 'admin-verify.html' : 'admin/dashboard.html';
-      */
+      const response = await fetch('/api/supabase?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pwd}),
+      });
 
-      // Demo: simulate network call
-      await new Promise(r => setTimeout(r, 1000));
-
-      // Demo credentials check (remove in production)
-      if(email === 'admin@example.com' && pwd === 'password'){
-        location.href = 'admin-verify.html';
-      } else {
-        showError('Incorrect email or password. Please try again.');
+      const result = await response.json();
+      if (result.error){
+          showError(result.error);
+          return;
       }
+      
+      if (result.data.requires_otp){
+        const rc = await fetch('/api/send-email?action=adminVerify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                to: result.data.email,
+                token: result.data.token
+            })
+        });
+        const rtc = await rc.json();
+        if (rtc.error){
+          showError(rtc.error);
+          btn.disabled          = false;
+          spinner.style.display = 'none';
+          arrow.style.display   = 'block';
+          label.textContent     = 'Sign in';
+          return;
+        }
+      }
+
+      if (result.data.role != 'admin'){showError('Invalid admin user.');return;}
+
+      location.href = `./verify.html?email=${encodeURIComponent(result.data.email)}&token=${result.data.token}`;
 
     } catch(e){
       showError('Something went wrong. Please try again.');

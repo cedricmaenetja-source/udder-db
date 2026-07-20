@@ -35,6 +35,8 @@
     html, body { height: 100%; overflow: hidden;}
     body { font-family: var(--sans); color: var(--t1); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased }
 
+    .green{color:#16a34a !important}
+    .red{color: red !important}
     /* ── TOPBAR ── */
     .topbar {
       position: fixed; top: 0; left: 0; right: 0; height: var(--th); z-index: 300;
@@ -591,10 +593,32 @@
   font-family: var(--sans); transition: all 0.13s;
 }
 .as-danger-btn:hover { background: #ef4444; color: var(--w) }
+/* ── PAGE LOADER ── */
+#pageLoader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--w);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#pageLoader.hide {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.loader-spinner {
+  width: 42px; height: 42px;
+  border: 3px solid var(--b1);
+  border-top-color: var(--o);
+  border-radius: 50%;
+  animation: loader-spin 0.7s linear infinite;
+}
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
   </style>
 </head>
 <body>
-
+<div id="pageLoader">
+  <div class="loader-spinner"></div>
+</div>
 <!-- TOP BAR -->
 <header class="topbar">
   <div class="tb-logo">
@@ -624,9 +648,9 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sb-user">
-    <div class="sb-avatar">JP</div>
+    <div class="sb-avatar" id="sb-avatar">--</div>
     <div>
-      <div class="sb-uname">James Park</div>
+      <div class="sb-uname" id="sb-uname">--</div>
       <div class="sb-urole">Platform Admin</div>
     </div>
     <span class="sb-chev">▾</span>
@@ -713,37 +737,37 @@
   <div class="panel active" id="panel-dashboard">
     <div class="pd-page">
       <div class="pd-eyebrow">Platform Operations</div>
-      <div class="pd-title">UdderDB — Q2 2026 to date</div>
+      <div class="pd-title">UdderDB — <span id="pd-q-title"></span> to date</div>
 
       <div class="pd-kpi-strip">
         <div class="pd-kpi">
           <div class="pd-kpi-lbl">Total products</div>
-          <div class="pd-kpi-val">342</div>
-          <div class="pd-kpi-delta">+18 this month</div>
+          <div class="pd-kpi-val" id="pd-products-tot">0</div>
+          <div class="pd-kpi-delta" id="pd-products-delta"></div>
         </div>
         <div class="pd-kpi">
           <div class="pd-kpi-lbl">Vendor-owned</div>
-          <div class="pd-kpi-val">128</div>
-          <div class="pd-kpi-delta">+7</div>
+          <div class="pd-kpi-val" id="pd-vendors-tot">0</div>
+          <div class="pd-kpi-delta" id="pd-vendors-delta">0</div>
         </div>
         <div class="pd-kpi">
           <div class="pd-kpi-lbl">Registered users</div>
-          <div class="pd-kpi-val">1,284</div>
-          <div class="pd-kpi-delta">+142</div>
+          <div class="pd-kpi-val" id="pd-users-tot">0</div>
+          <div class="pd-kpi-delta" id="pd-users-delta"></div>
         </div>
         <div class="pd-kpi">
-          <div class="pd-kpi-lbl">Searches (7d)</div>
-          <div class="pd-kpi-val">8,412</div>
-          <div class="pd-kpi-delta">+12%</div>
+          <div class="pd-kpi-lbl">Searches </div>
+          <div class="pd-kpi-val" id="pd-searches-tot">0</div>
+          <div class="pd-kpi-delta" id="pd-searches-delta"></div>
         </div>
         <div class="pd-kpi">
           <div class="pd-kpi-lbl">Intros sent</div>
-          <div class="pd-kpi-val">216</div>
-          <div class="pd-kpi-delta">+33</div>
+          <div class="pd-kpi-val" id="pd-intros-tot">0</div>
+          <div class="pd-kpi-delta" id="pd-intros-delta"></div>
         </div>
         <div class="pd-kpi">
           <div class="pd-kpi-lbl">Verif. queue</div>
-          <div class="pd-kpi-val">12</div>
+          <div class="pd-kpi-val" id="pd-veri-q-tot">0</div>
           <div class="pd-kpi-delta bad">Stale &gt; 14d</div>
         </div>
       </div>
@@ -754,31 +778,31 @@
           <div class="pd-panel-header">
             <div class="pd-panel-title">Verification pipeline</div>
             <div class="pd-toggle-group">
-              <button class="pd-toggle-btn">Last 30d</button>
-              <button class="pd-toggle-btn active">Last 90d</button>
+              <button class="pd-toggle-btn" data-days="30">Last 30d</button>
+              <button class="pd-toggle-btn active" data-days="90">Last 90d</button>
             </div>
           </div>
 
           <div class="pd-stage-grid">
             <div class="pd-stage-card">
               <span class="pd-badge grey"><span class="dot"></span> AI-GENERATED</span>
-              <div class="pd-stage-num">214</div>
-              <div class="pd-stage-pct">62% of catalogue</div>
+              <div class="pd-stage-num" id="pd-stage-ai-num">–</div>
+              <div class="pd-stage-pct" id="pd-stage-ai-pct">–</div>
             </div>
             <div class="pd-stage-card">
               <span class="pd-badge outline"><span class="dot"></span> VENDOR OWNED</span>
-              <div class="pd-stage-num">81</div>
-              <div class="pd-stage-pct">24% of catalogue</div>
+              <div class="pd-stage-num" id="pd-stage-vendor-num">–</div>
+              <div class="pd-stage-pct" id="pd-stage-vendor-pct">–</div>
             </div>
             <div class="pd-stage-card">
               <span class="pd-badge orange"><span class="dot"></span> UDDER VERIFIED</span>
-              <div class="pd-stage-num">36</div>
-              <div class="pd-stage-pct">10% of catalogue</div>
+              <div class="pd-stage-num" id="pd-stage-verified-num">–</div>
+              <div class="pd-stage-pct" id="pd-stage-verified-pct">–</div>
             </div>
             <div class="pd-stage-card">
               <span class="pd-badge black"><span class="dot"></span> UDDER APPROVED</span>
-              <div class="pd-stage-num">11</div>
-              <div class="pd-stage-pct">4% of catalogue</div>
+              <div class="pd-stage-num" id="pd-stage-approved-num">–</div>
+              <div class="pd-stage-pct" id="pd-stage-approved-pct">–</div>
             </div>
           </div>
 
@@ -803,126 +827,19 @@
       <!-- Verification queue -->
       <div class="pd-section-header">
         <div class="pd-section-title">Verification queue</div>
-        <span class="pd-pending-pill">12 pending</span>
+        <span class="pd-pending-pill"><span id="pd-pending-pill">-</span> pending</span>
       </div>
 
-      <div class="pd-table">
-        <div class="pd-table-head">
-          <span class="pd-th">Product</span>
-          <span class="pd-th">Vendor</span>
-          <span class="pd-th">Requested tier</span>
-          <span class="pd-th">Submitted</span>
-          <span class="pd-th">Assigned</span>
-          <span class="pd-th">Status</span>
-          <span class="pd-th"></span>
-        </div>
-
-        <div class="pd-row">
-          <div class="pd-product-name">SmartRecruiters</div>
-          <div class="pd-vendor-name">SmartRecruiters, Inc.</div>
-          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
-          <div class="pd-submitted">2 days ago</div>
-          <div class="pd-assigned">Rachel Patel</div>
-          <div><span class="pd-status-pill">Reviewing</span></div>
-          <div><button class="pd-row-btn">Open</button></div>
-        </div>
-
-        <div class="pd-row">
-          <div class="pd-product-name">HiBob</div>
-          <div class="pd-vendor-name">Hi Bob Ltd.</div>
-          <div><span class="pd-tier-pill black"><span class="dot"></span> UDDER APPROVED</span></div>
-          <div class="pd-submitted">5 days ago</div>
-          <div class="pd-assigned">Alice Oduya</div>
-          <div><span class="pd-status-pill">Awaiting refs</span></div>
-          <div><button class="pd-row-btn">Open</button></div>
-        </div>
-
-        <div class="pd-row">
-          <div class="pd-product-name">Lattice</div>
-          <div class="pd-vendor-name">Lattice</div>
-          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
-          <div class="pd-submitted">1 week ago</div>
-          <div class="pd-assigned unassigned">Unassigned</div>
-          <div><span class="pd-status-pill">Action needed</span></div>
-          <div><button class="pd-row-btn">Assign</button></div>
-        </div>
-
-        <div class="pd-row">
-          <div class="pd-product-name">Deel</div>
-          <div class="pd-vendor-name">Deel</div>
-          <div><span class="pd-tier-pill orange"><span class="dot"></span> UDDER VERIFIED</span></div>
-          <div class="pd-submitted">1 week ago</div>
-          <div class="pd-assigned">Tom Fielding</div>
-          <div><span class="pd-status-pill">Scheduled demo</span></div>
-          <div><button class="pd-row-btn">Open</button></div>
-        </div>
-      </div>
+      <div class="pd-table"></div>
 
       <div class="pd-row2" style="grid-template-columns: 1fr 1fr; margin-bottom: 0">
         <!-- Top searches -->
-        <div class="pd-panel">
-          <div class="pd-panel-header">
-            <div class="pd-panel-title">Top searches (7d)</div>
-          </div>
-          <div class="pd-list-item">
-            <div class="pd-list-left"><span class="pd-rank">1</span><span class="pd-search-term">Applicant Tracking System UK</span></div>
-            <span class="pd-search-count">842</span>
-          </div>
-          <div class="pd-list-item">
-            <div class="pd-list-left"><span class="pd-rank">2</span><span class="pd-search-term">Global payroll</span></div>
-            <span class="pd-search-count">621</span>
-          </div>
-          <div class="pd-list-item">
-            <div class="pd-list-left"><span class="pd-rank">3</span><span class="pd-search-term">HRIS mid-market</span></div>
-            <span class="pd-search-count">513</span>
-          </div>
-          <div class="pd-list-item">
-            <div class="pd-list-left"><span class="pd-rank">4</span><span class="pd-search-term">Internal mobility platform</span></div>
-            <span class="pd-search-count">401</span>
-          </div>
-          <div class="pd-list-item">
-            <div class="pd-list-left"><span class="pd-rank">5</span><span class="pd-search-term">Engagement survey tool</span></div>
-            <span class="pd-search-count">376</span>
-          </div>
+        <div class="pd-panel" id="pd-top-searches-list">
         </div>
 
         <!-- Recent admin activity -->
-        <div class="pd-panel">
-          <div class="pd-panel-header">
-            <div class="pd-panel-title">Recent admin activity</div>
-          </div>
-          <div class="pd-activity-item">
-            <div class="pd-activity-avatar">JP</div>
-            <div>
-              <div class="pd-activity-name">James Park</div>
-              <div class="pd-activity-action">Approved HiBob's Verified tier upgrade</div>
-            </div>
-            <div class="pd-activity-time">2m ago</div>
-          </div>
-          <div class="pd-activity-item">
-            <div class="pd-activity-avatar">AO</div>
-            <div>
-              <div class="pd-activity-name">Alice Oduya</div>
-              <div class="pd-activity-action">Added taxonomy entry "AI-powered matching"</div>
-            </div>
-            <div class="pd-activity-time">1h ago</div>
-          </div>
-          <div class="pd-activity-item">
-            <div class="pd-activity-avatar">RP</div>
-            <div>
-              <div class="pd-activity-name">Rachel Patel</div>
-              <div class="pd-activity-action">Assigned Deel to herself</div>
-            </div>
-            <div class="pd-activity-time">3h ago</div>
-          </div>
-          <div class="pd-activity-item">
-            <div class="pd-activity-avatar">JP</div>
-            <div>
-              <div class="pd-activity-name">James Park</div>
-              <div class="pd-activity-action">Suspended vendor account — policy violation</div>
-            </div>
-            <div class="pd-activity-time">Yesterday</div>
-          </div>
+        <div class="pd-panel" id="pd-activity-activities">
+          
         </div>
       </div>
 
@@ -953,193 +870,108 @@
         </div>
         </div>
 
-        <div class="pd-kpi-strip">
-        <div class="pd-kpi">
+        <div class="pd-kpi-strip" id="pa-kpi-strip">
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Registered users</div>
-            <div class="pd-kpi-val">1,284</div>
-            <div class="pd-kpi-delta">↑ +142 vs prior</div>
-        </div>
-        <div class="pd-kpi">
+            <div class="pd-kpi-val" id="pa-kpi-users-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-users-delta">–</div>
+          </div>
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Platforms listed</div>
-            <div class="pd-kpi-val">342</div>
-            <div class="pd-kpi-delta">↑ +18 vs prior</div>
-        </div>
-        <div class="pd-kpi">
+            <div class="pd-kpi-val" id="pa-kpi-platforms-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-platforms-delta">–</div>
+          </div>
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Leads generated</div>
-            <div class="pd-kpi-val">216</div>
-            <div class="pd-kpi-delta">↑ +33 vs prior</div>
-        </div>
-        <div class="pd-kpi">
+            <div class="pd-kpi-val" id="pa-kpi-leads-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-leads-delta">–</div>
+          </div>
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Client inquiries</div>
-            <div class="pd-kpi-val">24</div>
-            <div class="pd-kpi-delta">↑ +6 vs prior</div>
-        </div>
-        <div class="pd-kpi">
+            <div class="pd-kpi-val" id="pa-kpi-enquiries-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-enquiries-delta">–</div>
+          </div>
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Platform searches</div>
-            <div class="pd-kpi-val">31,840</div>
-            <div class="pd-kpi-delta">↑ +22% vs prior</div>
-        </div>
-        <div class="pd-kpi">
+            <div class="pd-kpi-val" id="pa-kpi-searches-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-searches-delta">–</div>
+          </div>
+          <div class="pd-kpi">
             <div class="pd-kpi-lbl">Intros sent</div>
-            <div class="pd-kpi-val">147</div>
-            <div class="pd-kpi-delta">↑ +28 vs prior</div>
-        </div>
+            <div class="pd-kpi-val" id="pa-kpi-intros-val">–</div>
+            <div class="pd-kpi-delta" id="pa-kpi-intros-delta">–</div>
+          </div>
         </div>
 
         <div class="pd-row2" style="grid-template-columns: 1fr 1fr">
         <!-- Platform verification breakdown -->
         <div class="pd-panel">
-            <div class="pd-panel-header">
+          <div class="pd-panel-header">
             <div class="pd-panel-title">Platform verification breakdown</div>
-            <div style="font-size:13px;color:var(--t3)">342 total</div>
-            </div>
-
-            <div class="pd-segbar" style="margin-bottom:20px">
-            <div style="width:62%;background:var(--t3)"></div>
-            <div style="width:24%;background:var(--k)"></div>
-            <div style="width:10%;background:var(--o)"></div>
-            <div style="width:4%;background:var(--k)"></div>
-            </div>
-
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">AI-Generated</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">214</span><span class="pa-legend-pct">62%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Vendor Owned</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">81</span><span class="pa-legend-pct">24%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot orange"></span><span class="pa-legend-label">Udder Verified</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">36</span><span class="pa-legend-pct">10%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Udder Approved</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">11</span><span class="pa-legend-pct">4%</span></div>
-            </div>
-
-            <div class="pa-stat-pair">
+            <div style="font-size:13px;color:var(--t3)" id="pa-verif-total">– total</div>
+          </div>
+          <div class="pd-segbar" id="pa-verif-segbar" style="margin-bottom:20px"></div>
+          <div id="pa-verif-legend"></div>
+          <div class="pa-stat-pair">
             <div class="pa-stat-box">
-                <div class="pa-stat-num green">47</div>
-                <div class="pa-stat-label">Udder Verified / Approved</div>
+              <div class="pa-stat-num green" id="pa-verif-stat-verified">–</div>
+              <div class="pa-stat-label">Udder Verified / Approved</div>
             </div>
             <div class="pa-stat-box">
-                <div class="pa-stat-num">295</div>
-                <div class="pa-stat-label">AI-Generated / Vendor-only</div>
+              <div class="pa-stat-num" id="pa-verif-stat-other">–</div>
+              <div class="pa-stat-label">AI-Generated / Vendor-only</div>
             </div>
-            </div>
+          </div>
         </div>
 
         <!-- Registered users by role -->
-        <div class="pd-panel">
+          <div class="pd-panel">
             <div class="pd-panel-header">
-            <div class="pd-panel-title">Registered users by role</div>
-            <div style="font-size:13px;color:var(--t3)">1,284 total</div>
+              <div class="pd-panel-title">Registered users by role</div>
+              <div style="font-size:13px;color:var(--t3)" id="pa-roles-total">– total</div>
             </div>
-
-            <div class="pd-segbar" style="margin-bottom:20px">
-            <div style="width:69%;background:var(--o)"></div>
-            <div style="width:27%;background:var(--k)"></div>
-            <div style="width:1%;background:var(--k)"></div>
-            <div style="width:3%;background:var(--t3)"></div>
-            </div>
-
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot orange"></span><span class="pa-legend-label">HR Buyers</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">892</span><span class="pa-legend-pct">69%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Vendors</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">342</span><span class="pa-legend-pct">27%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">Udder Consultants</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">12</span><span class="pa-legend-pct">1%</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">Admins</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">4</span><span class="pa-legend-pct">0%</span></div>
-            </div>
-
+            <div class="pd-segbar" id="pa-roles-segbar" style="margin-bottom:20px"></div>
+            <div id="pa-roles-legend"></div>
             <div class="pa-stat-pair">
-            <div class="pa-stat-box">
-                <div class="pa-stat-num orange">+142</div>
+              <div class="pa-stat-box">
+                <div class="pa-stat-num orange" id="pa-roles-new">–</div>
                 <div class="pa-stat-label">New users this period</div>
-            </div>
-            <div class="pa-stat-box">
-                <div class="pa-stat-num">74%</div>
+              </div>
+              <div class="pa-stat-box">
+                <div class="pa-stat-num" id="pa-roles-completion">–</div>
                 <div class="pa-stat-label">Profile completion rate</div>
+              </div>
             </div>
-            </div>
-        </div>
+          </div>
         </div>
 
         <div class="pd-row2" style="grid-template-columns: 1fr 1fr 1fr">
         <!-- Leads pipeline -->
         <div class="pd-panel">
-            <div class="pd-panel-header"><div class="pd-panel-title">Leads pipeline</div></div>
-            <div class="pd-chart-wrap" id="paLeadsChart"></div>
-            <div class="pa-stat-row3">
-            <div class="pa-stat-box"><div class="pa-stat-num">216</div><div class="pa-stat-label">Total leads</div></div>
-            <div class="pa-stat-box"><div class="pa-stat-num">6h</div><div class="pa-stat-label">Avg response</div></div>
-            <div class="pa-stat-box"><div class="pa-stat-num">68%</div><div class="pa-stat-label">Response rate</div></div>
-            </div>
+          <div class="pd-panel-header"><div class="pd-panel-title">Leads pipeline</div></div>
+          <div class="pd-chart-wrap" id="paLeadsChart"></div>
+          <div class="pa-stat-row3">
+            <div class="pa-stat-box"><div class="pa-stat-num" id="pa-leads-total">–</div><div class="pa-stat-label">Total leads</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num" id="pa-leads-avg-response">–</div><div class="pa-stat-label">Avg response</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num" id="pa-leads-response-rate">–</div><div class="pa-stat-label">Response rate</div></div>
+          </div>
         </div>
 
         <!-- Client inquiries by status -->
         <div class="pd-panel">
-            <div class="pd-panel-header"><div class="pd-panel-title">Client inquiries by status</div></div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot red"></span><span class="pa-legend-label">New</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">2</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot black"></span><span class="pa-legend-label">In progress</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">12</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot blue"></span><span class="pa-legend-label">Proposal sent</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">5</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot green"></span><span class="pa-legend-label">Closed — won</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">38</span></div>
-            </div>
-            <div class="pa-legend-row">
-            <div class="pa-legend-left"><span class="pa-legend-dot grey"></span><span class="pa-legend-label">Closed — lost</span></div>
-            <div class="pa-legend-right"><span class="pa-legend-count">32</span></div>
-            </div>
-            <div class="pa-stat-row3">
-            <div class="pa-stat-box"><div class="pa-stat-num green">38</div><div class="pa-stat-label">Won</div></div>
-            <div class="pa-stat-box"><div class="pa-stat-num">54%</div><div class="pa-stat-label">Win rate</div></div>
-            <div class="pa-stat-box"><div class="pa-stat-num">24</div><div class="pa-stat-label">This period</div></div>
-            </div>
+          <div class="pd-panel-header"><div class="pd-panel-title">Client inquiries by status</div></div>
+          <div id="pa-inquiries-legend"></div>
+          <div class="pa-stat-row3">
+            <div class="pa-stat-box"><div class="pa-stat-num green" id="pa-inquiries-won">–</div><div class="pa-stat-label">Won</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num" id="pa-inquiries-winrate">–</div><div class="pa-stat-label">Win rate</div></div>
+            <div class="pa-stat-box"><div class="pa-stat-num" id="pa-inquiries-period">–</div><div class="pa-stat-label">This period</div></div>
+          </div>
         </div>
 
         <!-- Top searched categories -->
         <div class="pd-panel">
-            <div class="pd-panel-header"><div class="pd-panel-title">Top searched categories</div></div>
-
-            <div class="pa-cat-row">
-            <div class="pa-cat-head"><span class="pa-cat-name">Applicant Tracking (ATS)</span><span class="pa-cat-count">128</span></div>
-            <div class="pa-cat-track"><div class="pa-cat-fill orange" style="width:100%"></div></div>
-            </div>
-            <div class="pa-cat-row">
-            <div class="pa-cat-head"><span class="pa-cat-name">HRIS / Core HR</span><span class="pa-cat-count">94</span></div>
-            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:73%"></div></div>
-            </div>
-            <div class="pa-cat-row">
-            <div class="pa-cat-head"><span class="pa-cat-name">Payroll</span><span class="pa-cat-count">71</span></div>
-            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:55%"></div></div>
-            </div>
-            <div class="pa-cat-row">
-            <div class="pa-cat-head"><span class="pa-cat-name">Learning &amp; Development</span><span class="pa-cat-count">58</span></div>
-            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:45%"></div></div>
-            </div>
-            <div class="pa-cat-row">
-            <div class="pa-cat-head"><span class="pa-cat-name">Performance Management</span><span class="pa-cat-count">52</span></div>
-            <div class="pa-cat-track"><div class="pa-cat-fill" style="width:40%"></div></div>
-            </div>
+          <div class="pd-panel-header"><div class="pd-panel-title">Top searched categories</div></div>
+          <div id="pa-categories-list"></div>
         </div>
         </div>
 
@@ -1926,271 +1758,7 @@
 
 </div><!-- /main-wrap -->
 
-<script>
-  // Panel + breadcrumb switching
-  document.querySelectorAll('.nav-link[data-panel]').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('on'); });
-      this.classList.add('on');
-      document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-      var panel = document.getElementById('panel-' + this.dataset.panel);
-      if (panel) panel.classList.add('active');
-      var crumb = document.getElementById('tbCrumbCur');
-      if (crumb && this.dataset.crumb) crumb.textContent = this.dataset.crumb;
-    });
-  });
-
-  document.querySelectorAll('.pd-toggle-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      this.parentNode.querySelectorAll('.pd-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
-    });
-  });
-
-  // Search volume mini bar chart — 16 days, generally increasing
-  (function() {
-    var data = [38, 42, 44, 47, 45, 50, 55, 58, 60, 63, 68, 72, 78, 84, 92, 100];
-    var max = Math.max.apply(null, data);
-    var wrap = document.getElementById('pdChart');
-    data.forEach(function(v) {
-      var bar = document.createElement('div');
-      bar.className = 'pd-chart-bar';
-      bar.style.height = Math.round((v / max) * 100) + '%';
-      wrap.appendChild(bar);
-    });
-  })();
-
-  // Leads pipeline chart — Platform Analytics
-  (function() {
-    var data = [30,34,33,38,42,45,48,52,50,55,58,54,60,63,59,65,68,64,70,66,72,74,70,76,73,78,80,77,82,85];
-    var max = Math.max.apply(null, data);
-    var wrap = document.getElementById('paLeadsChart');
-    if (!wrap) return;
-    data.forEach(function(v) {
-      var bar = document.createElement('div');
-      bar.className = 'pd-chart-bar';
-      bar.style.height = Math.round((v / max) * 100) + '%';
-      wrap.appendChild(bar);
-    });
-  })();
-
-  // User registrations over time chart — Platform Analytics
-  (function() {
-    var data = [];
-    for (var i = 0; i < 30; i++) {
-      data.push(20 + Math.round(i * 2.3) + (i % 5 === 0 ? 6 : 0));
-    }
-    var max = Math.max.apply(null, data);
-    var wrap = document.getElementById('paRegChart');
-    if (!wrap) return;
-    data.forEach(function(v) {
-      var bar = document.createElement('div');
-      bar.className = 'pa-reg-bar';
-      bar.style.height = Math.round((v / max) * 100) + '%';
-      wrap.appendChild(bar);
-    });
-  })();
-  // Verification queue tab switching
-  function switchVqTab(tab) {
-    document.getElementById('tab-claims').classList.toggle('active', tab === 'claims');
-    document.getElementById('tab-verif').classList.toggle('active', tab === 'verif');
-    var claimsView = document.querySelector('#panel-verifqueue .vq-desc');
-    var tableView = document.querySelector('#panel-verifqueue .vq-table');
-    var verifView = document.getElementById('vq-verif-view');
-    [claimsView, tableView].forEach(function(el) {
-      if (el) el.style.display = tab === 'claims' ? '' : 'none';
-    });
-    verifView.style.display = tab === 'verif' ? 'flex' : 'none';
-  }
-
-  var VR_DATA = {
-    SR: {
-      name: 'SmartRecruiters', sub: 'SmartRecruiters, Inc.', badge: 'In review',
-      contact: 'Niamh Healy', title: 'Sr Director Product Marketing',
-      email: 'niamh@smartrecruiters.com', submitted: '2 days ago', assigned: 'Rachel Patel',
-      demo: 'Fri 3 May 2026, 2pm BST',
-      evidence: ['60-min capability walkthrough video', '12 feature claims with screenshots', '3 validated customer references'],
-      checklist: [
-        { label: 'Listing completeness verified', checked: true },
-        { label: 'Demo video reviewed', checked: true },
-        { label: 'Core ATS features validated', checked: true },
-        { label: 'CRM capabilities validated', checked: false },
-        { label: 'Onboarding module validated', checked: false },
-        { label: 'Integration claims checked', checked: false },
-        { label: 'Customer references validated', checked: false }
-      ]
-    },
-    DL: {
-      name: 'Deel', sub: 'Deel Inc.', badge: 'Pending',
-      contact: 'Sofia Martins', title: 'Partner Enablement Lead',
-      email: 'sofia.martins@deel.com', submitted: '3 days ago', assigned: 'Alice Oduya',
-      demo: 'Not scheduled',
-      evidence: ['Confirmed global payroll capabilities', 'Updated regions and language count'],
-      checklist: [
-        { label: 'Listing completeness verified', checked: true },
-        { label: 'Demo video reviewed', checked: false },
-        { label: 'Core ATS features validated', checked: false },
-        { label: 'CRM capabilities validated', checked: false },
-        { label: 'Onboarding module validated', checked: false },
-        { label: 'Integration claims checked', checked: false },
-        { label: 'Customer references validated', checked: false }
-      ]
-    },
-    LT: {
-      name: 'Lattice', sub: 'Lattice Inc.', badge: 'Action needed',
-      contact: 'Devon Park', title: 'Sr. Partner Marketing Manager',
-      email: 'devon@lattice.com', submitted: '1 day ago', assigned: 'Tom Fielding',
-      demo: 'Mon 6 May 2026, 10am BST',
-      evidence: ['Confirmed all categories', 'Updated pricing model', 'Added 5 named customers'],
-      checklist: [
-        { label: 'Listing completeness verified', checked: true },
-        { label: 'Demo video reviewed', checked: true },
-        { label: 'Core ATS features validated', checked: false },
-        { label: 'CRM capabilities validated', checked: false },
-        { label: 'Onboarding module validated', checked: false },
-        { label: 'Integration claims checked', checked: false },
-        { label: 'Customer references validated', checked: false }
-      ]
-    },
-    HB: {
-      name: 'HiBob', sub: 'Hi Bob Ltd.', badge: 'Awaiting refs',
-      contact: 'Yael Cohen', title: 'Head of Partnerships',
-      email: 'yael.cohen@hibob.com', submitted: '2 hours ago', assigned: 'Rachel Patel',
-      demo: 'Not scheduled',
-      evidence: ['Updated product description', 'Confirmed HQ and founding date', 'Added 3 integration partners'],
-      checklist: [
-        { label: 'Listing completeness verified', checked: false },
-        { label: 'Demo video reviewed', checked: false },
-        { label: 'Core ATS features validated', checked: false },
-        { label: 'CRM capabilities validated', checked: false },
-        { label: 'Onboarding module validated', checked: false },
-        { label: 'Integration claims checked', checked: false },
-        { label: 'Customer references validated', checked: false }
-      ]
-    }
-  };
-
-  function selectVrItem(el) {
-    document.querySelectorAll('.vr-item').forEach(function(i) { i.classList.remove('active'); });
-    el.classList.add('active');
-
-    var initials = el.querySelector('.vr-item-avatar').textContent.trim();
-    var d = VR_DATA[initials];
-    if (!d) return;
-
-    document.querySelector('.vr-detail-name').textContent = d.name;
-    document.querySelector('.vr-detail-name-badge').textContent = d.badge;
-    document.querySelector('.vr-detail-sub').textContent = d.sub;
-
-    var rows = document.querySelectorAll('.vr-info-row .vr-info-value');
-    rows[0].textContent = d.contact;
-    rows[1].textContent = d.title;
-    rows[2].textContent = d.email;
-    rows[2].className = 'vr-info-value email';
-    rows[3].textContent = d.submitted;
-    rows[4].textContent = d.assigned;
-    rows[5].textContent = d.demo;
-
-    var evList = document.querySelector('.vr-evidence-list');
-    evList.innerHTML = d.evidence.map(function(e) { return '<li>' + e + '</li>'; }).join('');
-
-    var checkItems = document.querySelectorAll('.vr-check-item');
-    d.checklist.forEach(function(item, i) {
-      if (!checkItems[i]) return;
-      var box = checkItems[i].querySelector('.vr-check-box');
-      var label = checkItems[i].querySelector('.vr-check-label');
-      var tick = checkItems[i].querySelector('.vr-check-tick') || checkItems[i].querySelector('span:last-child');
-      box.className = 'vr-check-box' + (item.checked ? ' checked' : '');
-      box.innerHTML = item.checked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
-      label.className = 'vr-check-label' + (item.checked ? ' checked' : '');
-      label.textContent = item.label;
-      if (tick) tick.textContent = item.checked ? '✓' : '';
-    });
-
-    var done = d.checklist.filter(function(c) { return c.checked; }).length;
-    var total = d.checklist.length;
-    document.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
-    document.querySelector('.vr-progress-fill').style.width = Math.round((done / total) * 100) + '%';
-    document.querySelector('.vr-schedule-date').textContent = d.demo;
-  }
-
-  function toggleCheck(box) {
-    var isChecked = box.classList.toggle('checked');
-    var label = box.nextElementSibling;
-    var tick = label.nextElementSibling;
-    label.classList.toggle('checked', isChecked);
-    box.innerHTML = isChecked ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
-    if (tick) tick.textContent = isChecked ? '✓' : '';
-    var card = box.closest('.vr-checklist-card');
-    var total = card.querySelectorAll('.vr-check-box').length;
-    var done = card.querySelectorAll('.vr-check-box.checked').length;
-    card.querySelector('.vr-progress-count').textContent = done + '/' + total + ' complete';
-    card.querySelector('.vr-progress-fill').style.width = Math.round((done/total)*100) + '%';
-  }
-
-  // Client inquiries
-  var CI_DATA = {
-    'rolls-royce': { name: 'Rolls-Royce plc', meta: 'Aerospace &amp; Defence · 25,000+ · UK / Global', status: 'new', contact: { initials: 'CB', name: 'Charlotte Baines', role: 'VP People Technology', email: 'c.baines@rolls-royce.com' }, services: ['Vendor selection', 'RFI / RFP management'], budget: '£500k – £1m consulting', timeline: 'Q3 2026', submitted: '35 min ago', message: '"We\'re embarking on a global HR tech transformation and need support selecting a new HRIS and ATS to replace our legacy SAP suite. We have roughly 42,000 employees across 50 countries. Timeline is tight — board approval needed by September. We\'ve heard great things about Udder\'s vendor selection methodology."', assigned: 'Unassigned', activity: [{ text: 'Submitted', time: '35 min ago' }], related: [{ initials: 'SR', name: 'SmartRecruiters' }, { initials: 'AV', name: 'Avature' }, { initials: 'WD', name: 'Workday HCM' }] },
-    'asos': { name: 'Asos plc', meta: 'Retail / E-commerce · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'MK', name: 'Maya Khan', role: 'Head of People Technology', email: 'm.khan@asos.com' }, services: ['HR tech strategy', 'Digital maturity assessment'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '2 hours ago', message: '"We want an independent view on our HR tech stack before committing to a major transformation. Looking for a digital maturity assessment and roadmap to help align our P&T leadership."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '1 hour ago' }, { text: 'Submitted', time: '2 hours ago' }], related: [{ initials: 'HB', name: 'HiBob' }, { initials: 'LT', name: 'Lattice' }] },
-    'national-grid': { name: 'National Grid', meta: 'Energy & Utilities · 25,000+ · UK / US', status: 'proposal', contact: { initials: 'JR', name: 'James Reid', role: 'Group HR Technology Director', email: 'j.reid@nationalgrid.com' }, services: ['Market landscape review', 'Vendor selection'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '1 day ago', message: '"We\'re running a competitive RFP for a new global HRIS. We need an independent advisor to help shortlist vendors and run the evaluation process."', assigned: 'Rachel Patel', activity: [{ text: 'Proposal sent', time: '4 hours ago' }, { text: 'Submitted', time: '1 day ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }, { initials: 'SR', name: 'SmartRecruiters' }] },
-    'deliveroo': { name: 'Deliveroo', meta: 'Technology / Gig Economy · 5,000–25,000 · UK', status: 'inprogress', contact: { initials: 'SP', name: 'Sophie Park', role: 'Talent Operations Manager', email: 's.park@deliveroo.com' }, services: ['Implementation support', 'Change management'], budget: '£50k – £100k consulting', timeline: 'Q3 2026', submitted: '3 days ago', message: '"We\'ve selected a new ATS but need help with change management and rollout across our ops and corporate teams."', assigned: 'Tom Fielding', activity: [{ text: 'Assigned to Tom', time: '2 days ago' }, { text: 'Submitted', time: '3 days ago' }], related: [{ initials: 'GH', name: 'Greenhouse' }] },
-    'linklaters': { name: 'Linklaters LLP', meta: 'Legal Services · 5,000–25,000 · UK / Global', status: 'inprogress', contact: { initials: 'EW', name: 'Emma Walsh', role: 'Chief People Officer', email: 'e.walsh@linklaters.com' }, services: ['Platform optimisation', 'HR tech strategy'], budget: '£100k – £250k consulting', timeline: 'Q4 2026', submitted: '4 days ago', message: '"We\'re midway through a Workday implementation and struggling with adoption. We need experienced support to optimise configuration."', assigned: 'Alice Oduya', activity: [{ text: 'Assigned to Alice', time: '3 days ago' }, { text: 'Submitted', time: '4 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
-    'bp': { name: 'BP plc', meta: 'Energy · 25,000+ · UK / Global', status: 'won', contact: { initials: 'DM', name: 'David Moore', role: 'VP HR Transformation', email: 'd.moore@bp.com' }, services: ['Vendor selection', 'Implementation support'], budget: '£500k – £1m consulting', timeline: 'Q1 2026', submitted: '1 week ago', message: '"Project successfully closed. BP selected Workday HCM following our recommendation."', assigned: 'Rachel Patel', activity: [{ text: 'Closed — won', time: '2 days ago' }], related: [{ initials: 'WD', name: 'Workday HCM' }] },
-    'bt': { name: 'BT Group', meta: 'Telecommunications · 25,000+ · UK', status: 'lost', contact: { initials: 'PH', name: 'Paul Harris', role: 'Head of HR Technology', email: 'p.harris@bt.com' }, services: ['RFI / RFP management'], budget: '£250k – £500k consulting', timeline: 'Q2 2026', submitted: '2 weeks ago', message: '"BT selected a competitor consultancy for this engagement."', assigned: 'Unassigned', activity: [{ text: 'Closed — lost', time: '1 week ago' }], related: [] }
-  };
-
-  function selectCI(el, key) {
-    document.querySelectorAll('.ci-item').forEach(function(i) { i.classList.remove('active'); });
-    el.classList.add('active');
-    var d = CI_DATA[key];
-    if (!d) return;
-    document.getElementById('ciDetailName').textContent = d.name;
-    document.getElementById('ciDetailMeta').innerHTML = d.meta;
-    document.getElementById('ciContactAvatar').textContent = d.contact.initials;
-    document.getElementById('ciContactName').textContent = d.contact.name;
-    document.getElementById('ciContactRole').textContent = d.contact.role;
-    document.getElementById('ciContactEmail').textContent = d.contact.email;
-    document.getElementById('ciBudget').textContent = d.budget;
-    document.getElementById('ciTimeline').textContent = d.timeline;
-    document.getElementById('ciSubmitted').textContent = d.submitted;
-    document.getElementById('ciMessage').textContent = d.message;
-    document.getElementById('ciServiceTags').innerHTML = d.services.map(function(s) { return '<span class="ci-service-tag">' + s + '</span>'; }).join('');
-    document.getElementById('ciStatusSelect').value = d.status;
-    document.getElementById('ciAssignedSelect').value = d.assigned;
-    var actParent = document.querySelector('#panel-inquiries .ci-activity-item').parentNode;
-    actParent.innerHTML = d.activity.map(function(a) { return '<div class="ci-activity-item"><div>' + a.text + '</div><div class="ci-activity-time">' + a.time + '</div></div>'; }).join('');
-    var relItems = document.querySelectorAll('#panel-inquiries .ci-related-item');
-    var relParent = relItems.length ? relItems[0].parentNode : null;
-    if (relParent) relParent.innerHTML = d.related.length === 0 ? '<div style="font-size:12px;color:var(--t4)">None linked</div>' : d.related.map(function(r) { return '<div class="ci-related-item"><div class="ci-related-avatar">' + r.initials + '</div><div class="ci-related-name">' + r.name + '</div></div>'; }).join('');
-  }
-
-  function filterCI(btn, status) {
-    document.querySelectorAll('.ci-filter-btn').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    document.querySelectorAll('#panel-inquiries .ci-item').forEach(function(item) {
-      item.style.display = (status === 'all' || item.dataset.status === status) ? '' : 'none';
-    });
-  }
-
-  function searchCI(q) {
-    var query = q.toLowerCase();
-    document.querySelectorAll('#panel-inquiries .ci-item').forEach(function(item) {
-      var name = item.querySelector('.ci-item-name').textContent.toLowerCase();
-      var desc = item.querySelector('.ci-item-desc').textContent.toLowerCase();
-      item.style.display = (name.includes(query) || desc.includes(query)) ? '' : 'none';
-    });
-  }
-
-  function switchAsTab(btn, tab) {
-    document.querySelectorAll('.as-nav-item').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    ['details','notifications','password','account'].forEach(function(t) {
-      var el = document.getElementById('as-content-' + t);
-      if (el) el.style.display = (t === tab) ? '' : 'none';
-    });
-  }
-</script>
+<script type="module" src="../assets/js/core/admin.js"></script>
 
 </body>
 </html>
