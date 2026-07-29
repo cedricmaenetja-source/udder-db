@@ -107,7 +107,12 @@ export default async function handler(req, res) {
         'getAdminActivities',
         'getAdminUsers',
         'getLeads',
-        'getClientEnquiries'
+        'getClientEnquiries',
+        'createUser',
+        'getTaxonomy',
+        'updateTaxonomy',
+        'deleteVendor',
+        'createVendor'
     ];
 
     if (!action) {
@@ -127,6 +132,7 @@ export default async function handler(req, res) {
     }
 
     if (action === 'getAllUsers') return await getAllUsers(res);
+    if (action === 'getTaxonomy') return await getTaxonomy(res);
     
     if (action === 'getAdminActivities') return await getAdminActivities(res, userId);
     if (action === 'getVerifications') return await getVerifications(res);
@@ -166,6 +172,48 @@ export default async function handler(req, res) {
         try {
             const { id } = req.body;
             return await passIntroRequest(res, id);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'deleteVendor') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { id } = req.body;
+            return await deleteVendor(res, id);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'createVendor') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { payload } = req.body;
+            return await createVendor(res, payload);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    }
+
+    if (action === 'createUser') {
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { payload } = req.body;
+            return await createUser(res, payload);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -318,8 +366,8 @@ export default async function handler(req, res) {
         }
 
         try {
-            const { vendorId, username, message, source} = req.body;
-            return await addActivity(res, vendorId, username, message, source);
+            const { payload } = req.body;
+            return await addActivity(res, payload);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal error' });
@@ -689,6 +737,21 @@ export default async function handler(req, res) {
             res.status(500).json({ error: 'Internal error' });
         }
     } 
+    
+    if (action === 'updateTaxonomy'){
+        if (req.method !== "POST") {
+            return res.status(405).json({ error: "Only POST allowed" });
+        }
+
+        try {
+            const { payload } = req.body;
+            
+            return await updateTaxonomy(res, payload);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal error' });
+        }
+    } 
 
     if (action === 'updateVendorAutoRefresh'){
         if (req.method !== "POST") {
@@ -770,6 +833,19 @@ export default async function handler(req, res) {
             }
         });
     }
+}
+
+async function deleteVendor(res, vendorId){
+    const { error: deleteError } = await supabase
+        .from('tblvendors')
+        .delete()
+        .eq('id', vendorId);
+
+    if (deleteError) {
+        return res.status(500).json({ error: deleteError.message });
+    }
+
+    return res.status(200).json({ success: true });
 }
 
 async function deleteAccount(res, userId) {
@@ -942,8 +1018,9 @@ async function getAdminUsers(res, userId){
 
 async function getAdminActivities(res, userId){
     const { data, error } = await supabase
-        .from('tbladminactivities')
+        .from('tblactivities')
         .select('*')
+        .eq('user_type', 'admin')
         .neq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(4);
@@ -958,6 +1035,27 @@ async function getAdminActivities(res, userId){
     return res.status(200).json({ data });
 }
 
+async function getTaxonomy(res){
+    const { data, error } = await supabase
+        .from('tbltaxanomy')
+        .select('*');
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
+async function updateTaxonomy(res, payload){
+    const { data, error } = await supabase
+        .from('tbltaxanomy')
+        .update(payload)
+        .eq('id', 1); 
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ data });
+}
+
 async function getAllUsers(res){
     const { data, error } = await supabase
         .from('tblusers')
@@ -967,10 +1065,10 @@ async function getAllUsers(res){
     if (error) return res.status(500).json({ data: null, error: error.message });
 
     // Cache on Vercel Edge for 1 hour
-    res.setHeader(
-        'Cache-Control', 
-        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
-    );
+    // res.setHeader(
+    //     'Cache-Control', 
+    //     'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    // );
 
     return res.status(200).json({ data });
 }
@@ -985,12 +1083,14 @@ async function getUsers(res){
     if (error) return res.status(500).json({ data: null, error: error.message });
 
     // Cache on Vercel Edge for 1 hour
-    res.setHeader(
-        'Cache-Control', 
-        'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
-    );
+    // res.setHeader(
+    //     'Cache-Control', 
+    //     'public, max-age=300, s-maxage=3600, stale-while-revalidate=600'
+    // );
 
-    return res.status(200).json({ data });
+    const sanitized = data.map(({ password, ...rest }) => rest);
+
+    return res.status(200).json({ data: sanitized });
 }
 
 async function getIntroRequests(res){
@@ -1131,15 +1231,10 @@ async function getAllVendorActivities(res, vendorIds) {
     return res.status(200).json({ data });
 }
 
-export async function addActivity(res, vendorId, username, message, source) {
+export async function addActivity(res, payload) {
     const { data, error } = await supabase
     .from('tblactivities')
-    .insert({ 
-        vendor_id: vendorId, 
-        username: username,
-        message: message,
-        source: source
-    })
+    .insert(payload)
     .select()
 
     if (error) return res.status(500).json({ data: null, error: error.message });
@@ -1346,6 +1441,27 @@ export async function userSignUp(res, user) {
     return res.status(200).json({ data });
 }
 
+async function createVendor(res, payload) {
+    const { data: existing, error: checkError } = await supabase
+        .from('tblvendors')
+        .select('id, name')
+        .ilike('name', payload.name)
+        .limit(1);
+
+    if (checkError) return res.status(500).json({ data: null, error: checkError.message });
+    if (existing && existing.length > 0) {
+        return res.status(409).json({ data: null, error: `A vendor named "${payload.name}" already exists.` });
+    }
+
+    const { data, error } = await supabase
+        .from('tblvendors')
+        .insert(payload)
+        .select();
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+    return res.status(200).json({ data });
+}
+
 async function submitVendorClaim(res, payload) {
     if (payload.option == 'new'){
         const { data, error } = await addVendorRequest(payload.userId, payload.url);
@@ -1358,6 +1474,25 @@ async function submitVendorClaim(res, payload) {
 
         return res.status(200).json({ data });
     }
+}
+
+async function createUser(res, payload) {
+  const { data: exists, error: existsError } = await supabase
+    .from('tblusers')
+    .select('*')
+    .eq('email', payload.email)
+    .maybeSingle();
+
+    if (existsError) return res.status(500).json({ data: null, error: existsError.message });
+    if (exists !== null) return res.status(500).json({ data: null, error: 'User with the same email address exists.' });
+
+    const { data, error } = await supabase
+    .from('tblusers')
+    .insert(payload);
+
+    if (error) return res.status(500).json({ data: null, error: error.message });
+
+    return res.status(200).json({ success: true });
 }
 
 async function getUserByEmail(res, email) {
@@ -1422,7 +1557,6 @@ async function updateOtp(res, id, otp) {
 }
 
 async function updateUserProfile(res, id, payload) {
-    console.log('payload', payload);
     let updateData = {
         email: payload['email']
     };
@@ -1457,7 +1591,7 @@ async function getNotificationPrefs(res, userId){
     .from('tblnotificationpreferences')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
     if (error) return res.status(500).json({ data: null, error: error.message });
     return res.status(200).json({ data });
@@ -1543,6 +1677,7 @@ async function login(req, res, email, password) {
     .select('id, password, role, requires_otp, email')
     .eq('email', email)
     .eq('verified', 'Y')
+    .eq('active', true)
     .maybeSingle();
 
     if (error) return res.status(500).json({ data: null, error: error.message });

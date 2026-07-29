@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UDDER DB — Platform Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/common.css" />
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -613,12 +615,256 @@
 @keyframes loader-spin {
   to { transform: rotate(360deg); }
 }
+/* ── VENDORS DATATABLE ── */
+.vt-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap }
+.vt-search { display: flex; align-items: center; gap: 9px; padding: 0 14px; height: 38px; width: 320px; max-width: 100%; border-radius: 20px; border: 1px solid var(--b2); background: var(--off) }
+.vt-search svg { width: 13px; height: 13px; color: var(--t3); flex-shrink: 0 }
+.vt-search input { border: none; outline: none; background: transparent; font-size: 13px; color: var(--t1); font-family: var(--sans); flex: 1; min-width: 0 }
+.vt-search input::placeholder { color: var(--t4) }
+.vt-meta { font-size: 13px; color: var(--t3) }
+.vt-table-wrap { border: 1px solid var(--b1); border-radius: 12px; overflow: hidden }
+.vt-table { width: 100%; border-collapse: collapse; font-size: 13px }
+.vt-table thead th {
+  text-align: left; padding: 11px 18px; background: var(--off); border-bottom: 1px solid var(--b1);
+  font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.09em;
+  cursor: pointer; user-select: none; white-space: nowrap;
+}
+.vt-table thead th:hover { color: var(--t1) }
+.vt-table thead th .vt-sort-ind { margin-left: 4px; color: var(--o); font-size: 9px }
+.vt-table tbody td { padding: 14px 18px; border-bottom: 1px solid var(--b1); color: var(--t2); vertical-align: middle }
+.vt-table tbody tr:last-child td { border-bottom: none }
+.vt-table tbody tr:hover { background: var(--off) }
+.vt-table tbody td.vt-name { font-weight: 700; color: var(--t1) }
+.vt-empty-cell, .vt-loading-cell, .vt-error-cell { padding: 48px 20px; text-align: center; color: var(--t4); font-size: 13px }
+.vt-error-cell { color: #ef4444 }
+.vt-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700 }
+.vt-pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0 }
+.vt-pill.grey { background: var(--off2); color: var(--t2) }
+.vt-pill.grey .dot { background: var(--t3) }
+.vt-pill.outline { background: var(--w); border: 1.5px solid var(--b2); color: var(--t1) }
+.vt-pill.outline .dot { background: var(--t1) }
+.vt-pill.orange { background: var(--o); color: var(--w) }
+.vt-pill.orange .dot { background: var(--w) }
+.vt-pill.black { background: var(--k); color: var(--w) }
+.vt-pill.black .dot { background: var(--w) }
+.vt-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px }
+.vt-page-btn { height: 32px; padding: 0 14px; border: 1.5px solid var(--b2); border-radius: 20px; background: var(--w); font-size: 12px; font-weight: 700; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vt-page-btn:hover:not(:disabled) { border-color: var(--b3); background: var(--off) }
+.vt-page-btn:disabled { opacity: 0.4; cursor: not-allowed }
+.vt-refresh-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px; border: 1.5px solid var(--b2); border-radius: 20px; background: var(--w); font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer; font-family: var(--sans); transition: all 0.13s }
+.vt-refresh-btn:hover { border-color: var(--b3); background: var(--off) }
+.vt-refresh-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+.vt-refresh-btn.spinning svg { animation: loader-spin 0.7s linear infinite }
+/* ── USER DETAILS / ADD PANEL ── */
+.ut-add-btn {
+  display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px;
+  border: none; border-radius: 20px; background: var(--o); color: var(--w);
+  font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); transition: background 0.13s;
+}
+.ut-add-btn:hover { background: var(--o2) }
+.ut-add-btn svg { width: 13px; height: 13px; flex-shrink: 0 }
+.vt-name-link { color: var(--t1); font-weight: 700; cursor: pointer; text-decoration: none; }
+.vt-name-link:hover { color: var(--o); text-decoration: underline; }
+
+.ut-panel-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(15,15,15,0.25);
+}
+.ut-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 460px; max-width: 92vw;
+  background: var(--w);
+  box-shadow: -8px 0 32px rgba(0,0,0,0.14);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.22s ease;
+}
+.ut-panel-overlay.open .ut-panel { transform: translateX(0); }
+.ut-panel-header {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 24px 24px 20px; border-bottom: 1px solid var(--b1); flex-shrink: 0;
+}
+.ut-panel-eyebrow { font-size: 11px; font-weight: 700; color: var(--o); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px }
+.ut-panel-title { font-size: 22px; font-weight: 800; color: var(--t1); letter-spacing: -0.02em }
+.ut-panel-close {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--b2); background: var(--w);
+  color: var(--t2); font-size: 14px; cursor: pointer; flex-shrink: 0; transition: all 0.13s;
+}
+.ut-panel-close:hover { background: var(--off); color: var(--t1) }
+.ut-panel-body { padding: 24px; overflow-y: auto; scrollbar-width: thin; flex: 1 }
+.ut-panel-actions {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  padding: 18px 24px; border-top: 1px solid var(--b1); flex-shrink: 0;
+}
+.ut-view-row { display: grid; grid-template-columns: 140px 1fr; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--b1); align-items: center }
+.ut-view-row:last-child { border-bottom: none; padding-bottom: 0 }
+.ut-view-label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.08em }
+.ut-view-value { font-size: 14px; color: var(--t1) }
+.ut-field { margin-bottom: 16px }
+.ut-field:last-child { margin-bottom: 0 }
+.ut-field label { font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block }
+.ut-field input, .ut-field select {
+  width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--b2); border-radius: 8px;
+  background: var(--w); font-size: 14px; color: var(--t1); font-family: var(--sans); outline: none;
+}
+.ut-field input:focus, .ut-field select:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+.ut-field-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
+.ut-actions-cell { position: relative; text-align: right; }
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(15,15,15,0.35);
+  display: flex; align-items: center; justify-content: center;
+}
+.confirm-box {
+  background: var(--w); border-radius: 14px; padding: 28px;
+  width: 360px; max-width: 92vw;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.confirm-title { font-size: 18px; font-weight: 800; color: var(--t1); margin-bottom: 10px; letter-spacing: -0.01em }
+.confirm-message { font-size: 14px; color: var(--t2); line-height: 1.6; margin-bottom: 22px }
+.confirm-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px }
+.tx-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap }
+  .tx-meta { font-size: 13px; color: var(--t3) }
+  .tx-meta.dirty { color: var(--o); font-weight: 600 }
+  .tx-actions { display: flex; align-items: center; gap: 10px }
+  .tx-add-cat-btn {
+    display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px;
+    border: 1.5px solid var(--b2); border-radius: 20px; background: var(--w);
+    font-size: 13px; font-weight: 600; color: var(--t1); cursor: pointer;
+    font-family: var(--sans); transition: all 0.13s;
+  }
+  .tx-add-cat-btn:hover { border-color: var(--b3); background: var(--off) }
+  .tx-save-btn {
+    display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 18px;
+    border: none; border-radius: 20px; background: var(--o); color: var(--w);
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+    transition: background 0.13s;
+  }
+  .tx-save-btn:hover { background: var(--o2) }
+  .tx-save-btn:disabled { background: var(--t4); cursor: not-allowed }
+ 
+  .tx-tree { display: flex; flex-direction: column; gap: 12px }
+  .tx-cat-card { border: 1px solid var(--b1); border-radius: 12px; background: var(--w); overflow: hidden }
+  .tx-cat-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+    background: var(--off); border-bottom: 1px solid var(--b1);
+  }
+  .tx-drag-handle { color: var(--t4); cursor: grab; font-size: 13px; user-select: none; flex-shrink: 0 }
+  .tx-cat-name-input {
+    flex: 1; border: 1px solid transparent; background: transparent; outline: none;
+    font-size: 15px; font-weight: 700; color: var(--t1); font-family: var(--sans);
+    padding: 6px 8px; border-radius: 6px; transition: border-color 0.13s;
+  }
+  .tx-cat-name-input:hover { border-color: var(--b2) }
+  .tx-cat-name-input:focus { border-color: var(--o); background: var(--w); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+  .tx-cat-count { font-size: 11px; font-weight: 700; color: var(--t3); background: var(--off2); padding: 3px 10px; border-radius: 20px; flex-shrink: 0; white-space: nowrap }
+  .tx-icon-btn {
+    width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--b2); background: var(--w);
+    color: var(--t2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.13s;
+  }
+  .tx-icon-btn:hover { background: var(--off); color: var(--t1) }
+  .tx-icon-btn.danger:hover { border-color: #ef4444; color: #ef4444 }
+ 
+  .tx-subcat-list { padding: 10px 18px 16px 46px; display: flex; flex-direction: column; gap: 6px }
+  .tx-subcat-row { display: flex; align-items: center; gap: 8px }
+  .tx-subcat-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--t4); flex-shrink: 0 }
+  .tx-subcat-input {
+    flex: 1; border: 1px solid var(--b1); background: var(--off); outline: none;
+    font-size: 13px; color: var(--t1); font-family: var(--sans);
+    padding: 7px 10px; border-radius: 7px; transition: all 0.13s;
+  }
+  .tx-subcat-input:focus { border-color: var(--o); background: var(--w); box-shadow: 0 0 0 3px rgba(240,78,35,0.07) }
+  .tx-subcat-del { width: 26px; height: 26px; border-radius: 6px; border: none; background: transparent; color: var(--t4); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: color 0.13s }
+  .tx-subcat-del:hover { color: #ef4444 }
+  .tx-add-subcat-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
+    background: none; border: none; color: var(--t3); font-size: 12.5px; font-weight: 600;
+    cursor: pointer; font-family: var(--sans); padding: 6px 4px; align-self: flex-start;
+    transition: color 0.13s;
+  }
+  .tx-add-subcat-btn:hover { color: var(--o) }
+ 
+  .tx-loading-cell, .tx-error-cell { padding: 48px 20px; text-align: center; color: var(--t4); font-size: 13px }
+  .tx-error-cell { color: #ef4444 }
+  .tx-toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 3000;
+    background: var(--k); color: var(--w); padding: 12px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 8px;
+    opacity: 0; transform: translateY(8px); transition: all 0.2s ease; pointer-events: none;
+  }
+  .tx-toast.show { opacity: 1; transform: translateY(0) }
+  .tx-toast.error { background: #ef4444 }
+  .sb-user { position: relative }
+.sb-user-menu {
+  position: absolute; top: calc(100% + 4px); left: 8px; right: 8px; z-index: 250;
+  background: var(--w); border: 1px solid var(--b1); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: none; flex-direction: column; padding: 6px;
+}
+.sb-user-menu.open { display: flex }
+.sb-user-menu button {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; font-size: 13px; font-weight: 600; color: #ef4444;
+  background: none; border: none; cursor: pointer; border-radius: 6px;
+  font-family: var(--sans); transition: background 0.13s;
+}
+.sb-user-menu button:hover { background: rgba(239,68,68,0.08) }
+.sb-user-menu button svg { width: 13px; height: 13px; flex-shrink: 0 }
   </style>
 </head>
 <body>
+  <div class="da-overlay" id="deleteAccountModal">
+  <div class="da-box">
+    <div class="da-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3 class="da-title">Delete your account?</h3>
+    <p class="da-desc">This will permanently remove your profile, shortlist, comparisons, and evaluations. <strong>This cannot be undone.</strong></p>
+    <div class="da-confirm-wrap">
+      <label class="da-confirm-label" for="daConfirmInput">Type <strong>DELETE</strong> to confirm</label>
+      <input class="da-confirm-input" id="daConfirmInput" type="text" placeholder="DELETE" autocomplete="off">
+    </div>
+    <div class="da-actions">
+      <button class="da-cancel" id="daCancel">Cancel</button>
+      <button class="da-submit" id="daSubmit" disabled>Delete my account</button>
+    </div>
+  </div>
+</div>
 <div id="pageLoader">
   <div class="loader-spinner"></div>
 </div>
+
+<div class="confirm-overlay" id="confirmOverlay" style="display:none">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-message" id="confirmMessage"></div>
+    <div class="confirm-actions">
+      <button class="as-cancel-btn" id="confirmCancelBtn">Cancel</button>
+      <button class="as-save-btn" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="ut-panel-overlay" id="utPanelOverlay" style="display:none">
+  <div class="ut-panel" id="utPanel">
+    <div class="ut-panel-header">
+      <div>
+        <div class="ut-panel-eyebrow" id="utModalEyebrow">User details</div>
+        <div class="ut-panel-title" id="utModalTitle">–</div>
+      </div>
+      <button class="ut-panel-close" id="utModalCloseBtn">✕</button>
+    </div>
+
+    <div class="ut-panel-body" id="utModalBody"></div>
+
+    <div class="ut-panel-actions" id="utModalActions"></div>
+  </div>
+</div>
+
 <!-- TOP BAR -->
 <header class="topbar">
   <div class="tb-logo">
@@ -635,7 +881,7 @@
       <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
     </svg>
     <input type="text" placeholder="Search 340+ HR tech products…">
-    <span class="tb-search-kbd">⌘K</span>
+    
   </div>
   <div class="tb-right">
     <button class="tb-export-btn">
@@ -647,13 +893,20 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sb-user">
-    <div class="sb-avatar" id="sb-avatar">--</div>
+  <div class="sb-user" id="sbUserToggle">
+    <div class="sb-avatar" id="sb-avatar"></div>
     <div>
-      <div class="sb-uname" id="sb-uname">--</div>
+      <div class="sb-uname" id="sb-uname"></div>
       <div class="sb-urole">Platform Admin</div>
     </div>
     <span class="sb-chev">▾</span>
+
+    <div class="sb-user-menu" id="sbUserMenu">
+      <button id="sbLogoutBtn">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Log out
+      </button>
+    </div>
   </div>
 
   <div class="sb-sec">Workspace</div>
@@ -671,17 +924,17 @@
       <a href="#" class="nav-link" data-panel="vendors" data-crumb="Vendors">
         <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 6h12" stroke="currentColor" stroke-width="1.3"/></svg>
         Vendors
-        <span class="nb">342</span>
+        <span class="nb" id="vendors-tot">0</span>
       </a>
     </li>
     <li>
       <a href="#" class="nav-link" data-panel="users" data-crumb="Users">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5.5" r="2.3" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 13c0-2.4 1.9-4 4.2-4s4.2 1.6 4.2 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="11.5" cy="5.8" r="1.8" stroke="currentColor" stroke-width="1.2"/><path d="M9.8 8.3c1.9 0.2 3.4 1.6 3.5 3.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         Users
-        <span class="nb">1284</span>
+        <span class="nb" id="users-tot">0</span>
       </a>
     </li>
-    <li>
+    <!-- <li>
       <a href="#" class="nav-link" data-panel="verifqueue" data-crumb="Verification Queue">
         <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM2 13c0-2.5 2-4 6-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10 9l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Verification Queue
@@ -694,7 +947,7 @@
         Client Inquiries
         <span class="nb">2</span>
       </a>
-    </li>
+    </li> -->
     <li>
       <a href="#" class="nav-link" data-panel="taxonomy" data-crumb="Taxonomy">
         <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="10" y="2" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="6" y="10" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4 6v2a2 2 0 0 0 2 2M12 6v2a2 2 0 0 1-2 2" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -713,12 +966,12 @@
 
   <div class="sb-sec">Platform</div>
   <ul class="sb-nav">
-    <li>
+    <!-- <li>
       <a href="#">
         <svg viewBox="0 0 16 16" fill="none"><path d="M2 14V4l6-2 6 2v10" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><rect x="6" y="9" width="4" height="5" rx="0.5" stroke="currentColor" stroke-width="1.3"/></svg>
         Back to Landing
       </a>
-    </li>
+    </li> -->
     <li>
       <a href="#" class="nav-link" data-panel="account" data-crumb="Account Settings">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4"/><path d="M8 2.5v1.5M8 12v1.5M2.5 8h1.5M12 8h1.5M4 4l1 1M11 11l1 1M12 4l-1 1M4 12l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -984,51 +1237,10 @@
         </div>
 
         <!-- Recent platform activity -->
-        <div class="pd-panel">
-            <div class="pd-panel-header"><div class="pd-panel-title">Recent platform activity</div></div>
-            <div class="pd-activity-item">
-            <div class="pd-activity-avatar">SC</div>
-            <div>
-                <div class="pd-activity-name">Sarah Chen (HR Buyer)</div>
-                <div class="pd-activity-action">Requested intro to SmartRecruiters</div>
-            </div>
-            <div class="pd-activity-time">4m ago</div>
-            </div>
-            <div class="pd-activity-item">
-            <div class="pd-activity-avatar">MR</div>
-            <div>
-                <div class="pd-activity-name">Marcus Reid (Vendor)</div>
-                <div class="pd-activity-action">Updated SmartRecruiters listing</div>
-            </div>
-            <div class="pd-activity-time">12m ago</div>
-            </div>
-            <div class="pd-activity-item">
-            <div class="pd-activity-avatar">CH</div>
-            <div>
-                <div class="pd-activity-name">Charlotte Baines (Kinetik)</div>
-                <div class="pd-activity-action">Submitted client inquiry</div>
-            </div>
-            <div class="pd-activity-time">35m ago</div>
-            </div>
-            <div class="pd-activity-item">
-            <div class="pd-activity-avatar">RP</div>
-            <div>
-                <div class="pd-activity-name">Rachel Patel (Udder)</div>
-                <div class="pd-activity-action">Approved HiBob Vendor claim</div>
-            </div>
-            <div class="pd-activity-time">1h ago</div>
-            </div>
-            <div class="pd-activity-item">
-            <div class="pd-activity-avatar">AO</div>
-            <div>
-                <div class="pd-activity-name">Alice Oduya (Udder)</div>
-                <div class="pd-activity-action">Added internal note on Avature</div>
-            </div>
-            <div class="pd-activity-time">2h ago</div>
-            </div>
-        </div>
+        <div class="pd-panel" id="pd-platform-activities">
         </div>
 
+    </div>
     </div>
     </div>
 
@@ -1036,7 +1248,55 @@
     <div class="pd-page">
       <div class="pd-eyebrow">Platform Operations</div>
       <div class="pd-title">Vendors</div>
-      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+
+      <div class="vt-toolbar">
+        <div class="vt-search">
+          <svg viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+            <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <input type="text" id="vtSearchInput" placeholder="Search vendors…">
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="vt-meta" id="vtMeta">Loading vendors…</span>
+          <button class="vt-refresh-btn" id="vtRefreshBtn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Refresh
+          </button>
+          <button class="ut-add-btn" id="vtAddBtn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Add vendor
+          </button>
+        </div>
+      </div>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table" id="vtTable">
+          <thead>
+            <tr>
+              <th data-key="name">Vendor <span class="vt-sort-ind"></span></th>
+              <th data-key="tier">Tier <span class="vt-sort-ind"></span></th>
+              <th data-key="category">Category <span class="vt-sort-ind"></span></th>
+              <th data-key="location">HQ <span class="vt-sort-ind"></span></th>
+              <th data-key="employees">Employees <span class="vt-sort-ind"></span></th>
+              <th data-key="website">Website <span class="vt-sort-ind"></span></th>
+              <th data-key="created">Added <span class="vt-sort-ind"></span></th>
+            </tr>
+          </thead>
+          <tbody id="vtTableBody">
+            <tr><td class="vt-loading-cell" colspan="7">Loading vendors…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-pagination">
+        <span class="vt-meta" id="vtPageInfo"></span>
+        <div style="display:flex;gap:8px">
+          <button class="vt-page-btn" id="vtPrevBtn">← Prev</button>
+          <button class="vt-page-btn" id="vtNextBtn">Next →</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1044,7 +1304,56 @@
     <div class="pd-page">
       <div class="pd-eyebrow">Platform Operations</div>
       <div class="pd-title">Users</div>
-      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+
+      <div class="vt-toolbar">
+        <div class="vt-search">
+          <svg viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+            <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <input type="text" id="utSearchInput" placeholder="Search users…">
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="vt-meta" id="utMeta">Loading users…</span>
+          <button class="vt-refresh-btn" id="utRefreshBtn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Refresh
+          </button>
+          <button class="ut-add-btn" id="utAddBtn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Add user
+          </button>
+        </div>
+      </div>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table" id="utTable">
+          <thead>
+            <tr>
+              <th data-key="name">Name <span class="vt-sort-ind"></span></th>
+              <th data-key="email">Email <span class="vt-sort-ind"></span></th>
+              <th data-key="role">Role <span class="vt-sort-ind"></span></th>
+              <th data-key="organization">Organisation <span class="vt-sort-ind"></span></th>
+              <th data-key="verified">Verified <span class="vt-sort-ind"></span></th>
+              <th data-key="active">Active <span class="vt-sort-ind"></span></th>
+              <th data-key="created">Joined <span class="vt-sort-ind"></span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="utTableBody">
+            <tr><td class="vt-loading-cell" colspan="7">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-pagination">
+        <span class="vt-meta" id="utPageInfo"></span>
+        <div style="display:flex;gap:8px">
+          <button class="vt-page-btn" id="utPrevBtn">← Prev</button>
+          <button class="vt-page-btn" id="utNextBtn">Next →</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1071,8 +1380,8 @@
         </div>
 
         <div class="vq-tabs">
-        <button class="vq-tab active" id="tab-claims" onclick="switchVqTab('claims')">Platform claims <span class="vq-tab-badge">4</span></button>
-        <button class="vq-tab" id="tab-verif" onclick="switchVqTab('verif')">Verification requests (Udder Verified / Approved) <span class="vq-tab-badge grey">4</span></button>
+        <button class="vq-tab active" id="tab-claims" onclick="window.switchVqTab('claims')">Platform claims <span class="vq-tab-badge">4</span></button>
+        <button class="vq-tab" id="tab-verif" onclick="window.switchVqTab('verif')">Verification requests (Udder Verified / Approved) <span class="vq-tab-badge grey">4</span></button>
         </div>
 
         <div class="vq-desc">
@@ -1489,9 +1798,28 @@
     <div class="pd-page">
       <div class="pd-eyebrow">Platform Operations</div>
       <div class="pd-title">Taxonomy</div>
-      <div class="pd-placeholder"><div class="pd-placeholder-label">Content coming soon.</div></div>
+  
+      <div class="tx-toolbar">
+        <span class="tx-meta" id="txMeta">Loading taxonomy…</span>
+        <div class="tx-actions">
+          <button class="tx-add-cat-btn" id="txAddCatBtn">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Add category
+          </button>
+          <button class="tx-save-btn" id="txSaveBtn" disabled>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Save changes
+          </button>
+        </div>
+      </div>
+  
+      <div class="tx-tree" id="txTree">
+        <div class="tx-loading-cell">Loading taxonomy…</div>
+      </div>
     </div>
   </div>
+  
+  <div class="tx-toast" id="txToast"></div>
 
   <div class="panel" id="panel-settings">
     <div class="pd-page">
@@ -1508,12 +1836,12 @@
 
         <!-- Left tab nav -->
         <div class="as-nav">
-            <button class="as-nav-item active" onclick="switchAsTab(this,'details')">My details</button>
-            <button class="as-nav-item" onclick="switchAsTab(this,'notifications')">Notifications</button>
-            <button class="as-nav-item" onclick="switchAsTab(this,'password')">Password</button>
-            <button class="as-nav-item" onclick="switchAsTab(this,'account')">Account</button>
+            <button class="as-nav-item active" onclick="window.switchAsTab(this,'details')">My details</button>
+            <button class="as-nav-item" onclick="window.switchAsTab(this,'notifications')">Notifications</button>
+            <button class="as-nav-item" onclick="window.switchAsTab(this,'password')">Password</button>
+            <button class="as-nav-item" onclick="window.switchAsTab(this,'account')">Account</button>
             <div class="as-nav-div"></div>
-            <a href="#" class="as-nav-link">
+            <a href="https://udder.rocks/privacy-policy" class="as-nav-link">
             <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M7 2h7v7M14 2L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Privacy policy
             </a>
@@ -1528,7 +1856,7 @@
                 <div class="as-field">
                 <label class="as-label">First name</label>
                 <div class="as-input-wrap">
-                    <input type="text" class="as-input" value="Sarah" style="padding-right:44px">
+                    <input type="text" id="as-first-name" name="firstName" class="as-input" style="padding-right:44px">
                     <span class="as-input-badge">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
                     </span>
@@ -1536,26 +1864,21 @@
                 </div>
                 <div class="as-field">
                 <label class="as-label">Last name</label>
-                <input type="text" class="as-input" value="Chen">
+                <input type="text" id="as-last-name" name="lastName" class="as-input">
                 </div>
             </div>
 
             <div class="as-field">
                 <label class="as-label">Work email</label>
-                <input type="email" class="as-input" value="sarah.chen@kinetik.co.uk">
+                <input type="email" id="as-work-email" name="workEmail" class="as-input" disabled>
             </div>
 
             <div class="as-field">
                 <label class="as-label">Job title</label>
-                <input type="text" class="as-input" value="Head of People Technology">
+                <input type="text" id="as-job-title" name="jobTitle" class="as-input">
             </div>
 
-            <div class="as-field">
-                <label class="as-label">Organisation</label>
-                <input type="text" class="as-input" value="Kinetik Retail Group">
-            </div>
-
-            <div class="as-row2">
+            <!-- <div class="as-row2">
                 <div class="as-field">
                 <label class="as-label">Organisation size</label>
                 <select class="as-select">
@@ -1577,18 +1900,17 @@
                     <option>Global</option>
                 </select>
                 </div>
-            </div>
+            </div> -->
 
-            <div class="as-field">
+            <!-- <div class="as-field">
                 <label class="as-label">Phone (optional)</label>
                 <input type="tel" class="as-input" placeholder="+44 7700 …">
-            </div>
+            </div> -->
 
-            <div class="as-divider-line"></div>
+            <!-- <div class="as-divider-line"></div> -->
 
             <div class="as-actions">
-                <button class="as-cancel-btn">Cancel</button>
-                <button class="as-save-btn">Save changes</button>
+                <button class="as-save-btn" id="as-details-save-btn">Save changes</button>
             </div>
             </div>
         </div>
@@ -1606,7 +1928,7 @@
                     <div class="as-toggle-desc">When a vendor responds to your intro request</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="as-notif-intro-updates" name="notifIntroUpdates" checked>
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1617,7 +1939,7 @@
                     <div class="as-toggle-desc">When a vendor adds new comparison data</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox">
+                    <input type="checkbox" id="as-notif-new-comparisons" name="notifNewComparisons">
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1628,7 +1950,7 @@
                     <div class="as-toggle-desc">When a shortlisted vendor changes verification tier</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="as-notif-verification-updates" name="notifVerificationUpdates" checked>
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1641,7 +1963,7 @@
                     <div class="as-toggle-desc">Your shortlist and market updates, once a week</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="as-notif-weekly-digest" name="notifWeeklyDigest" checked>
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1652,7 +1974,7 @@
                     <div class="as-toggle-desc">New features and platform improvements</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox">
+                    <input type="checkbox" id="as-notif-product-updates" name="notifProductUpdates">
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1663,7 +1985,7 @@
                     <div class="as-toggle-desc">Monthly trends in HR technology from Udder</div>
                 </div>
                 <label class="as-toggle">
-                    <input type="checkbox">
+                    <input type="checkbox" id="as-notif-market-insights" name="notifMarketInsights">
                     <span class="as-toggle-slider"></span>
                 </label>
                 </div>
@@ -1671,7 +1993,7 @@
                 <div class="as-divider-line"></div>
 
                 <div class="as-actions">
-                <button class="as-save-btn">Save preferences</button>
+                <button class="as-save-btn" id="as-notif-save-btn">Save preferences</button>
                 </div>
             </div>
             </div>
@@ -1683,7 +2005,7 @@
                 <div class="as-field">
                 <label class="as-label">Current password</label>
                 <div class="as-input-wrap">
-                    <input type="password" class="as-input" placeholder="Current password" style="padding-right:44px">
+                    <input type="password" id="as-current-password" name="currentPassword" class="as-input" placeholder="Current password" style="padding-right:44px">
                     <span class="as-input-badge">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
                     </span>
@@ -1693,7 +2015,7 @@
                 <div class="as-field">
                 <label class="as-label">New password</label>
                 <div class="as-input-wrap">
-                    <input type="password" class="as-input" placeholder="At least 12 characters" style="padding-right:44px">
+                    <input type="password" id="as-new-password" name="newPassword" class="as-input" placeholder="At least 12 characters" style="padding-right:44px">
                     <span class="as-input-badge">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
                     </span>
@@ -1703,7 +2025,7 @@
                 <div class="as-field">
                 <label class="as-label">Confirm new password</label>
                 <div class="as-input-wrap">
-                    <input type="password" class="as-input" placeholder="Repeat new password" style="padding-right:44px">
+                    <input type="password" id="as-confirm-password" name="confirmPassword" class="as-input" placeholder="Repeat new password" style="padding-right:44px">
                     <span class="as-input-badge">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="4" r="1" fill="white"/><circle cx="8" cy="4" r="1" fill="white"/><circle cx="12" cy="4" r="1" fill="white"/></svg>
                     </span>
@@ -1723,13 +2045,12 @@
 
                 <div class="as-forgot-label">Forgot your password?</div>
                 <div class="as-forgot-desc">We'll send a reset link to your registered email address.</div>
-                <button class="as-reset-btn">Send reset email</button>
+                <button class="as-reset-btn" id="as-send-reset-email-btn">Send reset email</button>
 
                 <div class="as-divider-line"></div>
 
                 <div class="as-actions">
-                <button class="as-cancel-btn">Cancel</button>
-                <button class="as-save-btn">Update password</button>
+                <button class="as-save-btn" id="as-password-save-btn">Update password</button>
                 </div>
             </div>
             </div>
@@ -1738,9 +2059,9 @@
             <div class="as-panel">
                 <div class="as-panel-title">Privacy policy</div>
                 <div class="as-panel-desc">Understand how UdderDB collects, stores, and uses your data.</div>
-                <a href="#" class="as-link-btn">
-                <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M7 2h7v7M14 2L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Read privacy policy ↗
+                <a href="https://udder.rocks/privacy-policy" class="as-link-btn">
+                  <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M7 2h7v7M14 2L8 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Read privacy policy ↗
                 </a>
             </div>
 
@@ -1748,10 +2069,9 @@
                 <div class="as-danger-label">Danger zone</div>
                 <div class="as-danger-title">Delete account</div>
                 <div class="as-danger-desc">Deleting your account will permanently remove your profile, shortlist, comparisons, and evaluations. This cannot be undone.</div>
-                <button class="as-danger-btn">Delete my account</button>
+                <button class="as-danger-btn" id="deleteAccountBtn">Delete my account</button>
             </div>
             </div>
-
         </div>
     </div>
     </div><!-- /panel-account -->

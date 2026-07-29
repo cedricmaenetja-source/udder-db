@@ -1,9 +1,15 @@
 import { requireAuth } from './_auth';
 import jwt from 'jsonwebtoken';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 export default async function handler(req, res) {
     const { action } = req.query;
-    const { to, token, host, otp, body, subject, from, fromName, replyTo } = req.body;
+    const { to, token, host, otp, body, subject, from, fromName, replyTo, redirect } = req.body;
 
     let adminOtp = null;
     const session = await requireAuth(req, res);
@@ -35,7 +41,9 @@ export default async function handler(req, res) {
         'resetPassword',
         'otpVerification',
         'leadRespond',
-        'adminVerify'
+        'adminVerify',
+        'resetPasswordLink',
+        'resetAdminPassword'
     ];
 
     if (action && !VALID_ACTIONS.includes(action)) return res.status(400).json({ error: `Unknown action: "${action}". Did you forget to register it in VALID_ACTIONS?` });
@@ -46,10 +54,44 @@ export default async function handler(req, res) {
 
     let payload;
     if (action === 'resetPassword'){
+        const { data, error } = await supabase
+            .from('tblusers')
+            .select('id, email')
+            .eq('email', to)
+            .maybeSingle(); 
+
+        if (error) return res.status(500).json({ data: null, error: error.message });
+        if (!data) return res.status(500).json({ data: null, error: 'This email does not exist on our system.' });
+
         payload = {
             to: to,
             subject: 'Reset Your Password',
-            body: RESET_PASSWORD_EMAIL.replace('{{LINK}}', `${host}/password.html?t=${token}`) 
+            body: RESET_PASSWORD_EMAIL.replace('{{LINK}}', `${host}/password.html?r=${redirect}`) 
+        };
+    }
+
+    if (action === 'resetAdminPassword'){
+        const { data, error } = await supabase
+            .from('tblusers')
+            .select('id, email')
+            .eq('email', to)
+            .maybeSingle(); 
+
+        if (error) return res.status(500).json({ data: null, error: error.message });
+        if (!data) return res.status(500).json({ data: null, error: 'This email does not exist on our system.' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        const { data: otpUpdate, error: otpError } = await supabase
+            .from('tblusers')
+            .update({otp: otp})
+            .eq('email', to); 
+
+        if (otpError) return res.status(500).json({ data: null, error: otpError.message });
+
+        payload = {
+            to: to,
+            subject: 'Your Verification Code',
+            body: OTP_VERIFICATION_EMAIL_ADMIN.replace('{{OTP_CODE}}', otp) 
         };
     }
 
@@ -184,8 +226,6 @@ export const RESET_PASSWORD_EMAIL = `
 
     <strong>{{LINK}}</strong><br/><br/>
 
-    This link will expire in 1 hour.<br/><br/>
-
     If you did not request this, please report this immediately at support-db@udder.rocks.<br/><br/>
 
     Thanks,<br/>
@@ -199,6 +239,18 @@ export const OTP_VERIFICATION_EMAIL = `
     <strong>{{OTP_CODE}}</strong><br/><br/>
 
     This code will expire in 10 minutes.<br/><br/>
+
+    If you did not request this code, please ignore this email.<br/><br/>
+
+    Thanks,<br/>
+    Udder</p>`;
+
+export const OTP_VERIFICATION_EMAIL_ADMIN = `
+    <p>Hello,<br/><br/>
+
+    Your One-Time Password (OTP) for verification is:<br/><br/>
+
+    <strong>{{OTP_CODE}}</strong><br/><br/>
 
     If you did not request this code, please ignore this email.<br/><br/>
 
