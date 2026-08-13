@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UDDER DB — Consulatant Sign in</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0 }
+
+    :root {
+      --o: #f04e23;
+      --o2: #c93d18;
+      --os: rgba(240,78,35,0.08);
+      --om: rgba(240,78,35,0.15);
+      --k: #0f0f0f;
+      --k2: #1c1c1c;
+      --w: #ffffff;
+      --off: #fafaf9;
+      --off2: #f3f2ef;
+      --b1: rgba(15,15,15,0.05);
+      --b2: rgba(15,15,15,0.09);
+      --b3: rgba(15,15,15,0.16);
+      --t1: #111110;
+      --t2: #4a4a46;
+      --t3: #8a8a85;
+      --t4: #b8b8b2;
+      --sans: 'Poppins','Helvetica Neue',Arial,sans-serif;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: var(--sans); color: var(--t1); font-size: 14px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased; background: var(--off);
+    }
+
+    /* ── PAGE SPLIT ── */
+    .lg-wrap { display: grid; grid-template-columns: 1fr 460px; min-height: 100vh; }
+
+    /* ── LEFT: brand / editorial panel ── */
+    .lg-brand {
+      background: var(--k); color: var(--w); position: relative; overflow: hidden;
+      display: flex; flex-direction: column; padding: 44px 56px;
+    }
+    .lg-brand::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 43px, rgba(255,255,255,0.035) 43px, rgba(255,255,255,0.035) 44px);
+      pointer-events: none;
+    }
+    .lg-brand::after {
+      content: ''; position: absolute; width: 640px; height: 640px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(240,78,35,0.22) 0%, rgba(240,78,35,0) 70%);
+      top: -220px; right: -220px; pointer-events: none;
+    }
+    .lg-wordmark { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; position: relative; z-index: 1 }
+    .lg-wordmark span { color: var(--o) }
+
+    .lg-brand-mid { position: relative; z-index: 1; margin-top: auto; margin-bottom: auto; max-width: 460px; }
+    .lg-brand-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; color: var(--o);
+      text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 22px;
+    }
+    .lg-brand-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--o) }
+    .lg-brand-headline {
+      font-size: 40px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.12;
+      margin-bottom: 20px;
+    }
+    .lg-brand-sub { font-size: 15px; color: rgba(255,255,255,0.62); line-height: 1.7; max-width: 400px }
+
+    .lg-brand-stats {
+      position: relative; z-index: 1; display: flex; gap: 40px;
+      padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px;
+    }
+    .lg-stat-num { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--w) }
+    .lg-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600 }
+
+    .lg-brand-foot { position: relative; z-index: 1; font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 40px }
+
+    /* ── RIGHT: form panel ── */
+    .lg-form-panel {
+      background: var(--w); display: flex; flex-direction: column;
+      padding: 56px 64px; overflow-y: auto;
+    }
+    .lg-form-top { display: flex; justify-content: flex-end; }
+    .lg-top-link { font-size: 13px; color: var(--t3) }
+    .lg-top-link a { color: var(--o); font-weight: 600; text-decoration: none }
+    .lg-top-link a:hover { text-decoration: underline }
+
+    .lg-form-mid { margin: auto 0; max-width: 340px; width: 100%; }
+
+    .lg-form-eyebrow {
+      font-size: 11px; font-weight: 700; color: var(--o);
+      text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px;
+    }
+    .lg-form-title {
+      font-size: 30px; font-weight: 800; color: var(--t1); letter-spacing: -0.03em;
+      line-height: 1.1; margin-bottom: 8px;
+    }
+    .lg-form-desc { font-size: 14px; color: var(--t3); margin-bottom: 32px; line-height: 1.6 }
+
+    .lg-field { margin-bottom: 18px; }
+    .lg-label {
+      font-size: 11px; font-weight: 700; color: var(--t3); text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 8px; display: block;
+    }
+    .lg-input {
+      width: 100%; height: 44px; padding: 0 14px; border: 1px solid var(--b2); border-radius: 8px;
+      background: var(--w); font-size: 14px; color: var(--t1); font-family: var(--sans); outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .lg-input::placeholder { color: var(--t4) }
+    .lg-input:focus { border-color: var(--o); box-shadow: 0 0 0 3px rgba(240,78,35,0.08) }
+
+    .lg-row-between { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px }
+    .lg-forgot { font-size: 12px; color: var(--o); text-decoration: none; font-weight: 600 }
+    .lg-forgot:hover { text-decoration: underline }
+
+    .lg-remember { display: flex; align-items: center; gap: 9px; margin: 20px 0 26px; }
+    .lg-checkbox {
+      width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--b2);
+      background: var(--w); flex-shrink: 0; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; position: relative;
+    }
+    .lg-checkbox input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+    .lg-checkbox svg { display: none }
+    .lg-checkbox input:checked ~ svg { display: block }
+    .lg-checkbox:has(input:checked) { background: var(--o); border-color: var(--o) }
+    .lg-remember label { font-size: 13px; color: var(--t2); cursor: pointer; user-select: none }
+
+    .lg-submit {
+      width: 100%; height: 46px; border: none; border-radius: 20px; background: var(--o);
+      color: var(--w); font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--sans);
+      transition: background 0.13s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .lg-submit:hover { background: var(--o2) }
+
+    .lg-divider {
+      display: flex; align-items: center; gap: 12px; margin: 26px 0;
+      font-size: 11px; color: var(--t4); text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .lg-divider::before, .lg-divider::after { content: ''; flex: 1; height: 1px; background: var(--b1) }
+
+    .lg-sso-btn {
+      width: 100%; height: 46px; border: 1px solid var(--b2); border-radius: 20px; background: var(--w);
+      color: var(--t1); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--sans);
+      transition: all 0.13s; display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .lg-sso-btn:hover { border-color: var(--b3); background: var(--off) }
+    .lg-sso-btn:last-child { margin-bottom: 0 }
+
+    .lg-form-foot { font-size: 12px; color: var(--t4); margin-top: 40px; line-height: 1.6 }
+    .lg-form-foot a { color: var(--t3); text-decoration: underline }
+
+    .lg-error {
+      display: none; align-items: flex-start; gap: 9px; background: rgba(240,78,35,0.06);
+      border: 1px solid rgba(240,78,35,0.2); border-radius: 8px; padding: 12px 14px;
+      font-size: 12.5px; color: var(--o2); margin-bottom: 18px; line-height: 1.5;
+    }
+    .lg-error svg { flex-shrink: 0; margin-top: 1px }
+    .lg-error.show { display: flex }
+
+    @media (max-width: 900px) {
+      .lg-wrap { grid-template-columns: 1fr; }
+      .lg-brand { display: none; }
+      .lg-form-panel { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="lg-wrap">
+
+  <!-- LEFT BRAND PANEL -->
+  <div class="lg-brand">
+    <div class="lg-wordmark">UDDER <span>DB</span></div>
+
+    <div class="lg-brand-mid">
+      <div class="lg-brand-eyebrow">Consultant workspace</div>
+      <div class="lg-brand-headline">The knowledge behind every vendor recommendation.</div>
+      <div class="lg-brand-sub">Internal notes, stakeholder relationships, and verification history for 340+ HR technology vendors — built by consultants, for consultants.</div>
+
+      <div class="lg-brand-stats">
+        <div>
+          <div class="lg-stat-num">340+</div>
+          <div class="lg-stat-label">Vendors tracked</div>
+        </div>
+        <div>
+          <div class="lg-stat-num">1,200+</div>
+          <div class="lg-stat-label">Internal notes</div>
+        </div>
+        <div>
+          <div class="lg-stat-num">98%</div>
+          <div class="lg-stat-label">Verified accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg-brand-foot">© <span id="lgYear"></span> The Udder Group · UdderDB v0.1</div>
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="lg-form-panel">
+    <div class="lg-form-top">
+      <div class="lg-top-link"></div>
+    </div>
+
+    <div class="lg-form-mid">
+      <div class="lg-form-eyebrow">Welcome back</div>
+      <div class="lg-form-title">Sign in to UdderDB</div>
+      <div class="lg-form-desc">Enter your consultant credentials to access the knowledge repository.</div>
+
+        <div class="lg-error" id="lgError">
+            <svg>...</svg>
+            <span id="lgErrorText">That email and password combination doesn't match our records. Check your details and try again.</span>
+        </div>
+
+      <form id="lgForm">
+        <div class="lg-field">
+          <label class="lg-label">Work email</label>
+          <input type="email" class="lg-input" placeholder="you@udder.co" required>
+        </div>
+
+        <div class="lg-field" style="margin-bottom:0">
+          <div class="lg-row-between">
+            <label class="lg-label" style="margin-bottom:0">Password</label>
+            <a href="#" class="lg-forgot">Forgot password?</a>
+          </div>
+          <input type="password" class="lg-input" placeholder="Enter your password" required>
+        </div>
+<!-- 
+        <div class="lg-remember">
+          <div class="lg-checkbox">
+            <input type="checkbox" checked>
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <label>Keep me signed in on this device</label>
+        </div> -->
+
+        <button type="submit" class="lg-submit" style="margin-top: 30px;">
+          Sign in
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+
+      <!-- <div class="lg-divider">or continue with</div>
+
+      <button type="button" class="lg-sso-btn">
+        <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h11.8c-.5 2.7-2.1 5-4.4 6.5v5.4h7.1c4.2-3.8 6.6-9.5 6.6-16.4z"/><path fill="#34A853" d="M24 46c6 0 11-2 14.5-5.4l-7.1-5.4c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.6C7.9 40.9 15.3 46 24 46z"/><path fill="#FBBC05" d="M11.8 28.3c-.4-1.3-.7-2.7-.7-4.3s.2-3 .7-4.3v-5.6H4.5C3 16.9 2 20.3 2 24s1 7.1 2.5 9.9l7.3-5.6z"/><path fill="#EA4335" d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.3 29.9 2 24 2 15.3 2 7.9 7.1 4.5 14.1l7.3 5.6c1.7-5.2 6.5-9 12.2-9z"/></svg>
+        Continue with Google Workspace
+      </button>
+      <button type="button" class="lg-sso-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6.5" height="6.5" fill="#F25022"/><rect x="8.5" y="1" width="6.5" height="6.5" fill="#7FBA00"/><rect x="1" y="8.5" width="6.5" height="6.5" fill="#00A4EF"/><rect x="8.5" y="8.5" width="6.5" height="6.5" fill="#FFB900"/></svg>
+        Continue with Microsoft SSO
+      </button> -->
+
+      <div class="lg-form-foot">
+        By signing in, you agree to Udder's <a href="https://udder.rocks/terms-of-service">Terms of Service</a> and <a href="https://udder.rocks/privacy-policy">Privacy Policy</a>. This workspace is for authorised Udder consultants only.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+  import { isLoggedIn } from '../assets/js/core/auth/session.js';
+
+  const loggedIn = await isLoggedIn();
+  $(function(){
+    if (loggedIn){location.href = './';return;}
+  });
+  
+    document.getElementById('lgYear').textContent = new Date().getFullYear();
+
+    document.getElementById('lgForm').addEventListener('submit', handleLogin);
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    // Demo-only: layout preview, no real auth wired up.
+    document.getElementById('lgError').classList.remove('show');
+    var email = e.target.querySelector('input[type="email"]').value;
+    if (!email.endsWith('@udder.co') && !email.includes('@')) {
+      document.getElementById('lgError').classList.add('show');
+      return false;
+    }
+
+    var form = e.target;
+    var email = form.querySelector('input[type="email"]').value;
+    var pwd = form.querySelector('input[type="password"]').value;
+    var submitBtn = form.querySelector('.lg-submit');
+    var originalBtnHTML = submitBtn.innerHTML;
+ 
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Signing in…';
+ 
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: pwd }),
+      });
+ 
+      const data = await response.json();
+      if (data.error){
+        document.getElementById('lgErrorText').textContent = data.error;
+        document.getElementById('lgError').classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHTML;
+        return;
+      }
+
+      window.location.href = './';
+    } catch (err) {
+      document.getElementById('lgError').classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHTML;
+    }
+
+    return false;
+  }
+
+  window.handleLogin = handleLogin;
+</script>
+
+</body>
+</html>

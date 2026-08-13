@@ -1036,9 +1036,15 @@ window.mpOpenVendorById = async function(vendorId) {
     if (statsEl) statsEl.style.display = '';
     if (bodyEl)  bodyEl.style.display  = '';
 
+    $('#pl-tier-verification').attr('onclick', `window.handleVerificationSubmit('${vendorId}')`);
+
     document.getElementById('topbarCrumb').textContent =
         document.getElementById('pl-name')?.textContent || 'Overview';
 };
+
+window.handleVerificationSubmit = async function handleVerificationSubmit(vendorId){
+    
+}
 
 window.mpGoBack = function() {
     document.getElementById('mpVendorState').style.display = 'none';

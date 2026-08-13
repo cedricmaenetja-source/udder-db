@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UDDER DB — Knowledge Repository</title>
+  <link rel="stylesheet" href="../assets/css/common.css" />
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
@@ -91,6 +92,7 @@
     .sb-user {
       display: flex; align-items: center; gap: 10px; padding: 12px 14px;
       border-bottom: 1px solid var(--b1); cursor: pointer; transition: background 0.15s;
+      position: relative;
     }
     .sb-user:hover { background: var(--off) }
     .sb-avatar {
@@ -700,10 +702,46 @@
   font-family: var(--sans); transition: all 0.13s;
 }
 .as-danger-btn:hover { background: #ef4444; color: var(--w) }
+.sb-user-menu {
+  position: absolute; top: calc(100% + 4px); left: 8px; right: 8px; z-index: 250;
+  background: var(--w); border: 1px solid var(--b1); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: none; flex-direction: column; padding: 6px;
+}
+.sb-user-menu.open { display: flex }
+.sb-user-menu button {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; font-size: 13px; font-weight: 600; color: #ef4444;
+  background: none; border: none; cursor: pointer; border-radius: 6px;
+  font-family: var(--sans); transition: background 0.13s;
+}
+.sb-user-menu button:hover { background: rgba(239,68,68,0.08) }
+.sb-user-menu button svg { width: 13px; height: 13px; flex-shrink: 0 }
+#pageLoader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--w);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#pageLoader.hide {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.loader-spinner {
+  width: 42px; height: 42px;
+  border: 3px solid var(--b1);
+  border-top-color: var(--o);
+  border-radius: 50%;
+  animation: loader-spin 0.7s linear infinite;
+}
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
   </style>
 </head>
 <body>
-
+<div id="pageLoader">
+  <div class="loader-spinner"></div>
+</div>
 <!-- TOP BAR -->
 <header class="topbar">
   <div class="tb-logo">
@@ -728,13 +766,19 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sb-user">
-    <div class="sb-avatar">AO</div>
+  <div class="sb-user" id="sbUserToggle">
+    <div class="sb-avatar" id="sb-avatar"></div>
     <div>
-      <div class="sb-uname">Alice Oduya</div>
+      <div class="sb-uname" id="sb-uname">--</div>
       <div class="sb-urole">Udder Consultant</div>
     </div>
     <span class="sb-chev">▾</span>
+    <div class="sb-user-menu" id="sbUserMenu">
+      <button id="sbLogoutBtn">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Log out
+      </button>
+    </div>
   </div>
 
   <div class="sb-sec">Workspace</div>
@@ -2143,6 +2187,6 @@ function selectKrVendor(el, key) {
   }).join('');
 }
 </script>
-
+<script type="module" src="../assets/js/core/consultant.js"></script>
 </body>
 </html>
