@@ -144,16 +144,24 @@ function logSearchActivity(q){
 
 window.triggerUdderSearch = async function(filters) {
     filters = JSON.parse(filters);
-    filters['required_features'] = [];
-    filters['required_integrations'] = [];
-    filters['optional_features'] = [];
-   await loadVendors(filters);
+
+   await loadVendors({
+    required_modules: filters.categories,
+    categories: [filters.module],
+    required_features: [filters.module],
+    optional_features: [],//filters.feature_type,
+    required_integrations: [],
+    region: [],
+    category_filters: []
+   });
    //window.closeUdderModal();
 };
 
 $(document).ready(function() {
     let compareMode = false;
     let selectedCards = new Set();
+
+    $('#searchModal').prop('disabled', true);
 
     const searchInput = document.getElementById('search');
     const modal = document.getElementById('searchModal');
@@ -240,6 +248,8 @@ $(document).ready(function() {
     addCategories();
     getHistoricalSearchFilters();
     // renderRegionFilter();
+
+    $('#searchModal').prop('disabled', false);
 
     const $textarea = $('#search');
     const maxHeight = 200;
@@ -1025,6 +1035,12 @@ async function openComparisonModal(selectedCards) {
 function renderOrgSizeFilter() {
   var list = document.getElementById('orgSizeList');
   if (!list) return;
+
+  // ── Preserve currently checked values before we wipe the DOM ──
+  var previouslyChecked = Array.from(
+    list.querySelectorAll('.orgsize-cb:checked')
+  ).map(function(cb) { return cb.value; });
+
   list.innerHTML = '';
 
   var counts = {};
@@ -1035,11 +1051,12 @@ function renderOrgSizeFilter() {
 
   ORG_SIZES.forEach(function(size) {
     var li = document.createElement('li');
+    var isChecked = previouslyChecked.indexOf(size.value) !== -1;
     li.innerHTML =
       '<div class="ct-row">'+
         '<button class="ct-exp noc" type="button">›</button>'+
         '<label class="ct-lbl">'+
-          '<input type="checkbox" class="orgsize-cb" value="'+size.value+'">'+
+          '<input type="checkbox" class="orgsize-cb" value="'+size.value+'"'+(isChecked ? ' checked' : '')+'>'+
           '<span class="ct-name">'+size.label+'</span>'+
           '<span class="ct-n">'+(counts[size.value] || 0)+'</span>'+
         '</label>'+
@@ -1061,63 +1078,55 @@ function cardMatchesSearch(card, q){
 function applyCheckboxFilters() {
     var searchQ = ((document.getElementById('vendorSearch') || {}).value || '').toLowerCase().trim();
 
-  var checkedRegions = Array.from(document.querySelectorAll('.region-cb:checked'))
-  .map(function(cb){ return cb.value; });
+    var checkedRegions = Array.from(document.querySelectorAll('.region-cb:checked'))
+        .map(function(cb){ return cb.value; });
 
-  var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
-    .map(function(cb){ return cb.value; });
+    var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
+        .map(function(cb){ return cb.value; });
 
-  var checkedModules = Array.from(document.querySelectorAll('#catTree .ct-lbl > input[type="checkbox"]:checked'))
-    .map(function(cb){ return cb.value.toLowerCase(); });
+    var checkedModules = Array.from(document.querySelectorAll('#catTree .ct-lbl > input[type="checkbox"]:checked'))
+        .map(function(cb){ return cb.value.toLowerCase(); });
 
-  var checkedSubs = Array.from(document.querySelectorAll('#catTree .ct-sub input[type="checkbox"]:checked'))
-    .map(function(cb){ return cb.value.toLowerCase(); });
+    var checkedSubs = Array.from(document.querySelectorAll('#catTree .ct-sub input[type="checkbox"]:checked'))
+        .map(function(cb){ return cb.value.toLowerCase(); });
 
-  var nothingChecked = !checkedRegions.length && !checkedSizes.length && !checkedModules.length && !checkedSubs.length && !searchQ;;
+    var nothingChecked = !checkedRegions.length && !checkedSizes.length && !checkedModules.length && !checkedSubs.length && !searchQ;
 
-  // If nothing is checked at all, restore all vendors from the full list
-  if(nothingChecked){
-    if(window._allVendors && window._allVendors.length){
-      // Re-render from scratch only if current card count differs from full list
-      if(document.querySelectorAll('#vendors .card').length < window._allVendors.length){
-        loadVendors();
+    // Nothing checked -> just show every card currently in the DOM. No reload, no restore.
+    if(nothingChecked){
+        document.querySelectorAll('#vendors .card').forEach(function(card){
+            card.style.display = '';
+        });
+        updateVendorTotalFiltered();
         return;
-      }
     }
-    document.querySelectorAll('#vendors .card').forEach(function(card){
-      card.style.display = '';
+
+    document.querySelectorAll('#vendors .card').forEach(function(card) {
+        var cardSize    = (card.dataset.companysize || '').trim();
+        var cardModules = (card.dataset.modules || '').toLowerCase();
+        var cardSubs    = (card.dataset.subcategories || '').toLowerCase();
+
+        var searchMatch = cardMatchesSearch(card, searchQ);
+
+        var regionMatch = !checkedRegions.length || checkedRegions.some(function(r){
+            return cardMatchesRegion(card, r);
+        });
+
+        var sizeMatch = !checkedSizes.length || checkedSizes.some(function(s){
+            return cardSize === s;
+        });
+
+        var catMatch = true;
+        if(checkedSubs.length){
+            catMatch = checkedSubs.some(function(s){ return cardSubs.includes(s); });
+        } else if(checkedModules.length){
+            catMatch = checkedModules.some(function(m){ return cardModules.includes(m); });
+        }
+
+        card.style.display = (searchMatch && regionMatch && sizeMatch && catMatch) ? '' : 'none';
     });
+
     updateVendorTotalFiltered();
-    return;
-  }
-
-  document.querySelectorAll('#vendors .card').forEach(function(card) {
-    var cardRegion  = (card.dataset.region || '').toLowerCase();
-    var cardSize    = (card.dataset.companysize || '').trim();
-    var cardModules = (card.dataset.modules || '').toLowerCase();
-    var cardSubs    = (card.dataset.subcategories || '').toLowerCase();
-
-    var searchMatch = cardMatchesSearch(card, searchQ);
-
-    var regionMatch = !checkedRegions.length || checkedRegions.some(function(r){
-        return cardMatchesRegion(card, r);
-    });
-
-    var sizeMatch = !checkedSizes.length || checkedSizes.some(function(s){
-      return cardSize === s;
-    });
-
-    var catMatch = true;
-    if(checkedSubs.length){
-      catMatch = checkedSubs.some(function(s){ return cardSubs.includes(s); });
-    } else if(checkedModules.length){
-      catMatch = checkedModules.some(function(m){ return cardModules.includes(m); });
-    }
-
-    card.style.display = (searchMatch && regionMatch && sizeMatch && catMatch) ? '' : 'none';
-  });
-
-  updateVendorTotalFiltered();
 }
 
 function cardMatchesRegion(card, region) {
@@ -1484,14 +1493,28 @@ function applyScoreFilter() {
 
     var banner = ensureScoreFilterBanner();
     var total  = cards.length;
+    var allHidden = hidden === scoredCards.length && hidden === cards.length;
 
-    document.getElementById('scoreFilterLabel').textContent =
-        hidden + ' vendor' + (hidden === 1 ? '' : 's') + ' below ' + threshold + '% match hidden';
+    // ── No vendor cleared the bar — surface this clearly instead of an empty grid ──
+    if (allHidden) {
+        App.showToast(
+            "No vendors matched " + threshold + "%+ — click \"Show all\" below or try refining your search.",
+            'warning'
+        );
+    }
+
+    document.getElementById('scoreFilterLabel').textContent = allHidden
+        ? 'No vendors met the ' + threshold + '% match threshold'
+        : hidden + ' vendor' + (hidden === 1 ? '' : 's') + ' below ' + threshold + '% match hidden';
 
     document.getElementById('scoreFilterBtn').textContent =
         'Show all ' + total + ' vendor' + (total === 1 ? '' : 's');
 
     banner.style.display = 'flex';
+
+    // Make the "no matches" state visually distinct (optional but helps at a glance)
+    banner.classList.toggle('score-filter-empty', allHidden);
+
     updateVendorTotalFiltered();
 }
 
@@ -1834,7 +1857,7 @@ function updateVendorTotal(){
 
 function applyFilters(filters, vendors) {
     if (!filters || !Array.isArray(vendors)) return [];
-   
+  
     return vendors
         .map(vendor => {
             const company = vendor?.data?.company;
@@ -1868,7 +1891,7 @@ function applyFilters(filters, vendors) {
             }
 
             // ── Region ──────────────────────────────────────
-            (filters.region || []).forEach(region => {
+            (filters?.region || []).forEach(region => {
                 filtersCount++;
 
                 const regionServed = meta.region_served || [];
@@ -1880,7 +1903,7 @@ function applyFilters(filters, vendors) {
             });
 
             // ── Required Modules ───────────────────────────
-            (filters.required_modules || []).forEach(module => {
+            (filters?.required_modules || []).forEach(module => {
                 filtersCount++;
 
                 if (modulesLower.includes(module.toLowerCase())) {
@@ -1890,7 +1913,7 @@ function applyFilters(filters, vendors) {
             });
 
             // ── Required subCategoriesLower ──────────────────────────
-            (filters.required_features || []).forEach(feature => {
+            (filters?.required_features || []).forEach(feature => {
                 filtersCount++;
 
                 if (subCategoriesLower.includes(feature.toLowerCase())) {
@@ -1901,7 +1924,7 @@ function applyFilters(filters, vendors) {
 
             // ── Required Features ──────────────────────────
             // features are optional_features
-            (filters.optional_features || []).forEach(feature => {
+            (filters?.optional_features || []).forEach(feature => {
                 filtersCount++;
 
                 const availableFeatures = extractAvailableFeatures(company.modules);
@@ -1912,7 +1935,7 @@ function applyFilters(filters, vendors) {
             });
 
             // ── Required Integrations ───────────────────────────
-            (filters.required_integrations || []).forEach(integration => {
+            (filters?.required_integrations || []).forEach(integration => {
                 filtersCount++;
                 
                 const integrations = company.integrations.map(i => i.name.toLowerCase());
@@ -1923,7 +1946,7 @@ function applyFilters(filters, vendors) {
             });
 
             // ── Required Categories ───────────────────────────
-            (filters.categories || []).forEach(category => {
+            (filters?.categories || []).forEach(category => {
                 filtersCount++;
                 
                 if (vendor.categories !== null && filters.categories.includes(vendor.categories)) {
