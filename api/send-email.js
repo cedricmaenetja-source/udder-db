@@ -17,7 +17,6 @@ export default async function handler(req, res) {
         if (!token){return res.status(401).json({ error: 'Unauthorized' });}
         try{
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log(decoded);
             adminOtp = decoded.otp;
         }catch (err) {
             return res.status(401).json({

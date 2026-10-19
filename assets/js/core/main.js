@@ -21,6 +21,9 @@ var ORG_SIZES = [
 
 var REGIONS = ['UK', 'EU', 'US', 'APAC', 'LATAM', 'MEA'];
 
+var featureSelections = {}; // module -> array of selected feature types
+var currentModalModule = null;
+
 // muti-select and searchable features
 let availableFeaturesGrouped = {};
 let availableFeaturesList = [];
@@ -44,6 +47,373 @@ let loggedIn;
 
 window.searchFilters = [];
 window._categories = [];
+
+window._vendorsReady = false;
+window._pendingModalOpen = false;
+
+window.taxanomy = null;
+
+var CARD_FIELDS = {
+    module:       'modules',     // data-modules
+    feature_type: 'features'     // data-features
+};
+
+var _knownNames = null;
+function getKnownNames() {
+    if (_knownNames) return _knownNames;
+    var cats = (window.taxanomy && window.taxanomy[0] && window.taxanomy[0].features) || [];
+    if (!cats.length) return {}; // taxonomy not loaded yet — don't cache
+    var set = {};
+    cats.forEach(function(c) {
+        set[normList(c.category)] = true;
+        (c.modules || []).forEach(function(m) {
+            set[normList(m.module)] = true;
+            (m.featureTypes || []).forEach(function(ft) {
+                set[normList(ft.featureType)] = true;
+                (ft.features || []).forEach(function(f) { set[normList(f)] = true; });
+            });
+        });
+    });
+    _knownNames = set;
+    return set;
+}
+
+function parseList(raw) {
+    var parts = normList(raw).split(',').filter(Boolean);
+    var known = getKnownNames();
+    var out = [];
+    var i = 0;
+    while (i < parts.length) {
+        var taken = 1;
+        for (var n = Math.min(5, parts.length - i); n > 1; n--) {
+            if (known[parts.slice(i, i + n).join(',')]) { taken = n; break; }
+        }
+        out.push(parts.slice(i, i + taken).join(','));
+        i += taken;
+    }
+    return out;
+}
+
+function listHas(raw, name) {
+    if (!name) return false;
+    return parseList(raw).indexOf(normList(name)) !== -1;
+}
+
+function getVendorCategoryList(vendor) {
+    var raw = String((vendor && vendor.categories) || '').replace(/\s*\u2022\s*/g, ',');
+    return parseList(raw).filter(function(c) { return c && c !== 'uncategorized'; });
+}
+
+function noResultsHtml() {
+    return `<div class="no-results">
+        <div class="nr-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="8" stroke="var(--o)" stroke-width="1.6"/>
+            <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="var(--o)" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M8 11h6M11 8v6" stroke="var(--o)" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="nr-body">
+            <h2 class="nr-heading">No matches found</h2>
+            <p class="nr-sub">We couldn't find any HR tech products that match your current filters.</p>
+        </div>
+    </div>`;
+}
+
+function scoreCardsFromFilters(filters) {
+    var container = document.getElementById('vendors');
+    if (!container) return 0;
+ 
+    var wantedCats = Array.from(new Set(
+        filters.map(function(f) { return f && f.category ? normList(f.category) : ''; }).filter(Boolean)
+    ));
+ 
+    var kept = [];
+ 
+    Array.from(container.querySelectorAll('.card')).forEach(function(card) {
+        var vendor = vendorData[card.dataset.id];
+ 
+        // ── Step 1: category gate (vendor.categories) ──
+        var vendorCats = getVendorCategoryList(vendor);
+        if (!vendorCats.length) { card.remove(); return; }
+ 
+        var inCats = wantedCats.filter(function(c) { return vendorCats.indexOf(c) !== -1; });
+        if (wantedCats.length && !inCats.length) { card.remove(); return; }
+ 
+        // ── Step 2: score from card data ──
+        var moduleAttr  = card.dataset[CARD_FIELDS.module] || '';
+        var typeAttr    = card.dataset[CARD_FIELDS.feature_type] || '';
+ 
+        // One point per selected category the vendor is in
+        var score = inCats.length;
+        var count = wantedCats.length;
+        var matched = [];
+ 
+        filters.forEach(function(f) {
+            if (!f) return;
+ 
+            var category = f.category || '';
+            var module   = f.module || '';
+            var types    = Array.isArray(f.feature_type) ? f.feature_type : [];
+ 
+            if (category && inCats.indexOf(normList(category)) === -1) return;
+            if (category) matched.push(category + ' category');
+ 
+            if (module) {
+                count++;
+                if (listHas(moduleAttr, module)) {
+                    score++;
+                    matched.push(module + ' module');
+                }
+            }
+ 
+            types.forEach(function(t) {
+                count++;
+                if (listHas(typeAttr, t)) {
+                    score++;
+                    matched.push(t + ' feature type');
+                }
+            });
+        });
+ 
+        var pct = count ? Math.round((score / count) * 100) : 100;
+        var matchedList = Array.from(new Set(matched));
+ 
+        card.dataset.score = pct;
+        var btn = card.querySelector('.view-platform');
+        if (btn) {
+            btn.dataset.score        = pct;
+            btn.dataset.matcheditems = matchedList.join(',');
+            btn.dataset.filterscount = count;
+        }
+ 
+        if (vendor) {
+            vendor.match_score   = pct;
+            vendor.score         = score;
+            vendor.filters_count = count;
+            vendor.matched_items = matchedList;
+        }
+ 
+        kept.push({ card: card, pct: pct });
+    });
+ 
+    kept
+        .sort(function(a, b) { return b.pct - a.pct; })
+        .forEach(function(k) { container.appendChild(k.card); });
+ 
+    if (!kept.length) container.insertAdjacentHTML('beforeend', noResultsHtml());
+ 
+    return kept.length;
+}
+
+function lc(s) { return String(s || '').toLowerCase(); }
+
+function normList(s) {
+    return lc(s)
+        .replace(/\(([^)]+)\)/g, function(m, inner) { return '(' + inner.replace(/,\s*/g, '/') + ')'; })
+        .split(',')
+        .map(function(x) { return x.replace(/\s+/g, ' ').trim(); })
+        .join(',');
+}
+
+function applyScoreFilter() {
+    var threshold = 50;
+    var cards = Array.from(document.querySelectorAll('#vendors .card'));
+    if (!cards.length) return;
+ 
+    var arrayMode = Array.isArray(window._activeFilters);
+ 
+    var scoredCards = arrayMode ? cards : cards.filter(function(c) {
+        return parseFloat(c.dataset.score) > 0;
+    });
+    if (!scoredCards.length) return;
+ 
+    var hidden = 0;
+    cards.forEach(function(card) {
+        var score = parseFloat(card.dataset.score) || 0;
+        if ((arrayMode || score > 0) && score < threshold) {
+            card.dataset.belowThreshold = '1';
+            card.style.display = 'none';
+            hidden++;
+        }
+    });
+ 
+    if (!hidden) return;
+ 
+    var banner = ensureScoreFilterBanner();
+    var total  = cards.length;
+    var allHidden = hidden === scoredCards.length && hidden === cards.length;
+ 
+    if (allHidden) {
+        App.showToast(
+            "No vendors matched " + threshold + "%+ — click \"Show all\" below or try refining your search.",
+            'warning'
+        );
+    }
+ 
+    document.getElementById('scoreFilterLabel').textContent = allHidden
+        ? 'No vendors met the ' + threshold + '% match threshold'
+        : hidden + ' vendor' + (hidden === 1 ? '' : 's') + ' below ' + threshold + '% match hidden';
+ 
+    document.getElementById('scoreFilterBtn').textContent =
+        'Show all ' + total + ' vendor' + (total === 1 ? '' : 's');
+ 
+    banner.style.display = 'flex';
+    banner.classList.toggle('score-filter-empty', allHidden);
+ 
+    updateVendorTotalFiltered();
+}
+
+function findKeyCI(obj, key) {
+    if (!obj || !key) return null;
+    var k = lc(key);
+    return Object.keys(obj).find(function(x) { return lc(x) === k; }) || null;
+}
+
+function getVendorItemNames(companyModules, category, module) {
+    var catKey = findKeyCI(companyModules, category);
+    if (!catKey) return [];
+ 
+    var subs = companyModules[catKey] || {};
+    var keys = module ? [findKeyCI(subs, module)].filter(Boolean) : Object.keys(subs);
+ 
+    var out = [];
+    keys.forEach(function(k) {
+        (Array.isArray(subs[k]) ? subs[k] : []).forEach(function(item) {
+            if (item && item.name) out.push(lc(item.name));
+        });
+    });
+    return out;
+}
+
+function getVendorCategories(vendor, company) {
+    var raw  = vendor && vendor.categories;
+    var list = raw ? String(raw).split(/\u2022|,/).map(function(s) { return lc(s.trim()); }).filter(Boolean) : [];
+    return list;
+}
+
+function applyFilterArray(filters, vendors) {
+    if (!Array.isArray(vendors)) return [];
+ 
+    var wantedCats = Array.from(new Set(
+        filters.map(function(f) { return lc(f && f.category); }).filter(Boolean)
+    ));
+ 
+    return vendors
+        .map(function(vendor) {
+            var company = vendor && vendor.data && vendor.data.company;
+            if (!company) return null;
+ 
+            // ── Step 1: category gate ──
+            var vendorCats = getVendorCategories(vendor, company);
+            if (!vendorCats.length) return null; // no vendor.categories -> skip vendor
+            var inCats = wantedCats.filter(function(c) { return vendorCats.indexOf(c) !== -1; });
+            if (wantedCats.length && !inCats.length) return null;
+ 
+            // ── Step 2: score within those categories ──
+            var companyModules = company.modules || {};
+            var modsLower = (App.getModules(companyModules).subCategories || []).map(lc);
+ 
+            var score = 0;
+            var count = 0;
+            var matched = [];
+ 
+            filters.forEach(function(f) {
+                if (!f) return;
+ 
+                var category = f.category || '';
+                var module   = f.module || '';
+                var types    = Array.isArray(f.feature_type) ? f.feature_type : [];
+                var feats    = Array.isArray(f.features) ? f.features : [];
+ 
+                if (category && inCats.indexOf(lc(category)) === -1) return;
+                if (category) matched.push(category + ' category');
+ 
+                if (module) {
+                    count++;
+                    var hasModule;
+                    if (category) {
+                        var catKey = findKeyCI(companyModules, category);
+                        hasModule = !!(catKey && findKeyCI(companyModules[catKey], module));
+                    } else {
+                        hasModule = modsLower.indexOf(lc(module)) !== -1;
+                    }
+                    if (hasModule) {
+                        score++;
+                        matched.push(module + ' module');
+                    }
+                }
+ 
+                if (types.length || feats.length) {
+                    var items = getVendorItemNames(companyModules, category, module);
+ 
+                    types.forEach(function(t) {
+                        count++;
+                        if (items.indexOf(lc(t)) !== -1) {
+                            score++;
+                            matched.push(t + ' feature type');
+                        }
+                    });
+ 
+                    feats.forEach(function(ft) {
+                        count++;
+                        if (items.indexOf(lc(ft)) !== -1) {
+                            score++;
+                            matched.push(ft + ' feature');
+                        }
+                    });
+                }
+            });
+ 
+            if (count > 0 && score === 0) return null;
+ 
+            return Object.assign({}, vendor, {
+                filters_count: count,
+                score: score,
+                matched_items: Array.from(new Set(matched)),
+                match_score: count ? Math.round((score / count) * 100) : 100
+            });
+        })
+        .filter(Boolean)
+        .sort(function(a, b) { return b.match_score - a.match_score; });
+}
+
+function openSearchModalNow(){
+    var modal = document.getElementById('searchModal');
+    if(!modal) return;
+    modal.classList.add('open');
+    document.body.classList.add('modal-active');
+    setTimeout(function(){ var mi = document.getElementById('modalSearch'); if(mi) mi.focus(); }, 50);
+}
+
+window.requestOpenSearchModal = function(inputEl){
+    if (window._vendorsReady) {
+        openSearchModalNow();
+        return;
+    }
+
+    window._pendingModalOpen = true;
+    if (inputEl) inputEl.blur();
+    if (typeof window.showSidebarToast === 'function') {
+        window.showSidebarToast('Loading vendors… opening in a moment');
+    }
+};
+
+window.markVendorsReady = function(){
+    window._vendorsReady = true;
+    var searchInput = document.getElementById('search');
+    if (searchInput) searchInput.readOnly = false;
+
+    if (window._pendingModalOpen) {
+        window._pendingModalOpen = false;
+        openSearchModalNow();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+    var searchInput = document.getElementById('search');
+    if (searchInput && !window._vendorsReady) searchInput.readOnly = true;
+});
 
 let sessionReady;
 let sessionReadyResolve;
@@ -143,21 +513,21 @@ function logSearchActivity(q){
 }
 
 window.triggerUdderSearch = async function(filters) {
-    filters = JSON.parse(filters);
-
-   await loadVendors({
-    required_modules: filters.categories,
-    categories: [filters.module],
-    required_features: [filters.module],
-    optional_features: [],//filters.feature_type,
-    required_integrations: [],
-    region: [],
-    category_filters: []
-   });
-   //window.closeUdderModal();
+    window._activeFilters = null;
+    window._filters = null;
+    window.clearAllModuleFilters();
+ 
+    filters = (typeof filters === 'string') ? JSON.parse(filters) : filters;
+ 
+    if (!Array.isArray(filters) || !filters.length) {
+        await loadVendors();
+        return;
+    }
+    console.log('filters', filters);
+    await loadVendors(filters);
 };
 
-$(document).ready(function() {
+$(document).ready(async function() {
     let compareMode = false;
     let selectedCards = new Set();
 
@@ -171,10 +541,7 @@ $(document).ready(function() {
 
     // Open modal on search click
     searchInput.addEventListener('focus', () => {
-        modal.classList.add('active');
-        body.classList.add('modal-active');
-        modalSearch.focus();
-        $('#modalSearch').val('');
+        window.requestOpenSearchModal(searchInput);
     });
 
     // Close modal on click outside modal box
@@ -247,6 +614,8 @@ $(document).ready(function() {
     //loadVendors();
     addCategories();
     getHistoricalSearchFilters();
+    ensureFeatureModal();
+    await getTaxonomy();
     // renderRegionFilter();
 
     $('#searchModal').prop('disabled', false);
@@ -360,6 +729,19 @@ $(document).ready(function() {
 
     // ── Multi-select category + sub-category filtering ──
 
+    async function getTaxonomy(){
+        const res = await fetch('/api/supabase?action=getTaxonomy');
+        const result = await res.json();
+
+        if (result.error) {
+            console.error(result.error);
+            App.showToast(App.OPERATION_FAILED, 'error');
+            return;
+        }
+
+        window.taxanomy = result.data;
+    }
+        
 function getCheckedModules(){
     return $('#catTree > li > .ct-row .ct-lbl > input[type="checkbox"]:checked').map(function(){
         return $(this).val();
@@ -372,17 +754,52 @@ function getCheckedSubs(){
     }).get();
 }
 
+window.clearAllModuleFilters = function(){
+    featureSelections = {};
+
+    $('.ct-lbl input[type="checkbox"]').prop('checked', false);
+    $('#featModalList .feat-check').prop('checked', false);
+
+    //$('.ct-feat-badge').remove();
+
+    applyModuleFilter();
+};
+
 // Core filter — runs whenever any category checkbox changes
 function applyModuleFilter(){
     const checkedModules = getCheckedModules();
     const checkedSubs    = getCheckedSubs();
-
     const noModules = checkedModules.length === 0;
     const noSubs    = checkedSubs.length === 0;
+
+    // Keep the features panel in sync regardless of search state
+    if(!noSubs){
+        const subModules = $('.ct-sub input[type="checkbox"]:checked')
+            .map(function(){ return $(this).data('module'); }).get();
+        loadFeaturesByValue('subModule', subModules[0], checkedSubs);
+    } else if(!noModules){
+        loadFeaturesByValue('module', checkedModules[0]);
+    }
+
+    if (window._activeFilters) {
+        recalcMatchScores();
+        return;
+    }
+
+    const subRules = $('.ct-sub input[type="checkbox"]:checked').map(function(){
+        const mod   = $(this).data('module');
+        const sub   = this.value;
+        const feats = (featureSelections[mod] && featureSelections[mod][sub]) || [];
+        return {
+            sub: sub,
+            features: feats.map(function(f){ return f.value; })
+        };
+    }).get();
 
     $(".card").each(function(){
         const cardModules = String($(this).data("modules") || '');
         const cardSubs    = String($(this).data("subcategories") || '');
+        const cardFeatures = toList($(this).data("features"));
 
         // Nothing checked — show all
         if(noModules && noSubs){
@@ -392,8 +809,13 @@ function applyModuleFilter(){
 
         // Sub-categories take precedence if any are checked
         if(!noSubs){
-            const subMatch = checkedSubs.some(function(s){ return cardSubs.includes(s); });
-            $(this).toggle(subMatch);
+            const match = subRules.some(function(rule){
+                if (!cardSubs.includes(rule.sub)) return false;
+                if (!rule.features.length) return true;
+                return rule.features.some(function(f){ return cardFeatures.includes(f); });
+            });
+            $(this).toggle(match);
+
             return;
         }
 
@@ -415,7 +837,134 @@ function applyModuleFilter(){
     applyCheckboxFilters();
 }
 
-// Parent module checkbox changed
+function updatePills(){
+  var pills=document.getElementById('catPills');
+  if(!pills)return;
+  pills.innerHTML='';
+  document.querySelectorAll('#catTree input[type=checkbox]:checked').forEach(function(cb){
+    var ne=cb.closest('.ct-lbl')&&cb.closest('.ct-lbl').querySelector('.ct-name');
+    if(!ne)return;
+    var p=document.createElement('span');
+    p.className='pill';
+    p.innerHTML=ne.textContent.trim()+'<button class="pill-x" title="Remove">\u00d7</button>';
+    p.querySelector('.pill-x').addEventListener('click',function(e){
+      e.stopPropagation();
+      cb.checked=false;
+      updatePills();
+      applyModuleFilter();
+    });
+    pills.appendChild(p)
+  })
+}
+
+window._updatePills = updatePills;
+
+function ensureFeatureModal(){
+    if (document.getElementById('featModalOverlay')) return;
+
+    $('body').append(
+        '<div id="featModalOverlay" class="feat-modal-overlay" style="display:none;">' +
+          '<div class="feat-modal">' +
+            '<div class="feat-modal-header">' +
+              '<span>Feature Types — <span id="featModalModule"></span></span>' +
+              '<button type="button" class="feat-close" onclick="closeFeatureModal()">&times;</button>' +
+            '</div>' +
+            '<div class="feat-modal-body" id="featModalList"></div>' +
+            '<div class="feat-modal-footer">' +
+              '<button type="button" onclick="closeFeatureModal()">Cancel</button>' +
+              '<button type="button" class="feat-save" onclick="saveFeatureSelection()">Save</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+    );
+}
+
+function getFeatureTypes(category, module) {
+    const cat = window.taxanomy[0].features.find(c => c.category === category);
+    if (!cat) return [];
+
+    const mod = cat.modules.find(m => m.module === module);
+    if (!mod) return [];
+
+    return mod.featureTypes.map(ft => ft.featureType);
+}
+
+window.openFeatureModal = function(module, subModule){
+    ensureFeatureModal();
+    currentModalModule = module;
+    $('#featModalModule').text(module);
+
+    const featureTypes = getFeatureTypes(module, subModule);
+
+    var selected = (featureSelections[module] && featureSelections[module][subModule]) || [];
+    var html = featureTypes.map(function(ft){
+        var isChecked = selected.some(function(s){ return s.value === ft; });
+        var checked = isChecked ? 'checked' : '';
+        return '<label><input type="checkbox" data-module="' + module + '" data-submodule="' + subModule + '" class="feat-check" value="' + ft + '" ' + checked + '>' + ft + '</label>';
+    }).join('');
+
+    $('#featModalList').html(html);
+    $('#featModalOverlay').css('display', 'flex');
+
+    syncModalChecks(module, subModule);
+};
+
+window.closeFeatureModal = function(){
+    $('#featModalOverlay').hide();
+    currentModalModule = null;
+};
+
+window.saveFeatureSelection = function () {
+    if (!currentModalModule) return;
+
+    var $allChecks = $('#featModalList .feat-check');
+    if (!$allChecks.length) return;
+
+    var mod = $allChecks.first().data('module');
+    var sub = $allChecks.first().data('submodule');
+
+    var selected = $allChecks.filter(':checked').map(function () {
+        return {
+            value: this.value,
+            module: this.dataset.module,
+            subModule: this.dataset.submodule
+        };
+    }).get();
+
+    var $subCheck = $('.ct-lbl input[type="checkbox"][data-module="' + mod + '"][value="' + sub + '"]');
+    var $modCheck = $('.ct-lbl > input[type="checkbox"][value="' + mod + '"]');
+
+    if (selected.length) {
+        featureSelections[mod] = featureSelections[mod] || {};
+        featureSelections[mod][sub] = selected;
+
+        $subCheck.prop('checked', true);
+        $modCheck.prop('checked', true);
+    } else {
+        if (featureSelections[mod]) {
+            delete featureSelections[mod][sub];
+            if ($.isEmptyObject(featureSelections[mod])) {
+                delete featureSelections[mod];
+            }
+        }
+
+        $subCheck.prop('checked', false);
+
+        if (!featureSelections[mod]) {
+            $modCheck.prop('checked', false);
+        }
+    }
+
+    var $lbl = $('input[name="module"][value="' + currentModalModule + '"]').closest('.ct-lbl');
+    $lbl.find('.ct-feat-badge').remove();
+    if (selected.length > 0) {
+        $lbl.find('.ct-add').after('<span class="ct-feat-badge">' + selected.length + '</span>');
+    }
+
+    applyModuleFilter();
+    window.closeFeatureModal();
+};
+
 $(document).on('change', '#catTree > li > .ct-row .ct-lbl > input[type="checkbox"]', function(){
     const module = $(this).val();
     const isChecked = $(this).is(':checked');
@@ -424,10 +973,28 @@ $(document).on('change', '#catTree > li > .ct-row .ct-lbl > input[type="checkbox
     if(!isChecked){
         $('.ct-sub input[type="checkbox"][data-module="' + module + '"]')
             .prop('checked', false);
+        delete featureSelections[module];
     }
 
+    updatePills();
     applyModuleFilter();
 });
+
+function syncModalChecks(mod, sub){
+    var saved  = (featureSelections[mod] && featureSelections[mod][sub]) || [];
+    var values = saved.map(function(f){ return f.value; });
+
+    $('#featModalList .feat-check').each(function(){
+        this.checked = values.indexOf(this.value) !== -1;
+    });
+}
+
+function toList(str){
+    return String(str || '')
+        .split(',')
+        .map(function(s){ return s.trim(); })
+        .filter(Boolean);
+}
 
 // ── Results panel search — filter cards by name, category, features ──
 // $(document).on('input', '.rp-search input', function(){
@@ -467,6 +1034,13 @@ $(document).on('change', '#catTree .ct-sub input[type="checkbox"]', function(){
     if($(this).is(':checked')){
         $('.ct-lbl > input[type="checkbox"][value="' + module + '"]')
             .prop('checked', true);
+    }else{
+        if (featureSelections[module]) {
+        delete featureSelections[module][$(this).val()];
+            if ($.isEmptyObject(featureSelections[module])) {
+                delete featureSelections[module];
+            }
+        }
     }
 
     // If all children of a parent are unchecked, uncheck the parent too
@@ -477,6 +1051,7 @@ $(document).on('change', '#catTree .ct-sub input[type="checkbox"]', function(){
             .prop('checked', false);
     }
 
+    updatePills();
     applyModuleFilter();
 });
 
@@ -747,7 +1322,8 @@ function addCategories(){
           '<label class="ct-lbl">' +
             '<input type="checkbox" name="module" data-module="' + module + '" value="' + subName + '">' +
             '<span class="ct-name">' + subName + '</span>' +
-            '<span class="ct-n">0</span>' +
+            '<button class="ct-add" type="button" title="Add feature types" ' +
+                'onclick="event.preventDefault(); openFeatureModal(\'' + module + '\', \'' + subName + '\')">+</button>' +
           '</label>' +
         '</div></li>';
     });
@@ -1271,7 +1847,7 @@ async function loadVendors(filters = null, query = null){
         App.customError(App.OPERATION_FAILED);
         return;
     }
-
+    
     $('#vendors').empty();
     removeScoreFilter();
     //filters = App.mockUpFilter;
@@ -1279,7 +1855,9 @@ async function loadVendors(filters = null, query = null){
     if (filters !== null){
         window._filters = filters;
         window._activeFilters = filters;
-        vendors = applyFilters(filters, window._allVendors);
+        vendors = Array.isArray(filters)
+              ? window._allVendors                       // render all; cards are filtered after
+              : applyFilters(filters, window._allVendors);
 
         if (vendors.length > 0){
             //$('#search-title').text('YOUR CUSTOMIZED HR TECH STACKS');
@@ -1289,7 +1867,7 @@ async function loadVendors(filters = null, query = null){
             (filters.target_market !== null) ? text.push(`Company size ${filters.target_market}`) : '';
             (filters.region !== null) ? text.push(`Region ${filters.region}`) : '';
             
-            if (filters.required_features !== null && filters.required_features.length > 0){
+            if (Array.isArray(filters.required_features) && filters.required_features.length > 0){
                 text.push(`Requirements: [${filters.required_features.join(',')}]`);
             }
 
@@ -1347,7 +1925,9 @@ async function loadVendors(filters = null, query = null){
             }
 
             if (features == ''){
-
+                // if (vendor.data.company.extracted_features){
+                //     console.l
+                // }
             }
             
             if (companySize != '' && $.inArray(companySize, employeeCountSupported) === -1){
@@ -1359,7 +1939,8 @@ async function loadVendors(filters = null, query = null){
             if (vendor.logo === null) vendor.logo = `../assets/images/logos/${vendor.name.replaceAll(' ', '')}.webp`;
             if (vendor.score === undefined) vendor.score = 0;
 
-            vendor.categories = vendor.categories.replaceAll(' • ', ', ');
+            vendor.categories = (vendor.categories) ? vendor.categories.replaceAll(' • ', ', ') : 'Uncategorized';
+
             const modules = App.getModules(vendor.data.company.modules);
            
             region.forEach(r => {
@@ -1375,7 +1956,7 @@ async function loadVendors(filters = null, query = null){
             if (vendor.match_score === undefined) vendor.match_score = 0;
             if (vendor.founding_year === null) vendor.founding_year = '';
             const location = (vendor.data.company.meta.region_served ?? []).join(',');
-
+            
             // add 
             // data-trending="true"
             // data-implementations="3"
@@ -1383,7 +1964,7 @@ async function loadVendors(filters = null, query = null){
             // data-ver-history (semicolon separated with | between dates and description) e.g. 14 MAR 2026|Upgraded to Udder Approved by Alice Oduya, Udder;02 JAN 2026|Vendor claimed listing — 42 hours of capability evidence attached;12 NOV 2025|AI-generated from public sources (vendor website, G2, Capterra)
             cardsHtml += `
                 <div class="card" 
-                    data-categories="${vendor.categories}"
+                    data-category="${vendor.categories}"
                     data-modules="${modules.modules.join(',')}"
                     data-subcategories="${modules.subCategories.join(',')}"
                     data-name="${vendor.name}"
@@ -1431,91 +2012,115 @@ async function loadVendors(filters = null, query = null){
     $('.skeleton').remove();
     $('.layout').removeClass('hide');
 
+    var hadPendingModalOpen = window._pendingModalOpen;
+    window.markVendorsReady();
+
+    if (!hadPendingModalOpen && typeof window.closeUdderModal === 'function') {
+        window.closeUdderModal();
+    }
+
     if (typeof window.closeUdderModal === 'function') window.closeUdderModal();
     $('.sort-dropdown').removeClass('hide');
     $('.faqs-section').removeClass('hide');
 
     if (filters !== null) {
+        if (Array.isArray(filters)) {
+            // Udder chat search: filter + score the rendered cards first
+            scoreCardsFromFilters(filters);
+
+            // Counts were calculated from the full grid — refresh them
+            updateVendorTotal();
+            renderRegionFilter();
+            renderOrgSizeFilter();
+            updateCategoryCounts();
+        }
+
         applyScoreFilter();
         $('#rpSub').text('Showing platforms with 50% and higher match score');
 
-        // apply filters
-        filters.required_modules.forEach(module => {
-            $(`input[name="module"][value="${module}"]`).prop('checked', true);
+        if (Array.isArray(filters)) {
+            // Udder chat search
+            tickCatTreeFromFilters(filters);
+        } else {
+            // AI text search (legacy object shape)
+            (filters.required_modules || []).forEach(module => {
+                $(`input[name="module"][value="${module}"]`).prop('checked', true);
 
-            filters.required_features.forEach(feature => {
-                $(`input[name="module"][data-module="${module}"][value="${feature}"]`).prop('checked', true);
+                (filters.required_features || []).forEach(feature => {
+                    $(`input[name="module"][data-module="${module}"][value="${feature}"]`).prop('checked', true);
+                });
             });
-        });
 
-        if (filters.region !== null){
-            filters.region.forEach(region => {
-                $(`input[class="region-cb"][value="${region}"]`).prop('checked', true);
-            });
-        }
+            if (filters.region) {
+                filters.region.forEach(region => {
+                    $(`input[class="region-cb"][value="${region}"]`).prop('checked', true);
+                });
+            }
 
-        if (filters.target_market !== null) $(`input[class="orgsize-cb"][value="${filters.target_market}"]`).prop('checked', true);
+            if (filters.target_market) {
+                $(`input[class="orgsize-cb"][value="${filters.target_market}"]`).prop('checked', true);
+            }
 
-        // hide filters that do not apply
-        if (filters.category_filters !== null){
-            filters.category_filters.forEach(category => {
-                var input = document.querySelector('input[value="' + category + '"]');
-                if (!input) return;
-                var el = input.parentElement;
-                while (el && el.tagName !== 'LI') el = el.parentElement;
-                if (el) el.classList.add('hide');
-            });
+            if (filters.category_filters) {
+                filters.category_filters.forEach(category => {
+                    var input = document.querySelector('input[value="' + category + '"]');
+                    if (!input) return;
+                    var el = input.parentElement;
+                    while (el && el.tagName !== 'LI') el = el.parentElement;
+                    if (el) el.classList.add('hide');
+                });
+            }
         }
     }
 }
 
-function applyScoreFilter() {
-    var threshold = 50;
-    var cards = Array.from(document.querySelectorAll('#vendors .card'));
-    if (!cards.length) return;
+function buildCombinedFiltersFromSidebar(){
+    var base = Object.assign({}, window._activeFilters || {});
 
-    var scoredCards = cards.filter(function(c) {
-        return parseFloat(c.dataset.score) > 0;
-    });
-    if (!scoredCards.length) return;
+    var checkedModules = Array.from(document.querySelectorAll('#catTree > li > .ct-row .ct-lbl > input[type="checkbox"]:checked'))
+        .map(function(cb){ return cb.value; });
+    var checkedSubs = Array.from(document.querySelectorAll('#catTree .ct-sub input[type="checkbox"]:checked'))
+        .map(function(cb){ return cb.value; });
+    var checkedSizes = Array.from(document.querySelectorAll('.orgsize-cb:checked'))
+        .map(function(cb){ return cb.value; });
+    var checkedRegions = Array.from(document.querySelectorAll('.region-cb:checked'))
+        .map(function(cb){ return cb.value; });
 
-    var hidden = 0;
-    cards.forEach(function(card) {
-        var score = parseFloat(card.dataset.score) || 0;
-        if (score > 0 && score < threshold) {
-            card.dataset.belowThreshold = '1';
-            card.style.display = 'none';
-            hidden++;
+    base.required_modules  = checkedModules.length  ? checkedModules  : (base.required_modules  || []);
+    base.required_features = checkedSubs.length     ? checkedSubs     : (base.required_features || []);
+    base.target_market     = checkedSizes.length    ? checkedSizes[0] : (base.target_market      || null);
+    base.region            = checkedRegions.length  ? checkedRegions  : (base.region             || []);
+
+    return base;
+}
+
+function setVendorsLoading(isLoading){
+    var vendorsEl = document.getElementById('vendors');
+    var filtersEl = document.querySelector('.filters');
+    if(vendorsEl) vendorsEl.classList.toggle('vendors-loading', isLoading);
+    // Lock the sidebar too, so a second checkbox click can't fire an overlapping recalc
+    if(filtersEl) filtersEl.classList.toggle('filters-loading', isLoading);
+}
+
+async function recalcMatchScores(){
+    setVendorsLoading(true);
+    try {
+        if (Array.isArray(window._activeFilters)) {
+            var filterArray = buildFilterArrayFromSidebar();
+            if (!filterArray.length) {
+                window._activeFilters = null;
+                window._filters = null;
+                await loadVendors();
+                return;
+            }
+            await loadVendors(filterArray);
+        } else {
+            var combined = buildCombinedFiltersFromSidebar();
+            await loadVendors(combined, combined.query || null);
         }
-    });
-
-    if (!hidden) return;
-
-    var banner = ensureScoreFilterBanner();
-    var total  = cards.length;
-    var allHidden = hidden === scoredCards.length && hidden === cards.length;
-
-    // ── No vendor cleared the bar — surface this clearly instead of an empty grid ──
-    if (allHidden) {
-        App.showToast(
-            "No vendors matched " + threshold + "%+ — click \"Show all\" below or try refining your search.",
-            'warning'
-        );
+    } finally {
+        setVendorsLoading(false);
     }
-
-    document.getElementById('scoreFilterLabel').textContent = allHidden
-        ? 'No vendors met the ' + threshold + '% match threshold'
-        : hidden + ' vendor' + (hidden === 1 ? '' : 's') + ' below ' + threshold + '% match hidden';
-
-    document.getElementById('scoreFilterBtn').textContent =
-        'Show all ' + total + ' vendor' + (total === 1 ? '' : 's');
-
-    banner.style.display = 'flex';
-
-    // Make the "no matches" state visually distinct (optional but helps at a glance)
-    banner.classList.toggle('score-filter-empty', allHidden);
-
-    updateVendorTotalFiltered();
 }
 
 function removeScoreFilter() {
@@ -1635,7 +2240,7 @@ function updateCategoryCounts() {
       var subCb   = subLi.querySelector('input[type="checkbox"]');
       var subName = subCb ? subCb.value : '';
       var subCt_n = subLi.querySelector('.ct-n');
-      if(subCt_n && subName) subCt_n.textContent = subCounts[subName] || 0;
+      //if(subCt_n && subName) subCt_n.textContent = subCounts[subName] || 0;
     });
   });
 }
@@ -1645,7 +2250,7 @@ function renderDropdownFeature(filter = "") {
     availableFeaturesList.sort();
     
     $.each(availableFeaturesList, function (index, option) {
-        if (
+        if (option && 
             option.toLowerCase().includes(filter.toLowerCase()) &&
             $.inArray(option, selectedFeature) === -1
         ) {
@@ -1820,8 +2425,14 @@ function getAllVendorFeatures(vendor){
     Object.entries(vendor.data.company.modules).forEach(([moduleName, subModules]) => {
         Object.keys(subModules).forEach(subModuleName => {
             const featureList = vendor.data.company.modules[moduleName][subModuleName];
-            featureList.forEach(feature => {
-                features.push(feature.name);
+            if (!Array.isArray(featureList)) {
+                return; 
+            }
+
+            const ft = featureList.map(item => item.name);
+            
+            ft.forEach(feature => {
+                features.push(feature);
 
                 if (availableFeaturesGrouped[moduleName] === null || availableFeaturesGrouped[moduleName] === undefined) availableFeaturesGrouped[moduleName] = {};
                 if (availableFeaturesGrouped[moduleName][subModuleName] === null || availableFeaturesGrouped[moduleName][subModuleName] === undefined) availableFeaturesGrouped[moduleName][subModuleName] = [];
@@ -1833,7 +2444,18 @@ function getAllVendorFeatures(vendor){
             });
         });
     });
-    
+
+    if (features.length == 0){
+        if (vendor.data.company.extracted_features){
+            const featureList = vendor.data.company.extracted_features;
+           
+            const ft = featureList.map(item => item.name);
+            ft.forEach(feature => {
+                features.push(feature);
+            });
+        }
+    }
+   
     features = features.map(item => item.replace(/\(([^)]+)\)/g, (match, inner) => 
      `(${inner.replace(/,\s*/g, '/')})`
     ));
@@ -1855,9 +2477,106 @@ function updateVendorTotal(){
     $('#totalVendors').text($('#vendors .card').length);
 }
 
+function tickCatTreeFromFilters(filters) {
+    var $tree = $('#catTree');
+    if (!$tree.length) return;
+ 
+    // Start clean (prop() doesn't fire change events, so no recalc loop)
+    $tree.find('input[type="checkbox"]').prop('checked', false);
+    $tree.find('.ct-feat-badge').remove();
+    $tree.find('li.hide').removeClass('hide'); // undo hiding from a previous AI search
+    featureSelections = {};
+ 
+    var $topCbs = $tree.children('li').children('.ct-row').find('.ct-lbl > input[type="checkbox"]');
+    var $subCbs = $tree.find('.ct-sub input[type="checkbox"]');
+ 
+    function same(a, b) { return !!a && !!b && normList(a) === normList(b); }
+ 
+    filters.forEach(function(f) {
+        if (!f) return;
+ 
+        var module   = f.module || '';
+        var category = f.category || '';
+        var types    = Array.isArray(f.feature_type) ? f.feature_type : [];
+ 
+        // ── Top level: the filter's module ──
+        var $top = $topCbs.filter(function() { return same(this.value, module); });
+        $top.prop('checked', true);
+        var topValues = $top.map(function() { return this.value; }).get();
+ 
+        // ── Sub level: the filter's category ──
+        // Prefer the sub-item under the ticked module; if the module wasn't
+        // found in the tree, take any sub-item with that name.
+        var $sub = $subCbs.filter(function() {
+            if (!same(this.value, category)) return false;
+            return !topValues.length || topValues.indexOf(this.dataset.module) !== -1;
+        });
+        if (!$sub.length) return;
+ 
+        $sub.each(function() {
+            var parent = this.dataset.module;
+            var subVal = this.value;
+ 
+            $(this).prop('checked', true);
+ 
+            // Make sure its parent is ticked too
+            $topCbs.filter(function() { return this.value === parent; }).prop('checked', true);
+ 
+            // Feature types -> modal pre-selection + count badge on the row
+            if (types.length) {
+                featureSelections[parent] = featureSelections[parent] || {};
+                featureSelections[parent][subVal] = types.map(function(t) {
+                    return { value: t, module: parent, subModule: subVal };
+                });
+ 
+                var $lbl = $(this).closest('.ct-lbl');
+                $lbl.find('.ct-feat-badge').remove();
+                $lbl.find('.ct-add').after('<span class="ct-feat-badge">' + types.length + '</span>');
+            }
+        });
+    });
+ 
+    if (typeof window._updatePills === 'function') window._updatePills();
+}
+ 
+function buildFilterArrayFromSidebar() {
+    var prev = Array.isArray(window._activeFilters) ? window._activeFilters : [];
+    var out = [];
+ 
+    $('#catTree').children('li').each(function() {
+        var $topCb = $(this).children('.ct-row').find('.ct-lbl > input[type="checkbox"]');
+        if (!$topCb.prop('checked')) return;
+ 
+        var module = $topCb.val();
+        var $subs  = $(this).find('.ct-sub input[type="checkbox"]:checked');
+ 
+        if (!$subs.length) {
+            out.push({ category: '', module: module, feature_type: [], features: [] });
+            return;
+        }
+ 
+        $subs.each(function() {
+            var category = this.value;
+            var types = ((featureSelections[module] || {})[category] || []).map(function(f) { return f.value; });
+            var old = prev.find(function(p) {
+                return normList(p.module) === normList(module) && normList(p.category) === normList(category);
+            });
+ 
+            out.push({
+                category:     category,
+                module:       module,
+                feature_type: types,
+                features:     old && Array.isArray(old.features) ? old.features : []
+            });
+        });
+    });
+ 
+    return out;
+}
+
 function applyFilters(filters, vendors) {
-    if (!filters || !Array.isArray(vendors)) return [];
-  
+    if (Array.isArray(filters)) return applyFilterArray(filters, vendors);
+ 
     return vendors
         .map(vendor => {
             const company = vendor?.data?.company;
@@ -1924,10 +2643,11 @@ function applyFilters(filters, vendors) {
 
             // ── Required Features ──────────────────────────
             // features are optional_features
-            (filters?.optional_features || []).forEach(feature => {
+            (filters?.required_feature_type || []).forEach(feature => {
                 filtersCount++;
 
                 const availableFeatures = extractAvailableFeatures(company.modules);
+                console.log('availableFeatures', availableFeatures);
                 if (availableFeatures.includes(feature)) {
                     score++;
                     matched.push(`${feature} feature`);
@@ -1975,7 +2695,7 @@ function applyFilters(filters, vendors) {
 function extractAvailableFeatures(taxonomy) {
     return Object.values(taxonomy).flatMap(subModules =>
         Object.values(subModules).flatMap(features =>
-            features.map(feature => feature.name)
+            Array.isArray(features) ? features.map(feature => feature.name) : []
         )
     );
 }

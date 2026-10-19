@@ -863,16 +863,12 @@ a { text-decoration: none; color: inherit; }
   (function(){
     document.getElementById('searchBtn').addEventListener('click', function(){
       const q = document.getElementById('query').value.trim();
+      if (!q) return;
 
-      if (role != 'hr-professional'){ location.href = `${role}/`; return;}
-      // console.log('in here', q);
-      // if (!q){
-      //   showToast('Enter text to begin search', 'error');
-      //   return;
-      // } 
-
+      if (role !== 'undefined' && role != 'hr-professional'){ location.href = `${role}/`; return;}
+     
       if (q) setCookie('query', q);
-      location.href = `db/?q=${q}`;
+      location.href = `db/?q=${encodeURIComponent(q)}`;
     });
   })();
 </script>

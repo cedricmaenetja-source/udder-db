@@ -1146,10 +1146,70 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 @keyframes vd-spin {
     to { transform: rotate(360deg); }
 }
+#vendors.vendors-loading{opacity:0.45;pointer-events:none;transition:opacity 0.15s ease}
+.filters.filters-loading{opacity:0.6;pointer-events:none;transition:opacity 0.15s ease}
+.ct-add {
+  margin-left: 6px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 3px;
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  color: var(--t3);
+}
+.ct-add:hover { background: #e0e0e0; }
+
+.feat-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.feat-modal {
+  background: #fff; width: 520px; max-height: 70vh;
+  border-radius: 6px; display: flex; flex-direction: column;
+  overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.feat-modal-header {
+  padding: 10px 14px; font-weight: 600;
+  border-bottom: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.feat-close { border: none; background: none; font-size: 18px; cursor: pointer; }
+.feat-modal-body { padding: 10px 14px; overflow-y: auto; }
+.feat-modal-body label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0; font-size: 14px; cursor: pointer;
+}
+.feat-modal-footer {
+  padding: 10px 14px; border-top: 1px solid #eee;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+.feat-modal-footer button { padding: 5px 12px; cursor: pointer; }
+.feat-save { background: #2563eb; color: #fff; border: none; border-radius: 4px; }
+.feat-check:checked{
+  background: var(--o);
+}
 </style>
 </head>
 <body>
-
+<div id="featModalOverlay" class="feat-modal-overlay" style="display:none;">
+  <div class="feat-modal">
+    <div class="feat-modal-header">
+      <span>Feature Types — <span id="featModalModule"></span></span>
+      <button type="button" class="feat-close" onclick="closeFeatureModal()">&times;</button>
+    </div>
+    <div class="feat-modal-body" id="featModalList"></div>
+    <div class="feat-modal-footer">
+      <button class="vd-ut-btn" style="background: white;color: #0f0f0f;width: auto;" type="button" onclick="closeFeatureModal()">Cancel</button>
+      <button type="button" class="feat-save" onclick="saveFeatureSelection()" style="background: var(--o);">Save</button>
+    </div>
+  </div>
+</div>
 <header class="topbar">
   <button class="tb-hamburger" id="sidebarToggle" aria-label="Open menu">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -1508,6 +1568,7 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;line-height:1.5;-web
 
         <div class="vd-main-col">
           <div class="vd-tab-pane active" id="vd-overview">
+            <div style="margin-bottom: 20px;"><h2 class="vd-h2" style="margin-top:0">Modules</h2><p class="vd-para" id="vdModules"></p></div>
             <div><div class="vd-eyebrow">Tagline</div><div class="vd-tagline" id="vdTagline"></div></div>
             <div><h2 class="vd-h2">What it does</h2><p class="vd-para" id="vdWhatItDoes"></p></div>
             <div><h2 class="vd-h2">Categories</h2><div class="vd-chips" id="vdCategories"></div></div>
@@ -2400,7 +2461,9 @@ window.addEventListener('resize',checkBreakpoint);checkBreakpoint();
 /* Search modal */
 var searchModal=document.getElementById('searchModal');
 var tbInput=document.getElementById('search');
-if(tbInput)tbInput.addEventListener('focus',function(){if(searchModal)searchModal.classList.add('open');setTimeout(function(){var mi=document.getElementById('modalSearch');if(mi)mi.focus()},50)});
+if(tbInput)tbInput.addEventListener('focus',function(){
+    window.requestOpenSearchModal(tbInput);
+});
 if(searchModal)searchModal.addEventListener('click',function(e){if(e.target===searchModal)searchModal.classList.remove('open')});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&searchModal)searchModal.classList.remove('open')});
 
@@ -2438,7 +2501,11 @@ async function openVendorDetail(card){
   if (region !== '') region = region.replaceAll(',', ' · ');
   
   window._loadAlsoEvaluating(card.dataset.id);
-
+  const modulesList = [...new Set(modules.split(','))];
+  modulesList.sort(function (a, b) {
+    return a.localeCompare(b, undefined, { sensitivity: 'base' });
+  });
+  
   // trending badge
   if(card.dataset.trending==='true'){
     bh+='<span class="vd-badge-pill vd-badge-trending">'+
@@ -2455,6 +2522,13 @@ async function openVendorDetail(card){
       implementations+' Udder-led implementation'+(parseInt(implementations)!==1?'s':'')+
     '</span>';
   }
+
+  let mlistedModules = '';
+  modulesList.forEach(element => {
+    mlistedModules += `<li>${element.trim()}</li>`;
+  });
+
+  $('#vdModules').append(`<ul style="margin-left: 15px;">${mlistedModules}<ul>`);
 
   document.getElementById('vdBadges').innerHTML=bh;
   document.getElementById('vdName').textContent=name;
@@ -3287,6 +3361,51 @@ window.updateShortlistCount = function updateShortlistCount(){
   saveShortlistToStorage();
 }
 
+function addShortlistedToCompare(name){
+  var item = shortlistItems[name];
+  if(!item) return;
+
+  var id = item.card.dataset.id || '';
+  var liveCard = (id && document.querySelector('#vendors .card[data-id="' + CSS.escape(id) + '"]')) ||
+    Array.from(document.querySelectorAll('#vendors .card')).find(function(c){
+      return (c.dataset.name || '').toLowerCase().trim() === name.toLowerCase().trim();
+    });
+
+  if(!liveCard){
+    window.showSidebarToast(name + " isn't in the current results. Clear your filters and try again.");
+    return;
+  }
+
+  enhanceCard(liveCard); 
+  var addBtn = liveCard.querySelector('.card-add-btn');
+  if(!addBtn) return;
+
+  var selected = window._compare ? window._compare.getSelected() : [];
+
+  if(addBtn.classList.contains('added') || selected.indexOf(liveCard) !== -1){
+    window.showSidebarToast(name + ' is already in your comparison');
+  } else if(selected.length >= 3){
+    window.showSidebarToast('Comparison is full (max 3). Remove a vendor to add ' + name);
+    return;
+  } else {
+    addBtn.click(); 
+  }
+
+  closeShortlist();
+  document.querySelectorAll('.sb-nav a').forEach(function(a){ a.classList.remove('on'); });
+  var disc = document.getElementById('discoverBtn');
+  if(disc) disc.classList.add('on');
+
+  var count = window._compare ? window._compare.getSelected().length : 0;
+  if(count >= 2){
+    window.showSidebarToast(name + ' added. ' + count + ' vendors selected, click Compare to view');
+  } else {
+    window.showSidebarToast(name + ' added. Select at least one more vendor to compare');
+  }
+
+  liveCard.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+
 /* Render table */
 function renderShortlistTable(){
   var items = Object.values(shortlistItems);
@@ -3375,6 +3494,10 @@ function renderShortlistTable(){
       var n = this.dataset.name;
       var it = shortlistItems[n];
       if(it){ closeShortlist(); openEvaluation(it.card); }
+    });
+
+    el.querySelector('.compare-mp').addEventListener('click', function(){
+      addShortlistedToCompare(this.dataset.name);
     });
 
     list.appendChild(el);
@@ -4847,6 +4970,15 @@ function loadComparisonsFromStorage(){
     return Array.from(document.querySelectorAll('#vendors .card.compare-selected'));
   }
 
+  function snapshotCard(card){
+    var keep = ['name','logo','modules','subcategories','features','integrations','headcount',
+                'region','location','description','intro','score','id','hq','founded','pricing',
+                'deployment','languages','certifications','trending','implementations','categories','employees'];
+    var out = {};
+    keep.forEach(function(k){ if(card.dataset[k]) out[k] = card.dataset[k]; });
+    return out;
+  }
+
   /* ── SAVE MODAL ── */
   function openSaveCompModal(){
     var cards = getSelectedCards();
@@ -4898,7 +5030,14 @@ function loadComparisonsFromStorage(){
     var cards = getSelectedCards();
     var vendors = cards.map(function(card){
       var b = card.querySelector('.verification-badge');
-      return { name: card.dataset.name||'', logo: card.dataset.logo||'', modules: card.dataset.modules||'', id: card.dataset.id||'', badge: b ? b.textContent.trim() : '' };
+      return { 
+        name: card.dataset.name||'', 
+        logo: card.dataset.logo||'', 
+        modules: card.dataset.modules||'', 
+        id: card.dataset.id||'', 
+        badge: b ? b.textContent.trim() : '',
+        data: snapshotCard(card)
+      };
     });
     savedComparisons.push({ id: Date.now(), title: title, vendors: vendors, savedAt: new Date() });
     renderSavedComparisons();
@@ -4977,61 +5116,48 @@ function loadComparisonsFromStorage(){
   });
 
   /* ── OPEN SAVED COMPARISON ── */
+    /* Find the live card, else the shortlist card, else rebuild one from the saved snapshot */
+  function resolveComparisonCard(v){
+    var name = (v.name||'').toLowerCase().trim();
+    var live = (v.id && document.querySelector('#vendors .card[data-id="' + CSS.escape(String(v.id)) + '"]')) ||
+      Array.from(document.querySelectorAll('#vendors .card')).find(function(c){
+        return (c.dataset.name||'').toLowerCase().trim() === name;
+      });
+    if(live) return live;
+
+    var sl = window.shortlistItems && window.shortlistItems[v.name];
+    if(sl && sl.card) return sl.card;
+
+    var data = v.data || { name: v.name, logo: v.logo, modules: v.modules, id: v.id };
+    var card = document.createElement('div');
+    card.className = 'card';
+    Object.keys(data).forEach(function(k){ if(data[k] != null) card.dataset[k] = data[k]; });
+    if(v.badge){
+      var badge = document.createElement('span');
+      badge.className = 'verification-badge';
+      badge.textContent = v.badge;
+      card.appendChild(badge);
+    }
+    return card;
+  }
+
   function openSavedComparison(id){
-    var comp = savedComparisons.find(function(c){ return c.id===id; });
+    var comp = savedComparisons.find(function(c){ return c.id === id; });
     if(!comp || !comp.vendors.length) return;
 
-    /* Close My Platforms panel */
-    var slPanel = document.getElementById('shortlistPanel');
-    if(slPanel) slPanel.classList.remove('open');
-
-    var compareBtn       = document.getElementById('compareBtn');
-    var compareActionBtn = document.getElementById('compareActionBtn');
-
-    /* Step 1 — if already in compare mode, exit it first so compare.js
-      resets its internal selectedCards array and DOM state cleanly */
-    if(compareBtn && compareBtn.classList.contains('active')){
-      compareBtn.click(); /* triggers exitMode() inside compare.js */
+    if(!window._compare || !window._compare.openWith){
+      window.showSidebarToast('Comparison is unavailable. Please refresh the page.');
+      return;
     }
 
-    /* Step 2 — enter compare mode (triggers enterMode() inside compare.js) */
-    setTimeout(function(){
-      if(compareBtn) compareBtn.click();
+    var cards = comp.vendors.map(resolveComparisonCard).filter(Boolean);
+    if(cards.length < 2){
+      window.showSidebarToast('This comparison needs at least 2 vendors');
+      return;
+    }
 
-      /* Step 3 — now click each matching card's add button so compare.js
-        pushes them into its own selectedCards array */
-      setTimeout(function(){
-        var savedNames = comp.vendors.map(function(v){
-          return (v.name||'').toLowerCase().trim();
-        });
-        var matched = 0;
-
-        document.querySelectorAll('#vendors .card').forEach(function(card){
-          var cardName = (card.dataset.name||'').toLowerCase().trim();
-          if(savedNames.indexOf(cardName) === -1) return;
-          var addBtn = card.querySelector('.card-add-btn');
-          if(addBtn && !addBtn.classList.contains('added')){
-            addBtn.click(); /* compare.js handles this — pushes to selectedCards, updates UI */
-            matched++;
-          }
-        });
-
-        /* Step 4 — open the panel. compareActionBtn is now enabled
-          because compare.js called syncActionBtn() after each click */
-        setTimeout(function(){
-          var actionBtn = document.getElementById('compareActionBtn');
-          if(actionBtn && !actionBtn.classList.contains('hide')){
-            actionBtn.click(); /* triggers buildPanel() + opens #compareModal */
-          } else {
-            window.showSidebarToast(matched === 0
-              ? 'None of these vendors are currently loaded — try adjusting your filters'
-              : 'Only ' + matched + ' of ' + comp.vendors.length + ' vendors found — others may be filtered out'
-            );
-          }
-        }, 80);
-
-      }, 80);
-    }, 80);
+    document.getElementById('shortlistPanel').classList.remove('open');
+    window._compare.openWith(cards);
   }
 
   /* ── RENDER ── */

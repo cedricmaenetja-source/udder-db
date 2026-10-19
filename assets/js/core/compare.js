@@ -49,6 +49,10 @@
 
   /* ── Mode toggle ── */
   $(document).on('click', '#compareBtn', function () {
+    const text = $('#compareBtn').text().trim();
+    
+    if (text != 'Cancel') return;
+
     if (compareMode) {
       exitMode();
     } else {
@@ -56,15 +60,21 @@
     }
   });
 
+  enterMode();
+
   function enterMode() {
     compareMode = true;
+  
     $('#compareBtn').addClass('active').html(ICON_CMP + '&nbsp;Cancel');
+    if (selectedCards.length == 0){
+      $('#compareBtn').addClass('hide');
+    }
+
     $('#vendors').addClass('compare-mode');
     syncActionBtn();
   }
 
   function exitMode() {
-    console.log('exitMode called', new Error().stack);
     compareMode   = false;
     selectedCards = [];
     $('#compareBtn').removeClass('active').html(ICON_CMP + '&nbsp;Select to compare');
@@ -72,6 +82,7 @@
     $('#vendors .card').removeClass('compare-selected')
       .find('.card-add-btn').removeClass('added').html(ICON_ADD + '&nbsp;Add');
     syncActionBtn();
+    enterMode();
   }
 
   /* ── Add button ── */
@@ -83,11 +94,15 @@
       selectedCards.splice(selectedCards.indexOf(card), 1);
       $(card).removeClass('compare-selected');
       $btn.removeClass('added').html(ICON_ADD + '&nbsp;Add');
+      if (selectedCards.length == 0) $('#compareBtn').addClass('hide');
     } else {
       if (selectedCards.length >= MAX) { showToast('Maximum ' + MAX + ' vendors can be compared.'); return; }
       selectedCards.push(card);
       $(card).addClass('compare-selected');
       $btn.addClass('added').html(ICON_TICK + '&nbsp;Added');
+
+      if ($('#compareBtn').hasClass('hide')) $('#compareBtn').removeClass('hide');
+      
       if (window._user){
           const response = await fetch('/api/supabase?action=addComparison', {
             method: 'POST',
@@ -280,19 +295,6 @@
       });
     });
 
-    /* ── Modules section ── */
-    if (allModules.length) {
-      body += secHead('Area');
-      allModules.sort().forEach(function (item) {
-        var key = item.toLowerCase();
-        body += boolRow(item, vendors.map(function (v) {
-          return v.modules.toLowerCase().split(',').some(function (m) {
-            return m.trim() === key;
-          });
-        }));
-      });
-    }
-
     /* ── Subcategories section ── */
     if (allSubcategories.length) {
       body += secHead('Category');
@@ -301,6 +303,19 @@
         body += boolRow(item, vendors.map(function (v) {
           return v.subcategories.toLowerCase().split(',').some(function (s) {
             return s.trim() === key;
+          });
+        }));
+      });
+    }
+
+    /* ── Modules section ── */
+    if (allModules.length) {
+      body += secHead('Modules');
+      allModules.sort().forEach(function (item) {
+        var key = item.toLowerCase();
+        body += boolRow(item, vendors.map(function (v) {
+          return v.modules.toLowerCase().split(',').some(function (m) {
+            return m.trim() === key;
           });
         }));
       });
@@ -517,9 +532,16 @@
 
   /* ── Toast ── */
   function showToast(msg) {
+    injectCSS();
     var $t = $('<div class="cm-toast">' + msg + '</div>').appendTo('body');
-    setTimeout(function () { $t.addClass('show'); }, 10);
-    setTimeout(function () { $t.removeClass('show'); setTimeout(function () { $t.remove(); }, 300); }, 2800);
+   
+    $t[0].offsetWidth;
+    $t.addClass('show');
+
+    setTimeout(function () {
+      $t.removeClass('show');
+      setTimeout(function () { $t.remove(); }, 300);
+    }, 2800);
   }
 
   /* ── CSS ── */
@@ -598,7 +620,7 @@
     new MutationObserver(function () {
       if (!compareMode) return;
       $('#vendors .card').each(function () {
-        if (!$(this).find('.compare-check').length) $(this).append('<div class="compare-check"></div>');
+        if (!$(this).find('.compare-check').length) $(this).append('<div class="compare-check" style="display:none !important"></div>');
       });
     }).observe(vendorsEl, { childList: true });
   }
@@ -610,6 +632,26 @@ window._compare = {
       buildPanel(selectedCards);
       $('#compareModal').addClass('open');
     }
+  },
+  /* Replace the selection with these cards and open the panel (no click simulation, no analytics) */
+  openWith: function (cards) {
+    $('#vendors .card').removeClass('compare-selected')
+      .find('.card-add-btn').removeClass('added').html(ICON_ADD + '&nbsp;Add');
+
+    selectedCards = (cards || []).slice(0, MAX);
+    selectedCards.forEach(function (card) {
+      $(card).addClass('compare-selected')
+        .find('.card-add-btn').addClass('added').html(ICON_TICK + '&nbsp;Added');
+    });
+
+    if (selectedCards.length) $('#compareBtn').removeClass('hide');
+    syncActionBtn();
+
+    if (selectedCards.length >= 2) {
+      buildPanel(selectedCards);
+      $('#compareModal').addClass('open');
+    }
+    return selectedCards.length;
   },
   enterMode: enterMode,
   exitMode: exitMode,
